@@ -1,18 +1,31 @@
 <?php
 
-if(!function_exists('curl_init')) {
-    throw new Exception('The Blockonomics client library requires the CURL PHP extension.');
-}
+class Blockonomics
+{
+  const BASE URL = 'https://www.blockonomics.co';
+  const NEW_ADDRESS_URL = $BASE_URL. '/api/new_address';
+  const PRICE_URL = $BASE_URL.'/api/price';
 
-require_once(dirname(__FILE__) . '/Blockonomics/Exception.php');
-require_once(dirname(__FILE__) . '/Blockonomics/ApiException.php');
-require_once(dirname(__FILE__) . '/Blockonomics/ConnectionException.php');
-require_once(dirname(__FILE__) . '/Blockonomics/Coinbase.php');
-require_once(dirname(__FILE__) . '/Blockonomics/Requestor.php');
-require_once(dirname(__FILE__) . '/Blockonomics/Rpc.php');
-require_once(dirname(__FILE__) . '/Blockonomics/OAuth.php');
-require_once(dirname(__FILE__) . '/Blockonomics/TokensExpiredException.php');
-require_once(dirname(__FILE__) . '/Blockonomics/Authentication.php');
-require_once(dirname(__FILE__) . '/Blockonomics/SimpleApiKeyAuthentication.php');
-require_once(dirname(__FILE__) . '/Blockonomics/OAuthAuthentication.php');
-require_once(dirname(__FILE__) . '/Blockonomics/ApiKeyAuthentication.php');
+  public function __construct()
+  {
+  }
+
+
+  public function new_address($api_key)
+  {
+
+    $options = array( 
+      'http' => array(
+        'header'  => 'Authorization: Bearer '.$api_key,
+        'method'  => 'POST',
+        'content' => ''
+      )   
+    );  
+    $context = stream_context_create($options);
+    $contents = file_get_contents(Blockonomics::NEW_ADDRESS_URL, false, $context);
+    $new_address = json_decode($contents);
+    return $new_address;
+  }
+
+
+}

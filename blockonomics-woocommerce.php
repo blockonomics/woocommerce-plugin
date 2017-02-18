@@ -177,7 +177,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
 			function process_payment($order_id) {
 
-				require_once(plugin_dir_path(__FILE__) . 'blockonomics-php' . DIRECTORY_SEPARATOR . 'Coinbase.php');
+				require_once(plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php');
 				global $woocommerce;
 
 				$order = new WC_Order($order_id);
@@ -202,7 +202,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
 				return array(
 					'result'   => 'success',
-					'redirect' => "/wp-content/plugins/blockonomics-woocommerce/index.html"
+					'redirect' => "/wp-content/plugins/blockonomics-woocommerce/views/index.html"
 				);
 
 				$api_key    = $this->get_option('apiKey');
