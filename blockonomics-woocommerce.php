@@ -202,7 +202,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
 				return array(
 					'result'   => 'success',
-					'redirect' => "/wp-content/plugins/blockonomics-woocommerce/test.html"
+					'redirect' => "/wp-content/plugins/blockonomics-woocommerce/index.html"
 				);
 
 				$api_key    = $this->get_option('apiKey');
