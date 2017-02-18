@@ -64,7 +64,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 				$this->icon = WP_PLUGIN_URL . "/" . plugin_basename(dirname(__FILE__)) . '/blockonomics.png';
 
 				$this->has_fields        = false;
-				$this->order_button_text = __('Proceed to Coinbase', 'blockonomics-woocommerce');
+				$this->order_button_text = __('Pay with bitcoin', 'blockonomics-woocommerce');
 				$this->notify_url        = $this->construct_notify_url();
 
 				$this->init_form_fields();
@@ -73,6 +73,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 				$this->title       = $this->get_option('title');
 				$this->description = $this->get_option('description');
 
+        add_option('blockonomics_orders', array());
 				// Actions
 				add_action('woocommerce_update_options_payment_gateways_' . $this->id, array(
 					$this,
@@ -190,15 +191,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 				$cancel_url = add_query_arg('cancelled', true, $cancel_url);
 				$cancel_url = add_query_arg('order_key', $order->order_key, $cancel_url);
 
-				$params = array(
-					'name'               => 'Order #' . $order_id,
-					'price_string'       => $order->get_total(),
-					'price_currency_iso' => get_woocommerce_currency(),
-					'callback_url'       => $this->notify_url,
-					'custom'             => $order_id,
-					'success_url'        => $success_url,
-					'cancel_url'         => $cancel_url,
-				);
 
 				$api_key    = $this->get_option('apiKey');
 				if ($api_key == '') {
@@ -214,6 +206,18 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 					$blockonomics = new Blockonomics;
           $address     = $blockonomics->new_address($api_key);
           $price = $blockonomics->get_price(get_woocommerce_currency());
+          $blockonomics_orders = get_option('blockonomics_orders');
+          $order = array(
+            'value'              => $order->get_total(),
+            'satoshi'            => intval(1.0e8*$order->get_total()/$price),
+            'currency'           => get_woocommerce_currency(),
+            'address'            => $address,
+            'status'             => 0,
+            'timestamp'          => '',
+            'txid'               => ''
+          );
+          $blockonomics_orders[$order_id] = $order;
+          update_option('blockonomics_orders', $blockonomics_orders);
 				}
 				catch (Exception $e) {
 					$order->add_order_note(__('Error while processing blockonomics payment:', 'blockonomics-woocommerce') . ' ' . var_export($e, TRUE));

@@ -33,6 +33,7 @@ class Blockonomics
     $context = stream_context_create($options);
     $contents = file_get_contents(Blockonomics::PRICE_URL. "?currency=$currency", false, $context);
     $price = json_decode($contents);
+    return $price->price;
   }
 
 }
