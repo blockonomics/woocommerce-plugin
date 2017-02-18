@@ -212,7 +212,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
 				try {
 					$blockonomics = new Blockonomics;
-					$address     = $blockonomics->new_address($api_key);
+          $address     = $blockonomics->new_address($api_key);
+          $price = $blockonomics->get_price(get_woocommerce_currency());
 				}
 				catch (Exception $e) {
 					$order->add_order_note(__('Error while processing blockonomics payment:', 'blockonomics-woocommerce') . ' ' . var_export($e, TRUE));
@@ -226,7 +227,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
 				return array(
 					'result'   => 'success',
-					'redirect' => "/wp-content/plugins/blockonomics-woocommerce/views/index.html?addr=$address"
+					'redirect' => "/wp-content/plugins/blockonomics-woocommerce/views/index.html"
 				);
 			}
 

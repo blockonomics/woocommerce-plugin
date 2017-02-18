@@ -4,7 +4,7 @@ class Blockonomics
 {
   const BASE_URL = 'http://localhost:8080';
   const NEW_ADDRESS_URL = Blockonomics::BASE_URL. '/api/new_address';
-  const PRICE_URL = BASE_URL.'/api/price';
+  const PRICE_URL = Blockonomics::BASE_URL.'/api/price';
 
   public function __construct()
   {
@@ -27,5 +27,12 @@ class Blockonomics
     return $new_address->address;
   }
 
+  public function get_price($currency)
+  {
+    $options = array( 'http' => array( 'method'  => 'GET') );  
+    $context = stream_context_create($options);
+    $contents = file_get_contents(Blockonomics::PRICE_URL. "?currency=$currency", false, $context);
+    $price = json_decode($contents);
+  }
 
 }
