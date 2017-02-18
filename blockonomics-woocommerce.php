@@ -200,15 +200,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 					'cancel_url'         => $cancel_url,
 				);
 
-				return array(
-					'result'   => 'success',
-					'redirect' => "/wp-content/plugins/blockonomics-woocommerce/views/index.html"
-				);
-
 				$api_key    = $this->get_option('apiKey');
-				$api_secret = $this->get_option('apiSecret');
-
-				if ($api_key == '' || $api_secret == '') {
+				if ($api_key == '') {
 					if ( version_compare( $woocommerce->version, '2.1', '>=' ) ) {
 						wc_add_notice(__('Sorry, but there was an error processing your order. Please try again or try a different payment method. (plugin not configured)', 'blockonomics-woocommerce'), 'error' );
 					} else {
@@ -218,8 +211,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 				}
 
 				try {
-					$blockonomics = Coinbase::withApiKey($api_key, $api_secret);
-					$code     = $blockonomics->createButtonWithOptions($params)->button->code;
+					$blockonomics = new Blockonomics;
+					$address     = $blockonomics->new_address($api_key);
 				}
 				catch (Exception $e) {
 					$order->add_order_note(__('Error while processing blockonomics payment:', 'blockonomics-woocommerce') . ' ' . var_export($e, TRUE));
@@ -233,7 +226,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
 				return array(
 					'result'   => 'success',
-					'redirect' => "https://blockonomics.com/checkouts/$code"
+					'redirect' => "/wp-content/plugins/blockonomics-woocommerce/views/index.html?addr=$address"
 				);
 			}
 
