@@ -212,8 +212,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
             'satoshi'            => intval(1.0e8*$order->get_total()/$price),
             'currency'           => get_woocommerce_currency(),
             'address'            => $address,
-            'status'             => 0,
-            'timestamp'          => '',
+            'status'             => -1,
+            'timestamp'          => time(),
             'txid'               => ''
           );
           $blockonomics_orders[$order_id] = $order;
@@ -231,7 +231,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
 				return array(
 					'result'   => 'success',
-					'redirect' => "/wp-content/plugins/blockonomics-woocommerce/views/index.html"
+					'redirect' => "/wp-content/plugins/blockonomics-woocommerce/views/index.html#/$order_id"
 				);
 			}
 

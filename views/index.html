@@ -9,16 +9,16 @@
     <link rel="stylesheet" href="css/style.css">
   </head>
 
-  <body>
+  <body ng-controller="CheckoutController">
 <div class="form">
   <div class="col-md-7 col-md-offset-3 invoice">
   <!-- heading row -->
   <div class="row">
     <div class="invoice-heading"> 
-      <span class="ng-binding"> Order# {{invoice.order_id}}</span>
-      <span ng-show="invoice.status == -1" class="invoice-heading-right" >{{clock*1000 | date:'mm:ss' : 'UTC'}}</span>
+      <span class="ng-binding"> Order# {{order_id}}</span>
+      <span ng-show="order.status == -1" class="invoice-heading-right" >{{clock*1000 | date:'mm:ss' : 'UTC'}}</span>
     </div>
-    <div class="progress" ng-hide="invoice.status != -1">
+    <div class="progress" ng-hide="order.status != -1">
       <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width:{{progress}}%">
       </div>
     </div>
@@ -28,25 +28,25 @@
 
       <div class="col-xs-12">
         <!-- Status -->
-        <label ng-show="invoice.status != -1" for="invoice-amount" style="margin-top:15px;" >Status</label>
+        <label ng-show="order.status != -1" for="invoice-amount" style="margin-top:15px;" >Status</label>
         <div class="value ng-binding" style="margin-bottom:10px;" >
-          <strong style="color: #956431;" ng-show="invoice.status == -1" >To
+          <strong style="color: #956431;" ng-show="order.status == -1" >To
             pay, send exact amount of BTC to the given address</strong>
-          <strong style="color: rgb(239, 121, 79)" ng-show="invoice.status == -3"> Payment Expired</strong>
-          <strong style="color: rgb(239, 121, 79)" ng-show="invoice.status == -2"> Payment Error</strong>
-          <strong style="color: #956431;" ng-show="invoice.status == 0"> Unconfirmed</strong>
-          <strong style="color: #956431;" ng-show="invoice.status == 1"> Partially Confirmed</strong>
-          <strong style="color: #956431;" ng-show="invoice.status >= 2" >Confirmed</strong>
+          <strong style="color: rgb(239, 121, 79)" ng-show="order.status == -3"> Payment Expired</strong>
+          <strong style="color: rgb(239, 121, 79)" ng-show="order.status == -2"> Payment Error</strong>
+          <strong style="color: #956431;" ng-show="order.status == 0"> Unconfirmed</strong>
+          <strong style="color: #956431;" ng-show="order.status == 1"> Partially Confirmed</strong>
+          <strong style="color: #956431;" ng-show="order.status >= 2" >Confirmed</strong>
         </div>
       </div>
 
       <div class="col-xs-6 invoice-amount"  style="border-right:#ccc 1px solid;">
         <label for="invoice-amount">Amount</label>
         <div class="value ng-binding">
-          <strong style="color: #956431;">{{invoice.bits/1.0e8}}</strong>
+          <strong style="color: #956431;">{{order.satoshi/1.0e8}}</strong>
           <small>BTC</small> ⇌
-          <strong style="color: #956431;">{{invoice.value}}</strong> 
-          <small>USD</small>
+          <strong style="color: #956431;">{{order.value}}</strong> 
+          <small>{{order.currency}}</small>
         </div>
 
 
@@ -59,8 +59,8 @@
         <div class="row qr-code-box">
           <div class="col-xs-5 qr-code">
             <div class="qr-enclosure">
-              <a href="bitcoin:{{invoice.addr}}?amount={{invoice.bits/1.0e8}}">
-              <qrcode data="bitcoin:{{invoice.addr}}?amount={{invoice.bits/1.0e8}}" size="220">
+              <a href="bitcoin:{{order.address}}?amount={{order.satoshi/1.0e8}}">
+              <qrcode data="bitcoin:{{order.address}}?amount={{order.satoshi/1.0e8}}" size="220">
               <canvas class="qrcode"></canvas>
               </qrcode>
               </a>
@@ -70,21 +70,17 @@
       </div>
 
       <div class="col-xs-6 invoice-status">
-        <label ng-hide="invoice.status == -1" for="invoice-amount" >Payment Details</label>
-        <div ng-hide="invoice.status == -1" class="value ng-binding">
-          Received : <strong style="color: #956431;">{{invoice.bits_payed/1.0e8}}</strong>
-          <small>BTC</small> 
-        </div>
-        <div ng-show="invoice.status !=-1 " class="value ng-binding" style="margin-bottom:10px;" >
+        <label ng-hide="order.status == -1" for="invoice-amount" >Payment Details</label>
+        <div ng-show="order.status !=-1 " class="value ng-binding" style="margin-bottom:10px;" >
           Transaction : <a style="font-weight:bold;color: #956431;" target="_blank"
-                           href="http://www.blockonomics.co/api/tx?txid={{invoice.txid}}&addr={{invoice.addr}}">{{invoice.txid |limitTo: 20}}</a>
+                           href="http://www.blockonomics.co/api/tx?txid={{order.txid}}&addr={{order.address}}">{{order.txid |limitTo: 20}}</a>
         </div>
       </div>
 
     </div>
 
           <div class="row">
-        <input type="text" class="invoice-address" ng-value="invoice.addr" readonly="readonly">
+        <input type="text" class="invoice-address" ng-value="order.address" readonly="readonly">
       </div>
   </div>
   </div>
