@@ -56,7 +56,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 		 * @version     2.0.1
 		 * @author      Coinbase Inc.
 		 */
-		class WC_Gateway_Coinbase extends WC_Payment_Gateway {
+		class WC_Gateway_Blockonomics extends WC_Payment_Gateway {
 			var $notify_url;
 
 			public function __construct() {
@@ -235,7 +235,11 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 				);
 			}
 
-			function check_blockonomics_callback() {
+      function check_blockonomics_callback() {
+        $orderid = $_REQUEST['order_id'];
+        $options = get_option('blockonomics_orders');
+        header("Content-Type: application/json");
+        exit(json_encode($options[$orderid]));
 				$callback_secret = get_option("blockonomics_callback_secret");
 				if ($callback_secret != false && $callback_secret == $_REQUEST['callback_secret']) {
 					$post_body = json_decode(file_get_contents("php://input"));
@@ -292,7 +296,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 		 * Add this Gateway to WooCommerce
 		 **/
 		function woocommerce_add_blockonomics_gateway($methods) {
-			$methods[] = 'WC_Gateway_Coinbase';
+			$methods[] = 'WC_Gateway_Blockonomics';
 			return $methods;
 		}
 
@@ -319,5 +323,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 		add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
 	}
 
-	add_action('plugins_loaded', 'blockonomics_woocommerce_init', 0);
+
+
+add_action('plugins_loaded', 'blockonomics_woocommerce_init', 0);
 }
