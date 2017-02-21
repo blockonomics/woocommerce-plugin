@@ -2,15 +2,15 @@
 /**
  * Plugin Name: blockonomics-woocommerce
  * Plugin URI: https://github.com/blockonomics/blockonomics-woocommerce
- * Description: Accept Bitcoin on your WooCommerce-powered website with Coinbase.
- * Version: 2.1.3
- * Author: Coinbase Inc.
- * Author URI: https://blockonomics.com
+ * Description: Accept Bitcoin on your WooCommerce-powered website with Blockonomics
+ * Version: 0.0.1
+ * Author: Blockonomics
+ * Author URI: https://www.blockonomics.com
  * License: MIT
  * Text Domain: blockonomics-woocommerce
  */
 
-/*  Copyright 2014 Coinbase Inc.
+/*  Copyright 2017 Blockonomics Inc.
 
 MIT License
 
@@ -47,14 +47,14 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 			return;
 
 		/**
-		 * Coinbase Payment Gateway
+		 * Blockonomics Payment Gateway
 		 *
-		 * Provides a Coinbase Payment Gateway.
+		 * Provides a Blockonomics Payment Gateway.
 		 *
-		 * @class       WC_Gateway_Coinbase
+		 * @class       WC_Gateway_Blockonomics
 		 * @extends     WC_Payment_Gateway
 		 * @version     2.0.1
-		 * @author      Coinbase Inc.
+		 * @author      Blockonomics Inc.
 		 */
 		class WC_Gateway_Blockonomics extends WC_Payment_Gateway {
 
@@ -88,11 +88,11 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 				));
       }
 			public function admin_options() {
-				echo '<h3>' . __('Coinbase Payment Gateway', 'blockonomics-woocommerce') . '</h3>';
+				echo '<h3>' . __('Blockonomics Payment Gateway', 'blockonomics-woocommerce') . '</h3>';
 				$blockonomics_account_email = get_option("blockonomics_account_email");
 				$blockonomics_error_message = get_option("blockonomics_error_message");
 				if ($blockonomics_account_email != false) {
-					echo '<p>' . __('Successfully connected Coinbase account', 'blockonomics-woocommerce') . " '$blockonomics_account_email'" . '</p>';
+					echo '<p>' . __('Successfully connected Blockonomics account', 'blockonomics-woocommerce') . " '$blockonomics_account_email'" . '</p>';
 				} elseif ($blockonomics_error_message != false) {
 					echo '<p>' . __('Could not validate API Key:', 'blockonomics-woocommerce') . " $blockonomics_error_message" . '</p>';
 				}
@@ -109,14 +109,14 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 				if (!parent::process_admin_options())
 					return false;
 
-				require_once(plugin_dir_path(__FILE__) . 'blockonomics-php' . DIRECTORY_SEPARATOR . 'Coinbase.php');
+				require_once(plugin_dir_path(__FILE__) . 'blockonomics-php' . DIRECTORY_SEPARATOR . 'Blockonomics.php');
 
 				$api_key    = $this->get_option('apiKey');
 				$api_secret = $this->get_option('apiSecret');
 
 				// Validate merchant API key
 				try {
-					$blockonomics = Coinbase::withApiKey($api_key, $api_secret);
+					$blockonomics = Blockonomics::withApiKey($api_key, $api_secret);
 					$user     = $blockonomics->getUser();
 					update_option("blockonomics_account_email", $user->email);
 					update_option("blockonomics_error_message", false);
@@ -139,7 +139,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
 				$success_url = add_query_arg('return_from_blockonomics', true, $this->get_return_url($order));
 
-				// Coinbase mangles the order param so we have to put it somewhere else and restore it on init
+				// Blockonomics mangles the order param so we have to put it somewhere else and restore it on init
 				$cancel_url = $order->get_cancel_order_url_raw();
 				$cancel_url = add_query_arg('return_from_blockonomics', true, $cancel_url);
 				$cancel_url = add_query_arg('cancelled', true, $cancel_url);
@@ -212,13 +212,13 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
         exit(0);  
 				}
 
-				// Legitimate order callback from Coinbase
+				// Legitimate order callback from Blockonomics
 				header('HTTP/1.1 200 OK');
 
-				// Add Coinbase metadata to the order
-				update_post_meta($order->id, __('Coinbase Order ID', 'blockonomics-woocommerce'), wc_clean($blockonomics_order->id));
+				// Add Blockonomics metadata to the order
+				update_post_meta($order->id, __('Blockonomics Order ID', 'blockonomics-woocommerce'), wc_clean($blockonomics_order->id));
 				if (isset($blockonomics_order->customer) && isset($blockonomics_order->customer->email)) {
-					update_post_meta($order->id, __('Coinbase Account of Payer', 'blockonomics-woocommerce'), wc_clean($blockonomics_order->customer->email));
+					update_post_meta($order->id, __('Blockonomics Account of Payer', 'blockonomics-woocommerce'), wc_clean($blockonomics_order->customer->email));
 				}
 
 				switch (strtolower($blockonomics_order->status)) {
@@ -230,13 +230,13 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 							exit;
 						}
 
-						$order->add_order_note(__('Coinbase payment completed', 'blockonomics-woocommerce'));
+						$order->add_order_note(__('Blockonomics payment completed', 'blockonomics-woocommerce'));
 						$order->payment_complete();
 
 						break;
 					case 'canceled':
 
-						$order->update_status('failed', __('Coinbase reports payment cancelled.', 'blockonomics-woocommerce'));
+						$order->update_status('failed', __('Blockonomics reports payment cancelled.', 'blockonomics-woocommerce'));
 						break;
 
 				}
@@ -264,7 +264,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 				}
 			}
 
-			// Coinbase order param interferes with woocommerce
+			// Blockonomics order param interferes with woocommerce
 			unset($_GET['order']);
 			unset($_REQUEST['order']);
 			if (isset($_GET['order_key'])) {
