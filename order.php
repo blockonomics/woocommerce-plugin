@@ -5,8 +5,10 @@
     <title>Bitcoin Payment - Powered by Blockonomics</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="css/bootstrap.css">
-    <link rel="stylesheet" href="css/style.css">
+<?php
+//call the wp head so  you can get most of your wordpress
+get_header();
+?>
   </head>
 
   <body ng-controller="CheckoutController">
@@ -85,13 +87,15 @@
   </div>
   </div>
 </div>
-    <script src="js/jquery.min.js"></script>
-    <script src="js/bootstrap.js"></script>
-    <script src="js/angular.js"></script>
-    <script src="js/angular-resource.js"></script>
-    <script src="js/angular-route.js"></script>
-    <script src="js/app.js"></script>
-    <script src="js/vendors.min.js"></script>
-    <script src="js/angular-qrcode.js"></script>
+    <script src="<?php echo plugins_url('js/angular.js', __FILE__ );?>"></script>
+    <script src="<?php echo plugins_url('js/angular-resource.js', __FILE__ );?>"></script>
+    <script src="<?php echo plugins_url('js/angular-route.js', __FILE__ );?>"></script>
+    <script src="<?php echo plugins_url('js/app.js', __FILE__ );?>"></script>
+    <script src="<?php echo plugins_url('js/angular-qrcode.js', __FILE__ );?>"></script>
+    <script src="<?php echo plugins_url('js/vendors.min.js', __FILE__ );?>"></script>
+<?php
+//call the wp foooter
+get_footer();
+?>
   </body>
 </html>

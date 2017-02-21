@@ -190,7 +190,10 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 			}
 
       function check_blockonomics_callback() {
-        $orderid = $_REQUEST['order_id'];
+        $dir = plugin_dir_path( __FILE__ );
+	     	include($dir."order.php");
+	      die();   
+				$orderid = $_REQUEST['order_id'];
         $orders = get_option('blockonomics_orders');
         if ($orderid){
         header("Content-Type: application/json");
