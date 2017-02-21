@@ -165,12 +165,14 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
             'value'              => $order->get_total(),
             'satoshi'            => intval(1.0e8*$order->get_total()/$price),
             'currency'           => get_woocommerce_currency(),
-            'address'            => $address,
+            'order_id'            => $order_id,
             'status'             => -1,
             'timestamp'          => time(),
             'txid'               => ''
           );
-          $blockonomics_orders[$order_id] = $order;
+					//Using address as key, as orderid can be tried manually 
+          //by hit and trial 
+          $blockonomics_orders[$address] = $order;
           update_option('blockonomics_orders', $blockonomics_orders);
 				}
 				catch (Exception $e) {
@@ -182,38 +184,42 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 					}
 					return;
 				}
+				$order_url = WC()->api_request_url('WC_Gateway_Blockonomics');
+				$order_url = add_query_arg('show_order', $address, $order_url);
 
 				return array(
 					'result'   => 'success',
-					'redirect' => "/wp-content/plugins/blockonomics-woocommerce/views/index.html#/$order_id"
+					'redirect' => $order_url
 				);
 			}
 
       function check_blockonomics_callback() {
-        $dir = plugin_dir_path( __FILE__ );
-	     	include($dir."order.php");
-	      die();   
-				$orderid = $_REQUEST['order_id'];
+        $address = $_REQUEST['show_order'];
+        if ($address) {  
+          $dir = plugin_dir_path( __FILE__ );
+          include($dir."order.php");
+          exit();   
+        }
+
+				$address = $_REQUEST['get_order'];
         $orders = get_option('blockonomics_orders');
-        if ($orderid){
-        header("Content-Type: application/json");
-        exit(json_encode($orders[$orderid]));
+        if ($address){
+          header("Content-Type: application/json");
+          exit(json_encode($orders[$address]));
         }
 
 				$callback_secret = get_option("blockonomics_callback_secret");
         if ($callback_secret  && $callback_secret == $_REQUEST['secret']) {
           $addr = $_REQUEST['addr'];
-          foreach($orders as $key => $value) {
-            if ($value['address'] == $addr){
-              if ($value['satoshi'] ==  intval($_REQUEST['value']))
-              {
-                $value['status'] = intval($_REQUEST['status']);
-              }
-              $value['txid'] =  $_REQUEST['txid'];
+          $order = $orders[$addr];
+          if ($order){
+            if ($order['satoshi'] ==  intval($_REQUEST['value'])) {
+              $order['status'] = intval($_REQUEST['status']);
             }
+            $order['txid'] =  $_REQUEST['txid'];
           }
-        exit(0);  
-				}
+          exit(0);  
+        }
 
 				// Legitimate order callback from Blockonomics
 				header('HTTP/1.1 200 OK');

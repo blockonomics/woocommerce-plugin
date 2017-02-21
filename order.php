@@ -17,7 +17,7 @@ get_header();
   <!-- heading row -->
   <div class="row">
     <div class="invoice-heading"> 
-      <span class="ng-binding"> Order# {{order_id}}</span>
+      <span class="ng-binding"> Order# {{order.order_id}}</span>
       <span ng-show="order.status == -1" class="invoice-heading-right" >{{clock*1000 | date:'mm:ss' : 'UTC'}}</span>
     </div>
     <div class="progress" ng-hide="order.status != -1">

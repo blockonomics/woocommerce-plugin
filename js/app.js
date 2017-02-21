@@ -13,14 +13,25 @@ app.config(function ($compileProvider) {
   // Angular before v1.2 uses $compileProvider.urlSanitizationWhitelist(...)
 });
 
+function getParameterByName(name, url) {
+    if (!url) {
+      url = window.location.href;
+    }
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
 
-app.controller('CheckoutController', function($scope, $location, $interval, $rootScope, Order, $route) {
+
+
+app.controller('CheckoutController', function($scope, $interval, Order) {
   //get order id from url
-  current_p = $location.path().substr(1);
-  $scope.order_id = current_p;
+  $scope.address =  getParameterByName("show_order")
   var totalProgress = 100;
   var totalTime = 10*60; //10m
-
   $scope.getJson = function(data){
     return JSON.parse(data);
   };
@@ -37,10 +48,10 @@ app.controller('CheckoutController', function($scope, $location, $interval, $roo
     $scope.progress = Math.floor($scope.clock*totalProgress/totalTime);
   };
 
-  if ( $scope.order_id != 'undefined'){
-    Order.get({"order_id":$scope.order_id}, function(data){
+  if ( $scope.address != 'undefined'){
+    Order.get({"get_order":$scope.address}, function(data){
       $scope.order = data;
-
+      $scope.order.address = $scope.address 
       //Listen on websocket for payment notification
       //After getting notification,  refresh page
       if($scope.order.status == -1){
