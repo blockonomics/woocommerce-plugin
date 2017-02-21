@@ -20,8 +20,8 @@ get_header();
       <span class="ng-binding"> Order# {{order.order_id}}</span>
       <span ng-show="order.status == -1" class="invoice-heading-right" >{{clock*1000 | date:'mm:ss' : 'UTC'}}</span>
     </div>
-    <div class="progress" ng-hide="order.status != -1">
-      <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width:{{progress}}%">
+    <div class="" ng-hide="order.status != -1">
+      <div class="progress" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width:{{progress}}%">
       </div>
     </div>
   </div>
@@ -89,7 +89,6 @@ get_header();
 </div>
     <script src="<?php echo plugins_url('js/angular.js', __FILE__ );?>"></script>
     <script src="<?php echo plugins_url('js/angular-resource.js', __FILE__ );?>"></script>
-    <script src="<?php echo plugins_url('js/angular-route.js', __FILE__ );?>"></script>
     <script src="<?php echo plugins_url('js/app.js', __FILE__ );?>"></script>
     <script src="<?php echo plugins_url('js/angular-qrcode.js', __FILE__ );?>"></script>
     <script src="<?php echo plugins_url('js/vendors.min.js', __FILE__ );?>"></script>

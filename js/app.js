@@ -5,7 +5,7 @@ service.factory('Order', function ($resource) {
   return item;
 });
 
-app = angular.module("shopping-cart-demo", ["monospaced.qrcode", "ngRoute", "shoppingcart.services"]);
+app = angular.module("shopping-cart-demo", ["monospaced.qrcode",  "shoppingcart.services"]);
 
 
 app.config(function ($compileProvider) {
