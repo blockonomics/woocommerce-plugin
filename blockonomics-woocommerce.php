@@ -57,7 +57,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 		 * @author      Coinbase Inc.
 		 */
 		class WC_Gateway_Blockonomics extends WC_Payment_Gateway {
-			var $notify_url;
 
 			public function __construct() {
 				$this->id   = 'blockonomics';
@@ -65,10 +64,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
 				$this->has_fields        = false;
 				$this->order_button_text = __('Pay with bitcoin', 'blockonomics-woocommerce');
-				$this->notify_url        = $this->construct_notify_url();
 
-				$this->init_form_fields();
-				$this->init_settings();
 
 				$this->title       = $this->get_option('title');
 				$this->description = $this->get_option('description');
@@ -79,6 +75,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 					$this,
 					'process_admin_options'
 				));
+        //add_action('admin_init', array($this, 'admin_init'));
 				add_action('woocommerce_receipt_blockonomics', array(
 					$this,
 					'receipt_page'
@@ -89,8 +86,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 					$this,
 					'check_blockonomics_callback'
 				));
-			}
-
+      }
 			public function admin_options() {
 				echo '<h3>' . __('Coinbase Payment Gateway', 'blockonomics-woocommerce') . '</h3>';
 				$blockonomics_account_email = get_option("blockonomics_account_email");
@@ -104,6 +100,10 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 				$this->generate_settings_html();
 				echo '</table>';
 			}
+      public function admin_init() {
+        register_setting('blockonomics_options', 'api_key');
+      }
+
 
 			function process_admin_options() {
 				if (!parent::process_admin_options())
@@ -129,52 +129,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 				}
 			}
 
-			function construct_notify_url() {
-				$callback_secret = get_option("blockonomics_callback_secret");
-				if ($callback_secret == false) {
-					$callback_secret = sha1(openssl_random_pseudo_bytes(20));
-					update_option("blockonomics_callback_secret", $callback_secret);
-				}
-				$notify_url = WC()->api_request_url('WC_Gateway_Coinbase');
-				$notify_url = add_query_arg('callback_secret', $callback_secret, $notify_url);
-				return $notify_url;
-			}
-
-			function init_form_fields() {
-				$this->form_fields = array(
-					'enabled' => array(
-						'title' => __('Enable Coinbase plugin', 'blockonomics-woocommerce'),
-						'type' => 'checkbox',
-						'label' => __('Show bitcoin as an option to customers during checkout?', 'blockonomics-woocommerce'),
-						'default' => 'yes'
-					),
-					'title' => array(
-						'title' => __('Title', 'woocommerce'),
-						'type' => 'text',
-						'description' => __('This controls the title which the user sees during checkout.', 'woocommerce'),
-						'default' => __('Bitcoin', 'blockonomics-woocommerce')
-					),
-					'description' => array(
-						'title'       => __( 'Description', 'woocommerce' ),
-						'type'        => 'textarea',
-						'description' => __( 'This controls the description which the user sees during checkout.', 'woocommerce' ),
-						'default'     => __('Pay with bitcoin, a virtual currency.', 'blockonomics-woocommerce')
-											. " <a href='http://bitcoin.org/' target='_blank'>"
-											. __('What is bitcoin?', 'blockonomics-woocommerce')
-											. "</a>"
-	             	),
-					'apiKey' => array(
-						'title' => __('API Key', 'blockonomics-woocommerce'),
-						'type' => 'text',
-						'description' => __('')
-					),
-					'apiSecret' => array(
-						'title' => __('API Secret', 'blockonomics-woocommerce'),
-						'type' => 'password',
-						'description' => __('')
-					)
-				);
-			}
 
 			function process_payment($order_id) {
 
@@ -204,7 +158,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
 				try {
 					$blockonomics = new Blockonomics;
-          $address     = $blockonomics->new_address($api_key);
+          $address     = $blockonomics->new_address(get_option('blockonomics_api_key'));
           $price = $blockonomics->get_price(get_woocommerce_currency());
           $blockonomics_orders = get_option('blockonomics_orders');
           $order = array(
@@ -237,26 +191,25 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
       function check_blockonomics_callback() {
         $orderid = $_REQUEST['order_id'];
-        $options = get_option('blockonomics_orders');
+        $orders = get_option('blockonomics_orders');
+        if ($orderid){
         header("Content-Type: application/json");
-        exit(json_encode($options[$orderid]));
+        exit(json_encode($orders[$orderid]));
+        }
+
 				$callback_secret = get_option("blockonomics_callback_secret");
-				if ($callback_secret != false && $callback_secret == $_REQUEST['callback_secret']) {
-					$post_body = json_decode(file_get_contents("php://input"));
-					if (isset($post_body->order)) {
-						$blockonomics_order = $post_body->order;
-						$order_id       = $blockonomics_order->custom;
-						$order          = new WC_Order($order_id);
-					} else if (isset($post_body->payout)) {
-						header('HTTP/1.1 200 OK');
-						exit("Coinbase Payout Callback Ignored");
-					} else {
-						header("HTTP/1.1 400 Bad Request");
-						exit("Unrecognized Coinbase Callback");
-					}
-				} else {
-					header("HTTP/1.1 401 Not Authorized");
-					exit("Spoofed callback");
+        if ($callback_secret  && $callback_secret == $_REQUEST['secret']) {
+          $addr = $_REQUEST['addr'];
+          foreach($orders as $key => $value) {
+            if ($value['address'] == $addr){
+              if ($value['satoshi'] ==  intval($_REQUEST['value']))
+              {
+                $value['status'] = intval($_REQUEST['status']);
+              }
+              $value['txid'] =  $_REQUEST['txid'];
+            }
+          }
+        exit(0);  
 				}
 
 				// Legitimate order callback from Coinbase
@@ -319,7 +272,25 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 			}
 		}
 
-		add_action('init', 'woocommerce_handle_blockonomics_return');
+
+    // Add entry in the settings menu
+    function add_page() {
+      generate_secret();
+      add_options_page('Blockonomics', 'Blockonomics', 'manage_options',
+        'blockonomics_options',  'show_options');
+    }
+    
+    function generate_secret() {
+      $callback_secret = get_option("blockonomics_callback_secret");
+      if (!$callback_secret) {
+        $callback_secret = sha1(openssl_random_pseudo_bytes(20));
+        update_option("blockonomics_callback_secret", $callback_secret);
+      }
+    }
+      
+
+    add_action('admin_menu', 'add_page');
+    add_action('init', 'woocommerce_handle_blockonomics_return');
 		add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
 	}
 
@@ -327,3 +298,33 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
 add_action('plugins_loaded', 'blockonomics_woocommerce_init', 0);
 }
+
+
+function show_options(){
+  ?>	
+  <div class="wrap">
+    <h2>Blockonomics</h2>
+    <form method="post" action="options.php">
+    <?php wp_nonce_field('update-options') ?>
+  <table class="form-table">
+    <tr valign="top"><th scope="row">API KEY</th>
+    <td><input type="text" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" /></td>
+    </tr>
+    <tr valign="top"><th scope="row">CALLBACK URL</th>
+    <td><?php
+        $callback_secret = get_option('blockonomics_callback_secret'); 
+				$notify_url = WC()->api_request_url('WC_Gateway_Blockonomics');
+				$notify_url = add_query_arg('callback_secret', $callback_secret, $notify_url);
+        echo $notify_url ?></td>
+    </tr>
+    </table>
+    <p class="submit">
+    <input type="submit" class="button-primary" value="Store Options" />
+    <input type="hidden" name="action" value="update" />
+    <input type="hidden" name="page_options" value="blockonomics_api_key" />
+    </p>
+    </form>
+    </div> 	
+<?php
+}
+?>
