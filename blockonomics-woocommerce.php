@@ -307,19 +307,19 @@ function show_options(){
     <form method="post" action="options.php">
     <?php wp_nonce_field('update-options') ?>
   <table class="form-table">
-    <tr valign="top"><th scope="row">API KEY</th>
+    <tr valign="top"><th scope="row">BLOCKONOMICS API KEY (Generate from <a href="https://blockonomics.co/blockonomics">Wallet Watcher</a> &gt; Settings)</th>
     <td><input type="text" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" /></td>
     </tr>
-    <tr valign="top"><th scope="row">CALLBACK URL</th>
+    <tr valign="top"><th scope="row">CALLBACK URL (Copy this url and set in <a href="https://www.blockonomics.co/merchants">Merchants</a>)</th>
     <td><?php
         $callback_secret = get_option('blockonomics_callback_secret'); 
 				$notify_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-				$notify_url = add_query_arg('callback_secret', $callback_secret, $notify_url);
+				$notify_url = add_query_arg('secret', $callback_secret, $notify_url);
         echo $notify_url ?></td>
     </tr>
     </table>
     <p class="submit">
-    <input type="submit" class="button-primary" value="Store Options" />
+    <input type="submit" class="button-primary" value="Save" />
     <input type="hidden" name="action" value="update" />
     <input type="hidden" name="page_options" value="blockonomics_api_key" />
     </p>
