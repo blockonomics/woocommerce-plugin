@@ -67,7 +67,7 @@ app.controller('CheckoutController', function($scope, $interval, Order) {
         var ws = new WebSocket("ws://localhost:8080/payment/" + $scope.order.address + "?timestamp=" + $scope.order.timestamp);
         ws.onmessage = function (evt) {
           $interval(function(){
-            $route.reload();
+            window.location.reload();
           }, 2000, 1);
         }
       }

@@ -213,13 +213,22 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
           $addr = $_REQUEST['addr'];
           $order = $orders[$addr];
           if ($order){
-            if ($order['satoshi'] ==  intval($_REQUEST['value'])) {
-              $order['status'] = intval($_REQUEST['status']);
-            }
+            $status = intval($_REQUEST['status']);
+            $existing_status = $order['status'];
+            $timestamp = $order['timestamp'];
+            if ($existing_status < -1)
+              exit(0); // Already in error, exit
+            if ($status == 0 && time() > $timestamp + 600) 
+              $status = -3; //Payment expired after 10 minutes
+            if ($status == 2 and $order['satoshi'] != $_REQUEST['value'])
+              $status = -2; //Payment error , amount not matching
             $order['txid'] =  $_REQUEST['txid'];
+            $order['status'] = $status;
+            $orders[$addr] = $order;
+            update_option('blockonomics_orders', $orders);
           }
-          exit(0);  
         }
+          exit(0);  
 
 				// Legitimate order callback from Blockonomics
 				header('HTTP/1.1 200 OK');
