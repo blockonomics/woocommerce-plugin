@@ -248,6 +248,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
               $wc_order->payment_complete($order['txid']);
             }
             if ($existing_status == -1){
+              update_post_meta($wc_order->id, 'blockonomics_txid', $order['txid']);
               $wc_order->add_order_note(__('Transaction id '.$order['txid'], 'blockonomics-woocommerce'));
             }
             update_option('blockonomics_orders', $orders);
@@ -259,7 +260,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 				header('HTTP/1.1 200 OK');
 
 				// Add Blockonomics metadata to the order
-				update_post_meta($order->id, __('Blockonomics Order ID', 'blockonomics-woocommerce'), wc_clean($blockonomics_order->id));
+				update_post_meta($order->id, 'blockonomics_txid','');
 				if (isset($blockonomics_order->customer) && isset($blockonomics_order->customer->email)) {
 					update_post_meta($order->id, __('Blockonomics Account of Payer', 'blockonomics-woocommerce'), wc_clean($blockonomics_order->customer->email));
 				}
@@ -327,10 +328,13 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
         update_option("blockonomics_callback_secret", $callback_secret);
       }
     }
-      
+    function nolo_custom_field_display_cust_order_meta($order){
+      echo '<p><strong>'.__('Transaction ID').':</strong> ' . get_post_meta( $order->id, 'blockonomics_txid', true ). '</p>';
+    } 
 
     add_action('admin_menu', 'add_page');
     add_action('init', 'woocommerce_handle_blockonomics_return');
+    add_action( 'woocommerce_order_details_after_order_table', 'nolo_custom_field_display_cust_order_meta', 10, 1 );  
 		add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
 	}
 
