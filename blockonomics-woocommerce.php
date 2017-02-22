@@ -130,7 +130,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 			}
 
 
-			function process_payment($order_id) {
+      function process_payment($order_id) {
+        //TODO: Get callback from timer to expire order
 
 				require_once(plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php');
 				global $woocommerce;
@@ -212,19 +213,31 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
         if ($callback_secret  && $callback_secret == $_REQUEST['secret']) {
           $addr = $_REQUEST['addr'];
           $order = $orders[$addr];
+				  $wc_order = new WC_Order($order['order_id']);
           if ($order){
             $status = intval($_REQUEST['status']);
             $existing_status = $order['status'];
             $timestamp = $order['timestamp'];
             if ($existing_status < -1)
               exit(0); // Already in error, exit
-            if ($status == 0 && time() > $timestamp + 600) 
+            if ($status == 0 && time() > $timestamp + 600){ 
               $status = -3; //Payment expired after 10 minutes
-            if ($status == 2 and $order['satoshi'] != $_REQUEST['value'])
+              $wc_order->update_status('cancelled', __('Order expired', 'blockonomics-woocommerce'));
+            }
+            if ($status == 2 and $order['satoshi'] != $_REQUEST['value']){
               $status = -2; //Payment error , amount not matching
+              $wc_order->update_status('failed', __('Paid amount not matching expected.', 'blockonomics-woocommerce'));
+            }
             $order['txid'] =  $_REQUEST['txid'];
             $order['status'] = $status;
             $orders[$addr] = $order;
+            if ($status == 2){
+              $wc_order->add_order_note(__('Blockonomics payment completed', 'blockonomics-woocommerce'));
+              $wc_order->payment_complete($order['txid']);
+            }
+            if ($existing_status == -1){
+              $wc_order->add_order_note(__('Transaction id '.$order['txid'], 'blockonomics-woocommerce'));
+            }
             update_option('blockonomics_orders', $orders);
           }
         }
@@ -248,13 +261,10 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 							exit;
 						}
 
-						$order->add_order_note(__('Blockonomics payment completed', 'blockonomics-woocommerce'));
-						$order->payment_complete();
 
 						break;
 					case 'canceled':
 
-						$order->update_status('failed', __('Blockonomics reports payment cancelled.', 'blockonomics-woocommerce'));
 						break;
 
 				}
