@@ -1,8 +1,15 @@
 service = angular.module("shoppingcart.services", ["ngResource"]);
 
 service.factory('Order', function ($resource) {
-  var path = window.location.pathname;
-  var item = $resource("/aksdfksadf");
+  //There are two styles of callback url in 
+  //woocommerce, we have to support both
+  //https://docs.woocommerce.com/document/wc_api-the-woocommerce-api-callback/
+  var param = getParameterByName('wc-api');
+  if (param)
+    param = {"wc-api" : param};
+  else
+    param = {};
+  var item = $resource(window.location.pathname, param);
   return item;
 });
 
@@ -49,7 +56,6 @@ app.controller('CheckoutController', function($scope, $interval, Order) {
     $scope.progress = Math.floor($scope.clock*totalProgress/totalTime);
   };
 
-  console.log(typeof $scope.address);
   if ( typeof $scope.address != 'undefined'){
     Order.get({"get_order":$scope.address}, function(data){
       $scope.order = data;
