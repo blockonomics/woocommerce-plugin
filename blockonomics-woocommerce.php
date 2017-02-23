@@ -143,7 +143,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
 
       function process_payment($order_id) {
-        //TODO: Get callback from timer to expire order
 
 				require_once(plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php');
 				global $woocommerce;
@@ -234,7 +233,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
               exit(0); // Already in error, exit
             if ($status == 0 && time() > $timestamp + 600){ 
               $status = -3; //Payment expired after 10 minutes
-              $wc_order->update_status('cancelled', __('Order expired', 'blockonomics-woocommerce'));
+              $wc_order->update_status('failed', __('Payment expired', 'blockonomics-woocommerce'));
             }
             if ($status == 2 and $order['satoshi'] != $_REQUEST['value']){
               $status = -2; //Payment error , amount not matching
@@ -244,45 +243,16 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
             $order['status'] = $status;
             $orders[$addr] = $order;
             if ($status == 2){
-              $wc_order->add_order_note(__('Blockonomics payment completed', 'blockonomics-woocommerce'));
+              $wc_order->add_order_note(__('Payment completed', 'blockonomics-woocommerce'));
               $wc_order->payment_complete($order['txid']);
             }
             if ($existing_status == -1){
               update_post_meta($wc_order->id, 'blockonomics_txid', $order['txid']);
-              $wc_order->add_order_note(__('Transaction id '.$order['txid'], 'blockonomics-woocommerce'));
+              update_post_meta($wc_order->id, 'blockonomics_address', $addr);
             }
             update_option('blockonomics_orders', $orders);
           }
         }
-          exit(0);  
-
-				// Legitimate order callback from Blockonomics
-				header('HTTP/1.1 200 OK');
-
-				// Add Blockonomics metadata to the order
-				update_post_meta($order->id, 'blockonomics_txid','');
-				if (isset($blockonomics_order->customer) && isset($blockonomics_order->customer->email)) {
-					update_post_meta($order->id, __('Blockonomics Account of Payer', 'blockonomics-woocommerce'), wc_clean($blockonomics_order->customer->email));
-				}
-
-				switch (strtolower($blockonomics_order->status)) {
-
-					case 'completed':
-
-						// Check order not already completed
-						if ($order->status == 'completed') {
-							exit;
-						}
-
-
-						break;
-					case 'canceled':
-
-						break;
-
-				}
-
-				exit;
 			}
 		}
 
@@ -329,7 +299,11 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
       }
     }
     function nolo_custom_field_display_cust_order_meta($order){
-      echo '<p><strong>'.__('Transaction ID').':</strong> ' . get_post_meta( $order->id, 'blockonomics_txid', true ). '</p>';
+      $txid = get_post_meta( $order->id, 'blockonomics_txid', true );
+      $address = get_post_meta( $order->id, 'blockonomics_address', true );
+      require_once(plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php');
+      if ($txid && $address)
+        echo '<p><strong>'.__('Transaction').':</strong>  <a href =\''. Blockonomics::BASE_URL ."/api/tx?txid=$txid&addr=$address'>".substr($txid,0,10). '</a></p>';
     } 
 
     add_action('admin_menu', 'add_page');
