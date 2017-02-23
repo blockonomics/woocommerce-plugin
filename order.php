@@ -12,26 +12,43 @@ get_header();
   </head>
 
   <body ng-controller="CheckoutController">
-<div class="form">
-  <div class="col-md-7 col-md-offset-3 invoice">
+<div class="aligncenter" style="width:35%">
+  <div >
   <!-- heading row -->
-  <div class="row">
-    <div class="invoice-heading"> 
-      <span class="ng-binding"> Order# {{order.order_id}}</span>
-      <span ng-show="order.status == -1" class="invoice-heading-right" >{{clock*1000 | date:'mm:ss' : 'UTC'}}</span>
+  <div >
+    <div > 
+      <span class=""> Order# {{order.order_id}}</span>
+      <span class="alignright" ng-show="order.status == -1"  >{{clock*1000 | date:'mm:ss' : 'UTC'}}</span>
     </div>
-    <div class="" ng-hide="order.status != -1">
-      <div class="progress" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width:{{progress}}%">
+    <div ng-hide="order.status != -1">
+      <!-- div class="" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width:{{progress}}%" -->
+<div style="
+    width: 100%;
+    height: 7px;
+    background: #ddd;
+    margin: 20px 0;
+    overflow: hidden;
+    position: relative;
+">
+  <div style="
+    width: {{progress}}%;
+    height: 7px;
+    background:#f80;
+    left: 0;
+    position: absolute;
+    top: 0;
+"></div>
+</div>
       </div>
     </div>
   </div>
     <!-- Amount row -->
-    <div class="row">
+    <div >
 
-      <div class="col-xs-12">
+      <div >
         <!-- Status -->
         <label ng-show="order.status != -1" for="invoice-amount" style="margin-top:15px;" >Status</label>
-        <div class="value ng-binding" style="margin-bottom:10px;" >
+        <div class="" style="margin-bottom:10px;" >
           <strong style="color: #956431;" ng-show="order.status == -1" >To
             pay, send exact amount of BTC to the given address</strong>
           <strong style="color: rgb(239, 121, 79)" ng-show="order.status == -3"> Payment Expired</strong>
@@ -42,9 +59,9 @@ get_header();
         </div>
       </div>
 
-      <div class="col-xs-6 invoice-amount"  style="border-right:#ccc 1px solid;">
+      <div class="">
         <label for="invoice-amount">Amount</label>
-        <div class="value ng-binding">
+        <div class="">
           <strong style="color: #956431;">{{order.satoshi/1.0e8}}</strong>
           <small>BTC</small> ⇌
           <strong style="color: #956431;">{{order.value}}</strong> 
@@ -53,14 +70,14 @@ get_header();
 
 
         <!-- address-->
-        <div class="row">
-          <label class="col-xs-6" style="margin-bottom:15px;margin-top:15px;" for="btn-address">Bitcoin Address</label>
+        <div >
+          <label class="" style="margin-bottom:15px;margin-top:15px;" for="btn-address">Bitcoin Address</label>
         </div>
 
         <!-- QR Code -->
-        <div class="row qr-code-box">
-          <div class="col-xs-5 qr-code">
-            <div class="qr-enclosure">
+        <div style="margin-bottom: 20px;">
+          <div class="">
+            <div class="">
               <a href="bitcoin:{{order.address}}?amount={{order.satoshi/1.0e8}}">
               <qrcode data="bitcoin:{{order.address}}?amount={{order.satoshi/1.0e8}}" size="220">
               <canvas class="qrcode"></canvas>
@@ -71,9 +88,9 @@ get_header();
         </div>
       </div>
 
-      <div class="col-xs-6 invoice-status">
+      <div >
         <label ng-hide="order.status == -1" for="invoice-amount" >Payment Details</label>
-        <div ng-show="order.status !=-1 " class="value ng-binding" style="margin-bottom:10px;" >
+        <div ng-show="order.status !=-1 " class="" style="margin-bottom:10px;" >
           Transaction : <a style="font-weight:bold;color: #956431;" target="_blank"
                            href="http://www.blockonomics.co/api/tx?txid={{order.txid}}&addr={{order.address}}">{{order.txid |limitTo: 20}}</a>
         </div>
@@ -81,8 +98,8 @@ get_header();
 
     </div>
 
-          <div class="row">
-        <input type="text" class="invoice-address" ng-value="order.address" readonly="readonly">
+          <div >
+        <input type="text" class="" ng-value="order.address" readonly="readonly">
       </div>
   </div>
   </div>
