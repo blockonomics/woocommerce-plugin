@@ -103,38 +103,34 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 			}
 
       function init_form_fields() {
-        $this->form_fields = array(
-          'enabled' => array(
-            'title' => __('Enable Blockonomics plugin', 'blockonomics-woocommerce'),
-            'type' => 'checkbox',
-            'label' => __('Show bitcoin as an option to customers during checkout?', 'blockonomics-woocommerce'),
-            'default' => 'yes'
-          )
-        );
+				$this->form_fields = array(
+					'enabled' => array(
+						'title' => __('Enable Blockonomics plugin', 'blockonomics-woocommerce'),
+						'type' => 'checkbox',
+						'label' => __('Show bitcoin as an option to customers during checkout?', 'blockonomics-woocommerce'),
+						'default' => 'yes'
+					),
+					'title' => array(
+						'title' => __('Title', 'woocommerce'),
+						'type' => 'text',
+						'description' => __('This controls the title which the user sees during checkout.', 'woocommerce'),
+						'default' => __('Bitcoin', 'blockonomics-woocommerce')
+					),
+					'description' => array(
+						'title'       => __( 'Description', 'woocommerce' ),
+						'type'        => 'textarea',
+						'description' => __( 'This controls the description which the user sees during checkout.', 'woocommerce' ),
+						'default'     => __('Pay with bitcoin, a virtual currency.', 'coinbase-woocommerce')
+						. " <a href='http://bitcoin.org/' target='_blank'>"
+						. __('What is bitcoin?', 'blockonomics-woocommerce')
+						. "</a>"
+					),
+				);
       }
 
 			function process_admin_options() {
 				if (!parent::process_admin_options())
 					return false;
-
-				require_once(plugin_dir_path(__FILE__) . 'blockonomics-php' . DIRECTORY_SEPARATOR . 'Blockonomics.php');
-
-				$api_key    = $this->get_option('blockonomics_api_key');
-				$api_secret = $this->get_option('apiSecret');
-
-				// Validate merchant API key
-				try {
-					$blockonomics = Blockonomics::withApiKey($api_key, $api_secret);
-					$user     = $blockonomics->getUser();
-					update_option("blockonomics_account_email", $user->email);
-					update_option("blockonomics_error_message", false);
-				}
-				catch (Exception $e) {
-					$error_message = $e->getMessage();
-					update_option("blockonomics_account_email", false);
-					update_option("blockonomics_error_message", $error_message);
-					return;
-				}
 			}
 
 
