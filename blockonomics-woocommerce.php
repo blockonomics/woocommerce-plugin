@@ -77,7 +77,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 					$this,
 					'process_admin_options'
 				));
-        //add_action('admin_init', array($this, 'admin_init'));
 				add_action('woocommerce_receipt_blockonomics', array(
 					$this,
 					'receipt_page'
@@ -102,9 +101,6 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 				$this->generate_settings_html();
 				echo '</table>';
 			}
-      public function admin_init() {
-        register_setting('blockonomics_options', 'api_key');
-      }
 
       function init_form_fields() {
         $this->form_fields = array(
