@@ -120,9 +120,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 						'title'       => __( 'Description', 'woocommerce' ),
 						'type'        => 'textarea',
 						'description' => __( 'This controls the description which the user sees during checkout.', 'woocommerce' ),
-						'default'     => __('Pay with bitcoin, a virtual currency.', 'coinbase-woocommerce')
-						. " <a href='http://bitcoin.org/' target='_blank'>"
-						. __('What is bitcoin?', 'blockonomics-woocommerce')
+						'default'     => " <a href='https://www.blockonomics.co/' target='_blank'>"
+						. __('Powered by blockonomics', 'blockonomics-woocommerce')
 						. "</a>"
 					),
 				);
