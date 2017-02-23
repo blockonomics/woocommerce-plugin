@@ -66,10 +66,13 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 				$this->order_button_text = __('Pay with bitcoin', 'blockonomics-woocommerce');
 
 
+
+				$this->init_form_fields();
+				$this->init_settings();
+
 				$this->title       = $this->get_option('title');
 				$this->description = $this->get_option('description');
 
-				$this->init_form_fields();
 
         add_option('blockonomics_orders', array());
 				// Actions
@@ -120,9 +123,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 						'title'       => __( 'Description', 'blockonomics-woocommerce' ),
 						'type'        => 'textarea',
 						'description' => __( 'This controls the description which the user sees during checkout.', 'blockonomics-woocommerce' ),
-						'default'     => " <a href='https://www.blockonomics.co/' target='_blank'>"
-						. __('Powered by blockonomics', 'blockonomics-woocommerce')
-						. "</a>"
+						'default'     => __("Powered by ", 'blockonomics-woocommerce'). "<a href='https://www.blockonomics.co/' target='_blank'>blockonomics</a>"
 					),
 				);
       }
