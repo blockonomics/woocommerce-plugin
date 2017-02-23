@@ -1,18 +1,33 @@
-coinbase-woocommerce
-====================
+Features
+--------
+- Accept bitcoin payments on your website with ease
+- Payments go directly in your own bitcoin wallet
+- All HD wallet like trezor, blockchain.info, mycelium supported
+- No approvals of API key/documentation required
+- Uses [blockonomics API](https://www.blockonomics.co/views/api.html)
 
-Accept Bitcoin on your WooCommerce-powered website with Coinbase.
+Blockonomics Setup
+-----------------
+- Complete [blockonomics merchant wizard](https://www.blockonomics.co/merchants) 
+- Get API key from Wallet Watcher > Settings
 
-## Installation
 
-First generate an API key with the 'user' and 'merchant' permissions at https://coinbase.com/settings/api. If you don't have a Coinbase account, sign up at https://coinbase.com/merchants. Your merchant profile must be filled out to accept orders. Coinbase offers daily payouts for merchants in the United States. For more infomation on setting up payouts, see https://coinbase.com/docs/merchant_tools/payouts.
+Woocommerce Setup
+-----------------
+- Make sure you have [woocommerce](https://wordpress.org/plugins/woocommerce/) plugin installed on your wordpress site
+- Upload blockonomics.zip from [releases](https://github.com/blockonomics/woocommerce-plugin/releases) using Plugins > Add new 
+- Or if you prefer to clone directly inside `wp-content/plugins`
+`git clone git@github.com:blockonomics/woocommerce-plugin.git blockonomics`
+- Activate the plugin
+- You should be able see Blockonomics submenu inside Settings. [Settings
+  Panel](panel.png), [Blockonomics Settings](settings.png)
+- Put API key from [Blockonomics Setup](#blockonomics-setup) here
+- Copy callback url and put into blockonomics [merchants](https://www.blockonomics.co/merchants)
 
-To install the plugin:
 
-1. [Download](https://github.com/coinbase/coinbase-woocommerce/archive/master.zip) the plugin as a .zip file.
-2. In your WordPress administration console, navigate to Plugins > Add New > Upload. ![Upload](http://i.imgur.com/5TEbBaF.png)
-3. Upload the .zip file downloaded in step 1.
-4. Click 'Install Now' and then 'Activate Plugin.' ![Activate](http://i.imgur.com/j8IzyJm.png)
-5. Navigate to WooCommerce > Settings, and then click on the Checkout tab at the top of the screen.
-6. Click on Coinbase.
-7. Enter your API Credentials and click on 'Save changes'.
+Try checkout product , and you will see pay with bitcoin option.
+Use bitcoin to pay and enjoy !
+
+Note that if you are running prestashop on localhost, you need Dynamic
+DNS/public IP pointing to your localhost.
+This is because blockonomics.co will requires the callback to be a public url.
