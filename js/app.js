@@ -1,7 +1,8 @@
 service = angular.module("shoppingcart.services", ["ngResource"]);
 
 service.factory('Order', function ($resource) {
-  var item = $resource('', {"wc-api": 'WC_Gateway_Blockonomics'});
+  var path = window.location.pathname;
+  var item = $resource("/aksdfksadf");
   return item;
 });
 
@@ -48,7 +49,8 @@ app.controller('CheckoutController', function($scope, $interval, Order) {
     $scope.progress = Math.floor($scope.clock*totalProgress/totalTime);
   };
 
-  if ( $scope.address != 'undefined'){
+  console.log(typeof $scope.address);
+  if ( typeof $scope.address != 'undefined'){
     Order.get({"get_order":$scope.address}, function(data){
       $scope.order = data;
       $scope.order.address = $scope.address 

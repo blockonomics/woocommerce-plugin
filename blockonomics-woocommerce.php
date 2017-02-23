@@ -69,6 +69,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 				$this->title       = $this->get_option('title');
 				$this->description = $this->get_option('description');
 
+				$this->init_form_fields();
+
         add_option('blockonomics_orders', array());
 				// Actions
 				add_action('woocommerce_update_options_payment_gateways_' . $this->id, array(
@@ -104,6 +106,16 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
         register_setting('blockonomics_options', 'api_key');
       }
 
+      function init_form_fields() {
+        $this->form_fields = array(
+          'enabled' => array(
+            'title' => __('Enable Blockonomics plugin', 'blockonomics-woocommerce'),
+            'type' => 'checkbox',
+            'label' => __('Show bitcoin as an option to customers during checkout?', 'blockonomics-woocommerce'),
+            'default' => 'yes'
+          )
+        );
+      }
 
 			function process_admin_options() {
 				if (!parent::process_admin_options())
@@ -111,7 +123,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
 				require_once(plugin_dir_path(__FILE__) . 'blockonomics-php' . DIRECTORY_SEPARATOR . 'Blockonomics.php');
 
-				$api_key    = $this->get_option('apiKey');
+				$api_key    = $this->get_option('blockonomics_api_key');
 				$api_secret = $this->get_option('apiSecret');
 
 				// Validate merchant API key
@@ -147,7 +159,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 				$cancel_url = add_query_arg('order_key', $order->order_key, $cancel_url);
 
 
-				$api_key    = $this->get_option('apiKey');
+				$api_key    = get_option('blockonomics_api_key');
 				if ($api_key == '') {
 					if ( version_compare( $woocommerce->version, '2.1', '>=' ) ) {
 						wc_add_notice(__('Sorry, but there was an error processing your order. Please try again or try a different payment method. (plugin not configured)', 'blockonomics-woocommerce'), 'error' );
@@ -195,7 +207,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 			}
 
       function check_blockonomics_callback() {
-        $address = $_REQUEST['show_order'];
+        $address = isset($_REQUEST["show_order"]) ? $_REQUEST["show_order"] : "";
         if ($address) {  
           $dir = plugin_dir_path( __FILE__ );
           include($dir."order.php");
