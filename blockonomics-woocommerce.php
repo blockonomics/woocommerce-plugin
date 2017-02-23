@@ -111,15 +111,15 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 						'default' => 'yes'
 					),
 					'title' => array(
-						'title' => __('Title', 'woocommerce'),
+						'title' => __('Title', 'blockonomics-woocommerce'),
 						'type' => 'text',
-						'description' => __('This controls the title which the user sees during checkout.', 'woocommerce'),
+						'description' => __('This controls the title which the user sees during checkout.', 'blockonomics-woocommerce'),
 						'default' => __('Bitcoin', 'blockonomics-woocommerce')
 					),
 					'description' => array(
-						'title'       => __( 'Description', 'woocommerce' ),
+						'title'       => __( 'Description', 'blockonomics-woocommerce' ),
 						'type'        => 'textarea',
-						'description' => __( 'This controls the description which the user sees during checkout.', 'woocommerce' ),
+						'description' => __( 'This controls the description which the user sees during checkout.', 'blockonomics-woocommerce' ),
 						'default'     => " <a href='https://www.blockonomics.co/' target='_blank'>"
 						. __('Powered by blockonomics', 'blockonomics-woocommerce')
 						. "</a>"
