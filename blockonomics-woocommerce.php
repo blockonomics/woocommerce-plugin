@@ -213,7 +213,7 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
           exit();   
         }
 
-				$address = $_REQUEST['get_order'];
+				$address = isset($_REQUEST['get_order']) ? $_REQUEST['get_order'] : "";
         $orders = get_option('blockonomics_orders');
         if ($address){
           header("Content-Type: application/json");
@@ -221,7 +221,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
         }
 
 				$callback_secret = get_option("blockonomics_callback_secret");
-        if ($callback_secret  && $callback_secret == $_REQUEST['secret']) {
+				$secret = isset($_REQUEST['secret']) ? $_REQUEST['secret'] : "";
+        if ($callback_secret  && $callback_secret == $secret) {
           $addr = $_REQUEST['addr'];
           $order = $orders[$addr];
 				  $wc_order = new WC_Order($order['order_id']);
