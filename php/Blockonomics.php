@@ -2,7 +2,7 @@
 
 class Blockonomics
 {
-  const BASE_URL = 'http://localhost:8080';
+  const BASE_URL = 'https://www.blockonomics.co';
   const NEW_ADDRESS_URL = Blockonomics::BASE_URL. '/api/new_address';
   const PRICE_URL = Blockonomics::BASE_URL.'/api/price';
 
