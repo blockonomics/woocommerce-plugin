@@ -31,6 +31,6 @@ Use bitcoin to pay and enjoy !
 
 -------------------
 
-Note: If you are running prestashop on localhost, you need Dynamic
+Note: If you are running wordpress on localhost, you need Dynamic
 DNS/public IP pointing to your localhost.
 This is because blockonomics.co will requires the callback to be a public url.
