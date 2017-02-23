@@ -16,11 +16,12 @@ Woocommerce Setup
 -----------------
 - Make sure you have [woocommerce](https://wordpress.org/plugins/woocommerce/) plugin installed on your wordpress site
 - Upload blockonomics.zip from [releases](https://github.com/blockonomics/woocommerce-plugin/releases) using Plugins > Add new 
-- Or if you prefer to clone directly inside `wp-content/plugins`
+- Or if you prefer to clone directly inside `wp-content/plugins`  
 `git clone git@github.com:blockonomics/woocommerce-plugin.git blockonomics`
 - Activate the plugin
-- You should be able see Blockonomics submenu inside Settings. [Settings
-  Panel](panel.png), [Blockonomics Settings](settings.png)
+- You should be able see Blockonomics submenu inside Settings.  
+ ![Settings Panel](panel.png)  
+ ![Blockonomics Settings](settings.png)
 - Put API key from [Blockonomics Setup](#blockonomics-setup) here
 - Copy callback url and put into blockonomics [merchants](https://www.blockonomics.co/merchants)
 
