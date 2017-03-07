@@ -11,7 +11,7 @@ class Blockonomics
   }
 
 
-  public function new_address($api_key)
+  public function new_address($api_key, $secret)
   {
 
     $options = array( 
@@ -22,7 +22,7 @@ class Blockonomics
       )   
     );  
     $context = stream_context_create($options);
-    $contents = file_get_contents(Blockonomics::NEW_ADDRESS_URL, false, $context);
+    $contents = file_get_contents(Blockonomics::NEW_ADDRESS_URL."?match_callback=$secret", false, $context);
     $new_address = json_decode($contents);
     return $new_address->address;
   }

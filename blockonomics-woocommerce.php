@@ -161,8 +161,8 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 				}
 
 				try {
-					$blockonomics = new Blockonomics;
-          $address     = $blockonomics->new_address(get_option('blockonomics_api_key'));
+          $blockonomics = new Blockonomics;
+          $address = $blockonomics->new_address(get_option('blockonomics_api_key'), get_option("blockonomics_callback_secret"));
           $price = $blockonomics->get_price(get_woocommerce_currency());
           $blockonomics_orders = get_option('blockonomics_orders');
           $order = array(
