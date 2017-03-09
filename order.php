@@ -104,11 +104,11 @@ get_header();
   </div>
   </div>
 </div>
-    <script src="<?php echo plugins_url('js/angular.js', __FILE__ );?>"></script>
-    <script src="<?php echo plugins_url('js/angular-resource.js', __FILE__ );?>"></script>
-    <script src="<?php echo plugins_url('js/app.js', __FILE__ );?>"></script>
-    <script src="<?php echo plugins_url('js/angular-qrcode.js', __FILE__ );?>"></script>
-    <script src="<?php echo plugins_url('js/vendors.min.js', __FILE__ );?>"></script>
+    <script src="<?php echo plugins_url('js/angular.js', __FILE__);?>"></script>
+    <script src="<?php echo plugins_url('js/angular-resource.js', __FILE__);?>"></script>
+    <script src="<?php echo plugins_url('js/app.js', __FILE__);?>"></script>
+    <script src="<?php echo plugins_url('js/angular-qrcode.js', __FILE__);?>"></script>
+    <script src="<?php echo plugins_url('js/vendors.min.js', __FILE__);?>"></script>
 <?php
 //call the wp foooter
 get_footer();
