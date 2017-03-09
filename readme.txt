@@ -2,7 +2,7 @@
 Tags: bitcoin, blockonomics, woocommerce, e-commerce, ecommerce
 Requires at least: 3.0.1
 Tested up to: 4.5.3
-Stable tag: 0.0.1
+Stable tag: 0.0.2
 License: MIT
 License URI: http://opensource.org/licenses/MIT
 
