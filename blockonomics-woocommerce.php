@@ -3,7 +3,7 @@
  * Plugin Name: Blockonomics Bitcoin Payments
  * Plugin URI: https://github.com/blockonomics/blockonomics-woocommerce
  * Description: Accept Bitcoin on your WooCommerce-powered website with Blockonomics
- * Version: 0.0.2
+ * Version: 0.0.3
  * Author: Blockonomics
  * Author URI: https://www.blockonomics.com
  * License: MIT
