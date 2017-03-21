@@ -94,6 +94,16 @@ get_header();
           Transaction : <a style="font-weight:bold;color: #956431;" target="_blank"
                            href="http://www.blockonomics.co/api/tx?txid={{order.txid}}&addr={{order.address}}">{{order.txid |limitTo: 20}}</a>
         </div>
+        <div>
+<h5>Pay with altcoins</h5>
+   <?php
+$process= "05858c59c55d90fef999f53034848fd0c8f6b9ade3c95b29dd13c0d35e38b40a5f5331aef094806dcc5bc2c5ce1fb119eac50bb711fde8ff593d5b58fa814f34";
+echo '<script>function shapeshift_click(a,e){e.preventDefault();var link=a.href;window.open(link,"1418115287605","width=700,height=500,toolbar=0,menubar=0,location=0,status=1,scrollbars=1,resizable=0,left=0,top=0");
+return false;
+window.setTimeout(closeWindow, 6000);
+}</script> <a href="https://shapeshift.io/shifty.html?destination={{order.address}}&amp;apiKey='.$process.'&amp;amount={{order.satoshi/1.0e8}}" onclick="shapeshift_click(this, event);"><img class="ss-button" src="https://shapeshift.io/images/shifty/small_light_altcoins.png"></a>'
+?>
+</div>
       </div>
 
     </div>
