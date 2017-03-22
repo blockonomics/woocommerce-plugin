@@ -35,7 +35,7 @@ function getParameterByName(name, url) {
 
 
 
-app.controller('CheckoutController', function($scope, $interval, Order) {
+app.controller('CheckoutController', function($scope, $interval, Order, $httpParamSerializer) {
   //get order id from url
   $scope.address =  getParameterByName("show_order")
   var totalProgress = 100;
@@ -43,6 +43,21 @@ app.controller('CheckoutController', function($scope, $interval, Order) {
   $scope.getJson = function(data){
     return JSON.parse(data);
   };
+  
+  $scope.finish_order_url = function() {
+    var params = getParameterByName('wc-api');
+    if (params)
+      params = {"wc-api" : params};
+    else
+      params = {};
+    params.finish_order = $scope.address;
+    url = window.location.pathname;
+    var serializedParams = $httpParamSerializer(params);
+    if (serializedParams.length > 0) {
+        url += ((url.indexOf('?') === -1) ? '?' : '&') + serializedParams;
+    }
+    return url;
+  }
 
   $scope.tick = function() {
     $scope.clock = $scope.clock-1;
@@ -75,7 +90,10 @@ app.controller('CheckoutController', function($scope, $interval, Order) {
         var ws = new WebSocket("wss://www.blockonomics.co/payment/" + $scope.order.address + "?timestamp=" + $scope.order.timestamp);
         ws.onmessage = function (evt) {
           $interval(function(){
-            window.location.reload();
+          //Redirect to order received page
+          window.location = $scope.finish_order_url();
+          //To show current status uncomment above
+          //and reload current page
           }, 2000, 1);
         }
       }

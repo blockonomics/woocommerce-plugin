@@ -203,15 +203,22 @@ if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_
 
             public function check_blockonomics_callback()
             {
+                $orders = get_option('blockonomics_orders');
                 $address = isset($_REQUEST["show_order"]) ? $_REQUEST["show_order"] : "";
                 if ($address) {
                     $dir = plugin_dir_path(__FILE__);
                     include($dir."order.php");
                     exit();
                 }
-
+                $address = isset($_REQUEST["finish_order"]) ? $_REQUEST["finish_order"] : "";
+                if ($address) {
+                    $order = $orders[$address];
+                    $wc_order = new WC_Order($order['order_id']);
+                    echo $order['order_id'];
+                    wp_redirect($wc_order->get_checkout_order_received_url());
+                    exit();
+                }
                 $address = isset($_REQUEST['get_order']) ? $_REQUEST['get_order'] : "";
-                $orders = get_option('blockonomics_orders');
                 if ($address) {
                     header("Content-Type: application/json");
                     exit(json_encode($orders[$address]));
