@@ -1,20 +1,20 @@
 === Blockonomics Bitcoin Payments ===
-Tags: bitcoin, blockonomics, woocommerce, e-commerce, ecommerce
+Tags: bitcoin, blockonomics, woocommerce, ecommerce, payments
 Requires at least: 3.0.1
-Tested up to: 4.5.3
-Stable tag: 0.0.3
+Tested up to: 4.7.3
+Stable tag: 1.0.1
 License: MIT
 License URI: http://opensource.org/licenses/MIT
 
-Accept bitcoin payment on your WooCommerce-powered website with Blockonomics.
+Accept bitcoin payments on your WooCommerce-powered website with Blockonomics.
 
 == Description ==
 
 - Accept bitcoin payments on your website with ease
-- Payments go directly in your own bitcoin wallet
-- All HD wallet like trezor, blockchain.info, mycelium supported
+- No security risk, payments go directly into your own bitcoin wallet
+- All major HD wallets like trezor, blockchain.info, mycelium supported
 - No approvals of API key/documentation required
-- Uses [blockonomics API](https://www.blockonomics.co/views/api.html)
+- Supports all major fiat currencies
 
 == Installation ==
 
@@ -31,3 +31,18 @@ Accept bitcoin payment on your WooCommerce-powered website with Blockonomics.
 
 Try checkout product , and you will see pay with bitcoin option.
 Use bitcoin to pay and enjoy !
+
+== Frequently Asked Questions ==
+
+= I am getting empty order page after checkout, what to do ? =
+Your webhost is blocking outgoing HTTP connections. Blockonomics requires an outgoing HTTP POST to generate new address. Check with your webhost to allow this.
+
+= My order page is repeatedly refreshing on payment, how to fix this? =
+Your webhost is blocking incoming callbacks from bots, our you have a DDOS protection in place that is causing this. Blockonomics server uses curl for payment callbacks and cannot emulate a browser accessing your website. Remove the DDOS protection for blockonomics.co 
+
+== Screenshots ==
+
+1. Settings panel
+2. Blockonomics configuration
+3. Checkout screen
+ 
