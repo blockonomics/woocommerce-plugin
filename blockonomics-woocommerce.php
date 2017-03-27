@@ -39,7 +39,9 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-if ( class_exists( 'WooCommerce' ) ) {
+include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+
+if ( is_plugin_active( 'woocommerce/woocommerce.php') ) {
     function blockonomics_woocommerce_init()
     {
         if (!class_exists('WC_Payment_Gateway')) {
