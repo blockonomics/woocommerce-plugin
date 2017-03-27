@@ -24,6 +24,7 @@ Accept bitcoin payments on your WooCommerce-powered website with Blockonomics.
 
 ### Woocommerce Setup ###
 - Make sure you have [woocommerce](https://wordpress.org/plugins/woocommerce/) plugin installed on your wordpress site
+- Install plugin from [wordpress plugin directory](https://wordpress.org/plugins/blockonomics-bitcoin-payments/)
 - Activate the plugin
 - You should be able see Blockonomics submenu inside Settings.  
 - Put Blockonomics API key here
