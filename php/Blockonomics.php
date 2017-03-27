@@ -3,8 +3,8 @@
 class Blockonomics
 {
     const BASE_URL = 'https://www.blockonomics.co';
-    const NEW_ADDRESS_URL = Blockonomics::BASE_URL. '/api/new_address';
-    const PRICE_URL = Blockonomics::BASE_URL.'/api/price';
+    const NEW_ADDRESS_URL = 'https://www.blockonomics.co/api/new_address';
+    const PRICE_URL = 'https://www.blockonomics.co/api/price';
 
     public function __construct()
     {
