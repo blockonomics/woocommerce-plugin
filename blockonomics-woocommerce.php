@@ -39,7 +39,7 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-if (in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
+if ( class_exists( 'WooCommerce' ) ) {
     function blockonomics_woocommerce_init()
     {
         if (!class_exists('WC_Payment_Gateway')) {
