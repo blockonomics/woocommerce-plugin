@@ -2,7 +2,7 @@
 **Tags:** bitcoin, blockonomics, woocommerce, ecommerce, payments
 **Requires at least:** 3.0.1
 **Tested up to:** 4.7.3
-**Stable tag:** 1.0.2
+**Stable tag:** 1.0.3
 **License:** MIT
 **License URI:** http://opensource.org/licenses/MIT
 
@@ -42,10 +42,9 @@ Your webhost is blocking incoming callbacks from bots, our you have a DDOS prote
 
 ## Screenshots ##
 
-![](screenshot-1.png)
-Settings panel
-![](screenshot-2.png)
+![](assets-wp-repo/screenshot-1.png)
+Settings Panel
+![](assets-wp-repo/screenshot-2.png)
 Blockonomics configuration
-![](screenshot-3.png)
+![](assets-wp-repo/screenshot-3.png)
 Checkout screen
- 
