@@ -41,6 +41,10 @@ Your webhost is blocking outgoing HTTP connections. Blockonomics requires an out
 ### My order page is repeatedly refreshing on payment, how to fix this? ###
 Your webhost is blocking incoming callbacks from bots, our you have a DDOS protection in place that is causing this. Blockonomics server uses curl for payment callbacks and cannot emulate a browser accessing your website. Remove the DDOS protection for blockonomics.co 
 
+### I have multiple websites, how do I set this up? ###
+Just create a new xpub for each site and add to wallet watcher. In merchants tab you will get option to specify callback url for each of them.
+Install this plugin on each of your sites and following the same setup procedure.  Thats it! You can monitor many sites under same blockonomics emailid.
+
 ## Screenshots ##
 
 ![](assets-wp-repo/screenshot-1.png)    
