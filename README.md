@@ -42,11 +42,11 @@ Your webhost is blocking incoming callbacks from bots, our you have a DDOS prote
 
 ## Screenshots ##
 
-![](assets-wp-repo/screenshot-1.png)
+![](assets-wp-repo/screenshot-1.png)    
 Settings Panel  
 
-![](assets-wp-repo/screenshot-2.png)
+![](assets-wp-repo/screenshot-2.png)  
 Blockonomics configuration  
 
-![](assets-wp-repo/screenshot-3.png)  
+![](assets-wp-repo/screenshot-3.png)    
 Checkout screen
