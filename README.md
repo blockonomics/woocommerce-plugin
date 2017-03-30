@@ -15,6 +15,7 @@ Accept bitcoin payments on your WooCommerce-powered website with Blockonomics.
 - All major HD wallets like trezor, blockchain.info, mycelium supported
 - No approvals of API key/documentation required
 - Supports all major fiat currencies
+- Complete checkout process happens within your website/theme 
 
 ## Installation ##
 
