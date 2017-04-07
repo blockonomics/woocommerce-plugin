@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 1.3.1  =
+* Minor change in README
+
 = 1.3  =
 * Showing errors when unable to generate new address
 * Removed unused code
