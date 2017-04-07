@@ -36,11 +36,11 @@ Use bitcoin to pay and enjoy !
 
 ## Frequently Asked Questions ##
 
-### I am getting empty order page after checkout, what to do ? ###
-Your webhost is blocking outgoing HTTP connections. Blockonomics requires an outgoing HTTP POST to generate new address. Check with your webhost to allow this.
+### Getting error on checkout: Could not generate new bitcoin address , what to do ? ###
+- Your webhost is blocking outgoing HTTP connections. Blockonomics requires an outgoing HTTP POST to generate new address. Check with your webhost to allow this.
 
-### My order page is repeatedly refreshing on payment, how to fix this? ###
-Your webhost is blocking incoming callbacks from bots, our you have a DDOS protection in place that is causing this. Blockonomics server uses curl for payment callbacks and cannot emulate a browser accessing your website. Remove the DDOS protection for blockonomics.co 
+### Order is still on pending payment status even after two confirmations  ###
+Your webhost is blocking incoming callbacks from bots, our you have a DDOS protection in place that is causing this. Blockonomics server does payment callbacks to update trasnsaction status and cannot emulate a browser accessing your website. Remove the DDOS protection for blockonomics.co 
 
 ### I have multiple websites, how do I set this up? ###
 Just create a new xpub for each site and add to [blockonomics wallet watcher](https://www.blockonomics/blockonomics). In [merchants tab](https://www.blockonomics.co/merchants) you will get option to specify callback url for each of them.  Install this plugin on each of your sites and following the same setup procedure.  Thats it! You can monitor many sites under same blockonomics emailid.

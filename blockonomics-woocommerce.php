@@ -136,58 +136,64 @@ if ( is_plugin_active( 'woocommerce/woocommerce.php') || class_exists( 'WooComme
 
             public function process_payment($order_id)
             {
-                require_once(plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php');
-                global $woocommerce;
+              require_once(plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php');
+              global $woocommerce;
 
-                $order = new WC_Order($order_id);
+              $order = new WC_Order($order_id);
 
-                $success_url = add_query_arg('return_from_blockonomics', true, $this->get_return_url($order));
+              $success_url = add_query_arg('return_from_blockonomics', true, $this->get_return_url($order));
 
-                // Blockonomics mangles the order param so we have to put it somewhere else and restore it on init
-                $cancel_url = $order->get_cancel_order_url_raw();
-                $cancel_url = add_query_arg('return_from_blockonomics', true, $cancel_url);
-                $cancel_url = add_query_arg('cancelled', true, $cancel_url);
-                $cancel_url = add_query_arg('order_key', $order->order_key, $cancel_url);
+              // Blockonomics mangles the order param so we have to put it somewhere else and restore it on init
+              $cancel_url = $order->get_cancel_order_url_raw();
+              $cancel_url = add_query_arg('return_from_blockonomics', true, $cancel_url);
+              $cancel_url = add_query_arg('cancelled', true, $cancel_url);
+              $cancel_url = add_query_arg('order_key', $order->order_key, $cancel_url);
 
 
-                $api_key    = get_option('blockonomics_api_key');
-                if ($api_key == '') {
-                    if (version_compare($woocommerce->version, '2.1', '>=')) {
-                        wc_add_notice(__('Sorry, but there was an error processing your order. Please try again or try a different payment method. (plugin not configured)', 'blockonomics-woocommerce'), 'error');
-                    } else {
-                        $woocommerce->add_error(__('Sorry, but there was an error processing your order. Please try again or try a different payment method. (plugin not configured)', 'blockonomics-woocommerce'));
-                    }
-                    return;
+              $api_key    = get_option('blockonomics_api_key');
+              if ($api_key == '') {
+                if (version_compare($woocommerce->version, '2.1', '>=')) {
+                  wc_add_notice(__('Sorry, but there was an error processing your order. Please try again or try a different payment method. (plugin not configured)', 'blockonomics-woocommerce'), 'error');
+                } else {
+                  $woocommerce->add_error(__('Sorry, but there was an error processing your order. Please try again or try a different payment method. (plugin not configured)', 'blockonomics-woocommerce'));
                 }
+                return;
+              }
 
-                try {
-                    $blockonomics = new Blockonomics;
-                    $address = $blockonomics->new_address(get_option('blockonomics_api_key'), get_option("blockonomics_callback_secret"));
-                    $price = $blockonomics->get_price(get_woocommerce_currency());
-                    $blockonomics_orders = get_option('blockonomics_orders');
-                    $order = array(
-            'value'              => $order->get_total(),
-            'satoshi'            => intval(1.0e8*$order->get_total()/$price),
-            'currency'           => get_woocommerce_currency(),
-            'order_id'            => $order_id,
-            'status'             => -1,
-            'timestamp'          => time(),
-            'txid'               => ''
-          );
-                    //Using address as key, as orderid can be tried manually
-          //by hit and trial
-          $blockonomics_orders[$address] = $order;
-                    update_option('blockonomics_orders', $blockonomics_orders);
-                } catch (Exception $e) {
-                    return;
-                }
-                $order_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-                $order_url = add_query_arg('show_order', $address, $order_url);
+              try {
+                $blockonomics = new Blockonomics;
+                $address = $blockonomics->new_address(get_option('blockonomics_api_key'), get_option("blockonomics_callback_secret"));
+                $price = $blockonomics->get_price(get_woocommerce_currency());
+              } catch (Exception $e) {
+                $address = '';
+              }
+              if (!$address)
+              {
+                $error_msg = "<html>Could not generate new bitcoin address. Note to webmaster: Please check <a href='https://wordpress.org/plugins/blockonomics-bitcoin-payments/#faq'>FAQ</a>";
+                wc_add_notice($error_msg);
+                return;
+              }
+              $blockonomics_orders = get_option('blockonomics_orders');
+              $order = array(
+                'value'              => $order->get_total(),
+                'satoshi'            => intval(1.0e8*$order->get_total()/$price),
+                'currency'           => get_woocommerce_currency(),
+                'order_id'            => $order_id,
+                'status'             => -1,
+                'timestamp'          => time(),
+                'txid'               => ''
+              );
+              //Using address as key, as orderid can be tried manually
+              //by hit and trial
+              $blockonomics_orders[$address] = $order;
+              update_option('blockonomics_orders', $blockonomics_orders);
+              $order_url = WC()->api_request_url('WC_Gateway_Blockonomics');
+              $order_url = add_query_arg('show_order', $address, $order_url);
 
-                return array(
-                    'result'   => 'success',
-                    'redirect' => $order_url
-                );
+              return array(
+                'result'   => 'success',
+                'redirect' => $order_url
+              );
             }
 
             public function check_blockonomics_callback()
