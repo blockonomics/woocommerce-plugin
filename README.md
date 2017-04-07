@@ -37,7 +37,7 @@ Use bitcoin to pay and enjoy !
 ## Frequently Asked Questions ##
 
 ### Getting error on checkout: Could not generate new bitcoin address , what to do ? ###
-- Your webhost is blocking outgoing HTTP connections. Blockonomics requires an outgoing HTTP POST to generate new address. Check with your webhost to allow this.
+Your webhost is blocking outgoing HTTP connections. Blockonomics requires an outgoing HTTP POST to generate new address. Check with your webhost to allow this.
 
 ### Order is still on pending payment status even after two confirmations  ###
 Your webhost is blocking incoming callbacks from bots, our you have a DDOS protection in place that is causing this. Blockonomics server does payment callbacks to update trasnsaction status and cannot emulate a browser accessing your website. Remove the DDOS protection for blockonomics.co 
