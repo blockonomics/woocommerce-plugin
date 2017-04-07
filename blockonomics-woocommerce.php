@@ -97,13 +97,6 @@ if ( is_plugin_active( 'woocommerce/woocommerce.php') || class_exists( 'WooComme
             public function admin_options()
             {
                 echo '<h3>' . __('Blockonomics Payment Gateway', 'blockonomics-woocommerce') . '</h3>';
-                $blockonomics_account_email = get_option("blockonomics_account_email");
-                $blockonomics_error_message = get_option("blockonomics_error_message");
-                if ($blockonomics_account_email != false) {
-                    echo '<p>' . __('Successfully connected Blockonomics account', 'blockonomics-woocommerce') . " '$blockonomics_account_email'" . '</p>';
-                } elseif ($blockonomics_error_message != false) {
-                    echo '<p>' . __('Could not validate API Key:', 'blockonomics-woocommerce') . " $blockonomics_error_message" . '</p>';
-                }
                 echo '<table class="form-table">';
                 $this->generate_settings_html();
                 echo '</table>';
@@ -186,12 +179,6 @@ if ( is_plugin_active( 'woocommerce/woocommerce.php') || class_exists( 'WooComme
           $blockonomics_orders[$address] = $order;
                     update_option('blockonomics_orders', $blockonomics_orders);
                 } catch (Exception $e) {
-                    $order->add_order_note(__('Error while processing blockonomics payment:', 'blockonomics-woocommerce') . ' ' . var_export($e, true));
-                    if (version_compare($woocommerce->version, '2.1', '>=')) {
-                        wc_add_notice(__('Sorry, but there was an error processing your order. Please try again or try a different payment method.', 'blockonomics-woocommerce'), 'error');
-                    } else {
-                        $woocommerce->add_error(__('Sorry, but there was an error processing your order. Please try again or try a different payment method.', 'blockonomics-woocommerce'));
-                    }
                     return;
                 }
                 $order_url = WC()->api_request_url('WC_Gateway_Blockonomics');
