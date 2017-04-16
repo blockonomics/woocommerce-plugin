@@ -16,6 +16,7 @@ Accept bitcoin payments on your WooCommerce-powered website with Blockonomics.
 - No approvals of API key/documentation required
 - Supports all major fiat currencies
 - Complete checkout process happens within your website/theme 
+- Quick and easy installation - [Installation Video Tutorial](https://www.youtube.com/watch?v=E5nvTeuorE4)
 
 ## Installation ##
 
