@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 1.3.4 =
+* Fixed github repo URL
+* Updated README
+
 = 1.3.2  =
 * Change in README
 
