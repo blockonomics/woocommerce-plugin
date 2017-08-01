@@ -5,6 +5,16 @@
 		[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
 	display: none !important;
 }
+table {
+  table-layout: fixed;
+}
+@media screen and (max-width: 800px) {
+  table {
+  }
+  table td {
+    display: block;
+  }
+}
 		</style> 
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title>Bitcoin Payment - Powered by Blockonomics</title>
@@ -17,7 +27,7 @@ get_header();
   </head>
 
   <body ng-controller="CheckoutController">
-<div class="aligncenter" style="width:40%">
+<div class="aligncenter" style="width:45%">
   <div >
   <!-- heading row -->
   <div >
@@ -75,7 +85,7 @@ get_header();
           <div class="">
             <div class="">
               <a href="bitcoin:{{order.address}}?amount={{order.satoshi/1.0e8}}">
-              <qrcode data="bitcoin:{{order.address}}?amount={{order.satoshi/1.0e8}}" size="180">
+              <qrcode data="bitcoin:{{order.address}}?amount={{order.satoshi/1.0e8}}" size="160">
               <canvas class="qrcode"></canvas>
               </qrcode>
               </a>
