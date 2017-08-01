@@ -1,6 +1,11 @@
 <html ng-app="shopping-cart-demo">
   <head>
     <meta charset="utf-8">
+		<style>
+		[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+	display: none !important;
+}
+		</style> 
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title>Bitcoin Payment - Powered by Blockonomics</title>
     <meta name="description" content="">
@@ -17,8 +22,8 @@ get_header();
   <!-- heading row -->
   <div >
     <div > 
-      <span class=""> Order# {{order.order_id}}</span>
-      <span class="alignright" ng-show="order.status == -1"  >{{clock*1000 | date:'mm:ss' : 'UTC'}}</span>
+      <span ng-cloak> Order# {{order.order_id}}</span>
+      <span class="alignright ng-cloak" ng-show="order.status == -1">{{clock*1000 | date:'mm:ss' : 'UTC'}}</span>
     </div>
     <div ng-hide="order.status != -1">
       <!-- div class="" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width:{{progress}}%" -->
@@ -47,25 +52,25 @@ get_header();
 
       <div >
         <!-- Status -->
-        <label ng-show="order.status != -1" for="invoice-amount" style="margin-top:15px;" >Status</label>
+        <label ng-show="order.status != -1" for="invoice-amount" style="margin-top:15px;" ng-cloak>Status</label>
         <div class="" style="margin-bottom:10px;" >
-          <strong style="color: #956431;" ng-show="order.status == -1" >To
+          <strong style="color: #956431;" ng-show="order.status == -1" ng-cloak >To
             pay, send exact amount of BTC to the given address</strong>
-          <strong style="color: rgb(239, 121, 79)" ng-show="order.status == -3"> Payment Expired</strong>
-          <strong style="color: rgb(239, 121, 79)" ng-show="order.status == -2"> Payment Error</strong>
-          <strong style="color: #956431;" ng-show="order.status == 0"> Unconfirmed</strong>
-          <strong style="color: #956431;" ng-show="order.status == 1"> Partially Confirmed</strong>
-          <strong style="color: #956431;" ng-show="order.status >= 2" >Confirmed</strong>
+          <strong style="color: rgb(239, 121, 79)" ng-show="order.status == -3" ng-cloak> Payment Expired</strong>
+          <strong style="color: rgb(239, 121, 79)" ng-show="order.status == -2" ng-cloak> Payment Error</strong>
+          <strong style="color: #956431;" ng-show="order.status == 0" ng-cloak> Unconfirmed</strong>
+          <strong style="color: #956431;" ng-show="order.status == 1" ng-cloak> Partially Confirmed</strong>
+          <strong style="color: #956431;" ng-show="order.status >= 2" ng-cloak >Confirmed</strong>
         </div>
       </div>
 
       <div class="">
         <label for="invoice-amount">Amount</label>
         <div class="">
-          <strong style="color: #956431;">{{order.satoshi/1.0e8}}</strong>
+          <strong style="color: #956431;" ng-cloak>{{order.satoshi/1.0e8}}</strong>
           <small>BTC</small> ⇌
-          <strong style="color: #956431;">{{order.value}}</strong> 
-          <small>{{order.currency}}</small>
+          <strong style="color: #956431;" ng-cloak>{{order.value}}</strong> 
+          <small ng-cloak>{{order.currency}}</small>
         </div>
 
 
@@ -89,8 +94,8 @@ get_header();
       </div>
 
       <div >
-        <label ng-hide="order.status == -1" for="invoice-amount" >Payment Details</label>
-        <div ng-show="order.status !=-1 " class="" style="margin-bottom:10px;" >
+        <label ng-hide="order.status == -1" for="invoice-amount" ng-cloak >Payment Details</label>
+        <div ng-show="order.status !=-1 " class="" style="margin-bottom:10px;" ng-cloak >
           Transaction : <a style="font-weight:bold;color: #956431;" target="_blank"
                            href="http://www.blockonomics.co/api/tx?txid={{order.txid}}&addr={{order.address}}">{{order.txid |limitTo: 20}}</a>
         </div>
