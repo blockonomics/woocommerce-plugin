@@ -17,7 +17,7 @@ get_header();
   </head>
 
   <body ng-controller="CheckoutController">
-<div class="aligncenter" style="width:35%">
+<div class="aligncenter" style="width:40%">
   <div >
   <!-- heading row -->
   <div >
@@ -38,7 +38,7 @@ get_header();
   <div style="
     width: {{progress}}%;
     height: 7px;
-    background:#f80;
+    background:#666;
     left: 0;
     position: absolute;
     top: 0;
@@ -54,8 +54,7 @@ get_header();
         <!-- Status -->
         <label ng-show="order.status != -1" for="invoice-amount" style="margin-top:15px;" ng-cloak>Status</label>
         <div class="" style="margin-bottom:10px;" >
-          <strong style="color: #956431;" ng-show="order.status == -1" ng-cloak >To
-            pay, send exact amount of BTC to the given address</strong>
+          <h3 ng-show="order.status == -1" ng-cloak >To pay, send exact amount of BTC to the given address</h3>
           <strong style="color: rgb(239, 121, 79)" ng-show="order.status == -3" ng-cloak> Payment Expired</strong>
           <strong style="color: rgb(239, 121, 79)" ng-show="order.status == -2" ng-cloak> Payment Error</strong>
           <strong style="color: #956431;" ng-show="order.status == 0" ng-cloak> Unconfirmed</strong>
@@ -64,34 +63,36 @@ get_header();
         </div>
       </div>
 
-      <div class="">
-        <label for="invoice-amount">Amount</label>
-        <div class="">
-          <strong style="color: #956431;" ng-cloak>{{order.satoshi/1.0e8}}</strong>
-          <small>BTC</small> ⇌
-          <strong style="color: #956431;" ng-cloak>{{order.value}}</strong> 
-          <small ng-cloak>{{order.currency}}</small>
-        </div>
-
-
+      <table> 
+      <tr><td>
         <!-- address-->
         <div >
-          <label class="" style="margin-bottom:15px;margin-top:15px;" for="btn-address">Bitcoin Address</label>
+          <h5  for="btn-address">Bitcoin Address</h5>
         </div>
 
         <!-- QR Code -->
-        <div style="margin-bottom: 20px;">
+        <div style="margin-bottom: 5px;">
           <div class="">
             <div class="">
               <a href="bitcoin:{{order.address}}?amount={{order.satoshi/1.0e8}}">
-              <qrcode data="bitcoin:{{order.address}}?amount={{order.satoshi/1.0e8}}" size="220">
+              <qrcode data="bitcoin:{{order.address}}?amount={{order.satoshi/1.0e8}}" size="180">
               <canvas class="qrcode"></canvas>
               </qrcode>
               </a>
             </div>
           </div>
         </div>
-      </div>
+      </td>
+      <td style="vertical-align:top;"> 
+        <h5 for="invoice-amount">Amount</h5>
+        <div class="">
+          <span ng-cloak>{{order.satoshi/1.0e8}}</span>
+          <small>BTC</small> ⇌
+          <span ng-cloak>{{order.value}}</strong> 
+          <small ng-cloak>{{order.currency}}</small>
+        </div>
+      </td></tr>
+      </table>
 
       <div >
         <label ng-hide="order.status == -1" for="invoice-amount" ng-cloak >Payment Details</label>
