@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 1.3.5 =
+* Improved payment screen user interface 
+* Updated README
+
 = 1.3.4 =
 * Fixed github repo URL
 * Updated README

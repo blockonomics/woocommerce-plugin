@@ -40,7 +40,7 @@ Use bitcoin to pay and enjoy !
 ## Frequently Asked Questions ##
 
 ### Getting error on checkout: Could not generate new bitcoin address , what to do ? ###
-Your webhost is blocking outgoing HTTP connections. Blockonomics requires an outgoing HTTP POST to generate new address. Check with your webhost to allow this.
+Your webhost is blocking outgoing HTTPS connections. Blockonomics requires an outgoing HTTPS PORT (port 443) to generate new address. Check with your webhost to allow this. Also make sure that [allow\_url\_fopen is _On_](https://www.crybit.com/enable-allow_url_fopen/) on your server 
 
 ### Order is still on pending payment status even after two confirmations  ###
 Your webhost is blocking incoming callbacks from bots, our you have a DDOS protection in place that is causing this. Blockonomics server does payment callbacks to update trasnsaction status and cannot emulate a browser accessing your website. Remove the DDOS protection for blockonomics.co 
