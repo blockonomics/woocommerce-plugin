@@ -95,7 +95,7 @@ table {
       <td style="vertical-align:top;"> 
         <h5 for="invoice-amount">Amount</h5>
         <div class="">
-          <span ng-cloak>{{order.satoshi/1.0e8}}</span>
+          <span ng-show="order.satoshi" ng-cloak>{{order.satoshi/1.0e8}}</span>
           <small>BTC</small> ⇌
           <span ng-cloak>{{order.value}}</span> 
           <small ng-cloak>{{order.currency}}</small>

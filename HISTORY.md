@@ -1,5 +1,10 @@
 == Changelog ==
 
+= 1.3.6 =
+* Improved payment screen user interface
+* Comptability with WP 4.8 
+* Updated README
+
 = 1.3.5 =
 * Improved payment screen user interface 
 * Updated README
