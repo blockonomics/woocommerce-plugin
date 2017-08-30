@@ -63,7 +63,7 @@ if ( is_plugin_active( 'woocommerce/woocommerce.php') || class_exists( 'WooComme
             public function __construct()
             {
                 $this->id   = 'blockonomics';
-                $this->icon = WP_PLUGIN_URL . "/" . plugin_basename(dirname(__FILE__)) . '/blockonomics.png';
+                $this->icon = WP_PLUGIN_URL . "/" . plugin_basename(dirname(__FILE__)) . '/bitcoin-icon.png';
 
                 $this->has_fields        = false;
                 $this->order_button_text = __('Pay with bitcoin', 'blockonomics-woocommerce');
