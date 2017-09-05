@@ -232,24 +232,28 @@ if ( is_plugin_active( 'woocommerce/woocommerce.php') || class_exists( 'WooComme
                         if ($existing_status < -1) {
                             exit(0);
                         } // Already in error, exit
-            if ($status == 0 && time() > $timestamp + 600) {
-                $status = -3; //Payment expired after 10 minutes
-              $wc_order->update_status('failed', __('Payment expired', 'blockonomics-woocommerce'));
-            }
-                        if ($status == 2 and $order['satoshi'] != $_REQUEST['value']) {
+                        if ($status == 0 && time() > $timestamp + 600) {
+                          $status = -3; //Payment expired after 10 minutes
+                          $wc_order->update_status('failed', __('Payment expired', 'blockonomics-woocommerce'));
+                        }
+                        elseif ($status == 2) {
+                          update_post_meta($wc_order->id, 'paid_btc_amount', $_REQUEST['value']/1.0e8);
+                          if ($order['satoshi'] != $_REQUEST['value']){
                             $status = -2; //Payment error , amount not matching
-              $wc_order->update_status('failed', __('Paid amount not matching expected.', 'blockonomics-woocommerce'));
+                            $wc_order->update_status('failed', __('Paid BTC amount not matching expected.', 'blockonomics-woocommerce'));
+                          }
+                          else{
+                            $wc_order->add_order_note(__('Payment completed', 'blockonomics-woocommerce'));
+                            $wc_order->payment_complete($order['txid']);
+                          }
                         }
                         $order['txid'] =  $_REQUEST['txid'];
                         $order['status'] = $status;
                         $orders[$addr] = $order;
-                        if ($status == 2) {
-                            $wc_order->add_order_note(__('Payment completed', 'blockonomics-woocommerce'));
-                            $wc_order->payment_complete($order['txid']);
-                        }
                         if ($existing_status == -1) {
-                            update_post_meta($wc_order->id, 'blockonomics_txid', $order['txid']);
-                            update_post_meta($wc_order->id, 'blockonomics_address', $addr);
+                          update_post_meta($wc_order->id, 'blockonomics_txid', $order['txid']);
+                          update_post_meta($wc_order->id, 'blockonomics_address', $addr);
+                          update_post_meta($wc_order->id, 'expected_btc_amount', $order['satoshi']/1.0e8);
                         }
                         update_option('blockonomics_orders', $orders);
                     }
