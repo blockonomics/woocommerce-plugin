@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 1.3.7 =
+* Added paid/expected BTC custom fields 
+* Updated checkout icon 
+
 = 1.3.6 =
 * Improved payment screen user interface
 * Comptability with WP 4.8 
