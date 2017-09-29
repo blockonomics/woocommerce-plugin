@@ -9,11 +9,12 @@
 get_header();
 ?>
 <style>
-		[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
-	display: none !important;
+    [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
 }
 table {
   table-layout: fixed;
+  border-collapse:initial;
 }
 @media screen and (max-width: 800px) {
   table {
@@ -58,8 +59,11 @@ table {
   </div>
     <!-- Amount row -->
     <div >
-
-      <div >
+       <table>
+      <tr><td style="width:70%">
+      <table> 
+      <tr>
+      <td colspan="2" style="padding-right:20px;">
         <!-- Status -->
         <h5 ng-show="order.status != -1" for="invoice-amount" style="margin-top:15px;" ng-cloak>Status</h5>
         <div class="" style="margin-bottom:10px;" >
@@ -70,9 +74,8 @@ table {
           <span ng-show="order.status == 1" ng-cloak> Partially Confirmed</span>
           <span ng-show="order.status >= 2" ng-cloak >Confirmed</span>
         </div>
-      </div>
-
-      <table> 
+      </td>
+      </tr>
       <tr><td>
         <!-- address-->
         <div >
@@ -92,7 +95,7 @@ table {
           </div>
         </div>
       </td>
-      <td style="vertical-align:top;"> 
+      <td style="vertical-align:top;padding-right:20px;"> 
         <h5 for="invoice-amount">Amount</h5>
         <div class="">
           <span ng-show="order.satoshi" ng-cloak>{{order.satoshi/1.0e8}}</span>
@@ -101,9 +104,18 @@ table {
           <small ng-cloak>{{order.currency}}</small>
         <input type="text" style="margin-top:25px;float:right" ng-value="order.address" readonly="readonly">
         </div>
-      </td></tr>
+      </td>
+      </tr>
       </table>
-
+      </td>
+      <td rowspan="2" style="vertical-align:middle;padding-left:20px;border-left: 2px ridge">
+    <h3> OR you can </h3>
+          <div >
+     <script>function shapeshift_click(a,e){e.preventDefault();var link=a.href;window.open(link,'1418115287605','width=700,height=500,toolbar=0,menubar=0,location=0,status=1,scrollbars=1,resizable=0,left=0,top=0');return false;}</script> <a onclick="shapeshift_click(this, event);" href="https://shapeshift.io/shifty.html?destination={{order.address}}&amp;amount={{order.satoshi/1.0e8}}&amp;output=BTC"><img  src="https://shapeshift.io/images/shifty/small_dark_altcoins.png"  class="ss-button"></a>
+      </div>
+      </td>
+    </tr>
+  </table>
       <div ng-show="order.txid" >
         <h5 for="invoice-amount" ng-cloak >Transaction</h5>
         <div style="margin-bottom:10px;" ng-cloak >
@@ -113,10 +125,6 @@ table {
 
     </div>
 
-    <h5 style="text-align:center"> OR You can choose to </h5>
-          <div >
-     <script>function shapeshift_click(a,e){e.preventDefault();var link=a.href;window.open(link,'1418115287605','width=700,height=500,toolbar=0,menubar=0,location=0,status=1,scrollbars=1,resizable=0,left=0,top=0');return false;}</script> <a onclick="shapeshift_click(this, event);" href="https://shapeshift.io/shifty.html?destination={{order.address}}&amp;amount={{order.satoshi/1.0e8}}&amp;output=BTC"><img style="margin:auto;display:block"  src="https://shapeshift.io/images/shifty/xs_dark_altcoins.png"  class="ss-button"></a>
-      </div>
   </div>
   </div>
 </div>
