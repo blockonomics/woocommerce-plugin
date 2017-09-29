@@ -102,11 +102,13 @@ table {
           <small>BTC</small> ⇌
           <span ng-cloak>{{order.value}}</span> 
           <small ng-cloak>{{order.currency}}</small>
-        <input type="text" style="margin-top:25px;float:right" ng-value="order.address" readonly="readonly">
         </div>
       </td>
       </tr>
-      </table>
+      <tr><td colspan="2">
+        <input type="text" ng-value="order.address" readonly="readonly">
+      </td></tr>      
+</table>
       </td>
       <td rowspan="2" style="vertical-align:middle;padding-left:20px;border-left: 2px ridge">
     <h3> OR you can </h3>
@@ -116,12 +118,6 @@ table {
       </td>
     </tr>
   </table>
-      <div ng-show="order.txid" >
-        <h5 for="invoice-amount" ng-cloak >Transaction</h5>
-        <div style="margin-bottom:10px;" ng-cloak >
-          <a target="_blank" style="color:#07c" href="http://www.blockonomics.co/api/tx?txid={{order.txid}}&addr={{order.address}}">{{order.txid |limitTo: 20}}</a>
-        </div>
-      </div>
 
     </div>
 
