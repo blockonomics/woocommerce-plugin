@@ -99,6 +99,7 @@ table {
           <small>BTC</small> ⇌
           <span ng-cloak>{{order.value}}</span> 
           <small ng-cloak>{{order.currency}}</small>
+        <input type="text" style="margin-top:25px;float:right" ng-value="order.address" readonly="readonly">
         </div>
       </td></tr>
       </table>
@@ -112,8 +113,9 @@ table {
 
     </div>
 
+    <h5 style="text-align:center"> OR You can choose to </h5>
           <div >
-        <input type="text" class="" ng-value="order.address" readonly="readonly">
+     <script>function shapeshift_click(a,e){e.preventDefault();var link=a.href;window.open(link,'1418115287605','width=700,height=500,toolbar=0,menubar=0,location=0,status=1,scrollbars=1,resizable=0,left=0,top=0');return false;}</script> <a onclick="shapeshift_click(this, event);" href="https://shapeshift.io/shifty.html?destination={{order.address}}&amp;amount={{order.satoshi/1.0e8}}&amp;output=BTC"><img style="margin:auto;display:block"  src="https://shapeshift.io/images/shifty/xs_dark_altcoins.png"  class="ss-button"></a>
       </div>
   </div>
   </div>
