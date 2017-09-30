@@ -110,12 +110,14 @@ table {
       </td></tr>      
 </table>
       </td>
+      <?php if(get_option('blockonomics_altcoins')) : ?>
       <td rowspan="2" style="vertical-align:middle;padding-left:20px;border-left: 2px ridge">
     <h3> OR you can </h3>
           <div >
      <script>function shapeshift_click(a,e){e.preventDefault();var link=a.href;window.open(link,'1418115287605','width=700,height=500,toolbar=0,menubar=0,location=0,status=1,scrollbars=1,resizable=0,left=0,top=0');return false;}</script> <a onclick="shapeshift_click(this, event);" href="https://shapeshift.io/shifty.html?destination={{order.address}}&amp;amount={{order.satoshi/1.0e8}}&amp;output=BTC"><img  src="https://shapeshift.io/images/shifty/small_dark_altcoins.png"  class="ss-button"></a>
       </div>
       </td>
+<?php endif; ?>
     </tr>
   </table>
 

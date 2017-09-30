@@ -348,11 +348,14 @@ function show_options()
     $notify_url = add_query_arg('secret', $callback_secret, $notify_url);
     echo $notify_url ?></td>
     </tr>
+    <tr valign="top"><th scope="row">Accept Altcoin Payments (Using Shapeshift)</th>
+    <td><input type="checkbox" name="blockonomics_altcoins" value="1" <?php checked("1", get_option('blockonomics_altcoins')); ?>" /></td>
+    </tr>
     </table>
     <p class="submit">
     <input type="submit" class="button-primary" value="Save" />
     <input type="hidden" name="action" value="update" />
-    <input type="hidden" name="page_options" value="blockonomics_api_key" />
+    <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins" />
     </p>
     </form>
     </div> 	
