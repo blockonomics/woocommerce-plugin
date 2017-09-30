@@ -27,7 +27,7 @@ table {
   </head>
 
   <body ng-controller="CheckoutController">
-<div class="aligncenter" style="width:45%">
+<div class="aligncenter" style="width:600px">
   <div >
   <!-- heading row -->
   <div >
@@ -60,7 +60,7 @@ table {
     <!-- Amount row -->
     <div >
        <table>
-      <tr><td style="width:70%">
+      <tr><td style="width:65%">
       <table> 
       <tr>
       <td colspan="2" style="padding-right:20px;">
@@ -95,7 +95,7 @@ table {
           </div>
         </div>
       </td>
-      <td style="vertical-align:top;padding-right:20px;"> 
+      <td style="vertical-align:top;padding-right:10px;"> 
         <h5 for="invoice-amount">Amount</h5>
         <div class="">
           <span ng-show="order.satoshi" ng-cloak>{{order.satoshi/1.0e8}}</span>
@@ -122,8 +122,6 @@ table {
     </div>
 
   </div>
-  </div>
-</div>
     <script src="<?php echo plugins_url('js/angular.js', __FILE__);?>"></script>
     <script src="<?php echo plugins_url('js/angular-resource.js', __FILE__);?>"></script>
     <script src="<?php echo plugins_url('js/app.js', __FILE__);?>"></script>
