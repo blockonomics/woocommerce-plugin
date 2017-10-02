@@ -6,11 +6,12 @@
 **License:** MIT
 **License URI:** http://opensource.org/licenses/MIT
 
-Accept bitcoin payments on your WooCommerce-powered website with Blockonomics.
+Accept bitcoin/altcoin payments on your WooCommerce-powered website with Blockonomics.
 
 ## Description ##
 
 - Accept bitcoin payments on your website with ease
+- Accept all major altcoins on your website like ETH, XRP, BCH, LTC etc. using inbuilt shapeshift integration
 - No security risk, payments go directly into your own bitcoin wallet
 - All major HD wallets like trezor, blockchain.info, mycelium supported
 - No approvals of API key/documentation required

@@ -238,11 +238,13 @@ if ( is_plugin_active( 'woocommerce/woocommerce.php') || class_exists( 'WooComme
                         }
                         elseif ($status == 2) {
                           update_post_meta($wc_order->id, 'paid_btc_amount', $_REQUEST['value']/1.0e8);
-                          if ($order['satoshi'] != $_REQUEST['value']){
+                          if ($order['satoshi'] > $_REQUEST['value']){
                             $status = -2; //Payment error , amount not matching
-                            $wc_order->update_status('failed', __('Paid BTC amount not matching expected.', 'blockonomics-woocommerce'));
+                            $wc_order->update_status('failed', __('Paid BTC amount less than expected.', 'blockonomics-woocommerce'));
                           }
                           else{
+                            if ($order['satoshi'] < $_REQUEST['value'])
+                              $wc_order->add_order_note(__('Overpayment of BTC amount', 'blockonomics-woocommerce'));
                             $wc_order->add_order_note(__('Payment completed', 'blockonomics-woocommerce'));
                             $wc_order->payment_complete($order['txid']);
                           }
