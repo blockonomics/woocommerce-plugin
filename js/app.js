@@ -71,6 +71,12 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     $scope.progress = Math.floor($scope.clock*totalProgress/totalTime);
   };
 
+  $scope.pay_altcoins = function() {
+    $scope.altcoin_waiting = true;
+    url = "https://shapeshift.io/shifty.html?destination=" + $scope.order.address + "&amount=" + $scope.order.satoshi/1.0e8 + "&output=BTC";
+    window.open(url, '1418115287605','width=700,height=500,toolbar=0,menubar=0,location=0,status=1,scrollbars=1,resizable=0,left=0,top=0');
+  }
+
   if ( typeof $scope.address != 'undefined'){
     Order.get({"get_order":$scope.address}, function(data){
       $scope.order = data;
