@@ -12,6 +12,38 @@ get_header();
     [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
   display: none !important;
 }
+
+.spinner {
+  width: 60px;
+  height: 60px;
+  margin: 60px;
+  animation: rotate 1.4s infinite ease-in-out, background 1.4s infinite ease-in-out alternate;
+}
+
+@keyframes rotate {
+  0% {
+    transform: perspective(120px) rotateX(0deg) rotateY(0deg);
+  }
+  50% {
+    transform: perspective(120px) rotateX(-180deg) rotateY(0deg);
+  }
+  100% {
+    transform: perspective(120px) rotateX(-180deg) rotateY(-180deg);
+  }
+}
+@keyframes background {
+  0% {
+  background-color: #27ae60;
+  }
+  50% {
+    background-color: #9b59b6;
+  }
+  100% {
+    background-color: #c0392b;
+  }
+}
+
+
 table {
   table-layout: fixed;
   border-collapse:initial;
@@ -30,13 +62,12 @@ table {
 <div class="aligncenter" style="width:600px">
   <div >
   <!-- heading row -->
-  <div >
+  <div>
     <div > 
       <span ng-cloak> Order# {{order.order_id}}</span>
-      <span class="alignright ng-cloak" ng-show="order.status == -1">{{clock*1000 | date:'mm:ss' : 'UTC'}}</span>
+      <span class="alignright ng-cloak" ng-hide="order.status != -1 || altcoin_waiting">{{clock*1000 | date:'mm:ss' : 'UTC'}}</span>
     </div>
-    <div ng-hide="order.status != -1">
-      <!-- div class="" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width:{{progress}}%" -->
+    <div ng-hide="order.status != -1 || altcoin_waiting">
 <div style="
     width: 100%;
     height: 7px;
@@ -60,7 +91,7 @@ table {
     <!-- Amount row -->
     <div >
        <table>
-      <tr><td style="width:65%">
+      <tr><td style="width:65%" ng-hide="altcoin_waiting">
       <table> 
       <tr>
       <td colspan="2" style="padding-right:20px;">
@@ -111,17 +142,16 @@ table {
 </table>
       </td>
       <?php if(get_option('blockonomics_altcoins')) : ?>
-      <td rowspan="2" style="vertical-align:middle;padding-left:20px;border-left: 2px ridge">
+      <td rowspan="2" ng-hide="altcoin_waiting" style="vertical-align:middle;padding-left:20px;border-left: 2px ridge">
     <h3> OR you can </h3>
           <div >
-     <script>function shapeshift_click(a,e){e.preventDefault();var link=a.href;window.open(link,'1418115287605','width=700,height=500,toolbar=0,menubar=0,location=0,status=1,scrollbars=1,resizable=0,left=0,top=0');return false;}</script> <a onclick="shapeshift_click(this, event);" href="https://shapeshift.io/shifty.html?destination={{order.address}}&amp;amount={{order.satoshi/1.0e8}}&amp;output=BTC"><img  src="https://shapeshift.io/images/shifty/small_dark_altcoins.png"  class="ss-button"></a>
+      <a ng-click="pay_altcoins()" href=""><img  src="https://shapeshift.io/images/shifty/small_dark_altcoins.png"  class="ss-button"></a>
       </div>
       </td>
+      <td rowspan="2" ng-show="altcoin_waiting"><h3> Waiting for altcoin payment </h3><div class="spinner"></div><h5><a href="" ng-click="altcoin_waiting=false"> Click here</a> to cancel and go back </h5></td>
 <?php endif; ?>
     </tr>
   </table>
-
-    </div>
 
   </div>
     <script src="<?php echo plugins_url('js/angular.js', __FILE__);?>"></script>
