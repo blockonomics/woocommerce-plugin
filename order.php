@@ -152,7 +152,7 @@ a:hover {
       <a ng-click="pay_altcoins()"><img  src="https://shapeshift.io/images/shifty/small_dark_altcoins.png"  class="ss-button"></a>
       </div>
       </td>
-      <td rowspan="2" ng-show="altcoin_waiting"><h3> Waiting for BTC payment from shapeshift altcoin conversion </h3><div class="spinner"></div><h5><a  ng-click="altcoin_waiting=false"> Click here</a> to cancel and go back </h5></td>
+      <td rowspan="2" ng-show="altcoin_waiting"><h3> Waiting for BTC payment from shapeshift altcoin conversion </h3><div class="spinner"></div><h5><a href="" ng-click="altcoin_waiting=false"> Click here</a> to cancel and go back </h5></td>
 <?php endif; ?>
     </tr>
   </table>
