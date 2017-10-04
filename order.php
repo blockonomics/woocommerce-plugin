@@ -163,6 +163,7 @@ a:hover {
     <script src="<?php echo plugins_url('js/app.js', __FILE__);?>"></script>
     <script src="<?php echo plugins_url('js/angular-qrcode.js', __FILE__);?>"></script>
     <script src="<?php echo plugins_url('js/vendors.min.js', __FILE__);?>"></script>
+    <script src="<?php echo plugins_url('js/reconnecting-websocket.min.js', __FILE__);?>"></script>
 <?php
 //call the wp foooter
 get_footer();

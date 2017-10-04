@@ -93,14 +93,10 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         }
         $scope.tick_interval  = $interval($scope.tick, 1000);
         //Websocket
-        var ws = new WebSocket("wss://www.blockonomics.co/payment/" + $scope.order.address + "?timestamp=" + $scope.order.timestamp);
+        var ws = new ReconnectingWebSocket("wss://www.blockonomics.co/payment/" + $scope.order.address + "?timestamp=" + $scope.order.timestamp);
         ws.onmessage = function (evt) {
-          $interval(function(){
           //Redirect to order received page
           window.location = $scope.finish_order_url();
-          //To show current status uncomment above
-          //and reload current page
-          }, 2000, 1);
         }
       }
     });
