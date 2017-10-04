@@ -67,7 +67,7 @@ table {
       <span ng-cloak> Order# {{order.order_id}}</span>
       <span class="alignright ng-cloak" ng-hide="order.status != -1 || altcoin_waiting">{{clock*1000 | date:'mm:ss' : 'UTC'}}</span>
     </div>
-    <div ng-hide="order.status != -1 || altcoin_waiting">
+    <div ng-cloak ng-hide="order.status != -1 || altcoin_waiting">
 <div style="
     width: 100%;
     height: 7px;
@@ -91,7 +91,7 @@ table {
     <!-- Amount row -->
     <div >
        <table>
-      <tr><td style="width:65%" ng-hide="altcoin_waiting">
+      <tr><td style="width:65%" ng-hide="altcoin_waiting" ng-cloak>
       <table> 
       <tr>
       <td colspan="2" style="padding-right:20px;">
@@ -99,7 +99,7 @@ table {
         <h5 ng-show="order.status != -1" for="invoice-amount" style="margin-top:15px;" ng-cloak>Status</h5>
         <div class="" style="margin-bottom:10px;" >
           <h3 ng-show="order.status == -1" ng-cloak >To pay, send exact amount of BTC to the given address</h3>
-          <span style="color: rgb(239, 121, 79)" ng-show="order.status == -3" ng-cloak> Payment Expired</span>
+          <span style="color: rgb(239, 121, 79)" ng-show="order.status == -3" ng-cloak> Payment Expired (Use browser back button and try again)</span>
           <span style="color: rgb(239, 121, 79)" ng-show="order.status == -2" ng-cloak> Payment Error</span>
           <span ng-show="order.status == 0" ng-cloak> Unconfirmed</span>
           <span ng-show="order.status == 1" ng-cloak> Partially Confirmed</span>
@@ -142,13 +142,13 @@ table {
 </table>
       </td>
       <?php if(get_option('blockonomics_altcoins')) : ?>
-      <td rowspan="2" ng-hide="altcoin_waiting" style="vertical-align:middle;padding-left:20px;border-left: 2px ridge">
+      <td rowspan="2" ng-hide="altcoin_waiting" style="vertical-align:middle;padding-left:20px;border-left: 2px ridge" ng-cloak>
     <h3> OR you can </h3>
           <div >
       <a ng-click="pay_altcoins()" href=""><img  src="https://shapeshift.io/images/shifty/small_dark_altcoins.png"  class="ss-button"></a>
       </div>
       </td>
-      <td rowspan="2" ng-show="altcoin_waiting"><h3> Waiting for BTC payment from shapeshift altcoin conversion </h3><div class="spinner"></div><h5><a href="" ng-click="altcoin_waiting=false"> Click here</a> to cancel and go back </h5></td>
+      <td rowspan="2" ng-show="altcoin_waiting" ng-cloak><h3> Waiting for BTC payment from shapeshift altcoin conversion </h3><div class="spinner"></div><h5><a href="" ng-click="altcoin_waiting=false"> Click here</a> to cancel and go back </h5></td>
 <?php endif; ?>
     </tr>
   </table>
