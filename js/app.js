@@ -96,8 +96,12 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         var ws = new ReconnectingWebSocket("wss://www.blockonomics.co/payment/" + $scope.order.address + "?timestamp=" + $scope.order.timestamp);
         ws.onmessage = function (evt) {
           ws.close();
-          //Redirect to order received page
-          window.location = $scope.finish_order_url();
+					$interval(function(){
+						//Redirect to order received page
+						window.location = $scope.finish_order_url();
+						//Wait for 2 seconds for order status
+            //to update on server
+					}, 2000, 1);
         }
       }
     });
