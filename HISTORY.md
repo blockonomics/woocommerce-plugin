@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 1.3.8 =
+* Support for altcoin payments through shapeshift (You need to enable this from Settings)
+* Not marking order as failed on overpayment 
+
 = 1.3.7 =
 * Added paid/expected BTC custom fields 
 * Updated checkout icon 
