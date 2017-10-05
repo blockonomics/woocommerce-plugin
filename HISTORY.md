@@ -1,5 +1,10 @@
 == Changelog ==
 
+= 1.3.9 =
+* Support for altcoin payments through shapeshift (You need to enable this from Settings)
+* Not marking order as failed on overpayment 
+* Minified JS files and removed unused ones
+
 = 1.3.8 =
 * Support for altcoin payments through shapeshift (You need to enable this from Settings)
 * Not marking order as failed on overpayment 
