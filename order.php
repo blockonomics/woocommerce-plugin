@@ -59,11 +59,16 @@ table {
   </head>
 
   <body ng-controller="CheckoutController">
-<div class="aligncenter" style="width:600px">
+
+<?php if(get_option('blockonomics_altcoins')) : ?>
+<div style="max-width: 1000px;" class="aligncenter">
+<?php else : ?>
+<div style="max-width: 600px;" class="aligncenter">
+<?php endif;?>
   <div >
   <!-- heading row -->
   <div>
-    <div > 
+    <div >
       <span ng-cloak> Order# {{order.order_id}}</span>
       <span class="alignright ng-cloak" ng-hide="order.status != -1 || altcoin_waiting">{{clock*1000 | date:'mm:ss' : 'UTC'}}</span>
     </div>
@@ -91,8 +96,8 @@ table {
     <!-- Amount row -->
     <div >
        <table>
-      <tr><td style="width:65%" ng-hide="altcoin_waiting" ng-cloak>
-      <table> 
+      <tr><td ng-hide="altcoin_waiting" ng-cloak>
+      <table>
       <tr>
       <td colspan="2" style="padding-right:20px;">
         <!-- Status -->
@@ -107,7 +112,7 @@ table {
         </div>
       </td>
       </tr>
-      <tr><td>
+      <tr><td style="text-align: center;">
         <!-- address-->
         <div >
           <h5  for="btn-address">Bitcoin Address</h5>
@@ -124,28 +129,35 @@ table {
               </a>
             </div>
           </div>
+          <h5 style="margin-top: 5px;">Click on the QR code above to open in bitcoin wallet</h5>
         </div>
+
+
       </td>
-      <td style="vertical-align:top;padding-right:10px;"> 
+      <td style="vertical-align:top;padding-right:10px;text-align:center;">
         <h5 for="invoice-amount">Amount</h5>
         <div class="">
           <span ng-show="order.satoshi" ng-cloak>{{order.satoshi/1.0e8}}</span>
           <small>BTC</small> ⇌
-          <span ng-cloak>{{order.value}}</span> 
+          <span ng-cloak>{{order.value}}</span>
           <small ng-cloak>{{order.currency}}</small>
         </div>
       </td>
       </tr>
-      <tr><td colspan="2">
-        <input type="text" ng-value="order.address" readonly="readonly">
-      </td></tr>      
+      <tr><td style="text-align: center;" colspan="2">
+        <input style="text-align:center; width:100%; border:1px solid grey; box-shadow: none; background-color:unset;"type="text" ng-value="order.address" readonly="readonly">
+      </td></tr>
 </table>
       </td>
       <?php if(get_option('blockonomics_altcoins')) : ?>
-      <td rowspan="2" ng-hide="altcoin_waiting" style="vertical-align:middle;padding-left:20px;border-left: 2px ridge" ng-cloak>
+      <td rowspan="2" ng-hide="altcoin_waiting" style="vertical-align:middle;padding-left:20px;text-align:center;" ng-cloak>
     <h3> OR you can </h3>
           <div >
-      <a ng-click="pay_altcoins()" href=""><img  src="https://shapeshift.io/images/shifty/small_dark_altcoins.png"  class="ss-button"></a>
+      <a ng-click="pay_altcoins()" href=""><img  style="margin: auto;" src="https://shapeshift.io/images/shifty/small_dark_altcoins.png"  class="ss-button"></a>
+      <div style="text-align: left; max-width: 200px; margin: 10px auto 0 auto;">
+        <h5>You can pay with Ethereum, Bitcoin Cash, Dash, and many others through Shapeshift!</h5>
+        <h5><strong>Note: </strong>Shapeshift charges a 0.001 BTC fee for conversion. Not recommended for smaller amounts.</h5>
+      </div>
       </div>
       </td>
       <td rowspan="2" ng-show="altcoin_waiting" ng-cloak><h3> Waiting for BTC payment from shapeshift altcoin conversion </h3><div class="spinner"></div><h5><a href="" ng-click="altcoin_waiting=false"> Click here</a> to cancel and go back </h5></td>
