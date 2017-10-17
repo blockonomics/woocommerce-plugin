@@ -8,6 +8,7 @@
  * Author URI: https://www.blockonomics.co
  * License: MIT
  * Text Domain: blockonomics-woocommerce
+ * Domain Path: /languages/
  */
 
 /*  Copyright 2017 Blockonomics Inc.
@@ -47,7 +48,6 @@ if ( is_plugin_active( 'woocommerce/woocommerce.php') || class_exists( 'WooComme
         if (!class_exists('WC_Payment_Gateway')) {
             return;
         }
-
         /**
          * Blockonomics Payment Gateway
          *
@@ -62,13 +62,13 @@ if ( is_plugin_active( 'woocommerce/woocommerce.php') || class_exists( 'WooComme
         {
             public function __construct()
             {
+                load_plugin_textdomain( 'blockonomics-woocommerce', FALSE, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+
                 $this->id   = 'blockonomics';
                 $this->icon = WP_PLUGIN_URL . "/" . plugin_basename(dirname(__FILE__)) . '/bitcoin-icon.png';
 
                 $this->has_fields        = false;
                 $this->order_button_text = __('Pay with bitcoin', 'blockonomics-woocommerce');
-
-
 
                 $this->init_form_fields();
                 $this->init_settings();
@@ -298,7 +298,7 @@ if ( is_plugin_active( 'woocommerce/woocommerce.php') || class_exists( 'WooComme
         add_options_page('Blockonomics', 'Blockonomics', 'manage_options',
         'blockonomics_options', 'show_options');
     }
-    
+
         function generate_secret()
         {
             $callback_secret = get_option("blockonomics_callback_secret");
@@ -331,23 +331,25 @@ if ( is_plugin_active( 'woocommerce/woocommerce.php') || class_exists( 'WooComme
 
 function show_options()
 {
-    ?>	
+  load_plugin_textdomain( 'blockonomics-woocommerce', FALSE, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+
+    ?>
   <div class="wrap">
     <h2>Blockonomics</h2>
     <form method="post" action="options.php">
     <?php wp_nonce_field('update-options') ?>
   <table class="form-table">
-    <tr valign="top"><th scope="row">BLOCKONOMICS API KEY (Generate from <a href="https://www.blockonomics.co/blockonomics">Wallet Watcher</a> &gt; Settings)</th>
+    <tr valign="top"><th scope="row">BLOCKONOMICS API KEY (<?=__('Generate from ', 'blockonomics-woocommerce')?> <a href="https://www.blockonomics.co/blockonomics">Wallet Watcher</a> &gt; Settings)</th>
     <td><input type="text" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" /></td>
     </tr>
-    <tr valign="top"><th scope="row">CALLBACK URL (Copy this url and set in <a href="https://www.blockonomics.co/merchants">Merchants</a>)</th>
+    <tr valign="top"><th scope="row">CALLBACK URL (<?=__('Copy this url and set in ', 'blockonomics-woocommerce')?><a href="https://www.blockonomics.co/merchants">Merchants</a>)</th>
     <td><?php
         $callback_secret = get_option('blockonomics_callback_secret');
     $notify_url = WC()->api_request_url('WC_Gateway_Blockonomics');
     $notify_url = add_query_arg('secret', $callback_secret, $notify_url);
     echo $notify_url ?></td>
     </tr>
-    <tr valign="top"><th scope="row">Accept Altcoin Payments (Using Shapeshift)</th>
+    <tr valign="top"><th scope="row"><?=__('Accept Altcoin Payments (Using Shapeshift)', 'blockonomics-woocommerce')?></th>
     <td><input type="checkbox" name="blockonomics_altcoins" value="1" <?php checked("1", get_option('blockonomics_altcoins')); ?>" /></td>
     </tr>
     </table>
@@ -357,7 +359,7 @@ function show_options()
     <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins" />
     </p>
     </form>
-    </div> 	
+    </div>
 <?php
 
 }
