@@ -71,7 +71,7 @@ table {
   <body ng-controller="CheckoutController">
 
 <?php if(get_option('blockonomics_altcoins')) : ?>
-<div style="max-width: 1000px;" class="aligncenter">
+<div style="max-width: 800px;" class="aligncenter">
 <?php else : ?>
 <div style="max-width: 600px;" class="aligncenter">
 <?php endif;?>
