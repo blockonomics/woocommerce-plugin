@@ -48,11 +48,21 @@ table {
   table-layout: fixed;
   border-collapse:initial;
 }
+
+.altcoin-td {
+  border-left: 1px solid grey;
+}
+
 @media screen and (max-width: 800px) {
+  .altcoin-td {
+    border-left: none;
+  }
+
   table {
   }
   table td {
     display: block;
+    border: none;
   }
 }
 </style>
@@ -150,7 +160,7 @@ table {
 </table>
       </td>
       <?php if(get_option('blockonomics_altcoins')) : ?>
-      <td rowspan="2" ng-hide="altcoin_waiting" style="vertical-align:middle;padding-left:20px;text-align:center;" ng-cloak>
+      <td class="altcoin-td" rowspan="2" ng-hide="altcoin_waiting" style="vertical-align:middle;padding-left:20px;text-align:center;" ng-cloak>
     <h3> <?=__('OR you can ', 'blockonomics-woocommerce')?></h3>
           <div >
       <a ng-click="pay_altcoins()" href=""><img  style="margin: auto;" src="https://shapeshift.io/images/shifty/small_dark_altcoins.png"  class="ss-button"></a>
