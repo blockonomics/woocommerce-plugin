@@ -139,7 +139,7 @@ table {
               </a>
             </div>
           </div>
-          <h5 style="margin-top: 5px; font-size: 0.83em;"><?=__('Click on the QR code above to open in bitcoin wallet', 'blockonomics-woocommerce')?></h5>
+          <h5 style="margin-top: 5px;"><?=__('Click on the QR code above to open in bitcoin wallet', 'blockonomics-woocommerce')?></h5>
         </div>
 
 
@@ -165,8 +165,8 @@ table {
           <div >
       <a ng-click="pay_altcoins()" href=""><img  style="margin: auto;" src="https://shapeshift.io/images/shifty/small_dark_altcoins.png"  class="ss-button"></a>
       <div style="text-align: left; max-width: 200px; margin: 10px auto 0 auto;">
-        <h5 style="font-size: 0.83em;"><?=__('You can pay with Ethereum, Bitcoin Cash, Dash, and many others through Shapeshift!', 'blockonomics-woocommerce')?></h5>
-        <h5 style="font-size: 0.83em;"><strong><?=__('Note: ', 'blockonomics-woocommerce')?></strong><?=__('Shapeshift charges a 0.001 BTC fee for conversion. Not recommended for smaller amounts.', 'blockonomics-woocommerce')?></h5>
+        <h5><?=__('You can pay with Ethereum, Bitcoin Cash, Dash, and many others through Shapeshift!', 'blockonomics-woocommerce')?></h5>
+        <h5><strong><?=__('Note: ', 'blockonomics-woocommerce')?></strong><?=__('Shapeshift charges a 0.001 BTC fee for conversion. Not recommended for smaller amounts.', 'blockonomics-woocommerce')?></h5>
       </div>
       </div>
       </td>
