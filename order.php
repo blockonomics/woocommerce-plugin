@@ -50,7 +50,7 @@ table {
 }
 
 .altcoin-td {
-  border-left: 1px solid grey;
+  border-left: 2px ridge;
   width: 35%;
 }
 
