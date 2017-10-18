@@ -3,7 +3,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Example project\n"
-"POT-Creation-Date: 2017-10-16 15:44-0400\n"
+"POT-Creation-Date: 2017-10-18 11:25-0400\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -11,8 +11,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-Basepath: ../../../Applications/MAMP/htdocs/wordpress/wp-content/"
-"plugins/blockonomics-woocommerce\n"
+"X-Poedit-Basepath: ..\n"
 "X-Poedit-KeywordsList: __;_e;_ex:1,2c;_n:1,2;_n_noop:1,2;_nx:1,2,4c;"
 "_nx_noop:1,2,3c;_x:1,2c;esc_attr__;esc_attr_e;esc_attr_x:1,2c;esc_html__;"
 "esc_html_e;esc_html_x:1,2c\n"
@@ -90,15 +89,15 @@ msgstr "El cliente canceló el pago blockonomics"
 msgid "Transaction"
 msgstr "Transacción"
 
-#: blockonomics-woocommerce.php:343
+#: blockonomics-woocommerce.php:342
 msgid "Generate from "
 msgstr "Encuéntralo en "
 
-#: blockonomics-woocommerce.php:346
+#: blockonomics-woocommerce.php:345
 msgid "Copy this url and set in "
 msgstr "Copia esta URL y ponla en "
 
-#: blockonomics-woocommerce.php:353
+#: blockonomics-woocommerce.php:352
 msgid "Accept Altcoin Payments (Using Shapeshift)"
 msgstr "Acepta pagos de Altcoin (usando Shapeshift)"
 
@@ -106,76 +105,70 @@ msgstr "Acepta pagos de Altcoin (usando Shapeshift)"
 msgid "Bitcoin Payment - Powered by Blockonomics"
 msgstr "Pago de Bitcoin - Habilitado por Blockonomics"
 
-#: order.php:72
+#: order.php:84
 msgid "Order#"
 msgstr "Pedido#"
 
-#: order.php:104
+#: order.php:116
 msgid "Status"
 msgstr "Estado"
 
-#: order.php:106
+#: order.php:118
 msgid "To pay, send exact amount of BTC to the given address"
 msgstr "Para pagar, envíe la cantidad exacta de BTC a la dirección indicada"
 
-#: order.php:107
+#: order.php:119
 msgid "Payment Expired (Use browser back button and try again)"
 msgstr ""
 "Pago caducado (Utiliza el botón de retroceso en su browser y intenta de "
 "nuevo)"
 
-#: order.php:108
+#: order.php:120
 msgid "Payment Error"
 msgstr "Error en el pago"
 
-#: order.php:109
+#: order.php:121
 msgid "Unconfirmed"
 msgstr "Inconfirmado"
 
-#: order.php:110
+#: order.php:122
 msgid "Partially Confirmed"
 msgstr "Parcialmente confirmado"
 
-#: order.php:111
+#: order.php:123
 msgid "Confirmed"
 msgstr "Confirmado"
 
-#: order.php:118
+#: order.php:130
 msgid "Bitcoin Address"
 msgstr "Dirección de Bitcoin"
 
-#: order.php:132
-msgid "Click on the QR code above to open in bitcoin wallet"
-msgstr "Haga clic en el código QR para abrir su billetera de bitcoin"
+#: order.php:144
+msgid "Click on the QR code above to open in wallet"
+msgstr "Haga clic en el código QR para abrir su billetera"
 
-#: order.php:138
+#: order.php:150
 msgid "Amount"
 msgstr "Cantidad"
 
-#: order.php:154
+#: order.php:166
 msgid "OR you can "
 msgstr "O puedes "
 
-#: order.php:158
-msgid ""
-"You can pay with Ethereum, Bitcoin Cash, Dash, and many others through "
-"Shapeshift!"
-msgstr ""
-"¡Puedes pagar con Ethereum, Bitcoin Cash, Dash y muchos otros a través de "
-"Shapeshift!"
+#: order.php:170
+msgid "Ethereum, Bitcoin Cash, Dash and many others supported"
+msgstr "Ethereum, Bitcoin Cash, Dash y muchos otros son compatibles"
 
-#: order.php:159
-msgid "Note: "
-msgstr "Nota: "
-
-#: order.php:159
-msgid ""
-"Shapeshift charges a 0.001 BTC fee for conversion. Not recommended for "
-"smaller amounts."
-msgstr ""
-"Shapeshift cobra una tarifa de 0.001 BTC por conversión. No se recomienda "
-"para cantidades pequeñas."
-
-#: order.php:163
+#: order.php:174
 msgid "Waiting for BTC payment from shapeshift altcoin conversion "
 msgstr "Esperando el pago de BTC por la conversión de altcoin "
+
+#~ msgid "Note: "
+#~ msgstr "Nota: "
+
+#~ msgid ""
+#~ "Shapeshift charges a 0.001 BTC fee for conversion. Not recommended for "
+#~ "smaller amounts."
+#~ msgstr ""
+#~ "Shapeshift cobra una tarifa de 0.001 BTC por conversión. No se recomienda "
+#~ "para cantidades pequeñas."
