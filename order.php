@@ -48,11 +48,21 @@ table {
   table-layout: fixed;
   border-collapse:initial;
 }
+
+.altcoin-td {
+  border-left: 1px solid grey;
+}
+
 @media screen and (max-width: 800px) {
+  .altcoin-td {
+    border-left: none;
+  }
+
   table {
   }
   table td {
     display: block;
+    border: none;
   }
 }
 </style>
@@ -61,7 +71,7 @@ table {
   <body ng-controller="CheckoutController">
 
 <?php if(get_option('blockonomics_altcoins')) : ?>
-<div style="max-width: 1000px;" class="aligncenter">
+<div style="max-width: 800px;" class="aligncenter">
 <?php else : ?>
 <div style="max-width: 600px;" class="aligncenter">
 <?php endif;?>
@@ -129,7 +139,7 @@ table {
               </a>
             </div>
           </div>
-          <h5 style="margin-top: 5px;"><?=__('Click on the QR code above to open in bitcoin wallet', 'blockonomics-woocommerce')?></h5>
+          <h5 style="margin-top: 5px; font-size: 0.83em;"><?=__('Click on the QR code above to open in bitcoin wallet', 'blockonomics-woocommerce')?></h5>
         </div>
 
 
@@ -150,13 +160,13 @@ table {
 </table>
       </td>
       <?php if(get_option('blockonomics_altcoins')) : ?>
-      <td rowspan="2" ng-hide="altcoin_waiting" style="vertical-align:middle;padding-left:20px;text-align:center;" ng-cloak>
+      <td class="altcoin-td" rowspan="2" ng-hide="altcoin_waiting" style="vertical-align:middle;padding-left:20px;text-align:center;" ng-cloak>
     <h3> <?=__('OR you can ', 'blockonomics-woocommerce')?></h3>
           <div >
       <a ng-click="pay_altcoins()" href=""><img  style="margin: auto;" src="https://shapeshift.io/images/shifty/small_dark_altcoins.png"  class="ss-button"></a>
       <div style="text-align: left; max-width: 200px; margin: 10px auto 0 auto;">
-        <h5><?=__('You can pay with Ethereum, Bitcoin Cash, Dash, and many others through Shapeshift!', 'blockonomics-woocommerce')?></h5>
-        <h5><strong><?=__('Note: ', 'blockonomics-woocommerce')?></strong><?=__('Shapeshift charges a 0.001 BTC fee for conversion. Not recommended for smaller amounts.', 'blockonomics-woocommerce')?></h5>
+        <h5 style="font-size: 0.83em;"><?=__('You can pay with Ethereum, Bitcoin Cash, Dash, and many others through Shapeshift!', 'blockonomics-woocommerce')?></h5>
+        <h5 style="font-size: 0.83em;"><strong><?=__('Note: ', 'blockonomics-woocommerce')?></strong><?=__('Shapeshift charges a 0.001 BTC fee for conversion. Not recommended for smaller amounts.', 'blockonomics-woocommerce')?></h5>
       </div>
       </div>
       </td>
