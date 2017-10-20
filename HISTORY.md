@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 1.4.0 =
+* Usability improvements to payment screen
+* Added Spanish, french and german translation
+
 = 1.3.9 =
 * Support for altcoin payments through shapeshift (You need to enable this from Settings)
 * Not marking order as failed on overpayment 
