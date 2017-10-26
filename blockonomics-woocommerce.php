@@ -49,7 +49,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
             return;
         }
 
-        wp_enqueue_style('bnomics-style', plugin_dir_url(__FILE__) . "scss/style.css");
+        wp_enqueue_style('bnomics-style', plugin_dir_url(__FILE__) . "css/order.css");
 
         /**
          * Blockonomics Payment Gateway
