@@ -8,6 +8,10 @@
   display: none !important;
 }
 
+.warning {
+  color: rgb(239, 121, 79);
+}
+
 @keyframes rotate {
   0% {
     transform: perspective(120px) rotateX(0deg) rotateY(0deg);
@@ -34,7 +38,21 @@
 
 .bnomics-order-container {
   margin: auto;
-  padding: 30px 0;
+  padding: 30px;
+}
+
+.bnomics-order-container h5 {
+  margin: 10px 0;
+  font-size: 22px;
+}
+
+.bnomics-order-container h6 {
+  margin: 15px 0;
+}
+
+.bnomics-order-container p {
+  margin: 15px 0;
+  font-size: 15px;
 }
 
 .bnomics-progress-bar-container {
@@ -58,11 +76,37 @@
   display: flex;
 }
 
-.bnomics-btc-info {
+.bnomics-order-info > div {
+  padding: 15px 30px;
+}
+
+.bnomics-order-info .bnomics-bitcoin-pane {
+  flex: 2;
+}
+
+.bnomics-bitcoin-pane .bnomics-btc-info {
   display: flex;
+  text-align: center;
+}
+
+.bnomics-btc-info .bnomics-qr-code {
+  flex: 1;
+}
+
+.bnomics-btc-info .bnomics-amount {
+  flex: 1;
+}
+
+.bnomics-altcoin-pane {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  border-left: 2px ridge;
+  text-align: center;
 }
 
 .bnomics-address input {
+  margin-top: 15px;
   width: 100%;
   border: 1px solid grey;
   background-color: unset;
@@ -71,7 +115,7 @@
 }
 
 .spinner {
-  margin: 60px;
+  margin: auto;
   width: 60px;
   height: 60px;
   animation: rotate 1.4s infinite ease-in-out,
@@ -85,15 +129,26 @@
 
 /* ---- Mobile -----*/
 @media screen and (max-width: 800px) {
-  .altcoin-td {
-    width: 100%;
+  .bnomics-btc-info {
+    display: block !important;
+  }
+
+  .bnomics-order-container {
+    text-align: center;
+  }
+
+  .bnomics-order-container h5 {
+    margin: 10px 0;
+    font-size: 22px;
+  }
+
+  .bnomics-altcoin-pane {
+    display: block;
+    border-top: 2px ridge;
     border-left: none;
   }
 
-  table {
-  }
-  table td {
+  .bnomics-order-info {
     display: block;
-    border: none;
   }
 }

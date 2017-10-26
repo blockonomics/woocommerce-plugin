@@ -17,7 +17,7 @@
     <div class="bnomics-order-container" style="max-width: 600px;">
     <?php endif;?>
 
-      <!-- heading row -->
+      <!-- Heading row -->
       <div class="bnomics-order-heading">
         <div>
           <div >
@@ -37,13 +37,13 @@
       <div class="bnomics-order-panel">
         <div class="bnomics-order-info">
 
-          <div class="bnomics-bitcoin-pane">
+          <div class="bnomics-bitcoin-pane" ng-hide="altcoin_waiting">
             <!-- Order Status -->
             <h5 ng-show="order.status != -1" for="invoice-amount" style="margin-top:15px;" ng-cloak><?=__('Status', 'blockonomics-woocommerce')?></h5>
             <div>
-              <h3 ng-show="order.status == -1" ng-cloak ><?=__('To pay, send exact amount of BTC to the given address', 'blockonomics-woocommerce')?></h3>
-              <span style="color: rgb(239, 121, 79)" ng-show="order.status == -3" ng-cloak><?=__('Payment Expired (Use browser back button and try again)', 'blockonomics-woocommerce')?></span>
-              <span style="color: rgb(239, 121, 79)" ng-show="order.status == -2" ng-cloak><?=__('Payment Error', 'blockonomics-woocommerce')?></span>
+              <h5 ng-show="order.status == -1" ng-cloak ><?=__('To pay, send exact amount of BTC to the given address', 'blockonomics-woocommerce')?></h5>
+              <span class="warning" ng-show="order.status == -3" ng-cloak><?=__('Payment Expired (Use browser back button and try again)', 'blockonomics-woocommerce')?></span>
+              <span class="warning" ng-show="order.status == -2" ng-cloak><?=__('Payment Error', 'blockonomics-woocommerce')?></span>
               <span ng-show="order.status == 0" ng-cloak><?=__('Unconfirmed', 'blockonomics-woocommerce')?></span>
               <span ng-show="order.status == 1" ng-cloak><?=__('Partially Confirmed', 'blockonomics-woocommerce')?></span>
               <span ng-show="order.status >= 2" ng-cloak ><?=__('Confirmed', 'blockonomics-woocommerce')?></span>
@@ -52,13 +52,13 @@
             <div class="bnomics-btc-info">
               <!-- QR and Amount -->
               <div class="bnomics-qr-code">
-                <h5  for="btn-address"><?=__('Bitcoin Address', 'blockonomics-woocommerce')?></h5>
+                <h6  for="btn-address"><?=__('Bitcoin Address', 'blockonomics-woocommerce')?></h6>
                 <a href="bitcoin:{{order.address}}?amount={{order.satoshi/1.0e8}}">
                   <qrcode data="bitcoin:{{order.address}}?amount={{order.satoshi/1.0e8}}" size="160">
                     <canvas class="qrcode"></canvas>
                   </qrcode>
                 </a>
-                <h5 style="margin-top: 5px;"><?=__('Click on the QR code above to open in wallet', 'blockonomics-woocommerce')?></h5>
+                <p><?=__('Click on the QR code above to open in wallet', 'blockonomics-woocommerce')?></p>
               </div>
 
               <!-- BTC Amount -->
@@ -81,22 +81,22 @@
 
 
           <?php if (get_option('blockonomics_altcoins')) : ?>
-          <div class="bnomics-altcoin-pane">
+          <div class="bnomics-altcoin-pane" ng-style="{'border-left': (altcoin_waiting)?'none':''}">
 
             <div ng-hide="altcoin_waiting" ng-cloak>
-              <h3> <?=__('OR you can ', 'blockonomics-woocommerce')?></h3>
+              <h5> <?=__('OR you can ', 'blockonomics-woocommerce')?></h5>
               <div>
                 <a ng-click="pay_altcoins()" href=""><img  style="margin: auto;" src="https://shapeshift.io/images/shifty/small_dark_altcoins.png"  class="ss-button"></a>
-                <div style="text-align: left; max-width: 200px; margin: 10px auto 0 auto;">
-                  <h5><?=__('Ethereum, Bitcoin Cash, Dash and many others supported', 'blockonomics-woocommerce')?></h5>
+                <div>
+                  <p><?=__('Ethereum, Bitcoin Cash, Dash and many others supported', 'blockonomics-woocommerce')?></p>
                 </div>
               </div>
             </div>
 
             <div ng-show="altcoin_waiting" ng-cloak>
-              <h3><?=__('Waiting for BTC payment from shapeshift altcoin conversion ', 'blockonomics-woocommerce')?></h3>
+              <h5><?=__('Waiting for BTC payment from shapeshift altcoin conversion ', 'blockonomics-woocommerce')?></h5>
               <div class="spinner"></div>
-              <h5><a ng-click="altcoin_waiting=false"> Click here</a> to cancel and go back </h5>
+              <h5><a href="" ng-click="altcoin_waiting=false"> Click here</a> to cancel and go back </h5>
             </div>
 
           </div>
