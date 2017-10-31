@@ -41,18 +41,18 @@
   padding: 30px;
 }
 
-.bnomics-order-container h5 {
+.bnomics-order-container h4 {
   margin: 10px 0;
-  font-size: 22px;
+  font-size: 20px;
+  font-weight: normal;
 }
 
-.bnomics-order-container h6 {
+.bnomics-order-container h5 {
   margin: 15px 0;
-}
-
-.bnomics-order-container p {
-  margin: 15px 0;
-  font-size: 15px;
+  font-size: 16px;
+  letter-spacing: 1px;
+  font-weight: normal;
+  text-transform: unset;
 }
 
 .bnomics-progress-bar-container {
@@ -118,8 +118,7 @@
   margin: auto;
   width: 60px;
   height: 60px;
-  animation: rotate 1.4s infinite ease-in-out,
-    background 1.4s infinite ease-in-out alternate;
+  animation: rotate 1.4s infinite ease-in-out, background 1.4s infinite ease-in-out alternate;
 }
 
 .altcoin-td {
@@ -139,7 +138,6 @@
 
   .bnomics-order-container h5 {
     margin: 10px 0;
-    font-size: 22px;
   }
 
   .bnomics-altcoin-pane {
