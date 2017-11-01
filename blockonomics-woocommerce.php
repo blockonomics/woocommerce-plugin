@@ -40,29 +40,32 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
-if ( is_plugin_active( 'woocommerce/woocommerce.php') || class_exists( 'WooCommerce' )) {
+if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce')) {
     function blockonomics_woocommerce_init()
     {
         if (!class_exists('WC_Payment_Gateway')) {
             return;
         }
+
+        wp_enqueue_style('bnomics-style', plugin_dir_url(__FILE__) . "css/order.css");
+
         /**
          * Blockonomics Payment Gateway
          *
          * Provides a Blockonomics Payment Gateway.
          *
-         * @class       WC_Gateway_Blockonomics
-         * @extends     WC_Payment_Gateway
-         * @version     2.0.1
-         * @author      Blockonomics Inc.
+         * @class   WC_Gateway_Blockonomics
+         * @extends WC_Payment_Gateway
+         * @version 2.0.1
+         * @author  Blockonomics Inc.
          */
         class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         {
             public function __construct()
             {
-                load_plugin_textdomain( 'blockonomics-woocommerce', FALSE, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+                load_plugin_textdomain('blockonomics-woocommerce', false, dirname(plugin_basename(__FILE__)) . '/languages/');
 
                 $this->id   = 'blockonomics';
                 $this->icon = WP_PLUGIN_URL . "/" . plugin_basename(dirname(__FILE__)) . '/bitcoin-icon.png';
@@ -79,20 +82,26 @@ if ( is_plugin_active( 'woocommerce/woocommerce.php') || class_exists( 'WooComme
 
                 add_option('blockonomics_orders', array());
                 // Actions
-                add_action('woocommerce_update_options_payment_gateways_' . $this->id, array(
+                add_action(
+                    'woocommerce_update_options_payment_gateways_' . $this->id, array(
                     $this,
                     'process_admin_options'
-                ));
-                add_action('woocommerce_receipt_blockonomics', array(
+                    )
+                );
+                add_action(
+                    'woocommerce_receipt_blockonomics', array(
                     $this,
                     'receipt_page'
-                ));
+                    )
+                );
 
                 // Payment listener/API hook
-                add_action('woocommerce_api_wc_gateway_blockonomics', array(
+                add_action(
+                    'woocommerce_api_wc_gateway_blockonomics', array(
                     $this,
                     'check_blockonomics_callback'
-                ));
+                    )
+                );
             }
             public function admin_options()
             {
@@ -136,45 +145,44 @@ if ( is_plugin_active( 'woocommerce/woocommerce.php') || class_exists( 'WooComme
 
             public function process_payment($order_id)
             {
-              require_once(plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php');
-              global $woocommerce;
+                include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
+                global $woocommerce;
 
-              $order = new WC_Order($order_id);
+                $order = new WC_Order($order_id);
 
-              $success_url = add_query_arg('return_from_blockonomics', true, $this->get_return_url($order));
+                $success_url = add_query_arg('return_from_blockonomics', true, $this->get_return_url($order));
 
-              // Blockonomics mangles the order param so we have to put it somewhere else and restore it on init
-              $cancel_url = $order->get_cancel_order_url_raw();
-              $cancel_url = add_query_arg('return_from_blockonomics', true, $cancel_url);
-              $cancel_url = add_query_arg('cancelled', true, $cancel_url);
-              $cancel_url = add_query_arg('order_key', $order->order_key, $cancel_url);
+                // Blockonomics mangles the order param so we have to put it somewhere else and restore it on init
+                $cancel_url = $order->get_cancel_order_url_raw();
+                $cancel_url = add_query_arg('return_from_blockonomics', true, $cancel_url);
+                $cancel_url = add_query_arg('cancelled', true, $cancel_url);
+                $cancel_url = add_query_arg('order_key', $order->order_key, $cancel_url);
 
 
-              $api_key    = get_option('blockonomics_api_key');
-              if ($api_key == '') {
-                if (version_compare($woocommerce->version, '2.1', '>=')) {
-                  wc_add_notice(__('Sorry, but there was an error processing your order. Please try again or try a different payment method. (plugin not configured)', 'blockonomics-woocommerce'), 'error');
-                } else {
-                  $woocommerce->add_error(__('Sorry, but there was an error processing your order. Please try again or try a different payment method. (plugin not configured)', 'blockonomics-woocommerce'));
+                $api_key    = get_option('blockonomics_api_key');
+                if ($api_key == '') {
+                    if (version_compare($woocommerce->version, '2.1', '>=')) {
+                        wc_add_notice(__('Sorry, but there was an error processing your order. Please try again or try a different payment method. (plugin not configured)', 'blockonomics-woocommerce'), 'error');
+                    } else {
+                        $woocommerce->add_error(__('Sorry, but there was an error processing your order. Please try again or try a different payment method. (plugin not configured)', 'blockonomics-woocommerce'));
+                    }
+                    return;
                 }
-                return;
-              }
 
-              try {
-                $blockonomics = new Blockonomics;
-                $address = $blockonomics->new_address(get_option('blockonomics_api_key'), get_option("blockonomics_callback_secret"));
-                $price = $blockonomics->get_price(get_woocommerce_currency());
-              } catch (Exception $e) {
-                $address = '';
-              }
-              if (!$address)
-              {
-                $error_msg = "<html>Could not generate new bitcoin address. Note to webmaster: Please check <a href='https://wordpress.org/plugins/blockonomics-bitcoin-payments/#faq'>FAQ</a>";
-                wc_add_notice($error_msg);
-                return;
-              }
-              $blockonomics_orders = get_option('blockonomics_orders');
-              $order = array(
+                try {
+                    $blockonomics = new Blockonomics;
+                    $address = $blockonomics->new_address(get_option('blockonomics_api_key'), get_option("blockonomics_callback_secret"));
+                    $price = $blockonomics->get_price(get_woocommerce_currency());
+                } catch (Exception $e) {
+                    $address = '';
+                }
+                if (!$address) {
+                    $error_msg = "<html>Could not generate new bitcoin address. Note to webmaster: Please check <a href='https://wordpress.org/plugins/blockonomics-bitcoin-payments/#faq'>FAQ</a>";
+                    wc_add_notice($error_msg);
+                    return;
+                }
+                $blockonomics_orders = get_option('blockonomics_orders');
+                $order = array(
                 'value'              => $order->get_total(),
                 'satoshi'            => intval(1.0e8*$order->get_total()/$price),
                 'currency'           => get_woocommerce_currency(),
@@ -182,18 +190,18 @@ if ( is_plugin_active( 'woocommerce/woocommerce.php') || class_exists( 'WooComme
                 'status'             => -1,
                 'timestamp'          => time(),
                 'txid'               => ''
-              );
-              //Using address as key, as orderid can be tried manually
-              //by hit and trial
-              $blockonomics_orders[$address] = $order;
-              update_option('blockonomics_orders', $blockonomics_orders);
-              $order_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-              $order_url = add_query_arg('show_order', $address, $order_url);
+                );
+                //Using address as key, as orderid can be tried manually
+                //by hit and trial
+                $blockonomics_orders[$address] = $order;
+                update_option('blockonomics_orders', $blockonomics_orders);
+                $order_url = WC()->api_request_url('WC_Gateway_Blockonomics');
+                $order_url = add_query_arg('show_order', $address, $order_url);
 
-              return array(
+                return array(
                 'result'   => 'success',
                 'redirect' => $order_url
-              );
+                );
             }
 
             public function check_blockonomics_callback()
@@ -202,7 +210,7 @@ if ( is_plugin_active( 'woocommerce/woocommerce.php') || class_exists( 'WooComme
                 $address = isset($_REQUEST["show_order"]) ? $_REQUEST["show_order"] : "";
                 if ($address) {
                     $dir = plugin_dir_path(__FILE__);
-                    include($dir."order.php");
+                    include $dir."order.php";
                     exit();
                 }
                 $address = isset($_REQUEST["finish_order"]) ? $_REQUEST["finish_order"] : "";
@@ -234,25 +242,26 @@ if ( is_plugin_active( 'woocommerce/woocommerce.php') || class_exists( 'WooComme
                             $wc_order->add_order_note(__("Warning: Payment arrived after $minutes minutes. Received BTC may not match current bitcoin price", 'blockonomics-woocommerce'));
                         }
                         elseif ($status == 2) {
-                          update_post_meta($wc_order->id, 'paid_btc_amount', $_REQUEST['value']/1.0e8);
-                          if ($order['satoshi'] > $_REQUEST['value']){
-                            $status = -2; //Payment error , amount not matching
-                            $wc_order->update_status('failed', __('Paid BTC amount less than expected.', 'blockonomics-woocommerce'));
-                          }
-                          else{
-                            if ($order['satoshi'] < $_REQUEST['value'])
-                              $wc_order->add_order_note(__('Overpayment of BTC amount', 'blockonomics-woocommerce'));
-                            $wc_order->add_order_note(__('Payment completed', 'blockonomics-woocommerce'));
-                            $wc_order->payment_complete($order['txid']);
-                          }
+                            update_post_meta($wc_order->id, 'paid_btc_amount', $_REQUEST['value']/1.0e8);
+                            if ($order['satoshi'] > $_REQUEST['value']) {
+                                $status = -2; //Payment error , amount not matching
+                                $wc_order->update_status('failed', __('Paid BTC amount less than expected.', 'blockonomics-woocommerce'));
+                            }
+                            else{
+                                if ($order['satoshi'] < $_REQUEST['value']) {
+                                    $wc_order->add_order_note(__('Overpayment of BTC amount', 'blockonomics-woocommerce'));
+                                }
+                                $wc_order->add_order_note(__('Payment completed', 'blockonomics-woocommerce'));
+                                $wc_order->payment_complete($order['txid']);
+                            }
                         }
                         $order['txid'] =  $_REQUEST['txid'];
                         $order['status'] = $status;
                         $orders[$addr] = $order;
                         if ($existing_status == -1) {
-                          update_post_meta($wc_order->id, 'blockonomics_txid', $order['txid']);
-                          update_post_meta($wc_order->id, 'blockonomics_address', $addr);
-                          update_post_meta($wc_order->id, 'expected_btc_amount', $order['satoshi']/1.0e8);
+                            update_post_meta($wc_order->id, 'blockonomics_txid', $order['txid']);
+                            update_post_meta($wc_order->id, 'blockonomics_address', $addr);
+                            update_post_meta($wc_order->id, 'expected_btc_amount', $order['satoshi']/1.0e8);
                         }
                         update_option('blockonomics_orders', $orders);
                     }
@@ -291,13 +300,15 @@ if ( is_plugin_active( 'woocommerce/woocommerce.php') || class_exists( 'WooComme
         }
 
 
-    // Add entry in the settings menu
-    function add_page()
-    {
-        generate_secret();
-        add_options_page('Blockonomics', 'Blockonomics', 'manage_options',
-        'blockonomics_options', 'show_options');
-    }
+        // Add entry in the settings menu
+        function add_page()
+        {
+            generate_secret();
+            add_options_page(
+                'Blockonomics', 'Blockonomics', 'manage_options',
+                'blockonomics_options', 'show_options'
+            );
+        }
 
         function generate_secret()
         {
@@ -311,7 +322,7 @@ if ( is_plugin_active( 'woocommerce/woocommerce.php') || class_exists( 'WooComme
         {
             $txid = get_post_meta($order->id, 'blockonomics_txid', true);
             $address = get_post_meta($order->id, 'blockonomics_address', true);
-            require_once(plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php');
+            include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
             if ($txid && $address) {
                 echo '<p><strong>'.__('Transaction').':</strong>  <a href =\''. Blockonomics::BASE_URL ."/api/tx?txid=$txid&addr=$address'>".substr($txid, 0, 10). '</a></p>';
             }
@@ -331,7 +342,7 @@ if ( is_plugin_active( 'woocommerce/woocommerce.php') || class_exists( 'WooComme
 
 function show_options()
 {
-  load_plugin_textdomain( 'blockonomics-woocommerce', FALSE, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+    load_plugin_textdomain('blockonomics-woocommerce', false, dirname(plugin_basename(__FILE__)) . '/languages/');
 
     ?>
   <div class="wrap">
@@ -339,17 +350,17 @@ function show_options()
     <form method="post" action="options.php">
     <?php wp_nonce_field('update-options') ?>
   <table class="form-table">
-    <tr valign="top"><th scope="row">BLOCKONOMICS API KEY (<?=__('Generate from ', 'blockonomics-woocommerce')?> <a href="https://www.blockonomics.co/blockonomics">Wallet Watcher</a> &gt; Settings)</th>
+    <tr valign="top"><th scope="row">BLOCKONOMICS API KEY (<?php echo __('Generate from ', 'blockonomics-woocommerce')?> <a href="https://www.blockonomics.co/blockonomics">Wallet Watcher</a> &gt; Settings)</th>
     <td><input type="text" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" /></td>
     </tr>
-    <tr valign="top"><th scope="row">CALLBACK URL (<?=__('Copy this url and set in ', 'blockonomics-woocommerce')?><a href="https://www.blockonomics.co/merchants">Merchants</a>)</th>
+    <tr valign="top"><th scope="row">CALLBACK URL (<?php echo __('Copy this url and set in ', 'blockonomics-woocommerce')?><a href="https://www.blockonomics.co/merchants">Merchants</a>)</th>
     <td><?php
         $callback_secret = get_option('blockonomics_callback_secret');
     $notify_url = WC()->api_request_url('WC_Gateway_Blockonomics');
     $notify_url = add_query_arg('secret', $callback_secret, $notify_url);
     echo $notify_url ?></td>
     </tr>
-    <tr valign="top"><th scope="row"><?=__('Accept Altcoin Payments (Using Shapeshift)', 'blockonomics-woocommerce')?></th>
+    <tr valign="top"><th scope="row"><?php echo __('Accept Altcoin Payments (Using Shapeshift)', 'blockonomics-woocommerce')?></th>
     <td><input type="checkbox" name="blockonomics_altcoins" value="1" <?php checked("1", get_option('blockonomics_altcoins')); ?>" /></td>
     </tr>
     </table>
