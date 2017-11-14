@@ -1,15 +1,7 @@
-<html ng-app="shopping-cart-demo">
-  <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title><?=__('Bitcoin Payment - Powered by Blockonomics', 'blockonomics-woocommerce')?></title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<?php get_header();?>
 
-    <?php get_header();?>
-
-  </head>
-
-  <body ng-controller="CheckoutController">
+<div ng-app="shopping-cart-demo">
+  <div ng-controller="CheckoutController">
 
     <?php if (get_option('blockonomics_altcoins')) : ?>
     <div class="bnomics-order-container" style="max-width: 800px;">
@@ -113,7 +105,7 @@
     <script src="<?php echo plugins_url('js/angular-qrcode.js', __FILE__);?>"></script>
     <script src="<?php echo plugins_url('js/vendors.min.js', __FILE__);?>"></script>
     <script src="<?php echo plugins_url('js/reconnecting-websocket.min.js', __FILE__);?>"></script>
+  </div>
+</div>
 
-  <?php get_footer();?>
-  </body>
-</html>
+<?php get_footer();?>
