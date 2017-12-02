@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 1.4.1 =
+* Moved all styles to CSS file. Gives ability to control plugin appearance
+* Comptatibility with WP 4.9.1
+
 = 1.4.0 =
 * Usability improvements to payment screen
 * Added Spanish, french and german translation
