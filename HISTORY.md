@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 1.4.2 =
+* Fixed bug with conflicting style of spinner
+
 = 1.4.1 =
 * Moved all styles to CSS file. Gives ability to control plugin appearance
 * Comptatibility with WP 4.9.1
