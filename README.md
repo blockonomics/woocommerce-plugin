@@ -2,7 +2,7 @@
 **Tags:** bitcoin, accept bitcoin, bitcoin woocommerce, bitcoin wordpress plugin, bitcoin payments
 **Requires at least:** 3.0.1
 **Tested up to:** 4.9.1
-**Stable tag:** 1.4.2
+**Stable tag:** 1.4.3
 **License:** MIT
 **License URI:** http://opensource.org/licenses/MIT
 
@@ -29,7 +29,8 @@ The fastest and easiest way to start accepting Bitcoin payments on your Woocomme
 
 ## Installation ##
 
-[Installation Video Tutorial](https://www.youtube.com/watch?v=E5nvTeuorE4)
+- [Installation Video Tutorial](https://www.youtube.com/watch?v=E5nvTeuorE4)
+- [Blog Tutorial](https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62)
 
 ### Blockonomics Setup ###
 - Complete [blockonomics merchant wizard](https://www.blockonomics.co/merchants) 

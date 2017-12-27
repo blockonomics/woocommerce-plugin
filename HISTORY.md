@@ -1,5 +1,10 @@
 == Changelog ==
 
+= 1.4.3  =
+* Added option to configure timeperiod of checkout timer
+* Added functionality to regenerate callback URL
+* Updates to README and snapshots
+
 = 1.4.2 =
 * Fixed bug with conflicting style of spinner
 
