@@ -353,7 +353,7 @@ function show_options()
     <tr valign="top"><th scope="row">BLOCKONOMICS API KEY (<?php echo __('Generate from ', 'blockonomics-woocommerce')?> <a href="https://www.blockonomics.co/blockonomics">Wallet Watcher</a> &gt; Settings)</th>
     <td><input type="text" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" /></td>
     </tr>
-    <tr valign="top"><th scope="row">CALLBACK URL (<?php echo __('Copy this url and set in ', 'blockonomics-woocommerce')?><a href="https://www.blockonomics.co/merchants">Merchants</a>)</th>
+    <tr valign="top"><th scope="row">CALLBACK URL (<?php echo __('Copy this url and set in ', 'blockonomics-woocommerce')?><a href="https://www.blockonomics.co/merchants">Merchants</a>)</br> <a style="font:400 20px/1 dashicons;cursor: pointer" title="Generate New Callback url">&#xf463;<a></th>
     <td><?php
         $callback_secret = get_option('blockonomics_callback_secret');
     $notify_url = WC()->api_request_url('WC_Gateway_Blockonomics');
@@ -363,11 +363,21 @@ function show_options()
     <tr valign="top"><th scope="row"><?php echo __('Accept Altcoin Payments (Using Shapeshift)', 'blockonomics-woocommerce')?></th>
     <td><input type="checkbox" name="blockonomics_altcoins" value="1" <?php checked("1", get_option('blockonomics_altcoins')); ?>" /></td>
     </tr>
+    <tr valign="top"><th scope="row"><?php echo __('Time period of countdown timer on payment page (in minutes)', 'blockonomics-woocommerce')?></th>
+    <td><select name="blockonomics_timeperiod" />
+    <option value="10" <?php selected(get_option('blockonomics_timeperiod'), 10); ?>>10</option>
+    <option value="15" <?php selected(get_option('blockonomics_timeperiod'), 15); ?>>15</option>
+    <option value="20" <?php selected(get_option('blockonomics_timeperiod'), 20); ?>>20</option>
+    <option value="25" <?php selected(get_option('blockonomics_timeperiod'), 25); ?>>25</option>
+    <option value="30" <?php selected(get_option('blockonomics_timeperiod'), 30); ?>>30</option>
+    </select>
+</td>
+    </tr>
     </table>
     <p class="submit">
     <input type="submit" class="button-primary" value="Save" />
     <input type="hidden" name="action" value="update" />
-    <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins" />
+    <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod" />
     </p>
     </form>
     </div>

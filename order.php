@@ -98,7 +98,9 @@
 
       </div>
     </div>
-
+    <script>
+    var blockonomics_time_period=<?php echo get_option('blockonomics_timeperiod'); ?>;
+    </script>
     <script src="<?php echo plugins_url('js/angular.min.js', __FILE__);?>"></script>
     <script src="<?php echo plugins_url('js/angular-resource.min.js', __FILE__);?>"></script>
     <script src="<?php echo plugins_url('js/app.js', __FILE__);?>"></script>
