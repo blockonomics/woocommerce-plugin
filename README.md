@@ -10,9 +10,17 @@ Accept bitcoin/altcoin payments on your WooCommerce-powered website with Blockon
 
 ## Description ##
 
-- Accept bitcoin payments on your website with ease
-- Accept all major altcoins on your website like ETH, XRP, BCH, LTC etc. using inbuilt shapeshift integration
-- No security risk, payments go directly into your own bitcoin wallet
+The fastest and easiest way to start accepting Bitcoin payments on your Woocommerce online store. Since 2015, Blockonomics has helped thousands of ecommerce sites increase sales by including Bitcoin, Ethereum, Litecoin, and other major altcoins as a payment option for their customers.
+
+### Blockonomics helps merchants sell more ###
+- Accept Bitcoin payments on your website with ease
+- Safe and secure transactions
+- No need for exchanges and middle men - coins go directly into your wallet
+- Eliminate chargebacks and fraud
+
+
+### Plugin features ###
+- Accept BTC and major altcoins on your website like ETH, XRP, BCH, LTC etc. using inbuilt shapeshift integration
 - All major HD wallets like trezor, blockchain.info, mycelium supported
 - No approvals of API key/documentation required
 - Supports all major fiat currencies
@@ -41,7 +49,7 @@ Use bitcoin to pay and enjoy !
 ## Frequently Asked Questions ##
 
 ### Getting error on checkout: Could not generate new bitcoin address , what to do ? ###
-Your webhost is blocking outgoing HTTPS connections. Blockonomics requires an outgoing HTTPS PORT (port 443) to generate new address. Check with your webhost to allow this. Also make sure that [allow\_url\_fopen is _On_](https://www.crybit.com/enable-allow_url_fopen/) on your server 
+Your webhost is probably blocking outgoing HTTPS connections. Blockonomics requires an outgoing HTTPS PORT (port 443) to generate new address. Check with your webhost to allow this. Consult this [article](https://blockonomics.freshdesk.com/solution/articles/33000215104-troubleshooting-unable-to-generate-new-address) for more details.
 
 ### Order is still on pending payment status even after two confirmations  ###
 Your webhost is blocking incoming callbacks from bots, our you have a DDOS protection in place that is causing this. Blockonomics server does payment callbacks to update trasnsaction status and cannot emulate a browser accessing your website. Remove the DDOS protection for blockonomics.co 
@@ -51,11 +59,15 @@ Just create a new xpub for each site and add to [blockonomics wallet watcher](ht
 
 ## Screenshots ##
 
+![](assets-wp-repo/screenshot-4.png)    
+Checkout option
+
+![](assets-wp-repo/screenshot-3.png)    
+Payment screen
+
 ![](assets-wp-repo/screenshot-1.png)    
 Settings Panel  
 
 ![](assets-wp-repo/screenshot-2.png)  
 Blockonomics configuration  
 
-![](assets-wp-repo/screenshot-3.png)    
-Checkout screen
