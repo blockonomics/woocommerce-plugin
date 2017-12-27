@@ -101,7 +101,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                     $this,
                     'check_blockonomics_callback'
                     )
-                );
+                  );
             }
             public function admin_options()
             {
@@ -141,7 +141,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                     return false;
                 }
             }
-
+            
 
             public function process_payment($order_id)
             {
@@ -304,6 +304,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
         function add_page()
         {
             generate_secret();
+						register_setting('blockonomics_g', 'blockonomics_gen_callback', 'gen_callback');
             add_options_page(
                 'Blockonomics', 'Blockonomics', 'manage_options',
                 'blockonomics_options', 'show_options'
@@ -339,6 +340,16 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
     add_action('plugins_loaded', 'blockonomics_woocommerce_init', 0);
 }
 
+function gen_callback($input)
+{
+  if ($input == 1)
+  {
+    $callback_secret = sha1(openssl_random_pseudo_bytes(20));
+    update_option("blockonomics_callback_secret", $callback_secret);
+  }
+  return 0; 
+}
+
 
 function show_options()
 {
@@ -347,18 +358,27 @@ function show_options()
     ?>
   <div class="wrap">
     <h2>Blockonomics</h2>
-    <form method="post" action="options.php">
+    <form method="post" id="myform" action="options.php">
     <?php wp_nonce_field('update-options') ?>
   <table class="form-table">
     <tr valign="top"><th scope="row">BLOCKONOMICS API KEY (<?php echo __('Generate from ', 'blockonomics-woocommerce')?> <a href="https://www.blockonomics.co/blockonomics">Wallet Watcher</a> &gt; Settings)</th>
     <td><input type="text" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" /></td>
     </tr>
-    <tr valign="top"><th scope="row">CALLBACK URL (<?php echo __('Copy this url and set in ', 'blockonomics-woocommerce')?><a href="https://www.blockonomics.co/merchants">Merchants</a>)</br> <a style="font:400 20px/1 dashicons;cursor: pointer" title="Generate New Callback url">&#xf463;<a></th>
+    <tr valign="top"><th scope="row">CALLBACK URL (<?php echo __('Copy this url and set in ', 'blockonomics-woocommerce')?><a href="https://www.blockonomics.co/merchants">Merchants</a>)</br> <a href="javascript:gen_callback()" style="font:400 20px/1 dashicons" title="Generate New Callback url">&#xf463;<a></th>
     <td><?php
         $callback_secret = get_option('blockonomics_callback_secret');
     $notify_url = WC()->api_request_url('WC_Gateway_Blockonomics');
     $notify_url = add_query_arg('secret', $callback_secret, $notify_url);
     echo $notify_url ?></td>
+   <input hidden="text" value="0" id="callback_flag" name="blockonomics_gen_callback"/>
+      <script type="text/javascript">
+      function gen_callback()
+      {
+        document.getElementById("callback_flag").value = 1;
+        document.getElementById("myform").submit();
+
+      }
+      </script>
     </tr>
     <tr valign="top"><th scope="row"><?php echo __('Accept Altcoin Payments (Using Shapeshift)', 'blockonomics-woocommerce')?></th>
     <td><input type="checkbox" name="blockonomics_altcoins" value="1" <?php checked("1", get_option('blockonomics_altcoins')); ?>" /></td>
@@ -377,7 +397,7 @@ function show_options()
     <p class="submit">
     <input type="submit" class="button-primary" value="Save" />
     <input type="hidden" name="action" value="update" />
-    <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod" />
+    <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_gen_callback" />
     </p>
     </form>
     </div>
