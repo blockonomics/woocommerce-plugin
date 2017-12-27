@@ -237,8 +237,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                         $status = intval($_REQUEST['status']);
                         $existing_status = $order['status'];
                         $timestamp = $order['timestamp'];
-												$time_period = get_option("blockonomics_timeperiod");
-												$time_period = $time_period ? $time_period * 60 : 600;
+												$time_period = get_option("blockonomics_timeperiod", 10) *60;
                         if ($status == 0 && time() > $timestamp + $time_period) {
                             $minutes = (time() - $timestamp)/60;
                             $wc_order->add_order_note(__("Warning: Payment arrived after $minutes minutes. Received BTC may not match current bitcoin price", 'blockonomics-woocommerce'));

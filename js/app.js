@@ -39,7 +39,8 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
   //get order id from url
   $scope.address =  getParameterByName("show_order")
   var totalProgress = 100;
-  var totalTime = blockonomics_time_period ? blockonomics_time_period *60 : 10 * 60;
+  //blockonomics_time_period is defined on JS file as global var
+  var totalTime = blockonomics_time_period * 60;
   $scope.getJson = function(data){
     return JSON.parse(data);
   };
