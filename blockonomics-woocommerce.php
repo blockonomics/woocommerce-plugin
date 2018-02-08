@@ -49,8 +49,6 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
             return;
         }
 
-        wp_enqueue_style('bnomics-style', plugin_dir_url(__FILE__) . "css/order.css");
-
         /**
          * Blockonomics Payment Gateway
          *
@@ -330,10 +328,15 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
             }
         }
 
+        function enqueue_stylesheets(){
+          wp_enqueue_style('bnomics-style', plugin_dir_url(__FILE__) . "css/order.css");
+        }
+
         add_action('admin_menu', 'add_page');
         add_action('init', 'woocommerce_handle_blockonomics_return');
         add_action('woocommerce_order_details_after_order_table', 'nolo_custom_field_display_cust_order_meta', 10, 1);
         add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
+        add_action('wp_enqueue_scripts', 'enqueue_stylesheets' );
     }
 
 
