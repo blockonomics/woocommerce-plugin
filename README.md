@@ -60,15 +60,15 @@ Just create a new xpub for each site and add to [blockonomics wallet watcher](ht
 
 ## Screenshots ##
 
-![](assets-wp-repo/screenshot-4.png)    
+![](assets-wp-repo/screenshot-1.png)    
 Checkout option
 
-![](assets-wp-repo/screenshot-3.png)    
+![](assets-wp-repo/screenshot-2.png)    
 Payment screen
 
-![](assets-wp-repo/screenshot-1.png)    
+![](assets-wp-repo/screenshot-3.png)    
 Settings Panel  
 
-![](assets-wp-repo/screenshot-2.png)  
+![](assets-wp-repo/screenshot-4.png)  
 Blockonomics configuration  
 
