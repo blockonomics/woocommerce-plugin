@@ -1,5 +1,10 @@
 == Changelog ==
 
+= 1.4.4  =
+* Fixed problem with visual composer themes
+* Added extra help text on order confirmation page
+* Fixed conflict with javascript method
+
 = 1.4.3  =
 * Added option to configure timeperiod of checkout timer
 * Added functionality to regenerate callback URL
