@@ -4,7 +4,7 @@ service.factory('Order', function ($resource) {
   //There are two styles of callback url in 
   //woocommerce, we have to support both
   //https://docs.woocommerce.com/document/wc_api-the-woocommerce-api-callback/
-  var param = getParameterByName('wc-api');
+  var param = getParameterByNameBlocko('wc-api');
   if (param)
     param = {"wc-api" : param};
   else
@@ -21,7 +21,7 @@ app.config(function ($compileProvider) {
   // Angular before v1.2 uses $compileProvider.urlSanitizationWhitelist(...)
 });
 
-function getParameterByName(name, url) {
+function getParameterByNameBlocko(name, url) {
     if (!url) {
       url = window.location.href;
     }
@@ -37,7 +37,7 @@ function getParameterByName(name, url) {
 
 app.controller('CheckoutController', function($scope, $interval, Order, $httpParamSerializer) {
   //get order id from url
-  $scope.address =  getParameterByName("show_order")
+  $scope.address =  getParameterByNameBlocko("show_order")
   var totalProgress = 100;
   //blockonomics_time_period is defined on JS file as global var
   var totalTime = blockonomics_time_period * 60;
@@ -46,7 +46,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
   };
   
   $scope.finish_order_url = function() {
-    var params = getParameterByName('wc-api');
+    var params = getParameterByNameBlocko('wc-api');
     if (params)
       params = {"wc-api" : params};
     else
