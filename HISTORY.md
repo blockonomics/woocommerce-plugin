@@ -1,5 +1,11 @@
 == Changelog ==
 
+= 1.4.5  =
+* Fixed problem with visual composer themes
+* Added extra help text on order confirmation page
+* Fixed conflict with javascript method
+* Updated plugin to fix problem with incorrect commit
+
 = 1.4.4  =
 * Fixed problem with visual composer themes
 * Added extra help text on order confirmation page
