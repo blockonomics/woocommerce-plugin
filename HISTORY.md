@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 1.4.6  =
+* Updated README for more description on bitcoin payments
+
 = 1.4.5  =
 * Fixed problem with visual composer themes
 * Added extra help text on order confirmation page

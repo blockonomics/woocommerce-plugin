@@ -1,12 +1,12 @@
-# Blockonomics Bitcoin Payments #
+# Wordpress Bitcoin Payments - Blockonomics #
 **Tags:** bitcoin, accept bitcoin, bitcoin woocommerce, bitcoin wordpress plugin, bitcoin payments
 **Requires at least:** 3.0.1
 **Tested up to:** 4.9.1
-**Stable tag:** 1.4.5
+**Stable tag:** 1.4.6
 **License:** MIT
 **License URI:** http://opensource.org/licenses/MIT
 
-Accept bitcoin/altcoin payments on your WooCommerce-powered website with Blockonomics.
+Accept bitcoin payments and altcoins on your WooCommerce website. Bitcoin payments go directly to your wallet.
 
 ## Description ##
 
