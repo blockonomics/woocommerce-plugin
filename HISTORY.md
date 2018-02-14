@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 1.4.7  =
+* Made compatible for internationalization through translate.wordpress.org
+
 = 1.4.6  =
 * Updated README for more description on bitcoin payments
 
