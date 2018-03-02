@@ -156,29 +156,62 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                 $cancel_url = add_query_arg('cancelled', true, $cancel_url);
                 $cancel_url = add_query_arg('order_key', $order->order_key, $cancel_url);
 
-
                 $api_key    = get_option('blockonomics_api_key');
+
                 if ($api_key == '') {
-                    if (version_compare($woocommerce->version, '2.1', '>=')) {
-                        wc_add_notice(__('Sorry, but there was an error processing your order. Please try again or try a different payment method. (plugin not configured)', 'blockonomics-bitcoin-payments'), 'error');
-                    } else {
-                        $woocommerce->add_error(__('Sorry, but there was an error processing your order. Please try again or try a different payment method. (plugin not configured)', 'blockonomics-bitcoin-payments'));
-                    }
+                    $error_str = 'API Key not set. Please login to Admin and go to Blockonomics module configuration to set you API Key.';
+                    $this->displayError($error_str, $woocommerce);
                     return;
                 }
 
-                try {
-                    $blockonomics = new Blockonomics;
-                    $address = $blockonomics->new_address(get_option('blockonomics_api_key'), get_option("blockonomics_callback_secret"));
-                    $price = $blockonomics->get_price(get_woocommerce_currency());
-                } catch (Exception $e) {
-                    $address = '';
-                }
-                if (!$address) {
-                    $error_msg = "<html>Could not generate new bitcoin address. Note to webmaster: Please check <a href='https://wordpress.org/plugins/blockonomics-bitcoin-payments/#faq'>FAQ</a>";
-                    wc_add_notice($error_msg);
+                $blockonomics = new Blockonomics;
+                $responseObj = $blockonomics->new_address(get_option('blockonomics_api_key'), get_option("blockonomics_callback_secret"));
+                $price = $blockonomics->get_price(get_woocommerce_currency());
+
+                if(isset($responseObj->status)) {
+                    if($responseObj->status == 500) {
+                        // New address gen has thrown an error
+                        $error_code = $responseObj->message;
+
+                        switch ($error_code) {
+                            case "Could not find matching xpub":
+                                $error_str = 'There is a problem in the Callback URL. Make sure that you have set your Callback URL from the admin Blockonomics module configuration to your Merchants > Settings.';
+                                break;
+                            case "This require you to add an xpub in your wallet watcher":
+                                $error_str = 'There is a problem in the XPUB. Make sure that the you have added an address to Wallet Wathcer > Address Wathcer. If you have added an address make sure that it is an XPUB address and not a Bitcoin address.';
+                                break;
+
+                            default:
+                                $error_str = $responseObj->message;
+                        }
+
+                        if(isset($error_str)) {
+                            $this->displayError($error_str, $woocommerce);
+                            return;
+                        }
+                    }
+                } elseif(!ini_get('allow_url_fopen')) {
+                    // allow_url_fopen not enabled
+                    $error_str = 'The allow_url_fopen is not enabled, please enable this option to allow address generation.';
+                    $this->displayError($error_str, $woocommerce);
+                    return;
+          
+                } elseif (!isset($responseObj)) {
+                    // Response empty / 401: Incorrect API Key
+                    $error_str = 'API Key is incorrect. Make sure that the API key set in admin Blockonomics module configuration is correct.';
+                    $this->displayError($error_str, $woocommerce);
                     return;
                 }
+
+                $address = $responseObj->address;
+
+
+                if (!isset($address)) {
+                    $error_str = 'Your webhost is blocking outgoing HTTPS connections. Blockonomics requires an outgoing HTTPS POST (port 443) to generate new address. Check with your webhosting provider to allow this.';
+                    $this->displayError($error_str, $woocommerce);
+                    return;
+                }
+
                 $blockonomics_orders = get_option('blockonomics_orders');
                 $order = array(
                 'value'              => $order->get_total(),
@@ -264,6 +297,21 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                         }
                         update_option('blockonomics_orders', $orders);
                     }
+                }
+            }
+
+            private function displayError($error_str, $woocommerce) {
+
+                $unable_to_generate = '<h1>Unable to generate bitcoin address.</h1><p> Note for site webmaster: ';
+                
+                $troubleshooting_guide = '</p><p> If problem persists, please consult <a href="https://blockonomics.freshdesk.com/support/solutions/articles/33000215104-troubleshooting-unable-to-generate-new-address" target="_blank">this troubleshooting article</a></p>';
+
+                $error_message = $unable_to_generate . $error_str . $troubleshooting_guide;
+
+                if (version_compare($woocommerce->version, '2.1', '>=')) {
+                    wc_add_notice(__($error_message, 'blockonomics-bitcoin-payments'), 'error');
+                } else {
+                    $woocommerce->add_error(__($error_message, 'blockonomics-bitcoin-payments'));
                 }
             }
         }
