@@ -175,12 +175,6 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
 
                 $address = $responseObj->address;
 
-                if (!isset($address)) {
-                    $error_str = __('Your webhost is blocking outgoing HTTPS connections. Blockonomics requires an outgoing HTTPS POST (port 443) to generate new address. Check with your webhosting provider to allow this.', 'blockonomics-bitcoin-payments');
-                    $this->displayError($error_str, $woocommerce);
-                    return;
-                }
-
                 $blockonomics_orders = get_option('blockonomics_orders');
                 $order = array(
                 'value'              => $order->get_total(),
@@ -284,40 +278,62 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
             }
 
             private function checkForErrors($responseObj, $woocommerce) {
-                if(isset($responseObj->status)) {
-                    if($responseObj->status == 500) {
-                        // New address gen has thrown an error
-                        $error_code = $responseObj->message;
-
-                        switch ($error_code) {
-                            case "Could not find matching xpub":
-                                $error_str = __('There is a problem in the Callback URL. Make sure that you have set your Callback URL from the admin Blockonomics module configuration to your Merchants > Settings.', 'blockonomics-bitcoin-payments');
-                                break;
-                            case "This require you to add an xpub in your wallet watcher":
-                                $error_str = __('There is a problem in the XPUB. Make sure that the you have added an address to Wallet Wathcer > Address Wathcer. If you have added an address make sure that it is an XPUB address and not a Bitcoin address.', 'blockonomics-bitcoin-payments');
-                                break;
-                            default:
-                                $error_str = $responseObj->message;
-                        }
-
-                        if(isset($error_str)) {
-                            $this->displayError($error_str, $woocommerce);
-                            return false;
-                        }
-                    }
-                } elseif(!ini_get('allow_url_fopen')) {
-                    // allow_url_fopen not enabled
+                
+                if(!ini_get('allow_url_fopen')) {
                     $error_str = __('The allow_url_fopen is not enabled, please enable this option to allow address generation.', 'blockonomics-bitcoin-payments');
                     $this->displayError($error_str, $woocommerce);
                     return false;
-          
-                } elseif (!isset($responseObj)) {
-                    // Response empty / 401: Incorrect API Key
-                    $error_str = __('API Key is incorrect. Make sure that the API key set in admin Blockonomics module configuration is correct.', 'blockonomics-bitcoin-payments');
-                    $this->displayError($error_str, $woocommerce);
-                    return false;
-                }
 
+                } else {
+
+                    switch ($responseObj->response_code) {
+
+                        case 'HTTP/1.1 200 OK':
+                            break;
+
+                        case 'HTTP/1.1 401 Unauthorized': {
+                            $error_str = __('API Key is incorrect. Make sure that the API key set in admin Blockonomics module configuration is correct.', 'blockonomics-bitcoin-payments');
+                            break;
+                        }
+
+                        case 'HTTP/1.1 500 Internal Server Error': {
+
+                            if(isset($responseObj->message)) {
+
+                                $error_code = $responseObj->message;
+
+                                switch ($error_code) {
+                                    case "Could not find matching xpub":
+                                        $error_str = __('There is a problem in the Callback URL. Make sure that you have set your Callback URL from the admin Blockonomics module configuration to your Merchants > Settings.', 'blockonomics-bitcoin-payments');
+                                        break;
+                                    case "This require you to add an xpub in your wallet watcher":
+                                        $error_str = __('There is a problem in the XPUB. Make sure that the you have added an address to Wallet Wathcer > Address Wathcer. If you have added an address make sure that it is an XPUB address and not a Bitcoin address.', 'blockonomics-bitcoin-payments');
+                                        break;
+                                    default:
+                                        $error_str = $responseObj->message;
+                                }
+                                break;
+                            } else {
+                                $error_str = $responseObj->response_code;
+                                break;
+                            }
+                        }
+
+                        case 'HTTP/1.1 504 Gateway Timeout': {
+                            $error_str = __('Your webhost is blocking outgoing HTTPS connections. Blockonomics requires an outgoing HTTPS POST (port 443) to generate new address. Check with your webhosting provider to allow this.', 'blockonomics-bitcoin-payments');
+                            break;
+                        }
+
+                        default:
+                            $error_str = $responseObj->response_code;
+                            break;
+                    }
+
+                    if(isset($error_str)) {
+                        $this->displayError($error_str, $woocommerce);
+                        return false;
+                    }
+                }
                 // No errors
                 return true;
             }
