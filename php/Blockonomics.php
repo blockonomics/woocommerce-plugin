@@ -14,16 +14,23 @@ class Blockonomics
     public function new_address($api_key, $secret)
     {
         $options = array(
-      'http' => array(
-        'header'  => 'Authorization: Bearer '.$api_key,
-        'method'  => 'POST',
-        'content' => ''
-      )
-    );
+            'http' => array(
+                'header'  => 'Authorization: Bearer ' . $api_key,
+                'method'  => 'POST',
+                'content' => '',
+                'ignore_errors' => true
+            )
+        );
+        
         $context = stream_context_create($options);
         $contents = file_get_contents(Blockonomics::NEW_ADDRESS_URL."?match_callback=$secret", false, $context);
-        $new_address = json_decode($contents);
-        return $new_address->address;
+        $responseObj = json_decode($contents);
+
+        //Create response object if it does not exist
+        if (!isset($responseObj)) $responseObj = new stdClass();
+        $responseObj->{'response_code'} = $http_response_header[0];
+
+        return $responseObj;
     }
 
     public function get_price($currency)
