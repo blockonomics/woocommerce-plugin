@@ -324,11 +324,6 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                             }
                         }
 
-                        case 'HTTP/1.1 504 Gateway Timeout': {
-                            $error_str = __('Your webhost is blocking outgoing HTTPS connections. Blockonomics requires an outgoing HTTPS POST (port 443) to generate new address. Check with your webhosting provider to allow this.', 'blockonomics-bitcoin-payments');
-                            break;
-                        }
-
                         default:
                             $error_str = $responseObj->response_code;
                             break;
