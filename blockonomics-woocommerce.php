@@ -278,16 +278,12 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
             }
 
             private function checkForErrors($responseObj, $woocommerce) {
-                
+
                 if(!isset($responseObj->response_code)) {
                     $error_str = __('Your webhost is blocking outgoing HTTPS connections. Blockonomics requires an outgoing HTTPS POST (port 443) to generate new address. Check with your webhosting provider to allow this.', 'blockonomics-bitcoin-payments');
-                    $this->displayError($error_str, $woocommerce);
-                    return false;
 
                 }  elseif(!ini_get('allow_url_fopen')) {
                     $error_str = __('The allow_url_fopen is not enabled, please enable this option to allow address generation.', 'blockonomics-bitcoin-payments');
-                    $this->displayError($error_str, $woocommerce);
-                    return false;
 
                 } else {
 
@@ -327,13 +323,15 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                         default:
                             $error_str = $responseObj->response_code;
                             break;
-                    }
 
-                    if(isset($error_str)) {
-                        $this->displayError($error_str, $woocommerce);
-                        return false;
                     }
                 }
+
+                if(isset($error_str)) {
+                    $this->displayError($error_str, $woocommerce);
+                    return false;
+                }
+
                 // No errors
                 return true;
             }
