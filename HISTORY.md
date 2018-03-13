@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 1.4.8  =
+* Improved error handling when unable to generate address
+
 = 1.4.7  =
 * Made compatible for internationalization through translate.wordpress.org
 
