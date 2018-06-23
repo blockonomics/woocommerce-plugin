@@ -1,0 +1,158 @@
+# Copyright (C) 2017 Example project
+# This file is distributed under the same license as the Example project package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Example project\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-KeywordsList: __;_e;_ex:1,2c;_n:1,2;_n_noop:1,2;_nx:1,2,4c;"
+"_nx_noop:1,2,3c;_x:1,2c;esc_attr__;esc_attr_e;esc_attr_x:1,2c;esc_html__;"
+"esc_html_e;esc_html_x:1,2c\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Language-Team: \n"
+"X-Generator: Poedit 2.0.4\n"
+"Last-Translator: \n"
+"Language: cs\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+
+#: blockonomics-woocommerce.php:71
+msgid "Pay with bitcoin"
+msgstr "Zaplatit Bitcoinem"
+
+#: blockonomics-woocommerce.php:99
+msgid "Blockonomics Payment Gateway"
+msgstr "Platební brána Blockonomics"
+
+#: blockonomics-woocommerce.php:109
+msgid "Enable Blockonomics plugin"
+msgstr "Aktivovat plugin Blockonomics"
+
+#: blockonomics-woocommerce.php:111
+msgid "Show bitcoin as an option to customers during checkout?"
+msgstr "Zobrazit možnost platby Bitcoinem na stránce Pokladna?"
+
+#: blockonomics-woocommerce.php:115
+msgid "Title"
+msgstr "Titulek"
+
+#: blockonomics-woocommerce.php:117
+msgid "This controls the title which the user sees during checkout."
+msgstr "Zde můžete změnit titulek, který vidí zákazník na stránce Pokladna."
+
+#: blockonomics-woocommerce.php:118
+msgid "Bitcoin"
+msgstr ""
+
+#: blockonomics-woocommerce.php:121
+msgid "Description"
+msgstr "Popis"
+
+#: blockonomics-woocommerce.php:123
+msgid "This controls the description which the user sees during checkout."
+msgstr "Zde můžete změnit popis, který vidí zákazník na stránce Pokladna."
+
+#: blockonomics-woocommerce.php:124
+msgid "Powered by "
+msgstr "Prostřednictvím "
+
+#: blockonomics-woocommerce.php:156 blockonomics-woocommerce.php:158
+msgid "Sorry, but there was an error processing your order. Please try again or try a different payment method. (plugin not configured)"
+msgstr "Omlouváme se, ale došlo k chybě při zpracování objednávky. Zkuste prosím jinou platební metodu. (plugin není nastaven)"
+
+#: blockonomics-woocommerce.php:240
+msgid "Paid BTC amount less than expected."
+msgstr "Zaplacená částka v BTC je nižší než očekávaná."
+
+#: blockonomics-woocommerce.php:244
+msgid "Overpayment of BTC amount"
+msgstr "Zaplacená částka v BTC je vyšší než očekávaná."
+
+#: blockonomics-woocommerce.php:245
+msgid "Payment completed"
+msgstr "Platba přijata"
+
+#: blockonomics-woocommerce.php:281
+msgid "Customer cancelled blockonomics payment"
+msgstr "Zákazník platbu zrušil"
+
+#: blockonomics-woocommerce.php:316
+msgid "Transaction"
+msgstr "Transakce"
+
+#: blockonomics-woocommerce.php:342
+msgid "Generate from "
+msgstr "Vygenerovat z "
+
+#: blockonomics-woocommerce.php:345
+msgid "Copy this url and set in "
+msgstr ""
+
+#: blockonomics-woocommerce.php:352
+msgid "Accept Altcoin Payments (Using Shapeshift)"
+msgstr "Povolit platby altcoiny (pomocí služby Shapeshift)"
+
+#: order.php:4
+msgid "Bitcoin Payment - Powered by Blockonomics"
+msgstr "Platba Bitcoinem - Prostřednictvím Blockonomics"
+
+#: order.php:84
+msgid "Order#"
+msgstr "Objednávka č."
+
+#: order.php:116
+msgid "Status"
+msgstr "Stav"
+
+#: order.php:118
+msgid "To pay, send exact amount of BTC to the given address"
+msgstr "Pošlete přesnou částku v BTC na následující adresu"
+
+#: order.php:119
+msgid "Payment Expired (Use browser back button and try again)"
+msgstr "Platba expirovala (použijte Zpět v prohlížeči a zkuste to znovu)"
+
+#: order.php:120
+msgid "Payment Error"
+msgstr "Chyba při platbě"
+
+#: order.php:121
+msgid "Unconfirmed"
+msgstr "Nepotvrzená"
+
+#: order.php:122
+msgid "Partially Confirmed"
+msgstr "Částečně potvrzená"
+
+#: order.php:123
+msgid "Confirmed"
+msgstr "Potvrzená"
+
+#: order.php:130
+msgid "Bitcoin Address"
+msgstr "Bitcoinová adresa"
+
+#: order.php:144
+msgid "Click on the QR code above to open in wallet"
+msgstr "Kliknětě na QR kód pro otevření v peněžence"
+
+#: order.php:150
+msgid "Amount"
+msgstr "Částka"
+
+#: order.php:166
+msgid "OR you can "
+msgstr ""
+
+#: order.php:170
+msgid "Ethereum, Bitcoin Cash, Dash and many others supported"
+msgstr ""
+
+#: order.php:174
+msgid "Waiting for BTC payment from shapeshift altcoin conversion "
+msgstr ""
