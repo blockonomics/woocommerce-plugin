@@ -10,35 +10,42 @@ class Blockonomics
     {
     }
 
-
     public function new_address($api_key, $secret)
     {
-        $options = array(
-            'http' => array(
-                'header'  => 'Authorization: Bearer ' . $api_key,
-                'method'  => 'POST',
-                'content' => '',
-                'ignore_errors' => true
-            )
-        );
-        
-        $context = stream_context_create($options);
-        $contents = file_get_contents(Blockonomics::NEW_ADDRESS_URL."?match_callback=$secret", false, $context);
-        $responseObj = json_decode($contents);
+        $url = Blockonomics::NEW_ADDRESS_URL . "?match_callback=" . $secret;
 
-        //Create response object if it does not exist
-        if (!isset($responseObj)) $responseObj = new stdClass();
-        $responseObj->{'response_code'} = $http_response_header[0];
-
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, "");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Authorization: Bearer ' . $api_key,
+            'Content-type: application/x-www-form-urlencoded'
+            ));
+        $data = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        $responseObj = json_decode($data);
+        if (!isset($responseObj)) {
+            $responseObj = new stdClass();
+        }
+        $responseObj->{'response_code'} = $httpcode;
         return $responseObj;
     }
 
     public function get_price($currency)
     {
-        $options = array( 'http' => array( 'method'  => 'GET') );
-        $context = stream_context_create($options);
-        $contents = file_get_contents(Blockonomics::PRICE_URL. "?currency=$currency", false, $context);
-        $price = json_decode($contents);
+        $url = Blockonomics::PRICE_URL. "?currency=$currency";
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+        $data = curl_exec($ch);
+        curl_close($ch);
+        $price = json_decode($data);
         return $price->price;
     }
 }
