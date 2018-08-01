@@ -458,54 +458,69 @@ function gen_callback($input)
 function show_options()
 {
     load_plugin_textdomain('blockonomics-bitcoin-payments', false, dirname(plugin_basename(__FILE__)) . '/languages/');
-
     ?>
-  <div class="wrap">
-    <h2>Blockonomics</h2>
-    <form method="post" id="myform" action="options.php">
-    <?php wp_nonce_field('update-options') ?>
-  <table class="form-table">
-    <tr valign="top"><th scope="row">BLOCKONOMICS API KEY (<?php echo __('Generate from ', 'blockonomics-bitcoin-payments')?> <a href="https://www.blockonomics.co/blockonomics">Wallet Watcher</a> &gt; Settings)</th>
-    <td><input type="text" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" /></td>
-    </tr>
-    <tr valign="top"><th scope="row">CALLBACK URL</br>(<?php echo __('Complete Merchant Setup by clicking on Get Started For Free in ', 'blockonomics-bitcoin-payments')?><a href="https://www.blockonomics.co/merchants"> Merchants</a></br><?php echo __('Paste this URL when prompted ', 'blockonomics-bitcoin-payments')?>)</br> <a href="javascript:gen_callback()" style="font:400 20px/1 dashicons" title="Generate New Callback URL">&#xf463;<a></th>
-    <td><?php
-        $callback_secret = get_option('blockonomics_callback_secret');
-    $notify_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-    $notify_url = add_query_arg('secret', $callback_secret, $notify_url);
-    echo $notify_url ?></td>
-   <input hidden="text" value="0" id="callback_flag" name="blockonomics_gen_callback"/>
-      <script type="text/javascript">
-      function gen_callback()
-      {
-        document.getElementById("callback_flag").value = 1;
-        document.getElementById("myform").submit();
 
-      }
-      </script>
-    </tr>
-    <tr valign="top"><th scope="row"><?php echo __('Accept Altcoin Payments (Using Shapeshift)', 'blockonomics-bitcoin-payments')?></th>
-    <td><input type="checkbox" name="blockonomics_altcoins" value="1" <?php checked("1", get_option('blockonomics_altcoins')); ?>" /></td>
-    </tr>
-    <tr valign="top"><th scope="row"><?php echo __('Time period of countdown timer on payment page (in minutes)', 'blockonomics-bitcoin-payments')?></th>
-    <td><select name="blockonomics_timeperiod" />
-    <option value="10" <?php selected(get_option('blockonomics_timeperiod'), 10); ?>>10</option>
-    <option value="15" <?php selected(get_option('blockonomics_timeperiod'), 15); ?>>15</option>
-    <option value="20" <?php selected(get_option('blockonomics_timeperiod'), 20); ?>>20</option>
-    <option value="25" <?php selected(get_option('blockonomics_timeperiod'), 25); ?>>25</option>
-    <option value="30" <?php selected(get_option('blockonomics_timeperiod'), 30); ?>>30</option>
-    </select>
-</td>
-    </tr>
-    </table>
-    <p class="submit">
-    <input type="submit" class="button-primary" value="Save" />
-    <input type="hidden" name="action" value="update" />
-    <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_gen_callback" />
-    </p>
-    </form>
+    <div class="wrap">
+        <h2>Blockonomics</h2>
+        <div id="installation-instructions">
+            <p>
+                <b>Installation instructions: </b><a href="https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62" target="_blank">Blog Tutorial</a> | <a href="https://www.youtube.com/watch?v=E5nvTeuorE4" target="_blank">Youtube Tutorial</a>
+            </p>
+            <?php
+                if (get_option('blockonomics_api_key') == null) {
+                    echo "<p>You are few clicks away from accepting bitcoin payments</p>";
+                    echo "<p>Click on <a href='https://www.blockonomics.co/merchants' target='_blank'>Get Started for Free</a> on Blockonomics Merchants. Complete the Wizard, and Set the API Key when shown here</p>";
+                }
+            ?>
+        </div>
+        <form method="post" id="myform" action="options.php">
+            <?php wp_nonce_field('update-options') ?>
+            <table class="form-table">
+                <tr valign="top">
+                    <th scope="row">BLOCKONOMICS API KEY (<?php echo __('Generate from ', 'blockonomics-bitcoin-payments')?> <a href="https://www.blockonomics.co/blockonomics">Wallet Watcher</a> &gt; Settings)</th>
+                    <td><input type="text" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" /></td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">CALLBACK URL</br>(<?php echo __('Complete Merchant Setup by clicking on Get Started For Free in ', 'blockonomics-bitcoin-payments')?><a href="https://www.blockonomics.co/merchants"> Merchants</a></br><?php echo __('Paste this URL when prompted ', 'blockonomics-bitcoin-payments')?>)</br> <a href="javascript:gen_callback()" style="font:400 20px/1 dashicons" title="Generate New Callback URL">&#xf463;<a></th>
+                    <td><?php
+                            $callback_secret = get_option('blockonomics_callback_secret');
+                            $notify_url = WC()->api_request_url('WC_Gateway_Blockonomics');
+                            $notify_url = add_query_arg('secret', $callback_secret, $notify_url);
+                            echo $notify_url ?></td>
+                    <input hidden="text" value="0" id="callback_flag" name="blockonomics_gen_callback"/>
+                      <script type="text/javascript">
+                      function gen_callback()
+                      {
+                        document.getElementById("callback_flag").value = 1;
+                        document.getElementById("myform").submit();
+
+                      }
+                      </script>
+                </tr>
+                <tr valign="top">
+                    <th scope="row"><?php echo __('Accept Altcoin Payments (Using Shapeshift)', 'blockonomics-bitcoin-payments')?></th>
+                    <td><input type="checkbox" name="blockonomics_altcoins" value="1" <?php checked("1", get_option('blockonomics_altcoins')); ?>" /></td>
+                </tr>
+                <tr valign="top"><th scope="row"><?php echo __('Time period of countdown timer on payment page (in minutes)', 'blockonomics-bitcoin-payments')?></th>
+                    <td>
+                        <select name="blockonomics_timeperiod" />
+                            <option value="10" <?php selected(get_option('blockonomics_timeperiod'), 10); ?>>10</option>
+                            <option value="15" <?php selected(get_option('blockonomics_timeperiod'), 15); ?>>15</option>
+                            <option value="20" <?php selected(get_option('blockonomics_timeperiod'), 20); ?>>20</option>
+                            <option value="25" <?php selected(get_option('blockonomics_timeperiod'), 25); ?>>25</option>
+                            <option value="30" <?php selected(get_option('blockonomics_timeperiod'), 30); ?>>30</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+            <p class="submit">
+                <input type="submit" class="button-primary" value="Save" />
+                <input type="hidden" name="action" value="update" />
+                <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_gen_callback" />
+            </p>
+        </form>
     </div>
-<?php
 
+<?php
 }
 ?>
