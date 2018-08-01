@@ -101,6 +101,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                     )
                   );
             }
+
             public function admin_options()
             {
                 echo '<h3>' . __('Blockonomics Payment Gateway', 'blockonomics-bitcoin-payments') . '</h3>';
@@ -411,6 +412,36 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
 
 
     add_action('plugins_loaded', 'blockonomics_woocommerce_init', 0);
+
+    register_activation_hook( __FILE__, 'blockonomics_activation_hook' );
+    add_action('admin_notices', 'plugin_activation');
+
+    function blockonomics_activation_hook() {
+        set_transient( 'blockonomics_activation_hook_transient', true, 5);
+    }
+
+    //Show message when plugin is activated
+    function plugin_activation() {
+        if( get_transient( 'blockonomics_activation_hook_transient' ) ){
+
+            $html = '<div class="updated">';
+                $html .= '<p>';
+                    $html .= __( 'Please configure Blockonomics Bitcoin Payments <a href="options-general.php?page=blockonomics_options">on this page</a>.', 'advanced-google-analytics' );
+                $html .= '</p>';
+            $html .= '</div>';
+
+            echo $html;        
+            delete_transient( 'fx-admin-notice-example' );
+        }
+    }
+
+    function plugin_add_settings_link( $links ) {
+        $settings_link = '<a href="options-general.php?page=blockonomics_options">' . __( 'Settings' ) . '</a>';
+        array_unshift( $links, $settings_link );
+        return $links;
+    }
+    $plugin = plugin_basename( __FILE__ );
+    add_filter( "plugin_action_links_$plugin", 'plugin_add_settings_link' );
 }
 
 function gen_callback($input)
