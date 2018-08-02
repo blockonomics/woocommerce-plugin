@@ -397,7 +397,65 @@ function gen_callback($input)
   return 0;
 }
 
-function testSetup() {
+/**
+ * Check the status of callback urls
+ * If no xPubs set, return
+ * If one xPub is set without callback url, set the url
+ * If more than one xPubs are set, give instructions on integrating to multiple sites
+ * @return Strin Count of found xPubs
+ */
+function check_callback_urls()
+{
+    include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
+    $blockonomics = new Blockonomics;
+
+    $responseObj = $blockonomics->get_xpubs(get_option('blockonomics_api_key'));
+
+    // No xPubs set
+    if (count($responseObj) == 0)
+    {
+        return "0";
+    }
+
+    // One xPub set
+    if (count($responseObj) == 1)
+    {
+        $callback_url = WC()->api_request_url('WC_Gateway_Blockonomics') . "?secret=" . get_option('blockonomics_callback_secret');
+
+        // No Callback URL set, set one
+        if($responseObj[0]->callback == null)
+        { 
+            $blockonomics->update_callback(
+                get_option('blockonomics_api_key'),
+                $callback_url,
+                $responseObj[0]->address
+            );
+
+            return "1";
+        }
+        // One xPub with one Callback URL
+        else
+        {
+            if($responseObj[0]->callback == $callback_url)
+            {
+                return "1";
+            }
+            else
+            {
+
+            }
+            return "2";
+        }
+    }
+
+    if (count($responseObj) > 1)
+    {
+        return "2";
+    }
+}
+
+function testSetup()
+{
     include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
 
     $blockonomics = new Blockonomics;
@@ -536,7 +594,16 @@ function show_options()
                     <?php
                         if (isset($_POST['test-setup-submit']))
                         {
+
+                            $urls_count = check_callback_urls();
+
+                            if($urls_count == '2')
+                            {
+                                echo "<p>Seems that you have set multiple xPubs or you already have a Callback URL set. <a href='https://blockonomics.freshdesk.com/support/solutions/articles/33000209399-merchants-integrating-multiple-websites' target='_blank'>Here is a guide</a> to setup multiple websites.</p>";
+                            }
+
                             $setup_errors = testSetup();
+
                             if($setup_errors)
                             {
                                 echo "<p style='color:red;font-size:1.2em;'>Error in setup:</p>";
