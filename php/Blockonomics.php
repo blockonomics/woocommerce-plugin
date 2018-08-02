@@ -11,7 +11,7 @@ class Blockonomics
     }
 
 
-    public function new_address($api_key, $secret)
+    public function new_address($api_key, $secret, $reset=false)
     {
         $options = array(
             'http' => array(
@@ -21,9 +21,18 @@ class Blockonomics
                 'ignore_errors' => true
             )
         );
+
+        if($reset)
+        {
+            $get_params = "?match_callback=$secret&reset=1";
+        } 
+        else
+        {
+            $get_params = "?match_callback=$secret";
+        }
         
         $context = stream_context_create($options);
-        $contents = file_get_contents(Blockonomics::NEW_ADDRESS_URL."?match_callback=$secret", false, $context);
+        $contents = file_get_contents(Blockonomics::NEW_ADDRESS_URL.$get_params, false, $context);
         $responseObj = json_decode($contents);
 
         //Create response object if it does not exist
