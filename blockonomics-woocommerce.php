@@ -277,65 +277,6 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                     $woocommerce->add_error(__($error_message, 'blockonomics-bitcoin-payments'));
                 }
             }
-
-            private function checkForErrors($responseObj, $woocommerce) {
-
-                if(!isset($responseObj->response_code)) {
-                    $error_str = __('Your webhost is blocking outgoing HTTPS connections. Blockonomics requires an outgoing HTTPS POST (port 443) to generate new address. Check with your webhosting provider to allow this.', 'blockonomics-bitcoin-payments');
-
-                }  elseif(!ini_get('allow_url_fopen')) {
-                    $error_str = __('The allow_url_fopen is not enabled, please enable this option to allow address generation.', 'blockonomics-bitcoin-payments');
-
-                } else {
-
-                    switch ($responseObj->response_code) {
-
-                        case 'HTTP/1.1 200 OK':
-                            break;
-
-                        case 'HTTP/1.1 401 Unauthorized': {
-                            $error_str = __('API Key is incorrect. Make sure that the API key set in admin Blockonomics module configuration is correct.', 'blockonomics-bitcoin-payments');
-                            break;
-                        }
-
-                        case 'HTTP/1.1 500 Internal Server Error': {
-
-                            if(isset($responseObj->message)) {
-
-                                $error_code = $responseObj->message;
-
-                                switch ($error_code) {
-                                    case "Could not find matching xpub":
-                                        $error_str = __('There is a problem in the Callback URL. Make sure that you have set your Callback URL from the admin Blockonomics module configuration to your Merchants > Settings.', 'blockonomics-bitcoin-payments');
-                                        break;
-                                    case "This require you to add an xpub in your wallet watcher":
-                                        $error_str = __('There is a problem in the XPUB. Make sure that the you have added an address to Wallet Wathcer > Address Wathcer. If you have added an address make sure that it is an XPUB address and not a Bitcoin address.', 'blockonomics-bitcoin-payments');
-                                        break;
-                                    default:
-                                        $error_str = $responseObj->message;
-                                }
-                                break;
-                            } else {
-                                $error_str = $responseObj->response_code;
-                                break;
-                            }
-                        }
-
-                        default:
-                            $error_str = $responseObj->response_code;
-                            break;
-
-                    }
-                }
-
-                if(isset($error_str)) {
-                    $this->displayError($error_str, $woocommerce);
-                    return false;
-                }
-
-                // No errors
-                return true;
-            }
         }
 
         /**
@@ -452,11 +393,76 @@ function gen_callback($input)
     update_option("blockonomics_callback_secret", $callback_secret);
   }
 
-  $message = __('Options updated! Please click on Test Setup to verify Installation.');
-  $type = 'updated';
-  add_settings_error('option_notice', 'option_notice', $message, $type);
+  if (get_option('blockonomics_api_key') != null)
+  {
+    $message = __('Options updated! Please click on Test Setup to verify Installation.');
+    $type = 'updated';
+    add_settings_error('option_notice', 'option_notice', $message, $type);
+  }
 
   return 0;
+}
+
+function testSetup() {
+    include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
+
+    $blockonomics = new Blockonomics;
+    $responseObj = $blockonomics->new_address(get_option('blockonomics_api_key'), get_option("blockonomics_callback_secret"), true);
+
+    if(!ini_get('allow_url_fopen')) {
+        $error_str = __('The allow_url_fopen is not enabled, please enable this option to allow address generation.', 'blockonomics-bitcoin-payments');
+
+    }  elseif(!isset($responseObj->response_code)) {
+        $error_str = __('Your webhost is blocking outgoing HTTPS connections. Blockonomics requires an outgoing HTTPS POST (port 443) to generate new address. Check with your webhosting provider to allow this.', 'blockonomics-bitcoin-payments');
+
+    } else {
+
+        switch ($responseObj->response_code) {
+
+            case 'HTTP/1.1 200 OK':
+                break;
+
+            case 'HTTP/1.1 401 Unauthorized': {
+                $error_str = __('API Key is incorrect. Make sure that the API you have entered is correct.', 'blockonomics-bitcoin-payments');
+                break;
+            }
+
+            case 'HTTP/1.1 500 Internal Server Error': {
+
+                if(isset($responseObj->message)) {
+
+                    $error_code = $responseObj->message;
+
+                    switch ($error_code) {
+                        case "Could not find matching xpub":
+                            $error_str = __('There is a problem in the Callback URL. Make sure that you have set your Callback URL from the admin Blockonomics module configuration to your Merchants > Settings.', 'blockonomics-bitcoin-payments');
+                            break;
+                        case "This require you to add an xpub in your wallet watcher":
+                            $error_str = __('There is a problem in the XPUB. Make sure that the you have added an address to Wallet Wathcer > Address Wathcer. If you have added an address make sure that it is an XPUB address and not a Bitcoin address.', 'blockonomics-bitcoin-payments');
+                            break;
+                        default:
+                            $error_str = $responseObj->message;
+                    }
+                    break;
+                } else {
+                    $error_str = $responseObj->response_code;
+                    break;
+                }
+            }
+
+            default:
+                $error_str = $responseObj->response_code;
+                break;
+
+        }
+    }
+
+    if(isset($error_str)) {
+        return $error_str;
+    }
+
+    // No errors
+    return false;
 }
 
 
@@ -536,7 +542,16 @@ function show_options()
                     <?php
                         if (isset($_GET['test-setup-submit']))
                         {
-                            echo var_dump($_GET);
+                            $setup_errors = testSetup();
+                            if($setup_errors)
+                            {
+                                echo "<p style='color:red;font-size:1.2em;'>Error in setup:</p>";
+                                echo "<p>$setup_errors</p>";
+                            }
+                            else
+                            {
+                                echo "<p style='color:green;font-size:1.2em;'>Setup is working</p>";
+                            }
                         }
                      ?>
                 </p>
