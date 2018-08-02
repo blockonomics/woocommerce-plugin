@@ -159,18 +159,12 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
 
                 $api_key    = get_option('blockonomics_api_key');
 
-                if ($api_key == '') {
-                    $error_str = __('API Key not set. Please login to Admin and go to Blockonomics module configuration to set you API Key.', 'blockonomics-bitcoin-payments');
-                    $this->displayError($error_str, $woocommerce);
-                    return;
-                }
-
                 $blockonomics = new Blockonomics;
                 $responseObj = $blockonomics->new_address(get_option('blockonomics_api_key'), get_option("blockonomics_callback_secret"));
                 $price = $blockonomics->get_price(get_woocommerce_currency());
 
-                if(!$this->checkForErrors($responseObj, $woocommerce)) {
-                    // Error was found, return payment processing
+                if($responseObj->response_code != 'HTTP/1.1 200 OK') {
+                    $this->displayError($woocommerce);
                     return;
                 }
 
@@ -264,12 +258,12 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                 }
             }
 
-            private function displayError($error_str, $woocommerce) {
+            private function displayError($woocommerce) {
                 $unable_to_generate = __('<h1>Unable to generate bitcoin address.</h1><p> Note for site webmaster: ', 'blockonomics-bitcoin-payments');
                 
-                $troubleshooting_guide = __('</p><p> If problem persists, please consult <a href="https://blockonomics.freshdesk.com/support/solutions/articles/33000215104-troubleshooting-unable-to-generate-new-address" target="_blank">this troubleshooting article</a></p>', 'blockonomics-bitcoin-payments');
+                $error_msg = 'Please login to your admin panel, navigate to Settings > Blockonomics and click <i>Test Setup</i> to diagnose the issue';
 
-                $error_message = $unable_to_generate . $error_str . $troubleshooting_guide;
+                $error_message = $unable_to_generate . $error_msg;
 
                 if (version_compare($woocommerce->version, '2.1', '>=')) {
                     wc_add_notice(__($error_message, 'blockonomics-bitcoin-payments'), 'error');
@@ -423,7 +417,7 @@ function testSetup() {
                 break;
 
             case 'HTTP/1.1 401 Unauthorized': {
-                $error_str = __('API Key is incorrect. Make sure that the API you have entered is correct.', 'blockonomics-bitcoin-payments');
+                $error_str = __('API Key is incorrect. Make sure that the API key set in admin Blockonomics module configuration is correct.', 'blockonomics-bitcoin-payments');
                 break;
             }
 
@@ -531,7 +525,7 @@ function show_options()
             </p>
         </form>
         <div id="test-setup">
-            <form>
+            <form method="POST">
                 <p class="submit">
                     <input type="hidden" name="page" value="blockonomics_options">
                     <input type="submit" class="button-primary" name="test-setup-submit" value="Test Setup">
@@ -540,13 +534,15 @@ function show_options()
             <div id="test-result">
                 <p>
                     <?php
-                        if (isset($_GET['test-setup-submit']))
+                        if (isset($_POST['test-setup-submit']))
                         {
                             $setup_errors = testSetup();
                             if($setup_errors)
                             {
                                 echo "<p style='color:red;font-size:1.2em;'>Error in setup:</p>";
-                                echo "<p>$setup_errors</p>";
+                                echo "<p>$setup_errors";
+                                $troubleshooting_guide = __('</p><p> If problem persists, please consult <a href="https://blockonomics.freshdesk.com/support/solutions/articles/33000215104-troubleshooting-unable-to-generate-new-address" target="_blank">this troubleshooting article</a></p>', 'blockonomics-bitcoin-payments');
+                                echo $troubleshooting_guide;
                             }
                             else
                             {
