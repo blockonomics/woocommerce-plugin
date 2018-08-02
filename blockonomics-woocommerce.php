@@ -389,7 +389,7 @@ function gen_callback($input)
 
   if (get_option('blockonomics_api_key') != null)
   {
-    $message = __('Options updated! Please click on Test Setup to verify Installation.');
+    $message = __('Settings saved! Please click on Test Setup to verify Installation.');
     $type = 'updated';
     add_settings_error('option_notice', 'option_notice', $message, $type);
   }
