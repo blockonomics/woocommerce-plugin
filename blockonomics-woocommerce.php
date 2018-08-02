@@ -451,7 +451,12 @@ function gen_callback($input)
     $callback_secret = sha1(openssl_random_pseudo_bytes(20));
     update_option("blockonomics_callback_secret", $callback_secret);
   }
-  return 0; 
+
+  $message = __('Options updated! Please click on Test Setup to verify Installation.');
+  $type = 'updated';
+  add_settings_error('option_notice', 'option_notice', $message, $type);
+
+  return 0;
 }
 
 
@@ -519,6 +524,24 @@ function show_options()
                 <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_gen_callback" />
             </p>
         </form>
+        <div id="test-setup">
+            <form>
+                <p class="submit">
+                    <input type="hidden" name="page" value="blockonomics_options">
+                    <input type="submit" class="button-primary" name="test-setup-submit" value="Test Setup">
+                </p>
+            </form>
+            <div id="test-result">
+                <p>
+                    <?php
+                        if (isset($_GET['test-setup-submit']))
+                        {
+                            echo var_dump($_GET);
+                        }
+                     ?>
+                </p>
+            </div>
+        </div>
     </div>
 
 <?php
