@@ -540,11 +540,11 @@ function show_options()
             <?php wp_nonce_field('update-options') ?>
             <table class="form-table">
                 <tr valign="top">
-                    <th scope="row">BLOCKONOMICS API KEY (<?php echo __('Generate from ', 'blockonomics-bitcoin-payments')?> <a href="https://www.blockonomics.co/blockonomics">Wallet Watcher</a> &gt; Settings)</th>
+                    <th scope="row">BLOCKONOMICS API KEY </th>
                     <td><input type="text" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" /></td>
                 </tr>
                 <tr valign="top">
-                    <th scope="row">CALLBACK URL</br>(<?php echo __('Complete Merchant Setup by clicking on Get Started For Free in ', 'blockonomics-bitcoin-payments')?><a href="https://www.blockonomics.co/merchants"> Merchants</a></br><?php echo __('Paste this URL when prompted ', 'blockonomics-bitcoin-payments')?>)</br> <a href="javascript:gen_callback()" style="font:400 20px/1 dashicons" title="Generate New Callback URL">&#xf463;<a></th>
+                    <th scope="row">CALLBACK URL</th>
                     <td><?php
                             $callback_secret = get_option('blockonomics_callback_secret');
                             $notify_url = WC()->api_request_url('WC_Gateway_Blockonomics');
@@ -608,12 +608,12 @@ function show_options()
                             {
                                 echo "<p style='color:red;font-size:1.2em;'>Error in setup:</p>";
                                 echo "<p>$setup_errors";
-                                $troubleshooting_guide = __('</p><p> If problem persists, please consult <a href="https://blockonomics.freshdesk.com/support/solutions/articles/33000215104-troubleshooting-unable-to-generate-new-address" target="_blank">this troubleshooting article</a></p>', 'blockonomics-bitcoin-payments');
+                                $troubleshooting_guide = __('</p><p> Need help ? We would be happy to help you on <a href="https://www.blockonomics.co/merchants" target="_blank">chat here</a></p>', 'blockonomics-bitcoin-payments');
                                 echo $troubleshooting_guide;
                             }
                             else
                             {
-                                echo "<p style='color:green;font-size:1.2em;'>Setup is working</p>";
+                                echo "<p style='color:green;font-size:1.2em;'>Congrats ! Setup is all done</p>";
                             }
                         }
                      ?>
