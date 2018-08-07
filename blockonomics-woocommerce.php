@@ -574,7 +574,7 @@ function show_options()
                     <td><input onchange="value_changed()" type="text" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" /></td>
                 </tr>
                 <tr valign="top">
-                    <th scope="row">CALLBACK URL</br>(<?php echo __('Complete Merchant Setup by clicking on Get Started For Free in ', 'blockonomics-bitcoin-payments')?><a href="https://www.blockonomics.co/merchants"> Merchants</a></br><?php echo __('Paste this URL when prompted ', 'blockonomics-bitcoin-payments')?>)</br> <a href="javascript:gen_callback()" style="font:400 20px/1 dashicons" title="Generate New Callback URL">&#xf463;<a></th>
+                    <th scope="row">CALLBACK URL</th>
                     <td><?php
                             $callback_secret = get_option('blockonomics_callback_secret');
                             $notify_url = WC()->api_request_url('WC_Gateway_Blockonomics');
