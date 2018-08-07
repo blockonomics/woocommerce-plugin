@@ -501,7 +501,7 @@ function testSetup()
     $responseObj = $blockonomics->new_address(get_option('blockonomics_api_key'), get_option("blockonomics_callback_secret"), true);
 
     if(!ini_get('allow_url_fopen')) {
-        $error_str = __('The allow_url_fopen is not enabled, please enable this option to allow address generation.', 'blockonomics-bitcoin-payments');
+        $error_str = __('The allow_url_fopen is not enabled, please enable this in php.ini', 'blockonomics-bitcoin-payments');
 
     }  elseif(!isset($responseObj->response_code)) {
         $error_str = __('Your webhost is blocking outgoing HTTPS connections. Blockonomics requires an outgoing HTTPS POST (port 443) to generate new address. Check with your webhosting provider to allow this.', 'blockonomics-bitcoin-payments');
@@ -529,7 +529,7 @@ function testSetup()
                             $error_str = __('There is a problem in the Callback URL. Make sure that you have set your Callback URL from the admin Blockonomics module configuration to your Merchants > Settings.', 'blockonomics-bitcoin-payments');
                             break;
                         case "This require you to add an xpub in your wallet watcher":
-                            $error_str = __('There is a problem in the XPUB. Make sure that the you have added an address to Wallet Wathcer > Address Wathcer. If you have added an address make sure that it is an XPUB address and not a Bitcoin address.', 'blockonomics-bitcoin-payments');
+                            $error_str = __('There is a problem in the XPUB. Make sure that the you have added an address to Wallet Watcher > Address Wathcer. If you have added an address make sure that it is an XPUB address and not a Bitcoin address.', 'blockonomics-bitcoin-payments');
                             break;
                         default:
                             $error_str = $responseObj->message;
