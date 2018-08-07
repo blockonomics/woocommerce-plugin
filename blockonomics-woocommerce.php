@@ -308,11 +308,47 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
         function add_page()
         {
             generate_secret();
-                        register_setting('blockonomics_g', 'blockonomics_gen_callback', 'gen_callback');
+            register_setting('blockonomics_g', 'blockonomics_gen_callback', 'gen_callback');
             add_options_page(
                 'Blockonomics', 'Blockonomics', 'manage_options',
                 'blockonomics_options', 'show_options'
             );
+
+            if (get_option('api_updated') == 'true' && $_GET['settings-updated'] == 'true')
+            {
+                $message = __('API Key updated! Please click on Test Setup to verify Installation. ');
+                $type = 'updated';
+                add_settings_error('option_notice', 'option_notice', $message, $type);
+            }
+
+            if (isset($_POST['runTest']))
+            {
+
+                $urls_count = check_callback_urls();
+
+                if($urls_count == '2')
+                {
+                    $message = __("Seems that you have set multiple xPubs or you already have a Callback URL set. <a href='https://blockonomics.freshdesk.com/support/solutions/articles/33000209399-merchants-integrating-multiple-websites' target='_blank'>Here is a guide</a> to setup multiple websites.");
+                    $type = 'error';
+                    add_settings_error('option_notice', 'option_notice', $message, $type);
+                }
+
+                $setup_errors = testSetup();
+
+                if($setup_errors)
+                {
+                    $message = __($setup_errors . ' If problem persists, please consult <a href="https://blockonomics.freshdesk.com/support/solutions/articles/33000215104-troubleshooting-unable-to-generate-new-address" target="_blank">this troubleshooting article</a></p>', 'blockonomics-bitcoin-payments');
+                    $type = 'error';
+                    add_settings_error('option_notice', 'option_notice', $message, $type);
+                }
+                else
+                {
+                    $message = __('Congrats ! Setup is all done');
+                    $type = 'updated';
+                    add_settings_error('option_notice', 'option_notice', $message, $type);
+                }
+            }
+
         }
 
         function generate_secret()
@@ -385,13 +421,6 @@ function gen_callback($input)
   {
     $callback_secret = sha1(openssl_random_pseudo_bytes(20));
     update_option("blockonomics_callback_secret", $callback_secret);
-  }
-
-  if (get_option('blockonomics_api_key') != null)
-  {
-    $message = __('Settings saved! Please click on Test Setup to verify Installation.');
-    $type = 'updated';
-    add_settings_error('option_notice', 'option_notice', $message, $type);
   }
 
   return 0;
@@ -538,10 +567,11 @@ function show_options()
         </div>
         <form method="post" id="myform" action="options.php">
             <?php wp_nonce_field('update-options') ?>
+            <input type="hidden" name="api_updated" id="api_updated" value="false">
             <table class="form-table">
                 <tr valign="top">
                     <th scope="row">BLOCKONOMICS API KEY (<?php echo __('Generate from ', 'blockonomics-bitcoin-payments')?> <a href="https://www.blockonomics.co/blockonomics">Wallet Watcher</a> &gt; Settings)</th>
-                    <td><input type="text" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" /></td>
+                    <td><input onchange="value_changed()" type="text" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" /></td>
                 </tr>
                 <tr valign="top">
                     <th scope="row">CALLBACK URL</br>(<?php echo __('Complete Merchant Setup by clicking on Get Started For Free in ', 'blockonomics-bitcoin-payments')?><a href="https://www.blockonomics.co/merchants"> Merchants</a></br><?php echo __('Paste this URL when prompted ', 'blockonomics-bitcoin-payments')?>)</br> <a href="javascript:gen_callback()" style="font:400 20px/1 dashicons" title="Generate New Callback URL">&#xf463;<a></th>
@@ -556,7 +586,10 @@ function show_options()
                       {
                         document.getElementById("callback_flag").value = 1;
                         document.getElementById("myform").submit();
-
+                      }
+                      function value_changed()
+                      {
+                        document.getElementById('api_updated').value = 'true';
                       }
                       </script>
                 </tr>
@@ -577,49 +610,18 @@ function show_options()
                 </tr>
             </table>
             <p class="submit">
-                <input type="submit" class="button-primary" value="Save" />
+                <input type="submit" class="button-primary" value="Save"/>
                 <input type="hidden" name="action" value="update" />
-                <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_gen_callback" />
+                <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_gen_callback, api_updated" />
+                <input onclick="document.testSetupForm.submit();" class="button-primary" name="test-setup-submit" value="Test Setup" style="max-width:85px;">
             </p>
         </form>
-        <div id="test-setup">
-            <form method="POST">
-                <p class="submit">
-                    <input type="hidden" name="page" value="blockonomics_options">
-                    <input type="submit" class="button-primary" name="test-setup-submit" value="Test Setup">
-                </p>
-            </form>
-            <div id="test-result">
-                <p>
-                    <?php
-                        if (isset($_POST['test-setup-submit']))
-                        {
-
-                            $urls_count = check_callback_urls();
-
-                            if($urls_count == '2')
-                            {
-                                echo "<p>Seems that you have set multiple xPubs or you already have a Callback URL set. <a href='https://blockonomics.freshdesk.com/support/solutions/articles/33000209399-merchants-integrating-multiple-websites' target='_blank'>Here is a guide</a> to setup multiple websites.</p>";
-                            }
-
-                            $setup_errors = testSetup();
-
-                            if($setup_errors)
-                            {
-                                echo "<p style='color:red;font-size:1.2em;'>Error in setup:</p>";
-                                echo "<p>$setup_errors";
-                                $troubleshooting_guide = __('</p><p> If problem persists, please consult <a href="https://blockonomics.freshdesk.com/support/solutions/articles/33000215104-troubleshooting-unable-to-generate-new-address" target="_blank">this troubleshooting article</a></p>', 'blockonomics-bitcoin-payments');
-                                echo $troubleshooting_guide;
-                            }
-                            else
-                            {
-                                echo "<p style='color:green;font-size:1.2em;'>Setup is working</p>";
-                            }
-                        }
-                     ?>
-                </p>
-            </div>
-        </div>
+        <form method="POST" name="testSetupForm">
+            <p class="submit">
+                <input type="hidden" name="page" value="blockonomics_options">
+                <input type="hidden" name="runTest" value="true">
+            </p>
+        </form>
     </div>
 
 <?php
