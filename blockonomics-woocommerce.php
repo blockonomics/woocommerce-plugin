@@ -316,7 +316,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
 
             if (get_option('api_updated') == 'true' && $_GET['settings-updated'] == 'true')
             {
-                $message = __('API Key updated! Please click on Test Setup to verify Installation. ');
+                $message = __('API Key updated! Please click on Test Setup to verify Installation. ', 'blockonomics-bitcoin-payments');
                 $type = 'updated';
                 add_settings_error('option_notice', 'option_notice', $message, $type);
             }
@@ -328,7 +328,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
 
                 if($urls_count == '2')
                 {
-                    $message = __("Seems that you have set multiple xPubs or you already have a Callback URL set. <a href='https://blockonomics.freshdesk.com/support/solutions/articles/33000209399-merchants-integrating-multiple-websites' target='_blank'>Here is a guide</a> to setup multiple websites.");
+                    $message = __("Seems that you have set multiple xPubs or you already have a Callback URL set. <a href='https://blockonomics.freshdesk.com/support/solutions/articles/33000209399-merchants-integrating-multiple-websites' target='_blank'>Here is a guide</a> to setup multiple websites.", 'blockonomics-bitcoin-payments');
                     $type = 'error';
                     add_settings_error('option_notice', 'option_notice', $message, $type);
                 }
@@ -343,7 +343,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                 }
                 else
                 {
-                    $message = __('Congrats ! Setup is all done');
+                    $message = __('Congrats ! Setup is all done', 'blockonomics-bitcoin-payments');
                     $type = 'updated';
                     add_settings_error('option_notice', 'option_notice', $message, $type);
                 }
@@ -556,12 +556,12 @@ function show_options()
         <h2>Blockonomics</h2>
         <div id="installation-instructions">
             <p>
-                <b>Installation instructions: </b><a href="https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62" target="_blank">Blog Tutorial</a> | <a href="https://www.youtube.com/watch?v=E5nvTeuorE4" target="_blank">Youtube Tutorial</a>
+                <b><?php echo __('Installation instructions', 'blockonomics-bitcoin-payments');?>: </b><a href="https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62" target="_blank">Blog Tutorial</a> | <a href="https://www.youtube.com/watch?v=E5nvTeuorE4" target="_blank">Youtube Tutorial</a>
             </p>
             <?php
                 if (get_option('blockonomics_api_key') == null) {
-                    echo "<p>You are few clicks away from accepting bitcoin payments</p>";
-                    echo "<p>Click on <a href='https://www.blockonomics.co/merchants' target='_blank'>Get Started for Free</a> on Blockonomics Merchants. Complete the Wizard, and Set the API Key when shown here</p>";
+                    echo __('<p>You are few clicks away from accepting bitcoin payments</p>', 'blockonomics-bitcoin-payments');
+                    echo __("<p>Click on <a href='https://www.blockonomics.co/merchants' target='_blank'>Get Started for Free</a> on Blockonomics Merchants. Complete the Wizard, and Set the API Key when shown here</p>", 'blockonomics-bitcoin-payments');
                 }
             ?>
         </div>
