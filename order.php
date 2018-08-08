@@ -69,8 +69,10 @@
             <div class="bnomics-address">
               <input class="bnomics-address-input" type="text" ng-value="order.address" readonly="readonly">
             </div>
+            <div class="bnomics-powered-by">
+              <?=__('Powered by ', 'blockonomics-bitcoin-payments')?><a href='https://www.blockonomics.co/' target='_blank'>blockonomics</a>
+            </div>
           </div>
-
 
           <?php if (get_option('blockonomics_altcoins')) : ?>
           <div class="bnomics-altcoin-pane" ng-style="{'border-left': (altcoin_waiting)?'none':''}">
@@ -95,7 +97,6 @@
           <?php endif ?>
 
         </div>
-
       </div>
     </div>
     <script>

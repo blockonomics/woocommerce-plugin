@@ -75,7 +75,10 @@
 }
 
 .bnomics-order-info > div {
-  padding: 15px 30px;
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-top: 30px;
+  padding-bottom: 0;
 }
 
 .bnomics-order-info .bnomics-bitcoin-pane {
@@ -122,6 +125,13 @@
 .altcoin-td {
   width: 35%;
   border-left: 2px ridge;
+}
+
+.bnomics-powered-by {
+  text-align: center;
+  margin-top: 1.6em;
+  font-size: 0.8em;
+  padding: 0;
 }
 
 /* ---- Mobile -----*/

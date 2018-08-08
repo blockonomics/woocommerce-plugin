@@ -123,13 +123,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                         'type' => 'text',
                         'description' => __('This controls the title which the user sees during checkout.', 'blockonomics-bitcoin-payments'),
                         'default' => __('Bitcoin', 'blockonomics-bitcoin-payments')
-                    ),
-                    'description' => array(
-                        'title'       => __('Description', 'blockonomics-bitcoin-payments'),
-                        'type'        => 'textarea',
-                        'description' => __('This controls the description which the user sees during checkout.', 'blockonomics-bitcoin-payments'),
-                        'default'     => __("Powered by ", 'blockonomics-bitcoin-payments'). "<a href='https://www.blockonomics.co/' target='_blank'>blockonomics</a>"
-                    ),
+                    )
                 );
             }
 
@@ -193,7 +187,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                 $order_url = add_query_arg('show_order', $address, $order_url);
 
                 update_post_meta($order_id, 'blockonomics_address', $address);
-                
+
                 return array(
                 'result'   => 'success',
                 'redirect' => $order_url
