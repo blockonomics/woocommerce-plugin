@@ -134,7 +134,6 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                 }
             }
             
-
             public function process_payment($order_id)
             {
                 include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';

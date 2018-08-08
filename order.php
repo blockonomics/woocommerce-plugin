@@ -87,7 +87,7 @@
               </div>
             </div>
 
-            <div class="bnomics-altcoin-waiting-wrapper" ng-show="altcoin_waiting" ng-cloak>
+            <div class="bnomics-altcoin-waiting" ng-show="altcoin_waiting" ng-cloak>
               <h4 class="bnomics-altcoin-waiting-info"><?=__('Waiting for BTC payment from shapeshift altcoin conversion ', 'blockonomics-bitcoin-payments')?></h4>
               <div class="bnomics-spinner"></div>
               <h4 class="bnomics-altcoin-cancel"><a href="" ng-click="altcoin_waiting=false"> Click here</a> to cancel and go back </h4>
