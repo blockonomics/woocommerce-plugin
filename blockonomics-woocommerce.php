@@ -192,6 +192,8 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                 $order_url = WC()->api_request_url('WC_Gateway_Blockonomics');
                 $order_url = add_query_arg('show_order', $address, $order_url);
 
+                update_post_meta($order_id, 'blockonomics_address', $address);
+                
                 return array(
                 'result'   => 'success',
                 'redirect' => $order_url
@@ -231,7 +233,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                         $status = intval($_REQUEST['status']);
                         $existing_status = $order['status'];
                         $timestamp = $order['timestamp'];
-                                                $time_period = get_option("blockonomics_timeperiod", 10) *60;
+                        $time_period = get_option("blockonomics_timeperiod", 10) *60;
                         if ($status == 0 && time() > $timestamp + $time_period) {
                             $minutes = (time() - $timestamp)/60;
                             $wc_order->add_order_note(__("Warning: Payment arrived after $minutes minutes. Received BTC may not match current bitcoin price", 'blockonomics-bitcoin-payments'));
@@ -255,7 +257,6 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                         $orders[$addr] = $order;
                         if ($existing_status == -1) {
                             update_post_meta($wc_order->id, 'blockonomics_txid', $order['txid']);
-                            update_post_meta($wc_order->id, 'blockonomics_address', $addr);
                             update_post_meta($wc_order->id, 'expected_btc_amount', $order['satoshi']/1.0e8);
                         }
                         update_option('blockonomics_orders', $orders);
