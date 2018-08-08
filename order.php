@@ -46,7 +46,7 @@
               <div class="bnomics-qr-code">
                 <h5  for="btn-address"><?=__('Bitcoin Address', 'blockonomics-bitcoin-payments')?></h5>
                 <a href="bitcoin:{{order.address}}?amount={{order.satoshi/1.0e8}}">
-                  <qrcode data="bitcoin:{{order.address}}?amount={{order.satoshi/1.0e8}}" size="160">
+                  <qrcode data="bitcoin:{{order.address}}?amount={{order.satoshi/1.0e8}}" size="160" version="6">
                     <canvas class="qrcode"></canvas>
                   </qrcode>
                 </a>
