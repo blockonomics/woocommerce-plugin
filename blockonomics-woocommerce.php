@@ -331,13 +331,14 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                     $message = __("Seems that you have set multiple xPubs or you already have a Callback URL set. <a href='https://blockonomics.freshdesk.com/support/solutions/articles/33000209399-merchants-integrating-multiple-websites' target='_blank'>Here is a guide</a> to setup multiple websites.", 'blockonomics-bitcoin-payments');
                     $type = 'error';
                     add_settings_error('option_notice', 'option_notice', $message, $type);
+                    return;
                 }
 
                 $setup_errors = testSetup();
 
                 if($setup_errors)
                 {
-                    $message = __($setup_errors . ' If problem persists, please consult <a href="https://blockonomics.freshdesk.com/support/solutions/articles/33000215104-troubleshooting-unable-to-generate-new-address" target="_blank">this troubleshooting article</a></p>', 'blockonomics-bitcoin-payments');
+                    $message = __($setup_errors . '</p><p> Need help ? We would be happy to help you on <a href="https://www.blockonomics.co/merchants" target="_blank">chat here</a></p>', 'blockonomics-bitcoin-payments');
                     $type = 'error';
                     add_settings_error('option_notice', 'option_notice', $message, $type);
                 }
@@ -479,6 +480,15 @@ function check_callback_urls()
 
     if (count($responseObj) > 1)
     {
+        $callback_url = WC()->api_request_url('WC_Gateway_Blockonomics') . "?secret=" . get_option('blockonomics_callback_secret');
+
+        // Check if callback url is set
+        foreach ($responseObj as $resObj) {
+            if($resObj->callback == $callback_url)
+                {
+                    return "1";
+                }
+        }
         return "2";
     }
 }
@@ -570,7 +580,7 @@ function show_options()
             <input type="hidden" name="api_updated" id="api_updated" value="false">
             <table class="form-table">
                 <tr valign="top">
-                    <th scope="row">BLOCKONOMICS API KEY (<?php echo __('Generate from ', 'blockonomics-bitcoin-payments')?> <a href="https://www.blockonomics.co/blockonomics">Wallet Watcher</a> &gt; Settings)</th>
+                    <th scope="row">BLOCKONOMICS API KEY</th>
                     <td><input onchange="value_changed()" type="text" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" /></td>
                 </tr>
                 <tr valign="top">
