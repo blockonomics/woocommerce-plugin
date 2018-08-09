@@ -338,7 +338,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
 
                 if($setup_errors)
                 {
-                    $message = __($setup_errors . '</p><p> Need help ? We would be happy to help you on <a href="https://www.blockonomics.co/merchants" target="_blank">chat here</a></p>', 'blockonomics-bitcoin-payments');
+                    $message = __($setup_errors . '</p><p>For more information, please consult <a href="https://blockonomics.freshdesk.com/support/solutions/articles/33000215104-troubleshooting-unable-to-generate-new-address" target="_blank">this troubleshooting article</a></p>', 'blockonomics-bitcoin-payments');
                     $type = 'error';
                     add_settings_error('option_notice', 'option_notice', $message, $type);
                 }
@@ -509,7 +509,7 @@ function testSetup()
     $responseObj = $blockonomics->new_address(get_option('blockonomics_api_key'), get_option("blockonomics_callback_secret"), true);
 
     if(!ini_get('allow_url_fopen')) {
-        $error_str = __('The allow_url_fopen is not enabled, please enable this option to allow address generation.', 'blockonomics-bitcoin-payments');
+        $error_str = __('<i>allow_url_fopen</i> is not enabled, please enable this in php.ini', 'blockonomics-bitcoin-payments');
 
     }  elseif(!isset($responseObj->response_code)) {
         $error_str = __('Your webhost is blocking outgoing HTTPS connections. Blockonomics requires an outgoing HTTPS POST (port 443) to generate new address. Check with your webhosting provider to allow this.', 'blockonomics-bitcoin-payments');
@@ -537,7 +537,7 @@ function testSetup()
                             $error_str = __('There is a problem in the Callback URL. Make sure that you have set your Callback URL from the admin Blockonomics module configuration to your Merchants > Settings.', 'blockonomics-bitcoin-payments');
                             break;
                         case "This require you to add an xpub in your wallet watcher":
-                            $error_str = __('There is a problem in the XPUB. Make sure that the you have added an address to Wallet Wathcer > Address Wathcer. If you have added an address make sure that it is an XPUB address and not a Bitcoin address.', 'blockonomics-bitcoin-payments');
+                            $error_str = __('There is a problem in the XPUB. Make sure that the you have added an address to Wallet Watcher > Address Watcher. If you have added an address make sure that it is an XPUB address and not a Bitcoin address.', 'blockonomics-bitcoin-payments');
                             break;
                         default:
                             $error_str = $responseObj->message;
@@ -573,9 +573,6 @@ function show_options()
     <div class="wrap">
         <h2>Blockonomics</h2>
         <div id="installation-instructions">
-            <p>
-                <b><?php echo __('Installation instructions', 'blockonomics-bitcoin-payments');?>: </b><a href="https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62" target="_blank">Blog Tutorial</a> | <a href="https://www.youtube.com/watch?v=E5nvTeuorE4" target="_blank">Youtube Tutorial</a>
-            </p>
             <?php
                 if (get_option('blockonomics_api_key') == null) {
                     echo __('<p>You are few clicks away from accepting bitcoin payments</p>', 'blockonomics-bitcoin-payments');
