@@ -338,7 +338,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
 
                 if($setup_errors)
                 {
-                    $message = __($setup_errors . '</p><p> Need help ? We would be happy to help you on <a href="https://www.blockonomics.co/merchants" target="_blank">chat here</a></p>', 'blockonomics-bitcoin-payments');
+                    $message = __($setup_errors . '</p><p>For more information, please consult <a href="https://blockonomics.freshdesk.com/support/solutions/articles/33000215104-troubleshooting-unable-to-generate-new-address" target="_blank">this troubleshooting article</a></p>', 'blockonomics-bitcoin-payments');
                     $type = 'error';
                     add_settings_error('option_notice', 'option_notice', $message, $type);
                 }
@@ -501,7 +501,7 @@ function testSetup()
     $responseObj = $blockonomics->new_address(get_option('blockonomics_api_key'), get_option("blockonomics_callback_secret"), true);
 
     if(!ini_get('allow_url_fopen')) {
-        $error_str = __('The allow_url_fopen is not enabled, please enable this in php.ini', 'blockonomics-bitcoin-payments');
+        $error_str = __('<i>allow_url_fopen</i> is not enabled, please enable this in php.ini', 'blockonomics-bitcoin-payments');
 
     }  elseif(!isset($responseObj->response_code)) {
         $error_str = __('Your webhost is blocking outgoing HTTPS connections. Blockonomics requires an outgoing HTTPS POST (port 443) to generate new address. Check with your webhosting provider to allow this.', 'blockonomics-bitcoin-payments');
