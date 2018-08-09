@@ -484,7 +484,11 @@ function check_callback_urls()
 
     if (count($responseObj) > 1)
     {
-        $callback_url = WC()->api_request_url('WC_Gateway_Blockonomics') . "?secret=" . get_option('blockonomics_callback_secret');
+        //$callback_url = WC()->api_request_url('WC_Gateway_Blockonomics') . "?secret=" . get_option('blockonomics_callback_secret');
+
+        $callback_secret = get_option('blockonomics_callback_secret');
+        $callback_url = WC()->api_request_url('WC_Gateway_Blockonomics');
+        $callback_url = add_query_arg('secret', $callback_secret, $callback_url);
 
         // Check if callback url is set
         foreach ($responseObj as $resObj) {
