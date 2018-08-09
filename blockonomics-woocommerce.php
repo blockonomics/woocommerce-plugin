@@ -565,9 +565,6 @@ function show_options()
     <div class="wrap">
         <h2>Blockonomics</h2>
         <div id="installation-instructions">
-            <p>
-                <b><?php echo __('Installation instructions', 'blockonomics-bitcoin-payments');?>: </b><a href="https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62" target="_blank">Blog Tutorial</a> | <a href="https://www.youtube.com/watch?v=E5nvTeuorE4" target="_blank">Youtube Tutorial</a>
-            </p>
             <?php
                 if (get_option('blockonomics_api_key') == null) {
                     echo __('<p>You are few clicks away from accepting bitcoin payments</p>', 'blockonomics-bitcoin-payments');
