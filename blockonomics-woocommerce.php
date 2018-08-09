@@ -576,7 +576,7 @@ function show_options()
             <?php
                 if (get_option('blockonomics_api_key') == null) {
                     echo __('<p>You are few clicks away from accepting bitcoin payments</p>', 'blockonomics-bitcoin-payments');
-                    echo __("<p>Click on <a href='https://www.blockonomics.co/merchants' target='_blank'>Get Started for Free</a> on Blockonomics Merchants. Complete the Wizard, and Set the API Key when shown here</p>", 'blockonomics-bitcoin-payments');
+                    echo __("<p>Click on <b>Get Started for Free</b> on <a href='https://www.blockonomics.co/merchants' target='_blank'>Blockonomics Merchants</a>. Complete the Wizard, Copy the API Key when shown here</p>", 'blockonomics-bitcoin-payments');
                 }
             ?>
         </div>
