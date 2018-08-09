@@ -70,7 +70,7 @@
               <input class="bnomics-address-input" type="text" ng-value="order.address" readonly="readonly">
             </div>
             <div class="bnomics-powered-by">
-              <?=__('Powered by ', 'blockonomics-bitcoin-payments')?><a href='https://www.blockonomics.co/' target='_blank'>blockonomics</a>
+              <?=__('Powered by ', 'blockonomics-bitcoin-payments')?>Blockonomics
             </div>
           </div>
 
