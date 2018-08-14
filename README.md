@@ -32,7 +32,6 @@ LTC etc. using our built-in Shapeshift integration
 - All major HD wallets, such as Trezor, Ledger Nano S, Blockchain.info, and
 Mycelium, are supported
 - Supports **all major fiat currencies**
-process
 - Complete checkout process happens within your website/theme
 
 
