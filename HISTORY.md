@@ -1,5 +1,10 @@
 == Changelog ==
 
+= 1.4.9  =
+* Faster and easier installation process having Test Setup feature
+* Showing QR code for bech32 addresses 
+* Showing Bitcoin Address for all orders
+
 = 1.4.8  =
 * Improved error handling when unable to generate address
 
