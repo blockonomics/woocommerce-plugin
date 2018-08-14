@@ -567,6 +567,9 @@ function show_options()
     <div class="wrap">
         <h2>Blockonomics</h2>
         <div id="installation-instructions">
+            <p>
+                <b><?php echo __('Installation instructions', 'blockonomics-bitcoin-payments');?>: </b><a href="https://www.youtube.com/watch?v=Kck3a-9nh6E" target="_blank">Youtube Tutorial</a> | <a href="https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62" target="_blank">Blog Tutorial</a>
+            </p>
             <?php
                 if (get_option('blockonomics_api_key') == null) {
                     echo __('<p>You are few clicks away from accepting bitcoin payments</p>', 'blockonomics-bitcoin-payments');
@@ -583,7 +586,9 @@ function show_options()
                     <td><input onchange="value_changed()" type="text" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" /></td>
                 </tr>
                 <tr valign="top">
-                    <th scope="row">CALLBACK URL</th>
+                    <th scope="row">CALLBACK URL 
+                        <a href="javascript:gen_callback()" id="generate-callback" style="font:400 20px/1 dashicons;margin-left: 5px;top: 4px;position:relative;text-decoration: none;" title="Generate New Callback URL">&#xf463;<a>
+                    </th>
                     <td><?php
                             $callback_secret = get_option('blockonomics_callback_secret');
                             $notify_url = WC()->api_request_url('WC_Gateway_Blockonomics');
@@ -599,6 +604,17 @@ function show_options()
                       function value_changed()
                       {
                         document.getElementById('api_updated').value = 'true';
+                      }
+                      function checkForAPIKeyChange()
+                      {
+                        if (document.getElementById('api_updated').value == 'true')
+                        {
+                            alert('Settings have changed, click on Save first');
+                        }
+                        else
+                        {
+                            document.testSetupForm.submit();
+                        }
                       }
                       </script>
                 </tr>
@@ -622,7 +638,7 @@ function show_options()
                 <input type="submit" class="button-primary" value="Save"/>
                 <input type="hidden" name="action" value="update" />
                 <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_gen_callback, api_updated" />
-                <input onclick="document.testSetupForm.submit();" class="button-primary" name="test-setup-submit" value="Test Setup" style="max-width:85px;">
+                <input onclick="checkForAPIKeyChange();" class="button-primary" name="test-setup-submit" value="Test Setup" style="max-width:85px;">
             </p>
         </form>
         <form method="POST" name="testSetupForm">
