@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 1.5.0  =
+* Better Test Setup Diagnostics
+* Updated description/links to tutorials
+
 = 1.4.9  =
 * Faster and easier installation process having Test Setup feature
 * Showing QR code for bech32 addresses 
