@@ -421,6 +421,15 @@ function gen_callback($input)
   return 0;
 }
 
+function update_callback_url($callback_url, $xPub, $blockonomics)
+{
+    $blockonomics->update_callback(
+        get_option('blockonomics_api_key'),
+        $callback_url,
+        $xPub
+    );
+}
+
 /**
  * Check the status of callback urls
  * If no xPubs set, return
@@ -444,21 +453,14 @@ function check_callback_urls()
     // One xPub set
     if (count($responseObj) == 1)
     {
-        //$callback_url = WC()->api_request_url('WC_Gateway_Blockonomics') . "?secret=" . get_option('blockonomics_callback_secret');
-
         $callback_secret = get_option('blockonomics_callback_secret');
         $callback_url = WC()->api_request_url('WC_Gateway_Blockonomics');
         $callback_url = add_query_arg('secret', $callback_secret, $callback_url);
 
         // No Callback URL set, set one
         if($responseObj[0]->callback == null)
-        { 
-            $blockonomics->update_callback(
-                get_option('blockonomics_api_key'),
-                $callback_url,
-                $responseObj[0]->address
-            );
-
+        {
+            update_callback_url($callback_url, $responseObj[0]->address, $blockonomics);
             return "1";
         }
         // One xPub with one Callback URL
@@ -468,18 +470,21 @@ function check_callback_urls()
             {
                 return "1";
             }
-            else
-            {
 
+            // Check if only secret differs
+            $callback_without_secret = substr($responseObj[0]->callback, 0, -48);
+            if($callback_without_secret == WC()->api_request_url('WC_Gateway_Blockonomics'))
+            {
+                update_callback_url($callback_url, $responseObj[0]->address, $blockonomics);
+                return "1";
             }
+
             return "2";
         }
     }
 
     if (count($responseObj) > 1)
     {
-        //$callback_url = WC()->api_request_url('WC_Gateway_Blockonomics') . "?secret=" . get_option('blockonomics_callback_secret');
-
         $callback_secret = get_option('blockonomics_callback_secret');
         $callback_url = WC()->api_request_url('WC_Gateway_Blockonomics');
         $callback_url = add_query_arg('secret', $callback_secret, $callback_url);
