@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 1.5.1  =
+* Test Setup is more intelligent
+* Fixed typos in README
+
 = 1.5.0  =
 * Better Test Setup Diagnostics
 * Updated description/links to tutorials
