@@ -40,7 +40,7 @@ Mycelium, are supported
 ### Tutorials ###
 - [Video Tutorial](https://youtu.be/Kck3a-9nh6E)
 - [Blog Tutorial](https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62)
-- For quick help, feel free to ping our team on our [Telegram Channel](https://t.me/BlockonomicsCo)
+- For quick help, ping us on [Telegram Channel](https://t.me/BlockonomicsCo)
 
 ### Setup Instructions ###
 - Click on **Get Started For Free** on [Blockonomics > Merchants](https://www.blockonomics.co/merchants) and proceed to complete merchant wizard.
