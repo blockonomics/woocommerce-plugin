@@ -458,7 +458,7 @@ function check_callback_urls()
         $callback_url = add_query_arg('secret', $callback_secret, $callback_url);
 
         // No Callback URL set, set one
-        if($responseObj[0]->callback == null || $responseObj[0]->callback == '')
+        if(!$responseObj[0]->callback || $responseObj[0]->callback == null)
         {
             update_callback_url($callback_url, $responseObj[0]->address, $blockonomics);
             return "1";
