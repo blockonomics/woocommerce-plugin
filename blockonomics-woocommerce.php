@@ -458,7 +458,7 @@ function check_callback_urls()
         $callback_url = add_query_arg('secret', $callback_secret, $callback_url);
 
         // No Callback URL set, set one
-        if($responseObj[0]->callback == null)
+        if($responseObj[0]->callback == null || $responseObj[0]->callback == '')
         {
             update_callback_url($callback_url, $responseObj[0]->address, $blockonomics);
             return "1";
@@ -471,8 +471,10 @@ function check_callback_urls()
                 return "1";
             }
 
+            // Strip everything after and including '?' in callback URL
+            $callback_without_secret = substr($responseObj[0]->callback, 0, strpos($responseObj[0]->callback, "?"));
+            
             // Check if only secret differs
-            $callback_without_secret = substr($responseObj[0]->callback, 0, -48);
             if($callback_without_secret == WC()->api_request_url('WC_Gateway_Blockonomics'))
             {
                 update_callback_url($callback_url, $responseObj[0]->address, $blockonomics);
