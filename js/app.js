@@ -109,3 +109,26 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
   }
 });
 
+//Order Form Switcher
+jQuery(".bnomics-paywith-btc").click(function(){
+  // Holds the product ID of the clicked element
+  jQuery(".bnomics-altcoin-pane").hide();
+  jQuery(".bnomics-bitcoin-pane").show();
+  jQuery(".bnomics-paywith-btc").addClass('bnomics-paywith-selected');
+  jQuery(".bnomics-paywith-altcoin").removeClass('bnomics-paywith-selected');
+});
+
+jQuery(".bnomics-paywith-altcoin").click(function(){
+  // Holds the product ID of the clicked element
+  jQuery(".bnomics-bitcoin-pane").hide();
+  jQuery(".bnomics-altcoin-pane").show();
+  jQuery(".bnomics-paywith-altcoin").addClass('bnomics-paywith-selected');
+  jQuery(".bnomics-paywith-btc").removeClass('bnomics-paywith-selected');
+});
+
+//Order Form Copy To Clipboard
+jQuery("#bnomics-copy-icon").click(function(){
+  var copyText = document.getElementById("bnomics-address-input");
+  copyText.select();
+  document.execCommand("copy");
+});
