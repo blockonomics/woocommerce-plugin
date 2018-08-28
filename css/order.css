@@ -37,11 +37,6 @@
 }
 
 .bnomics-order-container {
-  min-height: 50vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  text-align: center;
   margin: auto;
   padding: 10px;
 }
