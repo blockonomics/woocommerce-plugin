@@ -74,8 +74,8 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
 
   $scope.pay_altcoins = function() {
     $scope.altcoin_waiting = true;
-    url = "https://shapeshift.io/shifty.html?destination=" + $scope.order.address + "&amount=" + $scope.order.satoshi/1.0e8 + "&output=BTC";
-    window.open(url, '1418115287605','width=700,height=500,toolbar=0,menubar=0,location=0,status=1,scrollbars=1,resizable=0,left=0,top=0');
+    //url = "https://shapeshift.io/shifty.html?destination=" + $scope.order.address + "&amount=" + $scope.order.satoshi/1.0e8 + "&output=BTC";
+    //window.open(url, '1418115287605','width=700,height=500,toolbar=0,menubar=0,location=0,status=1,scrollbars=1,resizable=0,left=0,top=0');
   }
 
   if ( typeof $scope.address != 'undefined'){
@@ -101,34 +101,16 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
 						//Redirect to order received page
 						window.location = $scope.finish_order_url();
 						//Wait for 2 seconds for order status
-            //to update on server
+            			//to update on server
 					}, 2000, 1);
         }
       }
     });
   }
-});
-
-//Order Form Switcher
-jQuery(".bnomics-paywith-btc").click(function(){
-  // Holds the product ID of the clicked element
-  jQuery(".bnomics-altcoin-pane").hide();
-  jQuery(".bnomics-bitcoin-pane").show();
-  jQuery(".bnomics-paywith-btc").addClass('bnomics-paywith-selected');
-  jQuery(".bnomics-paywith-altcoin").removeClass('bnomics-paywith-selected');
-});
-
-jQuery(".bnomics-paywith-altcoin").click(function(){
-  // Holds the product ID of the clicked element
-  jQuery(".bnomics-bitcoin-pane").hide();
-  jQuery(".bnomics-altcoin-pane").show();
-  jQuery(".bnomics-paywith-altcoin").addClass('bnomics-paywith-selected');
-  jQuery(".bnomics-paywith-btc").removeClass('bnomics-paywith-selected');
-});
-
-//Order Form Copy To Clipboard
-jQuery("#bnomics-copy-icon").click(function(){
-  var copyText = document.getElementById("bnomics-address-input");
-  copyText.select();
-  document.execCommand("copy");
+  //Order Form Copy To Clipboard
+  $scope.address_click = function() {
+    var copyText = document.getElementById("bnomics-address-input");
+    copyText.select();
+    document.execCommand("copy");  
+  }
 });
