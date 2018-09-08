@@ -66,7 +66,7 @@
                     </div>
   			      <!-- Bitcoin Address -->
   		          <div class="bnomics-address">
-  		            <input id="bnomics-address-input" class="bnomics-address-input" type="text" ng-value="order.address" readonly="readonly"><img src="https://cdn4.iconfinder.com/data/icons/linecon/512/copy-512.png" id="bnomics-copy-icon">
+  		            <input ng-click="address_click()" id="bnomics-address-input" class="bnomics-address-input" type="text" ng-value="order.address" readonly="readonly"><img ng-click="address_click()" src="https://cdn4.iconfinder.com/data/icons/linecon/512/copy-512.png" id="bnomics-copy-icon">
   		          </div>
   				  <!-- Countdown Timer -->
   		          <div ng-cloak ng-hide="order.status != -1 || altcoin_waiting" class="bnomics-progress-bar-wrapper">
