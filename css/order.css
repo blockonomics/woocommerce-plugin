@@ -97,7 +97,6 @@
 }
 
 .bnomics-altcoin-pane {
-  display: flex;
   align-items: center;
   flex: 1;
   text-align: center;
@@ -109,7 +108,7 @@
   width: 90% !important;
 }
 
-.bnomics-address input {
+.bnomics-address input , .bnomics-address select {
   font-weight: 600 !important;
   margin-top: 5px !important;
   margin-bottom: 10px !important;
@@ -145,8 +144,8 @@
   text-align: center;
   margin-top: 1.6em;
   margin-bottom: 1em;
-  font-size: 0.7em;
-  padding: 0;
+  font-size: 0.8em;
+  padding: 0 20px;
 }
 
 .bnomics-order-number {
@@ -185,14 +184,6 @@
   width:180px;
   margin: 0 auto;
   text-align: left;
-}
-
-.bnomics-order-status-wrapper {
-  font-size:12px;
-}
-
-.bnomics-amount-title {
-  margin:0px;
 }
 
 .bnomics-paywith-btc {
@@ -247,6 +238,10 @@
   padding: 15px 15%;
 }
 
+.bnomics-copy-text{
+    padding-bottom: 15px !important;
+}
+
 /* ---- Mobile -----*/
 @media screen and (max-width: 800px) {
   .bnomics-btc-info {
@@ -263,8 +258,6 @@
 
   .bnomics-altcoin-pane {
     display: block;
-    border-top: 2px ridge;
-  	display:none;
   }
 
   .bnomics-order-info {
