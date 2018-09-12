@@ -30,7 +30,7 @@
       <div class="bnomics-order-panel">
         <div class="bnomics-order-info">
 
-          <div class="bnomics-bitcoin-pane" ng-hide="altcoin_waiting || show_altcoin != 0" ng-init="show_altcoin=0">
+          <div class="bnomics-bitcoin-pane" ng-hide="show_altcoin != 0" ng-init="show_altcoin=0">
 
             <div class="bnomics-btc-info">
               <!-- QR and Amount -->
@@ -49,8 +49,8 @@
 				      <div class="bnomics-bg">
   		          <!-- Order Status -->
   		          <div class="bnomics-order-status-wrapper">
-  		            <span class="bnomics-order-status-title" ng-show="order.status == -1" ng-cloak ><?=__('To confirm your order, please send the amount of', 'blockonomics-bitcoin-payments')?> <span class="bnomics-symbol-selected">BTC</span> <?=__('to the <strong>given address</strong>', 'blockonomics-bitcoin-payments')?></span>
-  		            <span class="warning bnomics-status-warning" ng-show="order.status == -3" ng-cloak><?=__('Payment Expired (Use back button and try again)', 'blockonomics-bitcoin-payments')?></span>
+  		            <span class="bnomics-order-status-title" ng-show="order.status == -1" ng-cloak ><?=__('To confirm your order, please send the exact amount of <strong>BTC</strong> to the <strong>given address</strong>', 'blockonomics-bitcoin-payments')?></span>
+  		            <span class="warning bnomics-status-warning" ng-show="order.status == -3" ng-cloak><?=__('Payment Expired (Use the browser back button and try again)', 'blockonomics-bitcoin-payments')?></span>
   		            <span class="warning bnomics-status-warning" ng-show="order.status == -2" ng-cloak><?=__('Payment Error', 'blockonomics-bitcoin-payments')?></span>
   		            <span ng-show="order.status == 0" ng-cloak><?=__('Unconfirmed', 'blockonomics-bitcoin-payments')?></span>
   		            <span ng-show="order.status == 1" ng-cloak><?=__('Partially Confirmed', 'blockonomics-bitcoin-payments')?></span>
@@ -66,15 +66,16 @@
                     </div>
   			      <!-- Bitcoin Address -->
   		          <div class="bnomics-address">
-  		            <input ng-click="address_click()" id="bnomics-address-input" class="bnomics-address-input" type="text" ng-value="order.address" readonly="readonly"><img ng-click="address_click()" src="https://cdn4.iconfinder.com/data/icons/linecon/512/copy-512.png" id="bnomics-copy-icon">
+  		            <input ng-click="btc_address_click()" id="bnomics-address-input" class="bnomics-address-input" type="text" ng-value="order.address" readonly="readonly"><img ng-click="btc_address_click()" src="https://cdn4.iconfinder.com/data/icons/linecon/512/copy-24.png" class="bnomics-copy-icon">
   		          </div>
+                <div class="bnomics-copy-text" ng-show="copyshow" ng-cloak>Copied to clipboard</div>
   				  <!-- Countdown Timer -->
-  		          <div ng-cloak ng-hide="order.status != -1 || altcoin_waiting" class="bnomics-progress-bar-wrapper">
+  		          <div ng-cloak ng-hide="order.status != -1" class="bnomics-progress-bar-wrapper">
   		            <div class="bnomics-progress-bar-container">
   		              <div class="bnomics-progress-bar" style="width: {{progress}}%;"></div>
   		            </div>
   		          </div>
-  				      <span class="ng-cloak bnomics-time-left" ng-hide="order.status != -1 || altcoin_waiting">{{clock*1000 | date:'mm:ss' : 'UTC'}} min left to pay your order</span>
+  				      <span class="ng-cloak bnomics-time-left" ng-hide="order.status != -1">{{clock*1000 | date:'mm:ss' : 'UTC'}} min left to pay your order</span>
 				      </div>
 				<!-- Blockonomics Credit -->
 		        <div class="bnomics-powered-by">
@@ -89,24 +90,56 @@
       			<div class="bnomics-altcoin-bg">
                 <div ng-hide="altcoin_waiting" ng-cloak>
   			         <div class="bnomics-altcoin-info-wrapper">
-  		            <span class="bnomics-altcoin-info" ><?=__('To confirm your order, please click on the button below and choose your prefered', 'blockonomics-bitcoin-payments')?> <span class="bnomics-symbol-selected">Altcoin</span> <?=__('to pay the order.', 'blockonomics-bitcoin-payments')?></span>
+  		            <span class="bnomics-altcoin-info" ><?=__('Select your preferred <strong>Altcoin</strong> then click on the button below.', 'blockonomics-bitcoin-payments')?></span>
   			         </div>
   			         </br>
+                 <!-- Coin Select -->
+                 <div class="bnomics-address">
+                   <select ng-model="altcoinselect" ng-options="x for (x, y) in altcoins" ng-init="altcoinselect='Ethereum'"></select>
+                 </div>
                  <div class="bnomics-altcoin-button-wrapper">
-                  <a ng-click="pay_altcoins()" href=""><img  style="margin: auto;" src="https://shapeshift.io/images/shifty/small_dark_altcoins.png"  class="ss-button"></a>
+                  <a ng-click="pay_altcoins()" href=""><button><?=__('Pay with', 'blockonomics-bitcoin-payments')?> {{altcoinselect}}</button></a>
                  </div>
                 </div>
 
                 <div class="bnomics-altcoin-waiting" ng-show="altcoin_waiting" ng-cloak>
-                  <h4 class="bnomics-altcoin-waiting-info"><?=__('Waiting for BTC payment from shapeshift altcoin conversion ', 'blockonomics-bitcoin-payments')?></h4>
-                  <div class="bnomics-spinner"></div>
-                  <h4 class="bnomics-altcoin-cancel"><a href="" ng-click="altcoin_waiting=false"> Click here</a> to cancel and go back </h4>
-                </div>
-                <!-- Blockonomics Credit -->
-                <div class="bnomics-powered-by">
-                  <?=__('Powered by ', 'blockonomics-bitcoin-payments')?>Blockonomics
+                   <!-- Alt Order Status -->
+                   <!--  WAITING_FOR_DEPOSIT, DEPOSIT_RECEIVED, DEPOSIT_CONFIRMED, EXECUTED, REFUNDED, CANCELED and EXPIRED -->
+                  <div class="bnomics-order-status-wrapper">
+                    <span class="bnomics-order-status-title" ng-show="order.status == -1" ng-cloak ><?=__('To confirm your order, please send the exact amount of', 'blockonomics-bitcoin-payments')?> <strong>{{altcoinselect}}</strong> <?=__('to the <strong>given address</strong>', 'blockonomics-bitcoin-payments')?></span>
+                    <span class="warning bnomics-status-warning" ng-show="order.status == -3" ng-cloak><?=__('Payment Expired (Use the browser back button and try again)', 'blockonomics-bitcoin-payments')?></span>
+                    <span class="warning bnomics-status-warning" ng-show="order.status == -2" ng-cloak><?=__('Payment Error', 'blockonomics-bitcoin-payments')?></span>
+                    <span ng-show="order.status == 0" ng-cloak><?=__('Unconfirmed', 'blockonomics-bitcoin-payments')?></span>
+                    <span ng-show="order.status == 1" ng-cloak><?=__('Partially Confirmed', 'blockonomics-bitcoin-payments')?></span>
+                    <span ng-show="order.status >= 2" ng-cloak ><?=__('Confirmed', 'blockonomics-bitcoin-payments')?></span>
+                  </div>
+                      <h4 class="bnomics-amount-title" for="invoice-amount">
+                       {{order.satoshi/1.0e8}} LTC
+                      </h4>
+                      <div class="bnomics-amount-wrapper">
+                        <hr class="bnomics-amount-seperator"> ≈
+                        <span ng-cloak>{{order.value}}</span>
+                        <small ng-cloak>{{order.currency}}</small>
+                      </div>
+                   <!-- Alt Address -->
+                   <div class="bnomics-address">
+                     <input ng-click="alt_address_click()" id="bnomics-alt-address-input" class="bnomics-address-input" type="text" ng-value="order.altaddress" readonly="readonly"><img ng-click="alt_address_click()" src="https://cdn4.iconfinder.com/data/icons/linecon/512/copy-24.png" class="bnomics-copy-icon">
+                   </div>
+                   <div class="bnomics-copy-text" ng-show="copyshow" ng-cloak><?=__('Copied to clipboard', 'blockonomics-bitcoin-payments')?></div>
+                   <!-- Countdown Timer -->
+                   <div ng-cloak ng-hide="order.status != -1" class="bnomics-progress-bar-wrapper">
+                     <div class="bnomics-progress-bar-container">
+                       <div class="bnomics-progress-bar" style="width: {{progress}}%;"></div>
+                     </div>
+                   </div>
+                   <span class="ng-cloak bnomics-time-left" ng-hide="order.status != -1">{{clock*1000 | date:'mm:ss' : 'UTC'}} min left to pay your order</span>
+                   <div class="bnomics-altcoin-cancel"><a href="" ng-click="altcoin_waiting=false"> <?=__('Click here', 'blockonomics-bitcoin-payments')?></a> <?=__('to cancel', 'blockonomics-bitcoin-payments')?> </div>
                 </div>
       			</div>
+            <!-- Blockonomics Credit -->
+            <div class="bnomics-powered-by">
+              <?=__('Powered by ', 'blockonomics-bitcoin-payments')?>Blockonomics
+            </div>
           </div>
           <?php endif ?>
 

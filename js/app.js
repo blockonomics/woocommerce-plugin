@@ -35,7 +35,7 @@ function getParameterByNameBlocko(name, url) {
 
 
 
-app.controller('CheckoutController', function($scope, $interval, Order, $httpParamSerializer) {
+app.controller('CheckoutController', function($scope, $interval, Order, $httpParamSerializer, $http,  $timeout) {
   //get order id from url
   $scope.address =  getParameterByNameBlocko("show_order")
   var totalProgress = 100;
@@ -44,7 +44,6 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
   $scope.getJson = function(data){
     return JSON.parse(data);
   };
-  
   $scope.finish_order_url = function() {
     var params = getParameterByNameBlocko('wc-api');
     if (params)
@@ -71,17 +70,29 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     }
     $scope.progress = Math.floor($scope.clock*totalProgress/totalTime);
   };
-
   $scope.pay_altcoins = function() {
     $scope.altcoin_waiting = true;
-    //url = "https://shapeshift.io/shifty.html?destination=" + $scope.order.address + "&amount=" + $scope.order.satoshi/1.0e8 + "&output=BTC";
-    //window.open(url, '1418115287605','width=700,height=500,toolbar=0,menubar=0,location=0,status=1,scrollbars=1,resizable=0,left=0,top=0');
+    // var altcoin = getAltKeyByValue($scope.altcoins, $scope.altcoinselect);
+    // var amount = $scope.order.satoshi/1.0e8;
+    // var address = $scope.order.address;
+    // $http({
+    // method: 'POST',
+    // data: {'altcoin': altcoin, 'amount': amount, 'address': address},
+    // url: '../../wp-content/plugins/woocommerce-plugin-master/php/flyp/createOrder.php' //Rather pass plugin url
+    // }).then(function successCallback(response) {
+    //     $scope.order.altaddress = response.data;
+    //   }, function errorCallback(response) {
+    //     //console.log(response);
+    //   });
   }
-
+  function getAltKeyByValue(object, value) {
+    return Object.keys(object).find(key => object[key] === value);
+  }
   if ( typeof $scope.address != 'undefined'){
     Order.get({"get_order":$scope.address}, function(data){
       $scope.order = data;
-      $scope.order.address = $scope.address 
+      $scope.order.address = $scope.address;
+      $scope.order.altcoin = $scope.altcoin;
       //Listen on websocket for payment notification
       //After getting notification,  refresh page
       if($scope.order.status == -1){
@@ -97,20 +108,38 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         var ws = new ReconnectingWebSocket("wss://www.blockonomics.co/payment/" + $scope.order.address + "?timestamp=" + $scope.order.timestamp);
         ws.onmessage = function (evt) {
           ws.close();
-					$interval(function(){
-						//Redirect to order received page
-						window.location = $scope.finish_order_url();
-						//Wait for 2 seconds for order status
-            			//to update on server
-					}, 2000, 1);
+          $interval(function(){
+            //Redirect to order received page
+            window.location = $scope.finish_order_url();
+            //Wait for 2 seconds for order status
+                  //to update on server
+          }, 2000, 1);
         }
       }
     });
   }
+  $scope.copyshow = false;
   //Order Form Copy To Clipboard
-  $scope.address_click = function() {
+  $scope.btc_address_click = function() {
     var copyText = document.getElementById("bnomics-address-input");
     copyText.select();
-    document.execCommand("copy");  
+    document.execCommand("copy");
+    //Open Message
+    $scope.copyshow = true;
+    $timeout(function() {
+        $scope.copyshow = false;
+     }, 2000); 
   }
+  $scope.alt_address_click = function() {
+    var copyText = document.getElementById("bnomics-alt-address-input");
+    copyText.select();
+    document.execCommand("copy");  
+    $scope.copyshow = true;
+    $timeout(function() {
+        $scope.copyshow = false;
+     }, 2000); 
+  }
+
+  $scope.altcoins = {"ETH": "Ethereum", "LTC": "Litecoin", "ZEC": "Z Cash"};
+
 });
