@@ -117,11 +117,6 @@
                       <h4 class="bnomics-amount-title" for="invoice-amount">
                        {{order.altamount}} {{order.altsymbol}}
                       </h4>
-                      <div class="bnomics-amount-wrapper">
-                        <hr class="bnomics-amount-seperator"> ≈
-                        <span ng-cloak>{{order.value}}</span>
-                        <small ng-cloak>{{order.currency}}</small>
-                      </div>
                    <!-- Alt Address -->
                    <div class="bnomics-address">
                      <input ng-click="alt_address_click()" id="bnomics-alt-address-input" class="bnomics-address-input" type="text" ng-value="order.altaddress" readonly="readonly"><img ng-click="alt_address_click()" src="https://cdn4.iconfinder.com/data/icons/linecon/512/copy-24.png" class="bnomics-copy-icon">
@@ -134,7 +129,7 @@
                      </div>
                    </div>
                    <span class="ng-cloak bnomics-time-left" ng-hide="order.status != -1">{{clock*1000 | date:'mm:ss' : 'UTC'}} min left to pay your order</span>
-                   <div class="bnomics-altcoin-cancel"><a href="" ng-click="altcoin_waiting=false"> <?=__('Click here', 'blockonomics-bitcoin-payments')?></a> <?=__('to cancel', 'blockonomics-bitcoin-payments')?> </div>
+                   <div class="bnomics-altcoin-cancel"><a href="" ng-click="altcoin_waiting=false"> <?=__('Click here', 'blockonomics-bitcoin-payments')?></a> <?=__('to go back', 'blockonomics-bitcoin-payments')?> </div>
                 </div>
       			</div>
             <!-- Blockonomics Credit -->
@@ -149,16 +144,16 @@
     </div>
     <script>
     var blockonomics_time_period=<?php echo get_option('blockonomics_timeperiod', 10); ?>;
-    var plugin_dir_create='<?php echo plugins_url('php/flyp/createOrder.php', __FILE__);  ?>';
-    var plugin_dir_check='<?php echo plugins_url('php/flyp/checkOrder.php', __FILE__);  ?>';
-    var plugin_dir_limit='<?php echo plugins_url('php/flyp/fetchLimits.php', __FILE__);  ?>';
     </script>
-    <script src="<?php echo plugins_url('js/angular.min.js', __FILE__);?>"></script>
-    <script src="<?php echo plugins_url('js/angular-resource.min.js', __FILE__);?>"></script>
-    <script src="<?php echo plugins_url('js/app.js', __FILE__);?>"></script>
-    <script src="<?php echo plugins_url('js/angular-qrcode.js', __FILE__);?>"></script>
-    <script src="<?php echo plugins_url('js/vendors.min.js', __FILE__);?>"></script>
-    <script src="<?php echo plugins_url('js/reconnecting-websocket.min.js', __FILE__);?>"></script>
+    <script src="<?php  wp_enqueue_script( 'angular', plugins_url('js/angular.min.js', __FILE__), array('jquery') ); ?>"></script>
+    <script src="<?php  wp_enqueue_script( 'angular-resource', plugins_url('js/angular-resource.min.js', __FILE__), array('jquery') ); ?>"></script>
+    <script src="<?php  wp_enqueue_script( 'app', plugins_url('js/app.js', __FILE__), array('jquery') );
+                        wp_localize_script( 'app', 'my_ajax_object',
+                            array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) ); ?>">
+    </script>
+    <script src="<?php  wp_enqueue_script( 'angular-qrcode', plugins_url('js/angular-qrcode.js', __FILE__), array('jquery') ); ?>"></script>
+    <script src="<?php  wp_enqueue_script( 'vendors', plugins_url('js/vendors.min.js', __FILE__), array('jquery') ); ?>"></script>
+    <script src="<?php  wp_enqueue_script( 'reconnecting-websocket', plugins_url('js/reconnecting-websocket.min.js', __FILE__), array('jquery') ); ?>"></script>
   </div>
 </div>
 
