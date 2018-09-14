@@ -226,6 +226,7 @@
     position: absolute;
     bottom: 35%;
     padding-left: 3px;
+    cursor: pointer;
 }
 
 .bnomics-altcoin-bg {

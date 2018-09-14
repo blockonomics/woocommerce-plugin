@@ -49,7 +49,7 @@
 				      <div class="bnomics-bg">
   		          <!-- Order Status -->
   		          <div class="bnomics-order-status-wrapper">
-  		            <span class="bnomics-order-status-title" ng-show="order.status == -1" ng-cloak ><?=__('To confirm your order, please send the exact amount of <strong>BTC</strong> to the <strong>given address</strong>', 'blockonomics-bitcoin-payments')?></span>
+  		            <span class="bnomics-order-status-title" ng-show="order.status == -1" ng-cloak ><?=__('To confirm your order, please send the exact amount of <strong>BTC</strong> to the given address', 'blockonomics-bitcoin-payments')?></span>
   		            <span class="warning bnomics-status-warning" ng-show="order.status == -3" ng-cloak><?=__('Payment Expired (Use the browser back button and try again)', 'blockonomics-bitcoin-payments')?></span>
   		            <span class="warning bnomics-status-warning" ng-show="order.status == -2" ng-cloak><?=__('Payment Error', 'blockonomics-bitcoin-payments')?></span>
   		            <span ng-show="order.status == 0" ng-cloak><?=__('Unconfirmed', 'blockonomics-bitcoin-payments')?></span>
@@ -104,17 +104,18 @@
 
                 <div class="bnomics-altcoin-waiting" ng-show="altcoin_waiting" ng-cloak>
                    <!-- Alt Order Status -->
-                   <!--  WAITING_FOR_DEPOSIT, DEPOSIT_RECEIVED, DEPOSIT_CONFIRMED, EXECUTED, REFUNDED, CANCELED and EXPIRED -->
                   <div class="bnomics-order-status-wrapper">
-                    <span class="bnomics-order-status-title" ng-show="order.status == -1" ng-cloak ><?=__('To confirm your order, please send the exact amount of', 'blockonomics-bitcoin-payments')?> <strong>{{altcoinselect}}</strong> <?=__('to the <strong>given address</strong>', 'blockonomics-bitcoin-payments')?></span>
+                    <span class="bnomics-order-status-title" ng-show="order.status == -1 && order.altstatus != 1" ng-cloak ><?=__('To confirm your order, please send the exact amount of', 'blockonomics-bitcoin-payments')?> <strong>{{altcoinselect}}</strong> <?=__('to the given address', 'blockonomics-bitcoin-payments')?></span>
                     <span class="warning bnomics-status-warning" ng-show="order.status == -3" ng-cloak><?=__('Payment Expired (Use the browser back button and try again)', 'blockonomics-bitcoin-payments')?></span>
                     <span class="warning bnomics-status-warning" ng-show="order.status == -2" ng-cloak><?=__('Payment Error', 'blockonomics-bitcoin-payments')?></span>
                     <span ng-show="order.status == 0" ng-cloak><?=__('Unconfirmed', 'blockonomics-bitcoin-payments')?></span>
                     <span ng-show="order.status == 1" ng-cloak><?=__('Partially Confirmed', 'blockonomics-bitcoin-payments')?></span>
                     <span ng-show="order.status >= 2" ng-cloak ><?=__('Confirmed', 'blockonomics-bitcoin-payments')?></span>
+                    <span ng-show="order.altstatus == 1" ng-cloak ><?=__('Thank you for your payment. Please wait while Blockonomics confirms your order', 'blockonomics-bitcoin-payments')?></span>
+                    <span ng-show="order.altstatus == 1" ng-cloak >TXID: {{order.alttxid}}</span>
                   </div>
                       <h4 class="bnomics-amount-title" for="invoice-amount">
-                       {{order.satoshi/1.0e8}} LTC
+                       {{order.altamount}} {{order.altsymbol}}
                       </h4>
                       <div class="bnomics-amount-wrapper">
                         <hr class="bnomics-amount-seperator"> ≈
@@ -148,6 +149,9 @@
     </div>
     <script>
     var blockonomics_time_period=<?php echo get_option('blockonomics_timeperiod', 10); ?>;
+    var plugin_dir_create='<?php echo plugins_url('php/flyp/createOrder.php', __FILE__);  ?>';
+    var plugin_dir_check='<?php echo plugins_url('php/flyp/checkOrder.php', __FILE__);  ?>';
+    var plugin_dir_limit='<?php echo plugins_url('php/flyp/fetchLimits.php', __FILE__);  ?>';
     </script>
     <script src="<?php echo plugins_url('js/angular.min.js', __FILE__);?>"></script>
     <script src="<?php echo plugins_url('js/angular-resource.min.js', __FILE__);?>"></script>

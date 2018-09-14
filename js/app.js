@@ -72,18 +72,64 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
   };
   $scope.pay_altcoins = function() {
     $scope.altcoin_waiting = true;
-    // var altcoin = getAltKeyByValue($scope.altcoins, $scope.altcoinselect);
-    // var amount = $scope.order.satoshi/1.0e8;
-    // var address = $scope.order.address;
-    // $http({
-    // method: 'POST',
-    // data: {'altcoin': altcoin, 'amount': amount, 'address': address},
-    // url: '../../wp-content/plugins/woocommerce-plugin-master/php/flyp/createOrder.php' //Rather pass plugin url
-    // }).then(function successCallback(response) {
-    //     $scope.order.altaddress = response.data;
-    //   }, function errorCallback(response) {
-    //     //console.log(response);
-    //   });
+    var altcoin = getAltKeyByValue($scope.altcoins, $scope.altcoinselect);
+    $scope.order.altsymbol = getAltKeyByValue($scope.altcoins, $scope.altcoinselect);
+    var amount = $scope.order.satoshi/1.0e8;
+    var address = $scope.order.address;
+    var create_dir = plugin_dir_create;
+    var check_dir = plugin_dir_check;
+    var limit_dir = plugin_dir_limit;
+    $http({
+    method: 'POST',
+    data: {'altcoin': altcoin},
+    url: limit_dir
+    }).then(function successCallback(response) {
+    		console.log(response.data);
+    	});
+    $http({
+    method: 'POST',
+    data: {'altcoin': altcoin, 'amount': amount, 'address': address},
+    url: create_dir
+    }).then(function successCallback(response) {
+    	$scope.order.altaddress = response.data['deposit_address']
+        $scope.order.altamount = response.data['order']['invoiced_amount'];
+        var uuid = response.data['order']['uuid'];
+        $interval(function(response) {
+		    $http({
+		    method: 'POST',
+		    data: {'uuid': uuid},
+		    url: check_dir
+		    }).then(function successCallback(response) {
+		    	if(response.data['status'] == "WAITING_FOR_DEPOSIT"){
+		    		$scope.order.altstatus = 0;
+		    	}
+		    	if(response.data['status'] == "DEPOSIT_RECEIVED"){
+		    		$scope.order.altstatus = 0;
+		    	}
+		    	if(response.data['status'] == "DEPOSIT_CONFIRMED"){
+		    		$scope.order.altstatus = 0;
+		    	}
+		    	if(response.data['status'] == "EXECUTED"){
+		    		$scope.order.altstatus = 1;
+		    		$scope.order.alttxid = response.data['txid'];
+		    	}
+		    	if(response.data['status'] == "REFUNDED"){
+		    		$scope.order.altstatus = 0;
+		    	}
+		    	if(response.data['status'] == "CANCELED"){
+		    		$scope.order.altstatus = 0;
+		    	}
+		    	if(response.data['status'] == "EXPIRED"){
+		    		$scope.order.altstatus = 0;
+		    	}
+		      }, function errorCallback(response) {
+		        //console.log(response);
+		      });
+     	}, 10000);
+      }, function errorCallback(response) {
+        //console.log(response);
+      });
+
   }
   function getAltKeyByValue(object, value) {
     return Object.keys(object).find(key => object[key] === value);
@@ -140,6 +186,6 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
      }, 2000); 
   }
 
-  $scope.altcoins = {"ETH": "Ethereum", "LTC": "Litecoin", "ZEC": "Z Cash"};
+  $scope.altcoins = {"ETH": "Ethereum", "LTC": "Litecoin", "ZEC": "Z Cash", "DASH": "DASH"};
 
 });
