@@ -145,15 +145,16 @@
     <script>
     var blockonomics_time_period=<?php echo get_option('blockonomics_timeperiod', 10); ?>;
     </script>
-    <script src="<?php  wp_enqueue_script( 'angular', plugins_url('js/angular.min.js', __FILE__), array('jquery') ); ?>"></script>
-    <script src="<?php  wp_enqueue_script( 'angular-resource', plugins_url('js/angular-resource.min.js', __FILE__), array('jquery') ); ?>"></script>
-    <script src="<?php  wp_enqueue_script( 'app', plugins_url('js/app.js', __FILE__), array('jquery') );
+    <?php  
+      wp_enqueue_script( 'angular', plugins_url('js/angular.min.js', __FILE__), array('jquery') );
+      wp_enqueue_script( 'angular-resource', plugins_url('js/angular-resource.min.js', __FILE__), array('jquery') );
+      wp_enqueue_script( 'app', plugins_url('js/app.js', __FILE__), array('jquery') );
                         wp_localize_script( 'app', 'my_ajax_object',
-                            array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) ); ?>">
-    </script>
-    <script src="<?php  wp_enqueue_script( 'angular-qrcode', plugins_url('js/angular-qrcode.js', __FILE__), array('jquery') ); ?>"></script>
-    <script src="<?php  wp_enqueue_script( 'vendors', plugins_url('js/vendors.min.js', __FILE__), array('jquery') ); ?>"></script>
-    <script src="<?php  wp_enqueue_script( 'reconnecting-websocket', plugins_url('js/reconnecting-websocket.min.js', __FILE__), array('jquery') ); ?>"></script>
+                            array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
+      wp_enqueue_script( 'angular-qrcode', plugins_url('js/angular-qrcode.js', __FILE__), array('jquery') );
+      wp_enqueue_script( 'vendors', plugins_url('js/vendors.min.js', __FILE__), array('jquery') );
+      wp_enqueue_script( 'reconnecting-websocket', plugins_url('js/reconnecting-websocket.min.js', __FILE__), array('jquery') );
+    ?>
   </div>
 </div>
 
