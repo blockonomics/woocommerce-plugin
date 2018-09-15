@@ -654,4 +654,67 @@ function show_options()
 
 <?php
 }
+
+//Logged in users use: add_action( 'wp_ajax_my_action', 'my_action' );
+//Logged out users use: add_action( 'wp_ajax_nopriv_my_action', 'my_action' );
+add_action( 'wp_ajax_fetch_limit', 'bnomics_fetch_limit' );
+add_action( 'wp_ajax_create_order', 'bnomics_create_order' );
+add_action( 'wp_ajax_check_order', 'bnomics_check_order' );
+
+//Look into wether this will ever be needed
+add_action( 'wp_ajax_nopriv_fetch_limit', 'bnomics_fetch_limit' );
+add_action( 'wp_ajax_nopriv_create_order', 'bnomics_create_order' );
+add_action( 'wp_ajax_nopriv_check_order', 'bnomics_check_order' );
+
+function bnomics_fetch_limit(){
+    include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Flyp.php';
+    global $wpdb; // this is how you get access to the database
+    $flypFrom           = $_POST['altcoin'];
+    $flypTo             = "BTC";
+    $flypme = new FlypMe();
+    $limits = $flypme->orderLimits($flypFrom, $flypTo);
+    //Check order uuid exists
+    if(isset($limits)){
+        print(json_encode($limits));
+        //print($flypFrom . " " . $flypTo);
+    }
+    wp_die(); // this is required to terminate immediately and return a proper response
+}
+
+function bnomics_create_order(){
+    include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Flyp.php';
+    global $wpdb; // this is how you get access to the database
+    $flypFrom           = $_POST['altcoin'];
+    $flypAmount         = $_POST['amount'];
+    $flypDestination    = $_POST['address'];
+    $flypTo             = "BTC";
+    //$flypReturn = ; //Optional return address)
+    //$invoiceType = ;//"invoiced_amount" or "ordered_amount" 
+
+    $flypme = new FlypMe();
+    $order = $flypme->orderNew($flypFrom, $flypTo, $flypAmount, $flypDestination);
+    //Check order uuid exists
+    if(isset($order->order->uuid)){
+        $order = $flypme->orderAccept($order->order->uuid);
+        if(isset($order->deposit_address)){
+            print(json_encode($order));
+        }
+    }
+    wp_die(); // this is required to terminate immediately and return a proper response
+}
+
+function bnomics_check_order(){
+    include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Flyp.php';
+    global $wpdb; // this is how you get access to the database
+    $flypID             = $_POST['uuid']; //Fetch from $_POST
+
+    $flypme = new FlypMe();
+    $order = $flypme->orderCheck($flypID);
+    //Check order uuid exists
+    if(isset($order)){
+        print(json_encode($order));
+    }
+    wp_die(); // this is required to terminate immediately and return a proper response
+}
+
 ?>

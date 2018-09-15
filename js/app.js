@@ -76,59 +76,57 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     $scope.order.altsymbol = getAltKeyByValue($scope.altcoins, $scope.altcoinselect);
     var amount = $scope.order.satoshi/1.0e8;
     var address = $scope.order.address;
-    var create_dir = plugin_dir_create;
-    var check_dir = plugin_dir_check;
-    var limit_dir = plugin_dir_limit;
-    $http({
-    method: 'POST',
-    data: {'altcoin': altcoin},
-    url: limit_dir
-    }).then(function successCallback(response) {
-    		console.log(response.data);
-    	});
-    $http({
-    method: 'POST',
-    data: {'altcoin': altcoin, 'amount': amount, 'address': address},
-    url: create_dir
-    }).then(function successCallback(response) {
-    	$scope.order.altaddress = response.data['deposit_address']
-        $scope.order.altamount = response.data['order']['invoiced_amount'];
-        var uuid = response.data['order']['uuid'];
+    var fetch_limit_data = {
+		'action': 'fetch_limit',
+		'altcoin': altcoin
+	};
+	// since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
+	jQuery.post(my_ajax_object.ajax_url, fetch_limit_data, function(response) {
+		console.log(response);
+	});
+	var create_order_data = {
+		'action': 'create_order',
+		'altcoin': altcoin, 
+		'amount': amount, 
+		'address': address
+	};
+	jQuery.post(my_ajax_object.ajax_url, create_order_data, function(response) {
+		var order = JSON.parse(response);
+		$scope.order.altaddress = order['deposit_address'];
+        $scope.order.altamount = order['order']['invoiced_amount'];
+        var uuid = order['order']['uuid'];
         $interval(function(response) {
-		    $http({
-		    method: 'POST',
-		    data: {'uuid': uuid},
-		    url: check_dir
-		    }).then(function successCallback(response) {
-		    	if(response.data['status'] == "WAITING_FOR_DEPOSIT"){
+    	    var check_order_data = {
+				'action': 'check_order',
+				'uuid': uuid
+			};
+			jQuery.post(my_ajax_object.ajax_url, check_order_data, function(response) {
+				var order = JSON.parse(response);
+				if(order['status'] == "WAITING_FOR_DEPOSIT"){
 		    		$scope.order.altstatus = 0;
 		    	}
-		    	if(response.data['status'] == "DEPOSIT_RECEIVED"){
+		    	if(order['status'] == "DEPOSIT_RECEIVED"){
 		    		$scope.order.altstatus = 0;
 		    	}
-		    	if(response.data['status'] == "DEPOSIT_CONFIRMED"){
+		    	if(order['status'] == "DEPOSIT_CONFIRMED"){
 		    		$scope.order.altstatus = 0;
 		    	}
-		    	if(response.data['status'] == "EXECUTED"){
+		    	if(order['status'] == "EXECUTED"){
 		    		$scope.order.altstatus = 1;
-		    		$scope.order.alttxid = response.data['txid'];
+		    		$scope.order.alttxid = order['txid'];
 		    	}
-		    	if(response.data['status'] == "REFUNDED"){
+		    	if(order['status'] == "REFUNDED"){
 		    		$scope.order.altstatus = 0;
 		    	}
-		    	if(response.data['status'] == "CANCELED"){
+		    	if(order['status'] == "CANCELED"){
 		    		$scope.order.altstatus = 0;
 		    	}
-		    	if(response.data['status'] == "EXPIRED"){
+		    	if(order['status'] == "EXPIRED"){
 		    		$scope.order.altstatus = 0;
 		    	}
-		      }, function errorCallback(response) {
-		        //console.log(response);
-		      });
-     	}, 10000);
-      }, function errorCallback(response) {
-        //console.log(response);
-      });
+			});
+        }, 10000);
+	});
 
   }
   function getAltKeyByValue(object, value) {
@@ -186,6 +184,5 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
      }, 2000); 
   }
 
-  $scope.altcoins = {"ETH": "Ethereum", "LTC": "Litecoin", "ZEC": "Z Cash", "DASH": "DASH"};
-
+  $scope.altcoins = {"ETH": "Ethereum", "LTC": "Litecoin"};
 });

@@ -1,5 +1,4 @@
 <?php
-namespace FlypMe;
 
 class FlypMe
 {
