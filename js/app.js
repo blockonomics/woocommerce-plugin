@@ -80,9 +80,10 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     $scope.order.altsymbol = getAltKeyByValue($scope.altcoins, $scope.altcoinselect);
     var amount = $scope.order.satoshi/1.0e8;
     var address = $scope.order.address;
+    var order_id = $scope.order.order_id;
     $http({
     method: 'GET',
-    params: {'action': 'create_order', 'altcoin': altcoin, 'amount': amount, 'address': address},
+    params: {'action': 'create_order', 'altcoin': altcoin, 'amount': amount, 'address': address, 'order_id':order_id},
     url: my_ajax_object.ajax_url //Rather pass plugin url
     }).then(function successCallback(response) {
      	$scope.order.altaddress = response.data['deposit_address'];
