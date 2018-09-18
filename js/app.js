@@ -70,7 +70,9 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     }
     $scope.progress = Math.floor($scope.clock*totalProgress/totalTime);
   };
+  var interval;
   $scope.pay_altcoins = function() {
+  	$interval.cancel(interval);
   	$scope.order.altaddress = '';
     $scope.order.altamount = '';
     $scope.altcoin_waiting = true;
@@ -86,7 +88,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
      	$scope.order.altaddress = response.data['deposit_address'];
      	$scope.order.altamount = response.data['order']['invoiced_amount'];
      	var uuid = response.data['order']['uuid'];
-        $interval(function(response) {
+        interval = $interval(function(response) {
         	    $http({
 			    method: 'GET',
 			    params: {'action': 'check_order', 'uuid': uuid},
