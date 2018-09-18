@@ -669,7 +669,7 @@ add_action( 'wp_ajax_nopriv_check_order', 'bnomics_check_order' );
 function bnomics_fetch_limit(){
     include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Flyp.php';
     global $wpdb; // this is how you get access to the database
-    $flypFrom           = $_POST['altcoin'];
+    $flypFrom           = $_REQUEST['altcoin'];
     $flypTo             = "BTC";
     $flypme = new FlypMe();
     $limits = $flypme->orderLimits($flypFrom, $flypTo);
@@ -684,13 +684,12 @@ function bnomics_fetch_limit(){
 function bnomics_create_order(){
     include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Flyp.php';
     global $wpdb; // this is how you get access to the database
-    $flypFrom           = $_POST['altcoin'];
-    $flypAmount         = $_POST['amount'];
-    $flypDestination    = $_POST['address'];
+    $flypFrom           = $_REQUEST['altcoin'];
+    $flypAmount         = $_REQUEST['amount'];
+    $flypDestination    = $_REQUEST['address'];
     $flypTo             = "BTC";
     //$flypReturn = ; //Optional return address)
     //$invoiceType = ;//"invoiced_amount" or "ordered_amount" 
-
     $flypme = new FlypMe();
     $order = $flypme->orderNew($flypFrom, $flypTo, $flypAmount, $flypDestination);
     //Check order uuid exists
@@ -706,7 +705,7 @@ function bnomics_create_order(){
 function bnomics_check_order(){
     include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Flyp.php';
     global $wpdb; // this is how you get access to the database
-    $flypID             = $_POST['uuid']; //Fetch from $_POST
+    $flypID             = $_REQUEST['uuid']; //Fetch from $_POST
 
     $flypme = new FlypMe();
     $order = $flypme->orderCheck($flypID);
