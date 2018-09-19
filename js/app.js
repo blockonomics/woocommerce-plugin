@@ -70,64 +70,60 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     }
     $scope.progress = Math.floor($scope.clock*totalProgress/totalTime);
   };
+  var interval;
   $scope.pay_altcoins = function() {
+  	$interval.cancel(interval);
+  	$scope.order.altaddress = '';
+    $scope.order.altamount = '';
     $scope.altcoin_waiting = true;
     var altcoin = getAltKeyByValue($scope.altcoins, $scope.altcoinselect);
     $scope.order.altsymbol = getAltKeyByValue($scope.altcoins, $scope.altcoinselect);
     var amount = $scope.order.satoshi/1.0e8;
     var address = $scope.order.address;
-    var fetch_limit_data = {
-		'action': 'fetch_limit',
-		'altcoin': altcoin
-	};
-	// since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
-	jQuery.post(my_ajax_object.ajax_url, fetch_limit_data, function(response) {
-		console.log(response);
-	});
-	var create_order_data = {
-		'action': 'create_order',
-		'altcoin': altcoin, 
-		'amount': amount, 
-		'address': address
-	};
-	jQuery.post(my_ajax_object.ajax_url, create_order_data, function(response) {
-		var order = JSON.parse(response);
-		$scope.order.altaddress = order['deposit_address'];
-        $scope.order.altamount = order['order']['invoiced_amount'];
-        var uuid = order['order']['uuid'];
-        $interval(function(response) {
-    	    var check_order_data = {
-				'action': 'check_order',
-				'uuid': uuid
-			};
-			jQuery.post(my_ajax_object.ajax_url, check_order_data, function(response) {
-				var order = JSON.parse(response);
-				if(order['status'] == "WAITING_FOR_DEPOSIT"){
-		    		$scope.order.altstatus = 0;
-		    	}
-		    	if(order['status'] == "DEPOSIT_RECEIVED"){
-		    		$scope.order.altstatus = 0;
-		    	}
-		    	if(order['status'] == "DEPOSIT_CONFIRMED"){
-		    		$scope.order.altstatus = 0;
-		    	}
-		    	if(order['status'] == "EXECUTED"){
-		    		$scope.order.altstatus = 1;
-		    		$scope.order.alttxid = order['txid'];
-		    	}
-		    	if(order['status'] == "REFUNDED"){
-		    		$scope.order.altstatus = 0;
-		    	}
-		    	if(order['status'] == "CANCELED"){
-		    		$scope.order.altstatus = 0;
-		    	}
-		    	if(order['status'] == "EXPIRED"){
-		    		$scope.order.altstatus = 0;
-		    	}
-			});
+    var order_id = $scope.order.order_id;
+    $http({
+    method: 'GET',
+    params: {'action': 'create_order', 'altcoin': altcoin, 'amount': amount, 'address': address, 'order_id':order_id},
+    url: my_ajax_object.ajax_url //Rather pass plugin url
+    }).then(function successCallback(response) {
+     	$scope.order.altaddress = response.data['deposit_address'];
+     	$scope.order.altamount = response.data['order']['invoiced_amount'];
+     	var uuid = response.data['order']['uuid'];
+        interval = $interval(function(response) {
+        	    $http({
+			    method: 'GET',
+			    params: {'action': 'check_order', 'uuid': uuid},
+			    url: my_ajax_object.ajax_url //Rather pass plugin url
+			    }).then(function successCallback(response) {
+					if(response.data['status'] == "WAITING_FOR_DEPOSIT"){
+			    		$scope.order.altstatus = 0;
+			    	}
+			    	if(response.data['status'] == "DEPOSIT_RECEIVED"){
+			    		$scope.order.altstatus = 0;
+			    	}
+			    	if(response.data['status'] == "DEPOSIT_CONFIRMED"){
+			    		$scope.order.altstatus = 0;
+			    	}
+			    	if(response.data['status'] == "EXECUTED"){
+			    		$scope.order.altstatus = 1;
+			    		$scope.order.alttxid = response.data['txid'];
+			    	}
+			    	if(response.data['status'] == "REFUNDED"){
+			    		$scope.order.altstatus = 0;
+			    	}
+			    	if(response.data['status'] == "CANCELED"){
+			    		$scope.order.altstatus = 0;
+			    	}
+			    	if(response.data['status'] == "EXPIRED"){
+			    		$scope.order.altstatus = 0;
+			    	}
+			      }, function errorCallback(response) {
+			        //console.log(response);
+			      });
         }, 10000);
-	});
-
+      }, function errorCallback(response) {
+        //console.log(response);
+      });
   }
   function getAltKeyByValue(object, value) {
     return Object.keys(object).find(key => object[key] === value);
