@@ -159,7 +159,12 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
       $scope.alt_clock = response.data['expires'];
       $scope.alt_tick_interval  = $interval($scope.alt_tick, 1000);
      	$scope.order.altaddress = response.data['deposit_address'];
-      $scope.order.altaddress_link = 'https://etherscan.io/address/' + $scope.order.altaddress;
+      if($scope.order.altsymbol == 'ETH'){
+        $scope.order.altaddress_link = 'https://etherscan.io/address/' + response.data['deposit_address'];
+      }
+      if($scope.order.altsymbol == 'LTC'){
+        $scope.order.altaddress_link = 'http://explorer.litecoin.net/address/' + response.data['deposit_address'];
+      }
      	$scope.order.altamount = response.data['order']['invoiced_amount'];
       var uuid = response.data['order']['uuid'];
       $scope.order.pagelink = window.location.href + '&uuid=' + uuid;
@@ -181,7 +186,12 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     url: my_ajax_object.ajax_url
     }).then(function successCallback(response) {
         $scope.order.altaddress = response.data['deposit_address'];
-        $scope.order.altaddress_link = 'https://etherscan.io/address/' + response.data['deposit_address'];
+        if(response.data['order']['from_currency'] == 'ETH'){
+          $scope.order.altaddress_link = 'https://etherscan.io/address/' + response.data['deposit_address'];
+        }
+        if(response.data['order']['from_currency'] == 'LTC'){
+          $scope.order.altaddress_link = 'http://explorer.litecoin.net/address/' + response.data['deposit_address'];
+        }
         $scope.order.altamount = response.data['order']['invoiced_amount'];
         var altsymbol = response.data['order']['from_currency'];
         $scope.order.altsymbol = altsymbol;
@@ -190,7 +200,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         $scope.alt_clock = response.data['expires'];
         $scope.alt_tick_interval  = $interval($scope.alt_tick, 1000);
             if(response.data['status'] == "WAITING_FOR_DEPOSIT"){
-              $scope.order.altstatus = 0;
+              $scope.order.altstatus = 2;
             }
             if(response.data['status'] == "DEPOSIT_RECEIVED"){
               $scope.order.altstatus = 1;
