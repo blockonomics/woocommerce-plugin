@@ -221,12 +221,9 @@
 }
 
 .bnomics-copy-icon {
-    width: 24px !important;
-    height: 24px !important;
-    position: absolute;
-    bottom: 35%;
-    padding-left: 3px;
-    cursor: pointer;
+  cursor: pointer;
+  margin: 10px 0 !important;
+  font-size: 24px !important;
 }
 
 .bnomics-altcoin-bg {
@@ -237,6 +234,26 @@
 
 .bnomics-copy-text{
     padding-bottom: 15px !important;
+}
+
+.bnomics-status-flex {
+  padding-top:10px;
+  padding-bottom:10px;
+}
+
+.bnomics-status-flex > div {
+  text-align: center;
+  padding: 5px;
+}
+
+.bnomics-horizontal-align {
+  margin: auto;
+}
+
+.bnomics-alt-icon{
+  width: 100% !important;
+  font-size:60px !important;
+  margin: 25px 0px !important;
 }
 
 /* ---- Mobile -----*/
@@ -261,6 +278,6 @@
     display: block;
   }
   .bnomics-copy-icon {
-    display:none;
+    display:none !important;
   }
 }

@@ -124,6 +124,12 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                         'type' => 'text',
                         'description' => __('This controls the title which the user sees during checkout.', 'blockonomics-bitcoin-payments'),
                         'default' => __('Bitcoin', 'blockonomics-bitcoin-payments')
+                    ),
+                    'description' => array(
+                        'title' => __( 'Description', 'blockonomics-bitcoin-payments' ),
+                        'type' => 'text',
+                        'description' => __('This controls the description which the user sees during checkout.', 'blockonomics-bitcoin-payments'),
+                        'default' => ''
                     )
                 );
             }
@@ -367,7 +373,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
         function enqueue_stylesheets(){
           wp_enqueue_style('bnomics-style', plugin_dir_url(__FILE__) . "css/order.css");
           wp_enqueue_style( 'bnomics-altcoins', plugin_dir_url(__FILE__) . "css/cryptofont/cryptofont.min.css");
-          wp_enqueue_style( 'bnomics-fa', plugin_dir_url(__FILE__) . "css/fontawesome/all.min.css");
+          wp_enqueue_style( 'bnomics-icons', plugin_dir_url(__FILE__) . "css/icons/icons.css");
         }
 
         add_action('admin_menu', 'add_page');
@@ -661,12 +667,14 @@ add_action( 'wp_ajax_fetch_limit', 'bnomics_fetch_limit' );
 add_action( 'wp_ajax_create_order', 'bnomics_create_order' );
 add_action( 'wp_ajax_check_order', 'bnomics_check_order' );
 add_action( 'wp_ajax_send_email', 'bnomics_alt_deposit_email' );
+add_action( 'wp_ajax_info_order', 'bnomics_info_order' );
 
 //Look into wether this will ever be needed
 add_action( 'wp_ajax_nopriv_fetch_limit', 'bnomics_fetch_limit' );
 add_action( 'wp_ajax_nopriv_create_order', 'bnomics_create_order' );
 add_action( 'wp_ajax_nopriv_check_order', 'bnomics_check_order' );
 add_action( 'wp_ajax_nopriv_send_email', 'bnomics_alt_deposit_email' );
+add_action( 'wp_ajax_nopriv_info_order', 'bnomics_info_order' );
 
 function bnomics_fetch_limit(){
     include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Flyp.php';
@@ -712,6 +720,16 @@ function bnomics_check_order(){
     wp_die();
 }
 
+function bnomics_info_order(){
+    include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Flyp.php';
+    $flypID             = $_REQUEST['uuid'];
+    $flypme = new FlypMe();
+    $order = $flypme->orderInfo($flypID);
+    if(isset($order)){
+        print(json_encode($order));
+    }
+    wp_die();
+}
 
 function bnomics_alt_deposit_email(){
     $order_id = $_REQUEST['order_id'];
@@ -723,7 +741,7 @@ function bnomics_alt_deposit_email(){
     $email = $billing_email;
     $subject = $order_coin . __(' Payment Received', 'blockonomics-bitcoin-payments');
     $heading = $order_coin . __(' Payment Received', 'blockonomics-bitcoin-payments');
-    $message = __('Your payment has been received. It will take a while for the network to confirm your order and ', 'blockonomics-bitcoin-payments').$order_coin_sym.__(' to BTC conversion to be completed.<br>To veiw your payment status, copy and use the link below.<br>', 'blockonomics-bitcoin-payments').'<a href="'.$order_link.'">'.$order_link.'</a>';
+    $message = __('Your payment has been received. It will take a while for the network to confirm your order and ', 'blockonomics-bitcoin-payments').$order_coin_sym.__(' to BTC conversion to be completed.<br>To view your payment status, copy and use the link below.<br>', 'blockonomics-bitcoin-payments').'<a href="'.$order_link.'">'.$order_link.'</a>';
     bnomics_email_woocommerce_style($email, $subject, $heading, $message);
     wp_die();
 }
@@ -740,19 +758,15 @@ function bnomics_alt_deposit_email_content( $order, $heading = false, $mailer ){
     ) );
 }
 
-// Define a constant to use with html emails
 define("HTML_EMAIL_HEADERS", array('Content-Type: text/html; charset=UTF-8'));
 function bnomics_email_woocommerce_style($email, $subject, $heading, $message) {
-  // Get woocommerce mailer from instance
   $mailer = WC()->mailer();
-  // Wrap message using woocommerce html email template
   $wrapped_message = $mailer->wrap_message($heading, $message);
-  // Create new WC_Email instance
   $wc_email = new WC_Email;
-  // Style the wrapped message with woocommerce inline styles
   $html_message = $wc_email->style_inline($wrapped_message);
   // Send the email using wordpress mail function
   //wp_mail( $email, $subject, $html_message, HTML_EMAIL_HEADERS );
+  // Send the email using woocommerce mailer send
   $mailer->send( $email, $subject, $html_message, HTML_EMAIL_HEADERS );
 }
 
