@@ -67,7 +67,7 @@
   			      <!-- Bitcoin Address -->
   		          <div class="bnomics-address">
   		            <input ng-click="btc_address_click()" id="bnomics-address-input" class="bnomics-address-input" type="text" ng-value="order.address" readonly="readonly">
-  		            <span ng-click="btc_address_click()" class="dashicons dashicons-admin-page bnomics-copy-icon"></span>
+                  <i ng-click="btc_address_click()" class="material-icons bnomics-copy-icon">file_copy</i>
   		          </div>
                 <div class="bnomics-copy-text" ng-show="copyshow" ng-cloak>Copied to clipboard</div>
   				  <!-- Countdown Timer -->
