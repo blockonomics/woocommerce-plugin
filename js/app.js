@@ -200,7 +200,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         $scope.alt_clock = response.data['expires'];
         $scope.alt_tick_interval  = $interval($scope.alt_tick, 1000);
             if(response.data['status'] == "WAITING_FOR_DEPOSIT"){
-              $scope.order.altstatus = 2;
+              $scope.order.altstatus = 0;
             }
             if(response.data['status'] == "DEPOSIT_RECEIVED"){
               $scope.order.altstatus = 1;
