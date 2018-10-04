@@ -140,7 +140,7 @@
                	  <span ng-show="order.altstatus == 1 && altemail == false" ng-init=
                   <?php 
 				    if(isset($_REQUEST['uuid'])){
-				    	echo "altemail=false";
+				    	echo "altemail=true";
 				    }else{
 				    	echo "altemail=false";
 				    }
