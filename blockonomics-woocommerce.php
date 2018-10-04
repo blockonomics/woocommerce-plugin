@@ -741,7 +741,7 @@ function bnomics_alt_deposit_email(){
     $email = $billing_email;
     $subject = $order_coin . __(' Payment Received', 'blockonomics-bitcoin-payments');
     $heading = $order_coin . __(' Payment Received', 'blockonomics-bitcoin-payments');
-    $message = __('Your payment has been received. It will take a while for the network to confirm your order and ', 'blockonomics-bitcoin-payments').$order_coin_sym.__(' to BTC conversion to be completed.<br>To view your payment status, copy and use the link below.<br>', 'blockonomics-bitcoin-payments').'<a href="'.$order_link.'">'.$order_link.'</a>';
+    $message = __('Your payment has been received. It will take a while for the network to confirm your order.<br>To view your payment status, copy and use the link below.<br>', 'blockonomics-bitcoin-payments').'<a href="'.$order_link.'">'.$order_link.'</a>';
     bnomics_email_woocommerce_style($email, $subject, $heading, $message);
     wp_die();
 }
