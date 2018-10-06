@@ -176,6 +176,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
           $scope.order.altamount = response.data['order']['invoiced_amount'];
           var uuid = response.data['order']['uuid'];
           $scope.order.pagelink = window.location.href + '&uuid=' + uuid;
+          $scope.altuuid = uuid;
             interval = $interval(function(response) {
               checkOrder(uuid);
             }, 10000);
