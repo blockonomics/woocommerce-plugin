@@ -17,7 +17,7 @@ app = angular.module("shopping-cart-demo", ["monospaced.qrcode",  "shoppingcart.
 
 
 app.config(function ($compileProvider) {
-  $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|data|chrome-extension|bitcoin):/);
+  $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|data|chrome-extension|bitcoin|ethereum|litecoin):/);
   // Angular before v1.2 uses $compileProvider.urlSanitizationWhitelist(...)
 });
 
@@ -137,9 +137,9 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
   }
 
   $scope.pay_altcoins = function() {
-  	$interval.cancel(interval);
+    $interval.cancel(interval);
     $interval.cancel($scope.alt_tick_interval);
-  	$scope.order.altaddress = '';
+    $scope.order.altaddress = '';
     $scope.order.altamount = '';
     $scope.order.altstatus = 0;
     $scope.altcoin_waiting = true;
@@ -152,25 +152,39 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     var order_id = $scope.order.order_id;
     $http({
     method: 'GET',
-    params: {'action': 'create_order', 'altcoin': altcoin, 'amount': amount, 'address': address, 'order_id':order_id},
+    params: {'action': 'fetch_limit', 'altcoin': altcoin},
     url: my_ajax_object.ajax_url
     }).then(function successCallback(response) {
-      alt_totalTime = response.data['expires'];
-      $scope.alt_clock = response.data['expires'];
-      $scope.alt_tick_interval  = $interval($scope.alt_tick, 1000);
-     	$scope.order.altaddress = response.data['deposit_address'];
-      if($scope.order.altsymbol == 'ETH'){
-        $scope.order.altaddress_link = 'https://etherscan.io/address/' + response.data['deposit_address'];
+      var alt_minimum = response.data['min'];
+      var alt_maximum = response.data['max'];
+      if(amount >= alt_minimum && amount <= alt_maximum){
+        $http({
+        method: 'GET',
+        params: {'action': 'create_order', 'altcoin': altcoin, 'amount': amount, 'address': address, 'order_id':order_id},
+        url: my_ajax_object.ajax_url
+        }).then(function successCallback(response) {
+          alt_totalTime = response.data['expires'];
+          $scope.alt_clock = response.data['expires'];
+          $scope.alt_tick_interval  = $interval($scope.alt_tick, 1000);
+          $scope.order.altaddress = response.data['deposit_address'];
+          if($scope.order.altsymbol == 'ETH'){
+            $scope.order.altaddress_link = 'https://etherscan.io/address/' + response.data['deposit_address'];
+          }
+          if($scope.order.altsymbol == 'LTC'){
+            $scope.order.altaddress_link = 'https://chainz.cryptoid.info/ltc/address.dws?' + response.data['deposit_address'];
+          }
+          $scope.order.altamount = response.data['order']['invoiced_amount'];
+          var uuid = response.data['order']['uuid'];
+          $scope.order.pagelink = window.location.href + '&uuid=' + uuid;
+            interval = $interval(function(response) {
+              checkOrder(uuid);
+            }, 10000);
+          }, function errorCallback(response) {
+            //console.log(response);
+          });
+      }else{
+        $scope.order.altaddress = "Payment Limit Error";
       }
-      if($scope.order.altsymbol == 'LTC'){
-        $scope.order.altaddress_link = 'http://explorer.litecoin.net/address/' + response.data['deposit_address'];
-      }
-     	$scope.order.altamount = response.data['order']['invoiced_amount'];
-      var uuid = response.data['order']['uuid'];
-      $scope.order.pagelink = window.location.href + '&uuid=' + uuid;
-        interval = $interval(function(response) {
-        	checkOrder(uuid);
-        }, 10000);
       }, function errorCallback(response) {
         //console.log(response);
       });

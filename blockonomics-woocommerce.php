@@ -3,7 +3,7 @@
  * Plugin Name: Wordpress Bitcoin Payments - Blockonomics
  * Plugin URI: https://github.com/blockonomics/woocommerce-plugin
  * Description: Accept Bitcoin Payments on your WooCommerce-powered website with Blockonomics
- * Version: 1.5.1
+ * Version: 1.5.2
  * Author: Blockonomics
  * Author URI: https://www.blockonomics.co
  * License: MIT
@@ -512,26 +512,22 @@ function testSetup()
 
     $blockonomics = new Blockonomics;
     $responseObj = $blockonomics->new_address(get_option('blockonomics_api_key'), get_option("blockonomics_callback_secret"), true);
-
-    if(!ini_get('allow_url_fopen')) {
-        $error_str = __('<i>allow_url_fopen</i> is not enabled, please enable this in php.ini', 'blockonomics-bitcoin-payments');
-
-    }  elseif(!isset($responseObj->response_code)) {
+    if(!isset($responseObj->response_code)) {
         $error_str = __('Your webhost is blocking outgoing HTTPS connections. Blockonomics requires an outgoing HTTPS POST (port 443) to generate new address. Check with your webhosting provider to allow this.', 'blockonomics-bitcoin-payments');
 
     } else {
 
         switch ($responseObj->response_code) {
 
-            case 'HTTP/1.1 200 OK':
+            case '200':
                 break;
 
-            case 'HTTP/1.1 401 Unauthorized': {
+            case '401': {
                 $error_str = __('API Key is incorrect. Make sure that the API key set in admin Blockonomics module configuration is correct.', 'blockonomics-bitcoin-payments');
                 break;
             }
 
-            case 'HTTP/1.1 500 Internal Server Error': {
+            case '500': {
 
                 if(isset($responseObj->message)) {
 
@@ -630,7 +626,7 @@ function show_options()
                       </script>
                 </tr>
                 <tr valign="top">
-                    <th scope="row"><?php echo __('Accept Altcoin Payments (Using Shapeshift)', 'blockonomics-bitcoin-payments')?></th>
+                    <th scope="row"><?php echo __('Accept Altcoin Payments (Using Flyp.me)', 'blockonomics-bitcoin-payments')?></th>
                     <td><input type="checkbox" name="blockonomics_altcoins" value="1" <?php checked("1", get_option('blockonomics_altcoins')); ?>" /></td>
                 </tr>
                 <tr valign="top"><th scope="row"><?php echo __('Time period of countdown timer on payment page (in minutes)', 'blockonomics-bitcoin-payments')?></th>

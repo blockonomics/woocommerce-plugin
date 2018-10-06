@@ -228,8 +228,15 @@
 
 .bnomics-altcoin-bg {
   min-height: 180px;
+}
+
+.bnomics-altcoin-bg-color{
   background-color:#f3f3f3;
-  padding: 15px 15%;
+  padding: 15px 10%;
+}
+
+.bnomics-altcoin-cancel{
+  margin-top:5px;
 }
 
 .bnomics-copy-text{
