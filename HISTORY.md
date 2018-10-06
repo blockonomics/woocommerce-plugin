@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 1.5.2  =
+* Flyp.me integration
+
 = 1.5.1  =
 * Test Setup is more intelligent
 * Fixed typos in README
