@@ -210,7 +210,7 @@
             	  </div>
                 <!-- Alt Low/High -->
                   <div class="bnomics-status-flex bnomics-altcoin-bg-color" ng-show="order.altstatus == -4" ng-cloak >
-                    <h4><?=__('Order amount too low/high for', 'blockonomics-bitcoin-payments')?> {{order.altsymbol}} <?=__('payment.', 'blockonomics-bitcoin-payments')?></h4>
+                    <h4><?=__('Order amount too {{lowhigh}} for', 'blockonomics-bitcoin-payments')?> {{order.altsymbol}} <?=__('payment.', 'blockonomics-bitcoin-payments')?></h4>
                   <h4><i class="cf bnomics-alt-icon" ng-hide="altcoinselect!='Ethereum'" ng-class={'cf-eth':'{{altcoinselect}}'!=''} ></i><i class="cf bnomics-alt-icon" ng-hide="altcoinselect!='Litecoin'" ng-class={'cf-ltc':'{{altcoinselect}}'!=''} ></i></h4>
                   <p><?=__('Go back and use BTC to complete the payment.', 'blockonomics-bitcoin-payments')?></p>
                 </div>

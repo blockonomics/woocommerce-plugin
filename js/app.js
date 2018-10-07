@@ -183,9 +183,13 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
           }, function errorCallback(response) {
             //console.log(response);
           });
-      }else{
+      }else if(amount <= alt_minimum){
         //Min/Max Error
         $scope.order.altstatus = -4;
+        $scope.lowhigh = "low";
+      }else{
+        $scope.order.altstatus = -4;
+        $scope.lowhigh = "high";        
       }
       }, function errorCallback(response) {
         //console.log(response);
