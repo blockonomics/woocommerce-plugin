@@ -208,6 +208,14 @@
 	              	<h4><i class="material-icons bnomics-alt-icon">timer</i></h4>
 	                <p><?=__('Payment Expired (Use the browser back button and try again)', 'blockonomics-bitcoin-payments')?></p>
             	  </div>
+                <!-- Alt Low/High -->
+                  <div class="bnomics-status-flex bnomics-altcoin-bg-color" ng-show="order.altstatus == -4" ng-cloak >
+                    <h4><?=__('Order amount too low/high for', 'blockonomics-bitcoin-payments')?> {{order.altsymbol}} <?=__('payment.', 'blockonomics-bitcoin-payments')?></h4>
+                  <h4><i class="cf bnomics-alt-icon" ng-hide="altcoinselect!='Ethereum'" ng-class={'cf-eth':'{{altcoinselect}}'!=''} ></i><i class="cf bnomics-alt-icon" ng-hide="altcoinselect!='Litecoin'" ng-class={'cf-ltc':'{{altcoinselect}}'!=''} ></i></h4>
+                  <p><?=__('Go back and use BTC to complete the payment.', 'blockonomics-bitcoin-payments')?></p>
+                </div>
+                <div class="bnomics-altcoin-cancel" ng-show="order.altstatus == -4"><a href="" ng-click="altcoin_waiting=false"> <?=__('Click here', 'blockonomics-bitcoin-payments')?></a> <?=__('to go back', 'blockonomics-bitcoin-payments')?>
+                </div>
             	  <!-- Contact Flyp -->
             	  <div class="bnomics-altcoin-bg-color"  ng-show="order.altstatus == -1 || order.altstatus == -2 || order.altstatus == -3" ng-cloak>
 	            		<p>uuid: {{altuuid}}</p>

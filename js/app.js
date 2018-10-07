@@ -184,7 +184,8 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
             //console.log(response);
           });
       }else{
-        $scope.order.altaddress = "Payment Limit Error";
+        //Min/Max Error
+        $scope.order.altstatus = -4;
       }
       }, function errorCallback(response) {
         //console.log(response);
@@ -205,7 +206,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
           $scope.order.altaddress_link = 'https://etherscan.io/address/' + response.data['deposit_address'];
         }
         if(response.data['order']['from_currency'] == 'LTC'){
-          $scope.order.altaddress_link = 'http://explorer.litecoin.net/address/' + response.data['deposit_address'];
+          $scope.order.altaddress_link = 'https://chainz.cryptoid.info/ltc/address.dws?' + response.data['deposit_address'];
         }
         $scope.order.altamount = response.data['order']['invoiced_amount'];
         var altsymbol = response.data['order']['from_currency'];
