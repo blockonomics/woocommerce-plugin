@@ -118,8 +118,8 @@
                       <!-- QR -->
                       <div class="bnomics-qr-code">
                         <div class="bnomics-qr">
-                                  <a href="{{altcoinselect}}:{{order.altaddress}}?amount={{order.altamount}}">
-                                    <qrcode data="{{altcoinselect}}:{{order.altaddress}}?amount={{order.altamount}}" size="160" version="6">
+                                  <a href="{{altcoinselect}}:{{order.altaddress}}?amount={{order.altamount}}&value={{order.altamount}}">
+                                    <qrcode data="{{altcoinselect}}:{{order.altaddress}}?amount={{order.altamount}}&value={{order.altamount}}" size="160" version="6">
                                       <canvas class="qrcode"></canvas>
                                     </qrcode>
                                   </a>
