@@ -199,8 +199,7 @@
               	  <div class="bnomics-status-flex bnomics-altcoin-bg-color" ng-show="order.altstatus == -2" ng-cloak >
               	  	<h4>Canceled</h4>
 	              	<h4><i class="material-icons bnomics-alt-icon">cancel</i></h4>
-	                <p><?=__('This probably happened because you paid less amount than expected.<br>Please contact flyp.me with below order id for refund:', 'blockonomics-bitcoin-payments')?></p>
-                  <p>{{altuuid}}</p>
+	                <p><?=__('This probably happened because you paid less than the expected amount.<br>Please contact flyp.me with below order id for refund:', 'blockonomics-bitcoin-payments')?></p>
             	  </div>
             	  <!-- Alt status EXPIRED -->
               	  <div class="bnomics-status-flex bnomics-altcoin-bg-color" ng-show="order.altstatus == -3" ng-cloak >
