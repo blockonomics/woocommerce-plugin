@@ -212,7 +212,7 @@
                     <h4>Error</h4>
                   <h4><i class="material-icons bnomics-alt-icon">error</i></h4>
                   <p><?=__('Order amount too <strong>{{lowhigh}}</strong> for {{order.altsymbol}} payment.', 'blockonomics-bitcoin-payments')?></p>
-                  <p><a href="" ng-click="altcoin_waiting=false"> <?=__('Go back', 'blockonomics-bitcoin-payments')?></a> <?=__('and use BTC to complete the payment.', 'blockonomics-bitcoin-payments')?></p>
+                  <p><a href="" ng-click="altcoin_waiting=false"> <?=__('Click here', 'blockonomics-bitcoin-payments')?></a> <?=__('to go back and use BTC to complete the payment.', 'blockonomics-bitcoin-payments')?></p>
                 </div>
             	  <!-- Contact Flyp -->
             	  <div class="bnomics-altcoin-bg-color"  ng-show="order.altstatus == -1 || order.altstatus == -2 || order.altstatus == -3" ng-cloak>
