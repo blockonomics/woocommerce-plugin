@@ -513,10 +513,7 @@ function testSetup()
     $blockonomics = new Blockonomics;
     $responseObj = $blockonomics->new_address(get_option('blockonomics_api_key'), get_option("blockonomics_callback_secret"), true);
 
-    if(!ini_get('allow_url_fopen')) {
-        $error_str = __('<i>allow_url_fopen</i> is not enabled, please enable this in php.ini', 'blockonomics-bitcoin-payments');
-
-    }  elseif(!isset($responseObj->response_code)) {
+    if(!isset($responseObj->response_code)) {
         $error_str = __('Your webhost is blocking outgoing HTTPS connections. Blockonomics requires an outgoing HTTPS POST (port 443) to generate new address. Check with your webhosting provider to allow this.', 'blockonomics-bitcoin-payments');
 
     } else {
@@ -769,6 +766,5 @@ function bnomics_email_woocommerce_style($email, $subject, $heading, $message) {
   // Send the email using woocommerce mailer send
   $mailer->send( $email, $subject, $html_message, HTML_EMAIL_HEADERS );
 }
-
 
 ?>

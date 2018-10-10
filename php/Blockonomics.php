@@ -15,15 +15,6 @@ class Blockonomics
 
     public function new_address($api_key, $secret, $reset=false)
     {
-        $options = array(
-            'http' => array(
-                'header'  => 'Authorization: Bearer ' . $api_key,
-                'method'  => 'POST',
-                'content' => '',
-                'ignore_errors' => true
-            )
-        );
-
         if($reset)
         {
             $get_params = "?match_callback=$secret&reset=1";
@@ -32,60 +23,77 @@ class Blockonomics
         {
             $get_params = "?match_callback=$secret";
         }
-        
-        $context = stream_context_create($options);
-        $contents = file_get_contents(Blockonomics::NEW_ADDRESS_URL.$get_params, false, $context);
-        $responseObj = json_decode($contents);
 
-        //Create response object if it does not exist
-        if (!isset($responseObj)) $responseObj = new stdClass();
-        $responseObj->{'response_code'} = $http_response_header[0];
-
-        return $responseObj;
+        $response = wp_remote_post( Blockonomics::NEW_ADDRESS_URL.$get_params, array(
+            'method' => 'POST',
+            'headers' => 'Authorization: Bearer ' . $api_key,
+            'body' => array(),
+            'ignore_errors' => true
+            )
+        );
+        if(is_wp_error( $response )){
+           $error_message = $response->get_error_message();
+           echo "Something went wrong: $error_message";
+        }else{
+            if (!isset($responseObj)) $responseObj = new stdClass();
+            $responseObj->{'response_code'} = 'HTTP/1.1 '.$response['response']['code'].' '.$response['response']['message'];
+            $responseObj->{'response_message'} = $response['response']['message'];
+            $responseObj->{'address'} = json_decode($response["body"])->address;
+            return $responseObj;
+        }
     }
 
     public function get_price($currency)
     {
-        $options = array( 'http' => array( 'method'  => 'GET') );
-        $context = stream_context_create($options);
-        $contents = file_get_contents(Blockonomics::PRICE_URL. "?currency=$currency", false, $context);
-        $price = json_decode($contents);
-        return $price->price;
+        $response = wp_remote_get( Blockonomics::PRICE_URL. "?currency=$currency", array(
+            'method' => 'GET'
+            )
+        );
+        if(is_wp_error( $response )){
+           $error_message = $response->get_error_message();
+           echo "Something went wrong: $error_message";
+        }else{
+            if (!isset($responseObj)) $responseObj = new stdClass();
+            return json_decode($response["body"])->price;
+        }
     }
 
     public function get_xpubs($api_key)
     {
-        $options = array(
-            'http' => array(
-                'header'  => 'Authorization: Bearer ' . $api_key,
-                'method'  => 'GET',
-                'content' => '',
-                'ignore_errors' => true
+
+        $response = wp_remote_get( Blockonomics::ADDRESS_URL, array(
+            'method' => 'GET',
+            'headers'  => 'Authorization: Bearer ' . $api_key,
+            'body' => '',
+            'ignore_errors' => true
             )
         );
-
-        $context = stream_context_create($options);
-        $contents = file_get_contents(Blockonomics::ADDRESS_URL, false, $context);
-        $responseObj = json_decode($contents);
-
-        return $responseObj;
+        if(is_wp_error( $response )){
+           $error_message = $response->get_error_message();
+           echo "Something went wrong: $error_message";
+        }else{
+            if (!isset($responseObj)) $responseObj = new stdClass();
+            $responseObj = json_decode($response["body"]);
+            return $responseObj;
+        }
     }
 
     public function update_callback($api_key, $callback_url, $xpub)
     {
-        $options = array(
-            'http' => array(
-                'header'  => 'Authorization: Bearer ' . $api_key,
-                'method'  => 'POST',
-                'content' => '{"callback": "'.$callback_url.'", "xpub": "'.$xpub.'"}',
-                'ignore_errors' => true
+        $response = wp_remote_post( Blockonomics::SET_CALLBACK_URL.$get_params, array(
+            'method' => 'POST',
+            'headers' => 'Authorization: Bearer ' . $api_key,
+            'body' => '{"callback": "'.$callback_url.'", "xpub": "'.$xpub.'"}',
+            'ignore_errors' => true
             )
         );
-
-        $context = stream_context_create($options);
-        $contents = file_get_contents(Blockonomics::SET_CALLBACK_URL, false, $context);
-        $responseObj = json_decode($contents);
-
-        return $responseObj;
+        if(is_wp_error( $response )){
+           $error_message = $response->get_error_message();
+           echo "Something went wrong: $error_message";
+        }else{
+            if (!isset($responseObj)) $responseObj = new stdClass();
+            $responseObj = json_decode($response["body"]);
+            return $responseObj;
+        }
     }
 }
