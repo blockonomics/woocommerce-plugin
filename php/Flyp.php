@@ -158,7 +158,7 @@ class FlypMe
     {
         $apiCall = self::$endpoint . $method;
 
-        $response = wp_remote_post( $apiCall, array(
+        $response = wp_remote_get( $apiCall, array(
             'method' => 'GET',
             'headers' => self::$headers
             )
