@@ -427,7 +427,12 @@ function testSetup()
     $response = $blockonomics->get_callbacks($api_key);
     $error_str = '';
     $responseBody = json_decode(wp_remote_retrieve_body($response));
-
+    $callback_secret = get_option('blockonomics_callback_secret');
+    $callback_url = WC()->api_request_url('WC_Gateway_Blockonomics');
+    $callback_url = add_query_arg('secret', $callback_secret, $callback_url);
+    // Ignore schema when comparing callback urls
+    $callback_url_without_schema = preg_replace('/https?:\/\//', '', $callback_url);
+    $response_callback_without_schema = preg_replace('/https?:\/\//', '', $responseBody[0]->callback);
     //TODO: Check This: WE should actually check code for timeout
     if (!wp_remote_retrieve_response_code($response)) {
         $error_str = __('Your webhost is blocking outgoing HTTPS connections. Blockonomics requires an outgoing HTTPS POST (port 443) to generate new address. Check with your webhosting provider to allow this.', 'blockonomics-bitcoin-payments');
@@ -442,17 +447,15 @@ function testSetup()
     }
     elseif (count($responseBody) == 1)
     {
-        $callback_secret = get_option('blockonomics_callback_secret');
-        $callback_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-        $callback_url = add_query_arg('secret', $callback_secret, $callback_url);
         if(!$responseBody[0]->callback || $responseBody[0]->callback == null)
         {
           //No callback URL set, set one 
           $blockonomics->update_callback($api_key, $callback_url, $responseBody[0]->address);   
         }
-        elseif($responseBody[0]->callback != $callback_url)
+        elseif($response_callback_without_schema != $callback_url_without_schema)
         {
           $base_url = get_bloginfo('wpurl');
+          $base_url = preg_replace('/https?:\/\//', '', $base_url);
           // Check if only secret differs
           if(strpos($responseBody[0]->callback, $base_url) !== false)
           {
@@ -470,7 +473,7 @@ function testSetup()
     {
         // Check if callback url is set
         foreach ($responseBody as $resObj)
-         if($resObj->callback == $callback_url)
+         if(preg_replace('/https?:\/\//', '', $resObj->callback) == $callback_url_without_schema)
             return "";
         $error_str = __("Seems that you have set multiple xPubs or you already have a Callback URL set. <a href='https://blockonomics.freshdesk.com/support/solutions/articles/33000209399-merchants-integrating-multiple-websites' target='_blank'>Here is a guide</a> to setup multiple websites.", 'blockonomics-bitcoin-payments');
     }
