@@ -3,7 +3,7 @@
  * Plugin Name: Wordpress Bitcoin Payments - Blockonomics
  * Plugin URI: https://github.com/blockonomics/woocommerce-plugin
  * Description: Accept Bitcoin Payments on your WooCommerce-powered website with Blockonomics
- * Version: 1.5.2
+ * Version: 1.6.0
  * Author: Blockonomics
  * Author URI: https://www.blockonomics.co
  * License: MIT
@@ -481,8 +481,15 @@ function testSetup()
          if(preg_replace('/https?:\/\//', '', $resObj->callback) == $callback_url_without_schema)
             return "";
         $error_str = __("You have an existing callback URL. Refer instructions on integrating multiple websites", 'blockonomics-bitcoin-payments');
+    }  
+    if (!$error_str)
+    {
+        //Everything OK ! Test address generation
+        $response= $blockonomics->new_address($api_key, $callback_secret);
+        if ($response->response_code!=200){
+          $error_str = $response->response_message;
+        }
     }
-
     if($error_str) {
         $error_str = $error_str . __('<p>For more information, please consult <a href="https://blockonomics.freshdesk.com/support/solutions/articles/33000215104-troubleshooting-unable-to-generate-new-address" target="_blank">this troubleshooting article</a></p>', 'blockonomics-bitcoin-payments');
         return $error_str;
