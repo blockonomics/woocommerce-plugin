@@ -485,7 +485,7 @@ function testSetup()
     if (!$error_str)
     {
         //Everything OK ! Test address generation
-        $response= $blockonomics->new_address($api_key, $callback_secret);
+        $response= $blockonomics->new_address($api_key, $callback_secret, true);
         if ($response->response_code!=200){
           $error_str = $response->response_message;
         }

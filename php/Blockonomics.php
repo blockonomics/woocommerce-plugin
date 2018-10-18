@@ -28,8 +28,12 @@ class Blockonomics
         $response = $this->post($url, $api_key);
         if (!isset($responseObj)) $responseObj = new stdClass();
         $responseObj->{'response_code'} = wp_remote_retrieve_response_code($response);
-        $responseObj->{'response_message'} = wp_remote_retrieve_response_message($response);
-        $responseObj->{'address'} = json_decode(wp_remote_retrieve_body($response))->address;
+        if (wp_remote_retrieve_body($response))
+        {
+          $body = json_decode(wp_remote_retrieve_body($response));
+          $responseObj->{'response_message'} = $body->message;
+          $responseObj->{'address'} = $body->address;
+        }
         return $responseObj;
     }
 
