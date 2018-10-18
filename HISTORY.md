@@ -1,7 +1,9 @@
 == Changelog ==
 
 = 1.6.0  =
-* Flyp.me integration
+* Altcoin integration enabled
+* New checkout design having btc/altcoin tab
+* using wp_remote function to avoid fopen errors
 
 = 1.5.1  =
 * Test Setup is more intelligent
