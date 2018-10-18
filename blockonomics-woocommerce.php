@@ -453,8 +453,15 @@ function check_callback_urls()
 {
     include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
     $blockonomics = new Blockonomics;
-
     $responseObj = $blockonomics->get_xpubs(get_option('blockonomics_api_key'));
+
+    $callback_secret = get_option('blockonomics_callback_secret');
+    $api_url = WC()->api_request_url('WC_Gateway_Blockonomics');
+    $callback_url = add_query_arg('secret', $callback_secret, $api_url);
+
+    // Remove http:// or https:// from urls
+    $api_url_without_schema = preg_replace('/https?:\/\//', '', $api_url);
+    $callback_url_without_schema = preg_replace('/https?:\/\//', '', $callback_url);
 
     // No xPubs set
     if (count($responseObj) == 0)
@@ -465,9 +472,6 @@ function check_callback_urls()
     // One xPub set
     if (count($responseObj) == 1)
     {
-        $callback_secret = get_option('blockonomics_callback_secret');
-        $callback_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-        $callback_url = add_query_arg('secret', $callback_secret, $callback_url);
         // No Callback URL set, set one
         if(!$responseObj[0]->callback || $responseObj[0]->callback == null)
         {
@@ -477,13 +481,13 @@ function check_callback_urls()
         // One xPub with one Callback URL
         else
         {
-            if($responseObj[0]->callback == $callback_url)
+            if(strpos($responseObj[0]->callback, $callback_url_without_schema) !== false)
             {
                 return "1";
             }
 
             // Check if only secret differs
-            if(strpos($responseObj[0]->callback, WC()->api_request_url('WC_Gateway_Blockonomics')) !== false)
+            if(strpos($responseObj[0]->callback, $api_url_without_schema) !== false)
             {
                 update_callback_url($callback_url, $responseObj[0]->address, $blockonomics);
                 return "1";
@@ -495,13 +499,9 @@ function check_callback_urls()
 
     if (count($responseObj) > 1)
     {
-        $callback_secret = get_option('blockonomics_callback_secret');
-        $callback_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-        $callback_url = add_query_arg('secret', $callback_secret, $callback_url);
-
         // Check if callback url is set
         foreach ($responseObj as $resObj) {
-            if($resObj->callback == $callback_url)
+            if(strpos($resObj->callback, $callback_url_without_schema) !== false)
                 {
                     return "1";
                 }
