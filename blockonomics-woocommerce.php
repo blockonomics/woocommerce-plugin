@@ -160,7 +160,11 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
 
                 $blockonomics = new Blockonomics;
                 $responseObj = $blockonomics->new_address(get_option('blockonomics_api_key'), get_option("blockonomics_callback_secret"));
-                $price = $blockonomics->get_price(get_woocommerce_currency());
+                if(get_woocommerce_currency() != 'BTC'){
+                	$price = $blockonomics->get_price(get_woocommerce_currency());
+                }else{
+                	$price = 1;
+                }
 
                 if($responseObj->response_code != 200) {
                     $this->displayError($woocommerce);
@@ -428,9 +432,10 @@ function testSetup()
     $error_str = '';
     $responseBody = json_decode(wp_remote_retrieve_body($response));
     $callback_secret = get_option('blockonomics_callback_secret');
-    $callback_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-    $callback_url = add_query_arg('secret', $callback_secret, $callback_url);
-    // Ignore schema when comparing callback urls
+    $api_url = WC()->api_request_url('WC_Gateway_Blockonomics');
+    $callback_url = add_query_arg('secret', $callback_secret, $api_url);
+    // Remove http:// or https:// from urls
+    $api_url_without_schema = preg_replace('/https?:\/\//', '', $api_url);
     $callback_url_without_schema = preg_replace('/https?:\/\//', '', $callback_url);
     $response_callback_without_schema = preg_replace('/https?:\/\//', '', $responseBody[0]->callback);
     //TODO: Check This: WE should actually check code for timeout
