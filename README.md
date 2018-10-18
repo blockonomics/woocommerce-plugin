@@ -1,8 +1,8 @@
 # Wordpress Bitcoin Payments - Blockonomics # 
 **Tags:** bitcoin, accept bitcoin, bitcoin woocommerce, bitcoin wordpress plugin, bitcoin payments 
 **Requires at least:** 3.0.1 
-**Tested up to:** 4.9.1 
-**Stable tag:** 1.6.0 
+**Tested up to:** 4.9.8 
+**Stable tag:** 1.6.1
 **License:** MIT 
 **License URI:** http://opensource.org/licenses/MIT 
 
@@ -64,14 +64,13 @@ Just create a new xpub for each site and add to [blockonomics wallet watcher](ht
 
 ![](assets-wp-repo/screenshot-1.png)     
 Checkout option 
- 
 
 ![](assets-wp-repo/screenshot-2.png)     
 Payment screen 
 
 ![](assets-wp-repo/screenshot-3.png)     
 Settings Panel   
- 
 
 ![](assets-wp-repo/screenshot-4.png)   
-Blockonomics configuration   
+Blockonomics configuration
+ 

@@ -1,9 +1,12 @@
 == Changelog ==
 
-= 1.6.0  =
+= 1.6.1  =
 * Altcoin integration enabled
 * New checkout design having btc/altcoin tab
 * using wp_remote function to avoid fopen errors
+
+= 1.6.0  =
+* Test Upgrade
 
 = 1.5.1  =
 * Test Setup is more intelligent
