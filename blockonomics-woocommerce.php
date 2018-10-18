@@ -327,7 +327,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
 
                 if($setup_errors)
                 {
-                    $message = __($setup_errors . '</p><p>For more information, please consult <a href="https://blockonomics.freshdesk.com/support/solutions/articles/33000215104-troubleshooting-unable-to-generate-new-address" target="_blank">this troubleshooting article</a></p>', 'blockonomics-bitcoin-payments');
+                    $message = $setup_errors;
                     $type = 'error';
                     add_settings_error('option_notice', 'option_notice', $message, $type);
                 }
@@ -435,15 +435,15 @@ function testSetup()
     $response_callback_without_schema = preg_replace('/https?:\/\//', '', $responseBody[0]->callback);
     //TODO: Check This: WE should actually check code for timeout
     if (!wp_remote_retrieve_response_code($response)) {
-        $error_str = __('Your webhost is blocking outgoing HTTPS connections. Blockonomics requires an outgoing HTTPS POST (port 443) to generate new address. Check with your webhosting provider to allow this.', 'blockonomics-bitcoin-payments');
+        $error_str = __('Your server is blocking outgoing HTTPS calls', 'blockonomics-bitcoin-payments');
     }
     elseif (wp_remote_retrieve_response_code($response)==401)
-        $error_str = __('API Key is incorrect. Make sure that the API key set in admin Blockonomics module configuration is correct.', 'blockonomics-bitcoin-payments');
+        $error_str = __('API Key is incorrect', 'blockonomics-bitcoin-payments');
     elseif (wp_remote_retrieve_response_code($response)!=200)  
         $error_str = $response->data;
     elseif (!isset($responseBody) || count($responseBody) == 0)
     {
-        $error_str = __('There is a problem in the XPUB. Make sure that the you have added an address to Wallet Watcher > Address Watcher. If you have added an address make sure that it is an XPUB address and not a Bitcoin address.', 'blockonomics-bitcoin-payments');
+        $error_str = __('You have not entered an xpub', 'blockonomics-bitcoin-payments');
     }
     elseif (count($responseBody) == 1)
     {
@@ -465,7 +465,7 @@ function testSetup()
           }
           else
           {
-            $error_str = __("Seems that you have set multiple xPubs or you already have a Callback URL set. <a href='https://blockonomics.freshdesk.com/support/solutions/articles/33000209399-merchants-integrating-multiple-websites' target='_blank'>Here is a guide</a> to setup multiple websites.", 'blockonomics-bitcoin-payments');
+            $error_str = __("Your have an existing callback URL. Refer instructions on integrating multiple websites", 'blockonomics-bitcoin-payments');
           }
         }
     }
@@ -475,10 +475,11 @@ function testSetup()
         foreach ($responseBody as $resObj)
          if(preg_replace('/https?:\/\//', '', $resObj->callback) == $callback_url_without_schema)
             return "";
-        $error_str = __("Seems that you have set multiple xPubs or you already have a Callback URL set. <a href='https://blockonomics.freshdesk.com/support/solutions/articles/33000209399-merchants-integrating-multiple-websites' target='_blank'>Here is a guide</a> to setup multiple websites.", 'blockonomics-bitcoin-payments');
+        $error_str = __("Your have an existing callback URL. Refer instructions on integrating multiple websites", 'blockonomics-bitcoin-payments');
     }
 
-    if(isset($error_str)) {
+    if($error_str) {
+        $error_str = $error_str . __('<p>For more information, please consult <a href="https://blockonomics.freshdesk.com/support/solutions/articles/33000215104-troubleshooting-unable-to-generate-new-address" target="_blank">this troubleshooting article</a></p>', 'blockonomics-bitcoin-payments');
         return $error_str;
     }
     // No errors
