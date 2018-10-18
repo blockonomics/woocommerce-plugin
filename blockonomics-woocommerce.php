@@ -166,7 +166,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                 	$price = 1;
                 }
 
-                if($responseObj->response_code != 'HTTP/1.1 200 OK') {
+                if($responseObj->response_code != 200) {
                     $this->displayError($woocommerce);
                     return;
                 }
@@ -327,22 +327,11 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
 
             if (isset($_POST['runTest']))
             {
-
-                $urls_count = check_callback_urls();
-
-                if($urls_count == '2')
-                {
-                    $message = __("Seems that you have set multiple xPubs or you already have a Callback URL set. <a href='https://blockonomics.freshdesk.com/support/solutions/articles/33000209399-merchants-integrating-multiple-websites' target='_blank'>Here is a guide</a> to setup multiple websites.", 'blockonomics-bitcoin-payments');
-                    $type = 'error';
-                    add_settings_error('option_notice', 'option_notice', $message, $type);
-                    return;
-                }
-
                 $setup_errors = testSetup();
 
                 if($setup_errors)
                 {
-                    $message = __($setup_errors . '</p><p>For more information, please consult <a href="https://blockonomics.freshdesk.com/support/solutions/articles/33000215104-troubleshooting-unable-to-generate-new-address" target="_blank">this troubleshooting article</a></p>', 'blockonomics-bitcoin-payments');
+                    $message = $setup_errors;
                     $type = 'error';
                     add_settings_error('option_notice', 'option_notice', $message, $type);
                 }
@@ -433,142 +422,71 @@ function gen_callback($input)
   return 0;
 }
 
-function update_callback_url($callback_url, $xPub, $blockonomics)
-{
-    $blockonomics->update_callback(
-        get_option('blockonomics_api_key'),
-        $callback_url,
-        $xPub
-    );
-}
-
-/**
- * Check the status of callback urls
- * If no xPubs set, return
- * If one xPub is set without callback url, set the url
- * If more than one xPubs are set, give instructions on integrating to multiple sites
- * @return Strin Count of found xPubs
- */
-function check_callback_urls()
-{
-    include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
-    $blockonomics = new Blockonomics;
-    $responseObj = $blockonomics->get_xpubs(get_option('blockonomics_api_key'));
-
-    $callback_secret = get_option('blockonomics_callback_secret');
-    $api_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-    $callback_url = add_query_arg('secret', $callback_secret, $api_url);
-
-    // Remove http:// or https:// from urls
-    $api_url_without_schema = preg_replace('/https?:\/\//', '', $api_url);
-    $callback_url_without_schema = preg_replace('/https?:\/\//', '', $callback_url);
-
-    // No xPubs set
-    if (count($responseObj) == 0)
-    {
-        return "0";
-    }
-
-    // One xPub set
-    if (count($responseObj) == 1)
-    {
-        // No Callback URL set, set one
-        if(!$responseObj[0]->callback || $responseObj[0]->callback == null)
-        {
-            update_callback_url($callback_url, $responseObj[0]->address, $blockonomics);
-            return "1";
-        }
-        // One xPub with one Callback URL
-        else
-        {
-            if(strpos($responseObj[0]->callback, $callback_url_without_schema) !== false)
-            {
-                return "1";
-            }
-
-            // Check if only secret differs
-            if(strpos($responseObj[0]->callback, $api_url_without_schema) !== false)
-            {
-                update_callback_url($callback_url, $responseObj[0]->address, $blockonomics);
-                return "1";
-            }
-
-            return "2";
-        }
-    }
-
-    if (count($responseObj) > 1)
-    {
-        // Check if callback url is set
-        foreach ($responseObj as $resObj) {
-            if(strpos($resObj->callback, $callback_url_without_schema) !== false)
-                {
-                    return "1";
-                }
-        }
-        return "2";
-    }
-}
-
 function testSetup()
 {
     include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
-
+    
+    $api_key = get_option("blockonomics_api_key");
     $blockonomics = new Blockonomics;
-    $responseObj = $blockonomics->new_address(get_option('blockonomics_api_key'), get_option("blockonomics_callback_secret"), true);
-
-    if(!ini_get('allow_url_fopen')) {
-        $error_str = __('<i>allow_url_fopen</i> is not enabled, please enable this in php.ini', 'blockonomics-bitcoin-payments');
-
-    }  elseif(!isset($responseObj->response_code)) {
-        $error_str = __('Your webhost is blocking outgoing HTTPS connections. Blockonomics requires an outgoing HTTPS POST (port 443) to generate new address. Check with your webhosting provider to allow this.', 'blockonomics-bitcoin-payments');
-
-    } else {
-
-        switch ($responseObj->response_code) {
-
-            case 'HTTP/1.1 200 OK':
-                break;
-
-            case 'HTTP/1.1 401 Unauthorized': {
-                $error_str = __('API Key is incorrect. Make sure that the API key set in admin Blockonomics module configuration is correct.', 'blockonomics-bitcoin-payments');
-                break;
-            }
-
-            case 'HTTP/1.1 500 Internal Server Error': {
-
-                if(isset($responseObj->message)) {
-
-                    $error_code = $responseObj->message;
-
-                    switch ($error_code) {
-                        case "Could not find matching xpub":
-                            $error_str = __('There is a problem in the Callback URL. Make sure that you have set your Callback URL from the admin Blockonomics module configuration to your Merchants > Settings.', 'blockonomics-bitcoin-payments');
-                            break;
-                        case "This require you to add an xpub in your wallet watcher":
-                            $error_str = __('There is a problem in the XPUB. Make sure that the you have added an address to Wallet Watcher > Address Watcher. If you have added an address make sure that it is an XPUB address and not a Bitcoin address.', 'blockonomics-bitcoin-payments');
-                            break;
-                        default:
-                            $error_str = $responseObj->message;
-                    }
-                    break;
-                } else {
-                    $error_str = $responseObj->response_code;
-                    break;
-                }
-            }
-
-            default:
-                $error_str = $responseObj->response_code;
-                break;
-
+    $response = $blockonomics->get_callbacks($api_key);
+    $error_str = '';
+    $responseBody = json_decode(wp_remote_retrieve_body($response));
+    $callback_secret = get_option('blockonomics_callback_secret');
+    $api_url = WC()->api_request_url('WC_Gateway_Blockonomics');
+    $callback_url = add_query_arg('secret', $callback_secret, $api_url);
+    // Remove http:// or https:// from urls
+    $api_url_without_schema = preg_replace('/https?:\/\//', '', $api_url);
+    $callback_url_without_schema = preg_replace('/https?:\/\//', '', $callback_url);
+    $response_callback_without_schema = preg_replace('/https?:\/\//', '', $responseBody[0]->callback);
+    //TODO: Check This: WE should actually check code for timeout
+    if (!wp_remote_retrieve_response_code($response)) {
+        $error_str = __('Your server is blocking outgoing HTTPS calls', 'blockonomics-bitcoin-payments');
+    }
+    elseif (wp_remote_retrieve_response_code($response)==401)
+        $error_str = __('API Key is incorrect', 'blockonomics-bitcoin-payments');
+    elseif (wp_remote_retrieve_response_code($response)!=200)  
+        $error_str = $response->data;
+    elseif (!isset($responseBody) || count($responseBody) == 0)
+    {
+        $error_str = __('You have not entered an xpub', 'blockonomics-bitcoin-payments');
+    }
+    elseif (count($responseBody) == 1)
+    {
+        if(!$responseBody[0]->callback || $responseBody[0]->callback == null)
+        {
+          //No callback URL set, set one 
+          $blockonomics->update_callback($api_key, $callback_url, $responseBody[0]->address);   
+        }
+        elseif($response_callback_without_schema != $callback_url_without_schema)
+        {
+          $base_url = get_bloginfo('wpurl');
+          $base_url = preg_replace('/https?:\/\//', '', $base_url);
+          // Check if only secret differs
+          if(strpos($responseBody[0]->callback, $base_url) !== false)
+          {
+            //Looks like the user regenrated callback by mistake
+            //Just force Update_callback on server
+            $blockonomics->update_callback($api_key, $callback_url, $responseBody[0]->address);  
+          }
+          else
+          {
+            $error_str = __("You have an existing callback URL. Refer instructions on integrating multiple websites", 'blockonomics-bitcoin-payments');
+          }
         }
     }
-
-    if(isset($error_str)) {
-        return $error_str;
+    else 
+    {
+        // Check if callback url is set
+        foreach ($responseBody as $resObj)
+         if(preg_replace('/https?:\/\//', '', $resObj->callback) == $callback_url_without_schema)
+            return "";
+        $error_str = __("You have an existing callback URL. Refer instructions on integrating multiple websites", 'blockonomics-bitcoin-payments');
     }
 
+    if($error_str) {
+        $error_str = $error_str . __('<p>For more information, please consult <a href="https://blockonomics.freshdesk.com/support/solutions/articles/33000215104-troubleshooting-unable-to-generate-new-address" target="_blank">this troubleshooting article</a></p>', 'blockonomics-bitcoin-payments');
+        return $error_str;
+    }
     // No errors
     return false;
 }
@@ -773,6 +691,5 @@ function bnomics_email_woocommerce_style($email, $subject, $heading, $message) {
   // Send the email using woocommerce mailer send
   $mailer->send( $email, $subject, $html_message, HTML_EMAIL_HEADERS );
 }
-
 
 ?>

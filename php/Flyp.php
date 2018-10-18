@@ -158,31 +158,17 @@ class FlypMe
     {
         $apiCall = self::$endpoint . $method;
 
-        // Create a stream
-        $opts = [
-            "http" => [
-                "method" => "GET",
-                "header" => "Content-Type: application/json\r\n"
-            ]
-        ];
+        $response = wp_remote_get( $apiCall, array(
+            'method' => 'GET',
+            'headers' => self::$headers
+            )
+        );
 
-        $context = stream_context_create($opts);
-
-        // Open the file using the HTTP headers set above
-        $response = file_get_contents($apiCall, false, $context);
-        
-        $response = json_decode($response);
-        
-        //var_dump($response);
-        if(isset($response->errors)){
-            $responseString = "";
-            foreach ($response->errors as $key => $value) {
-                return $responseString .= "Error: ". $key . " - ". $value[0];
-            }
-        }elseif(isset($response)){
-            return $response;
+        if(is_wp_error( $response )){
+           $error_message = $response->get_error_message();
+           echo "Something went wrong: $error_message";
         }else{
-            return;
+            return json_decode($response['body']);
         }
     }
     /**
@@ -196,31 +182,18 @@ class FlypMe
     {
         $apiCall = self::$endpoint . $method;
         $post = json_encode($body);
-        // Create a stream
-        $opts = [
-            "http" => [
-                "method" => "POST",
-                "header" => "Content-Type: application/json\r\n",
-                "content" => $post
-            ]
-        ];
 
-        $context = stream_context_create($opts);
-
-        // Open the file using the HTTP headers set above
-        $response = file_get_contents($apiCall, false, $context);
-        
-        $response = json_decode($response);
-
-        if(isset($response->errors)){
-            $responseString = "";
-            foreach ($response->errors as $key => $value) {
-                return $responseString .= "Error: ". $key . " - ". $value[0];
-            }
-        }elseif(isset($response)){
-            return $response;
+        $response = wp_remote_post( $apiCall, array(
+            'method' => 'POST',
+            'headers' => self::$headers,
+            'body' => $post
+            )
+        );
+        if(is_wp_error( $response )){
+           $error_message = $response->get_error_message();
+           echo "Something went wrong: $error_message";
         }else{
-            return;
+            return json_decode($response['body']);
         }
     }
 }
