@@ -218,6 +218,9 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         $scope.altcoinselect = $scope.altcoins[altsymbol];
         alt_totalTime = response.data['expires'];
         $scope.alt_clock = response.data['expires'];
+        interval = $interval(function(response) {
+          checkOrder(uuid);
+        }, 10000);
         $scope.alt_tick_interval  = $interval($scope.alt_tick, 1000);
             if(response.data['status'] == "WAITING_FOR_DEPOSIT"){
               $scope.order.altstatus = 0;
@@ -257,9 +260,6 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
       if(given_uuid!=''){
         $scope.order.pagelink = window.location.href;
         infoOrder(given_uuid);
-        interval = $interval(function(response) {
-          checkOrder(given_uuid);
-        }, 10000);
       }else{
         //Listen on websocket for payment notification
         //After getting notification,  refresh page
