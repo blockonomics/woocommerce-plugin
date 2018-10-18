@@ -465,7 +465,7 @@ function testSetup()
           }
           else
           {
-            $error_str = __("Your have an existing callback URL. Refer instructions on integrating multiple websites", 'blockonomics-bitcoin-payments');
+            $error_str = __("You have an existing callback URL. Refer instructions on integrating multiple websites", 'blockonomics-bitcoin-payments');
           }
         }
     }
@@ -475,7 +475,7 @@ function testSetup()
         foreach ($responseBody as $resObj)
          if(preg_replace('/https?:\/\//', '', $resObj->callback) == $callback_url_without_schema)
             return "";
-        $error_str = __("Your have an existing callback URL. Refer instructions on integrating multiple websites", 'blockonomics-bitcoin-payments');
+        $error_str = __("You have an existing callback URL. Refer instructions on integrating multiple websites", 'blockonomics-bitcoin-payments');
     }
 
     if($error_str) {
