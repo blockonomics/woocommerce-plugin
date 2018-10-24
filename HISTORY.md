@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 1.6.2  =
+* Fixed PHP Warning:Constants may only evaluate to scalar values
+
 = 1.6.1  =
 * Altcoin integration enabled
 * New checkout design having btc/altcoin tab
