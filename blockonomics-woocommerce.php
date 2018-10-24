@@ -172,7 +172,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                 }
 
                 $address = $responseObj->address;
-                $value_with_margin = $order->get_total() * (1 + (get_option('blockonomics_margin') / 100));
+                $value_with_margin = $order->get_total() * (1 + (get_option('blockonomics_margin', 0) / 100));
 
                 $blockonomics_orders = get_option('blockonomics_orders');
                 $order = array(
