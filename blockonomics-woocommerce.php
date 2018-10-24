@@ -166,7 +166,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                 }else{
                 	$price = 1;
                 }
-                $price = $price / (1 + (get_option('blockonomics_margin', 0) / 100));
+                $price = $price * ((100-get_option('blockonomics_margin', 0)) / 100);
 
                 if($responseObj->response_code != 200) {
                     $this->displayError($woocommerce);
