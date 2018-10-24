@@ -163,10 +163,10 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                 $responseObj = $blockonomics->new_address(get_option('blockonomics_api_key'), get_option("blockonomics_callback_secret"));
                 if(get_woocommerce_currency() != 'BTC'){
                 	$price = $blockonomics->get_price(get_woocommerce_currency());
+                	$price = $price * 100/(100+get_option('blockonomics_margin', 0));
                 }else{
                 	$price = 1;
                 }
-                $price = $price * ((100-get_option('blockonomics_margin', 0)) / 100);
 
                 if($responseObj->response_code != 200) {
                     $this->displayError($woocommerce);
