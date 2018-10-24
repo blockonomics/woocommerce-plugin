@@ -166,6 +166,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                 }else{
                 	$price = 1;
                 }
+                $price = $price / (1 + (get_option('blockonomics_margin', 0) / 100));
 
                 if($responseObj->response_code != 200) {
                     $this->displayError($woocommerce);
@@ -173,12 +174,11 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                 }
 
                 $address = $responseObj->address;
-                $value_with_margin = $order->get_total() * (1 + (get_option('blockonomics_margin', 0) / 100));
 
                 $blockonomics_orders = get_option('blockonomics_orders');
                 $order = array(
                 'value'              => $order->get_total(),
-                'satoshi'            => intval(1.0e8*$value_with_margin/$price),
+                'satoshi'            => intval(1.0e8*$order->get_total()/$price),
                 'currency'           => get_woocommerce_currency(),
                 'order_id'            => $order_id,
                 'status'             => -1,
