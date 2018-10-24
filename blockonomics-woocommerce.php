@@ -3,12 +3,13 @@
  * Plugin Name: Wordpress Bitcoin Payments - Blockonomics
  * Plugin URI: https://github.com/blockonomics/woocommerce-plugin
  * Description: Accept Bitcoin Payments on your WooCommerce-powered website with Blockonomics
- * Version: 1.6.1
+ * Version: 1.6.2
  * Author: Blockonomics
  * Author URI: https://www.blockonomics.co
  * License: MIT
  * Text Domain: blockonomics-bitcoin-payments
  * Domain Path: /languages/
+ * WC tested up to: 3.9.0
  */
 
 /*  Copyright 2017 Blockonomics Inc.
@@ -162,6 +163,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                 $responseObj = $blockonomics->new_address(get_option('blockonomics_api_key'), get_option("blockonomics_callback_secret"));
                 if(get_woocommerce_currency() != 'BTC'){
                 	$price = $blockonomics->get_price(get_woocommerce_currency());
+                	$price = $price * 100/(100+get_option('blockonomics_margin', 0));
                 }else{
                 	$price = 1;
                 }
@@ -573,11 +575,15 @@ function show_options()
                         </select>
                     </td>
                 </tr>
+                <tr valign="top">
+                    <th scope="row"><?php echo __('Currency Rate Margin % (Increase fiat to BTC calculated rate by this percentage)', 'blockonomics-bitcoin-payments')?></th>
+                    <td><input type="number" min="0" max="4" name="blockonomics_margin" value="<?php echo esc_attr( get_option('blockonomics_margin', 0) ); ?>" /></td>
+                </tr>
             </table>
             <p class="submit">
                 <input type="submit" class="button-primary" value="Save"/>
                 <input type="hidden" name="action" value="update" />
-                <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_gen_callback, api_updated" />
+                <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback, api_updated" />
                 <input onclick="checkForAPIKeyChange();" class="button-primary" name="test-setup-submit" value="Test Setup" style="max-width:85px;">
             </p>
         </form>
@@ -687,7 +693,6 @@ function bnomics_alt_deposit_email_content( $order, $heading = false, $mailer ){
     ) );
 }
 
-define("HTML_EMAIL_HEADERS", array('Content-Type: text/html; charset=UTF-8'));
 function bnomics_email_woocommerce_style($email, $subject, $heading, $message) {
   $mailer = WC()->mailer();
   $wrapped_message = $mailer->wrap_message($heading, $message);
@@ -696,7 +701,7 @@ function bnomics_email_woocommerce_style($email, $subject, $heading, $message) {
   // Send the email using wordpress mail function
   //wp_mail( $email, $subject, $html_message, HTML_EMAIL_HEADERS );
   // Send the email using woocommerce mailer send
-  $mailer->send( $email, $subject, $html_message, HTML_EMAIL_HEADERS );
+  $mailer->send( $email, $subject, $html_message, array('Content-Type: text/html; charset=UTF-8') );
 }
 
 ?>

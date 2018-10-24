@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 1.6.2  =
+* New option, extra currency rate margin
+
 = 1.6.1  =
 * Altcoin integration enabled
 * New checkout design having btc/altcoin tab
