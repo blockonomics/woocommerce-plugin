@@ -687,7 +687,6 @@ function bnomics_alt_deposit_email_content( $order, $heading = false, $mailer ){
     ) );
 }
 
-define("HTML_EMAIL_HEADERS", array('Content-Type: text/html; charset=UTF-8'));
 function bnomics_email_woocommerce_style($email, $subject, $heading, $message) {
   $mailer = WC()->mailer();
   $wrapped_message = $mailer->wrap_message($heading, $message);
@@ -696,7 +695,7 @@ function bnomics_email_woocommerce_style($email, $subject, $heading, $message) {
   // Send the email using wordpress mail function
   //wp_mail( $email, $subject, $html_message, HTML_EMAIL_HEADERS );
   // Send the email using woocommerce mailer send
-  $mailer->send( $email, $subject, $html_message, HTML_EMAIL_HEADERS );
+  $mailer->send( $email, $subject, $html_message, array('Content-Type: text/html; charset=UTF-8') );
 }
 
 ?>
