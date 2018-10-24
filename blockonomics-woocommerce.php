@@ -577,7 +577,7 @@ function show_options()
                 </tr>
                 <tr valign="top">
                     <th scope="row"><?php echo __('Currency Rate Margin % (Increase fiat to BTC calculated rate by this percentage)', 'blockonomics-bitcoin-payments')?></th>
-                    <td><input type="number" min="0" max="5" name="blockonomics_margin" value="<?php echo esc_attr( get_option('blockonomics_margin', 0) ); ?>" /></td>
+                    <td><input type="number" min="0" max="4" name="blockonomics_margin" value="<?php echo esc_attr( get_option('blockonomics_margin', 0) ); ?>" /></td>
                 </tr>
             </table>
             <p class="submit">
