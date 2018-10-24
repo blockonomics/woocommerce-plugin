@@ -172,11 +172,12 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                 }
 
                 $address = $responseObj->address;
+                $value_with_margin = $order->get_total() * (1 + (get_option('blockonomics_margin') / 100));
 
                 $blockonomics_orders = get_option('blockonomics_orders');
                 $order = array(
                 'value'              => $order->get_total(),
-                'satoshi'            => intval(1.0e8*$order->get_total()/$price),
+                'satoshi'            => intval(1.0e8*$value_with_margin/$price),
                 'currency'           => get_woocommerce_currency(),
                 'order_id'            => $order_id,
                 'status'             => -1,
@@ -573,11 +574,15 @@ function show_options()
                         </select>
                     </td>
                 </tr>
+                <tr valign="top">
+                    <th scope="row"><?php echo __('Currency Rate Margin % (Increase fiat to BTC calculated rate by this percentage)', 'blockonomics-bitcoin-payments')?></th>
+                    <td><input type="number" min="0" max="5" name="blockonomics_margin" value="<?php echo esc_attr( get_option('blockonomics_margin', 0) ); ?>" /></td>
+                </tr>
             </table>
             <p class="submit">
                 <input type="submit" class="button-primary" value="Save"/>
                 <input type="hidden" name="action" value="update" />
-                <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_gen_callback, api_updated" />
+                <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback, api_updated" />
                 <input onclick="checkForAPIKeyChange();" class="button-primary" name="test-setup-submit" value="Test Setup" style="max-width:85px;">
             </p>
         </form>
