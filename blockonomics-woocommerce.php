@@ -366,9 +366,12 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
         }
 
         function enqueue_stylesheets(){
-          wp_enqueue_style('bnomics-style', plugin_dir_url(__FILE__) . "css/order.css");
-          wp_enqueue_style( 'bnomics-altcoins', plugin_dir_url(__FILE__) . "css/cryptofont/cryptofont.min.css");
-          wp_enqueue_style( 'bnomics-icons', plugin_dir_url(__FILE__) . "css/icons/icons.css");
+          wp_enqueue_style('bnomics-style', plugin_dir_url(__FILE__) . "css/order.min.css");
+        }
+
+        function enqueue_scripts(){
+          wp_enqueue_script('bnomics-script', plugin_dir_url(__FILE__) . "js/order.min.js");
+          wp_localize_script( 'bnomics-script', 'my_ajax_object', array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
         }
 
         add_action('admin_menu', 'add_page');
@@ -376,6 +379,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
         add_action('woocommerce_order_details_after_order_table', 'nolo_custom_field_display_cust_order_meta', 10, 1);
         add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
         add_action('wp_enqueue_scripts', 'enqueue_stylesheets' );
+        add_action('wp_enqueue_scripts', 'enqueue_scripts' );
     }
 
 
