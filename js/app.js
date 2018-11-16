@@ -91,7 +91,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     $http({
           method: 'GET',
           params: {'action': 'check_order', 'uuid': uuid},
-          url: my_ajax_object.ajax_url
+          url: ajax_url
           }).then(function successCallback(response) {
             if(response.data['status'] == "WAITING_FOR_DEPOSIT"){
               $scope.order.altstatus = 0;
@@ -106,7 +106,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
                 $http({
                   method: 'GET',
                   params: {'action': 'send_email', 'order_id':order_id, 'order_link':order_link, 'order_coin':order_coin, 'order_coin_sym':order_coin_sym},
-                  url: my_ajax_object.ajax_url
+                  url: ajax_url
                   });
                 send_email = false;
               }
@@ -153,7 +153,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     $http({
     method: 'GET',
     params: {'action': 'fetch_limit', 'altcoin': altcoin},
-    url: my_ajax_object.ajax_url
+    url: ajax_url
     }).then(function successCallback(response) {
       var alt_minimum = response.data['min'];
       var alt_maximum = response.data['max'];
@@ -161,7 +161,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         $http({
         method: 'GET',
         params: {'action': 'create_order', 'altcoin': altcoin, 'amount': amount, 'address': address, 'order_id':order_id},
-        url: my_ajax_object.ajax_url
+        url: ajax_url
         }).then(function successCallback(response) {
           alt_totalTime = response.data['expires'];
           $scope.alt_clock = response.data['expires'];
@@ -203,7 +203,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     $http({
     method: 'GET',
     params: {'action': 'info_order', 'uuid': uuid},
-    url: my_ajax_object.ajax_url
+    url: ajax_url
     }).then(function successCallback(response) {
         $scope.order.altaddress = response.data['deposit_address'];
         if(response.data['order']['from_currency'] == 'ETH'){
