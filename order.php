@@ -241,15 +241,13 @@
     </div>
     <script>
     var blockonomics_time_period=<?php echo get_option('blockonomics_timeperiod', 10); ?>;
-    var ajax_url="<?php echo admin_url( 'admin-ajax.php' ); ?>";
-    var get_uuid="<?php if(isset($_REQUEST['uuid'])){ echo $_REQUEST['uuid']; } ?>";
     </script>
-    <script src="<?php echo plugins_url('js/angular.min.js', __FILE__);?>"></script>
-    <script src="<?php echo plugins_url('js/angular-resource.min.js', __FILE__);?>"></script>
-    <script src="<?php echo plugins_url('js/app.js', __FILE__);?>"></script>
-    <script src="<?php echo plugins_url('js/angular-qrcode.js', __FILE__);?>"></script>
-    <script src="<?php echo plugins_url('js/vendors.min.js', __FILE__);?>"></script>
-    <script src="<?php echo plugins_url('js/reconnecting-websocket.min.js', __FILE__);?>"></script>
+    <script>
+    var get_uuid="<?php             
+            if(isset($_REQUEST['uuid'])){
+              echo $_REQUEST['uuid'];
+            } ?>";
+    </script>
   </div>
 </div>
 
