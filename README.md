@@ -52,13 +52,14 @@ Use bitcoin to pay and enjoy !
 ## Frequently Asked Questions ## 
 
 ### Getting error on checkout: Could not generate new bitcoin address , what to do ? ### 
-Your webhost is probably blocking outgoing HTTPS connections. Blockonomics requires an outgoing HTTPS PORT (port 443) to generate new address. Check with your webhost to allow this. Consult this [article](https://blockonomics.freshdesk.com/solution/articles/33000215104-troubleshooting-unable-to-generate-new-address) for more details. 
+Please use Settings > Blockonomics **Test Setup** to diagnose and get more
+details about the issue
 
 ### Order is still on pending payment status even after two confirmations  ### 
-Your webhost is blocking incoming callbacks from bots, our you have a DDOS protection in place that is causing this. Blockonomics server does payment callbacks to update trasnsaction status and cannot emulate a browser accessing your website. Remove the DDOS protection for blockonomics.co  
+Your webhost is blocking incoming callbacks from bots, our you have a DDOS protection in place that is causing this. Blockonomics server does payment callbacks to update trasnsaction status and cannot emulate a browser accessing your website. Please consult [this article](https://blockonomics.freshdesk.com/solution/articles/33000219539-order-status-not-changing-ddos-protection) on how debug and fix this
 
 ### I have multiple websites, how do I set this up? ### 
-Just create a new xpub for each site and add to [blockonomics wallet watcher](https://www.blockonomics/blockonomics). In [merchants tab](https://www.blockonomics.co/merchants) you will get option to specify callback url for each of them.  Install this plugin on each of your sites and following the same setup procedure. Thats it! You can monitor many sites under same blockonomics emailid. 
+You can use single blockonomics account to integrate multiple website. Please consult [this article](https://blockonomics.freshdesk.com/solution/articles/33000209399-merchants-integrating-multiple-websites)
 
 ## Screenshots ## 
 
