@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 1.6.3  =
+* Fixed bug with enqueue script
+
 = 1.6.2  =
 * New option, extra currency rate margin
 
