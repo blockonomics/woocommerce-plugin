@@ -3,7 +3,7 @@
  * Plugin Name: Wordpress Bitcoin Payments - Blockonomics
  * Plugin URI: https://github.com/blockonomics/woocommerce-plugin
  * Description: Accept Bitcoin Payments on your WooCommerce-powered website with Blockonomics
- * Version: 1.6.2
+ * Version: 1.6.3
  * Author: Blockonomics
  * Author URI: https://www.blockonomics.co
  * License: MIT
@@ -206,6 +206,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                 $address = isset($_REQUEST["show_order"]) ? $_REQUEST["show_order"] : "";
                 if ($address) {
                     $dir = plugin_dir_path(__FILE__);
+                    add_action('wp_enqueue_scripts', 'bnomics_enqueue_scripts' );
                     include $dir."order.php";
                     exit();
                 }
@@ -365,17 +366,28 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
             }
         }
 
-        function enqueue_stylesheets(){
+        function bnomics_enqueue_stylesheets(){
           wp_enqueue_style('bnomics-style', plugin_dir_url(__FILE__) . "css/order.css");
           wp_enqueue_style( 'bnomics-altcoins', plugin_dir_url(__FILE__) . "css/cryptofont/cryptofont.min.css");
           wp_enqueue_style( 'bnomics-icons', plugin_dir_url(__FILE__) . "css/icons/icons.css");
+        }
+
+        function bnomics_enqueue_scripts(){
+          wp_enqueue_script( 'angular', plugins_url('js/angular.min.js', __FILE__) );
+          wp_enqueue_script( 'angular-resource', plugins_url('js/angular-resource.min.js', __FILE__) );
+          wp_enqueue_script( 'app', plugins_url('js/app.js', __FILE__) );
+                            wp_localize_script( 'app', 'ajax_object',
+                                array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
+          wp_enqueue_script( 'angular-qrcode', plugins_url('js/angular-qrcode.js', __FILE__) );
+          wp_enqueue_script( 'vendors', plugins_url('js/vendors.min.js', __FILE__) );
+          wp_enqueue_script( 'reconnecting-websocket', plugins_url('js/reconnecting-websocket.min.js', __FILE__) );
         }
 
         add_action('admin_menu', 'add_page');
         add_action('init', 'woocommerce_handle_blockonomics_return');
         add_action('woocommerce_order_details_after_order_table', 'nolo_custom_field_display_cust_order_meta', 10, 1);
         add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
-        add_action('wp_enqueue_scripts', 'enqueue_stylesheets' );
+        add_action('wp_enqueue_scripts', 'bnomics_enqueue_stylesheets' );
     }
 
 
