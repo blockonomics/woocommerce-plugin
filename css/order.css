@@ -169,13 +169,11 @@
 
 .bnomics-bg {
   min-height: 180px;
-  background-color:#f3f3f3;
   padding-top: 5px;
 }
 
 .bnomics-qr {
   text-align: center !important;
-  background-color:#f3f3f3;
   padding: 10px 10px 5px 10px;
   width:180px;
   margin: 0 auto;
@@ -231,7 +229,6 @@
 }
 
 .bnomics-altcoin-bg-color{
-  background-color:#f3f3f3;
   padding: 15px 10%;
 }
 
