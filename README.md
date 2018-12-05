@@ -1,5 +1,5 @@
 # Wordpress Bitcoin Payments - Blockonomics # 
-**Contributors:** juhasiivikko, darrenwestwood
+**Contributors:** juhasiivikko, darrenwestwood, blockonomics
 **Tags:** bitcoin, accept bitcoin, bitcoin woocommerce, bitcoin wordpress plugin, bitcoin payments 
 **Requires at least:** 3.0.1 
 **Tested up to:** 4.9.8 
