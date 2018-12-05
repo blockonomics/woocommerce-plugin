@@ -396,24 +396,48 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
 
     register_activation_hook( __FILE__, 'blockonomics_activation_hook' );
     add_action('admin_notices', 'plugin_activation');
-
+    
     function blockonomics_activation_hook() {
         set_transient( 'blockonomics_activation_hook_transient', true, 5);
     }
 
     //Show message when plugin is activated
     function plugin_activation() {
-        if( get_transient( 'blockonomics_activation_hook_transient' ) ){
+      if( get_transient( 'blockonomics_activation_hook_transient' ) ){
 
-            $html = '<div class="updated">';
-                $html .= '<p>';
-                    $html .= __( 'Please configure Blockonomics Bitcoin Payments <a href="options-general.php?page=blockonomics_options">on this page</a>.', 'advanced-google-analytics' );
-                $html .= '</p>';
-            $html .= '</div>';
+        $html = '<div class="updated">';
+        $html .= '<p>';
+        $html .= __( 'Please configure Blockonomics Bitcoin Payments <a href="options-general.php?page=blockonomics_options">on this page</a>.', 'blockonomics-bitcoin-payments' );
+        $html .= '</p>';
+        $html .= '</div>';
 
-            echo $html;        
-            delete_transient( 'fx-admin-notice-example' );
+        echo $html;        
+        delete_transient( 'fx-admin-notice-example' );
+      }
+      if ( isset( $_GET['review_later'] ) ){
+        update_option('review_notice_dismissed_timestamp', time());
+      } 
+      if ( isset( $_GET['already_reviewed'] ) ){
+        update_option('review_notice_dismissed_timestamp', 1);
+      } 
+      $admin_page = get_current_screen();
+      if (in_array($admin_page->base, array('dashboard', 'settings_page_blockonomics_options', 'plugins'))){
+        //Show review notice only on three pages
+        $blockonomics_orders = get_option('blockonomics_orders', array());
+        if (count($blockonomics_orders)>10){
+          $dismiss_timestamp = get_option('review_notice_dismissed_timestamp', 0);
+          if ($dismiss_timestamp!=1 && time()-$dismiss_timestamp>1209600){
+            //Prompt user to review the plugin after every 2 weeks 
+            //if he has more than 10 orders, until he clicks on I already reviewed
+            $class = 'notice notice-info';
+            $message = __( 'Hey, I noticed you have been using blockonomics for accepting bitcoins - Awesome!.</br> Could you please do me a BIG favor and rate in on Wordpress?', 'blockonomics-bitcoin-payments' );
+            $m1 = __('Ok, I will review it', 'blockonomics-bitcoin-payments');
+            $m2=  __('I already did', 'blockonomics-bitcoin-payments');
+            $m3=  __('Maybe Later', 'blockonomics-bitcoin-payments');
+            printf( '<div class="%1$s"><h4>%2$s</h4><ul><li><a target="_blank" href="https://wordpress.org/plugins/blockonomics-bitcoin-payments/">%3$s</a></li><li><a href="?already_reviewed">%4$s</a></li><li><a href="?review_later">%5$s</a></li></ul></div>', esc_attr( $class ),  $message, $m1, $m2, $m3); 
+          }
         }
+      }
     }
 
     function plugin_add_settings_link( $links ) {
