@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 1.6.4  =
+* Removed grey background conflicting with some themes
+
 = 1.6.3  =
 * Fixed bug with enqueue script
 
