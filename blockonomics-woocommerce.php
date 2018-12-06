@@ -430,7 +430,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
             //Prompt user to review the plugin after every 2 weeks 
             //if he has more than 10 orders, until he clicks on I already reviewed
             $class = 'notice notice-info';
-            $message = __( 'Hey, I noticed you have been using blockonomics for accepting bitcoins - Awesome!.</br> Could you please do me a BIG favor and rate it in on Wordpress?', 'blockonomics-bitcoin-payments' );
+            $message = __( 'Hey, I noticed you have been using blockonomics for accepting bitcoins - Awesome!</br> Could you please do me a BIG favor and rate it in on Wordpress?', 'blockonomics-bitcoin-payments' );
             $m1 = __('Ok, I will review it', 'blockonomics-bitcoin-payments');
             $m2=  __('I already did', 'blockonomics-bitcoin-payments');
             $m3=  __('Maybe Later', 'blockonomics-bitcoin-payments');
