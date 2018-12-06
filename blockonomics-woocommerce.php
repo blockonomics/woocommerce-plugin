@@ -434,7 +434,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
             $m1 = __('Ok, I will review it', 'blockonomics-bitcoin-payments');
             $m2=  __('I already did', 'blockonomics-bitcoin-payments');
             $m3=  __('Maybe Later', 'blockonomics-bitcoin-payments');
-            printf( '<div class="%1$s"><h4>%2$s</h4><ul><li><a target="_blank" href="https://wordpress.org/plugins/blockonomics-bitcoin-payments/">%3$s</a></li><li><a href="?already_reviewed">%4$s</a></li><li><a href="?review_later">%5$s</a></li></ul></div>', esc_attr( $class ),  $message, $m1, $m2, $m3); 
+            printf( '<div class="%1$s"><h4>%2$s</h4><ul><li><a target="_blank" href="https://wordpress.org/support/plugin/blockonomics-bitcoin-payments/reviews/#new-post">%3$s</a></li><li><a href="?already_reviewed">%4$s</a></li><li><a href="?review_later">%5$s</a></li></ul></div>', esc_attr( $class ),  $message, $m1, $m2, $m3); 
           }
         }
       }
