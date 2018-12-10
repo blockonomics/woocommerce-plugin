@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 1.6.6  =
+* Updated comptability to Wordpress 5.0
+
 = 1.6.5  =
 * Adding payment details in order email, review messages 
 
