@@ -365,6 +365,15 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                 echo '<h2>Payment Details</h2><p><strong>'.__('Transaction').':</strong>  <a href =\''. Blockonomics::BASE_URL ."/api/tx?txid=$txid&addr=$address'>".substr($txid, 0, 10). '</a></p><p>Your order will be processed on confirmation of above transaction by the bitcoin network.</p>';
             }
         }
+        function nolo_bnomics_woocommerce_email_customer_details($order)
+        {
+            $txid = get_post_meta($order->id, 'blockonomics_txid', true);
+            $address = get_post_meta($order->id, 'blockonomics_address', true);
+            include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
+            if ($txid && $address) {
+                echo '<h2>Payment Details</h2><p><strong>'.__('Transaction').':</strong>  <a href =\''. Blockonomics::BASE_URL ."/api/tx?txid=$txid&addr=$address'>".substr($txid, 0, 10). '</a></p<p><b>Powered by <a href="https://wordpress.org/plugins/blockonomics-bitcoin-payments/">Blockonomics</a></b> -Easiest way to accept BTC on Wordpress.</p>';
+            }
+        }
 
         function bnomics_enqueue_stylesheets(){
           wp_enqueue_style('bnomics-style', plugin_dir_url(__FILE__) . "css/order.css");
@@ -386,6 +395,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
         add_action('admin_menu', 'add_page');
         add_action('init', 'woocommerce_handle_blockonomics_return');
         add_action('woocommerce_order_details_after_order_table', 'nolo_custom_field_display_cust_order_meta', 10, 1);
+        add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
         add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
         add_action('wp_enqueue_scripts', 'bnomics_enqueue_stylesheets' );
     }
