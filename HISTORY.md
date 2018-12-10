@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 1.6.5  =
+* Adding payment details in order email, review messages 
+
 = 1.6.4  =
 * Removed grey background conflicting with some themes
 
