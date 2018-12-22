@@ -240,7 +240,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                             $wc_order->add_order_note(__("Warning: Payment arrived after $minutes minutes. Received BTC may not match current bitcoin price", 'blockonomics-bitcoin-payments'));
                         }
                         elseif ($status == 2) {
-                            update_post_meta($wc_order->id, 'paid_btc_amount', $_REQUEST['value']/1.0e8);
+                            update_post_meta($wc_order->get_id(), 'paid_btc_amount', $_REQUEST['value']/1.0e8);
                             if ($order['satoshi'] > $_REQUEST['value']) {
                                 $status = -2; //Payment error , amount not matching
                                 $wc_order->update_status('failed', __('Paid BTC amount less than expected.', 'blockonomics-bitcoin-payments'));
@@ -257,8 +257,8 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                         $order['status'] = $status;
                         $orders[$addr] = $order;
                         if ($existing_status == -1) {
-                            update_post_meta($wc_order->id, 'blockonomics_txid', $order['txid']);
-                            update_post_meta($wc_order->id, 'expected_btc_amount', $order['satoshi']/1.0e8);
+                            update_post_meta($wc_order->get_id(), 'blockonomics_txid', $order['txid']);
+                            update_post_meta($wc_order->get_id(), 'expected_btc_amount', $order['satoshi']/1.0e8);
                         }
                         update_option('blockonomics_orders', $orders);
                     }
@@ -358,8 +358,8 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
         }
         function nolo_custom_field_display_cust_order_meta($order)
         {
-            $txid = get_post_meta($order->id, 'blockonomics_txid', true);
-            $address = get_post_meta($order->id, 'blockonomics_address', true);
+            $txid = get_post_meta($order->get_id(), 'blockonomics_txid', true);
+            $address = get_post_meta($order->get_id(), 'blockonomics_address', true);
             include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
             if ($txid && $address) {
                 echo '<h2>Payment Details</h2><p><strong>'.__('Transaction').':</strong>  <a href =\''. Blockonomics::BASE_URL ."/api/tx?txid=$txid&addr=$address'>".substr($txid, 0, 10). '</a></p><p>Your order will be processed on confirmation of above transaction by the bitcoin network.</p>';
@@ -367,8 +367,8 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
         }
         function nolo_bnomics_woocommerce_email_customer_details($order)
         {
-            $txid = get_post_meta($order->id, 'blockonomics_txid', true);
-            $address = get_post_meta($order->id, 'blockonomics_address', true);
+            $txid = get_post_meta($order->get_id(), 'blockonomics_txid', true);
+            $address = get_post_meta($order->get_id(), 'blockonomics_address', true);
             if ($txid && $address) {
               include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
               echo '<h2>Payment Details</h2><p><strong>'.__('Transaction').':</strong>  <a href =\''. Blockonomics::BASE_URL ."/api/tx?txid=$txid&addr=$address'>".substr($txid, 0, 10). '</a></p<p><b>Powered by <a href="https://wordpress.org/plugins/blockonomics-bitcoin-payments/">Blockonomics</a></b> -Easiest way to accept BTC on Wordpress.</p>';
