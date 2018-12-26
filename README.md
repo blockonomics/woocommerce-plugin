@@ -3,7 +3,7 @@
 **Tags:** bitcoin, accept bitcoin, bitcoin woocommerce, bitcoin wordpress plugin, bitcoin payments 
 **Requires at least:** 3.0.1 
 **Tested up to:** 5.0 
-**Stable tag:** 1.6.6
+**Stable tag:** 1.6.7
 **License:** MIT 
 **License URI:** http://opensource.org/licenses/MIT 
 
@@ -31,8 +31,9 @@ Blockonomics is the only Bitcoin payment gateway that enables full decentralizat
 - **Segwit compatibility** enables the lowest transaction fees possible 
 - All major HD wallets, such as Trezor, Ledger Nano S, Blockchain.info and Mycelium are supported 
 - Supports **all major fiat currencies** 
-- Complete checkout process happens within your website/theme 
-
+- Complete checkout process happens within your website/theme
+- **Privacy friendly** - Customer order information remains private to your shop and is never submitted to Blockonomics
+- Callbacks to TOR websites supported
 
 ## Installation ## 
 

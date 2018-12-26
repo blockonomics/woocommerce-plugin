@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 1.6.7  =
+* Fixes for comptability to Wordpress 5.0
+* TOR callbacks supported
+
 = 1.6.6  =
 * Updated comptability to Wordpress 5.0
 
