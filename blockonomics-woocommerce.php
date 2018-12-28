@@ -649,13 +649,14 @@ add_action( 'wp_ajax_create_order', 'bnomics_create_order' );
 add_action( 'wp_ajax_check_order', 'bnomics_check_order' );
 add_action( 'wp_ajax_send_email', 'bnomics_alt_deposit_email' );
 add_action( 'wp_ajax_info_order', 'bnomics_info_order' );
+add_action( 'wp_ajax_add_refund', 'bnomics_add_refund' );
 
-//Look into wether this will ever be needed
 add_action( 'wp_ajax_nopriv_fetch_limit', 'bnomics_fetch_limit' );
 add_action( 'wp_ajax_nopriv_create_order', 'bnomics_create_order' );
 add_action( 'wp_ajax_nopriv_check_order', 'bnomics_check_order' );
 add_action( 'wp_ajax_nopriv_send_email', 'bnomics_alt_deposit_email' );
 add_action( 'wp_ajax_nopriv_info_order', 'bnomics_info_order' );
+add_action( 'wp_ajax_nopriv_add_refund', 'bnomics_add_refund' );
 
 function bnomics_fetch_limit(){
     include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Flyp.php';
@@ -712,6 +713,18 @@ function bnomics_info_order(){
     wp_die();
 }
 
+function bnomics_add_refund(){
+    include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Flyp.php';
+    $flypID             = $_REQUEST['uuid'];
+    $flypAddress        = $_REQUEST['address'];
+    $flypme = new FlypMe();
+    $order = $flypme->addRefund($flypID, $flypAddress);
+    if(isset($order)){
+        print(json_encode($order));
+    }
+    wp_die();
+}
+
 function bnomics_alt_deposit_email(){
     $order_id = $_REQUEST['order_id'];
     $order_link = $_REQUEST['order_link'];
@@ -720,9 +733,9 @@ function bnomics_alt_deposit_email(){
     $order = new WC_Order($order_id);
     $billing_email = $order->billing_email;
     $email = $billing_email;
-    $subject = $order_coin . __(' Payment Received', 'blockonomics-bitcoin-payments');
-    $heading = $order_coin . __(' Payment Received', 'blockonomics-bitcoin-payments');
-    $message = __('Your payment has been received. It will take a while for the network to confirm your order.<br>To view your payment status, copy and use the link below.<br>', 'blockonomics-bitcoin-payments').'<a href="'.$order_link.'">'.$order_link.'</a>';
+    $subject = $order_coin . ' ' . __('Refund', 'blockonomics-bitcoin-payments');
+    $heading = $order_coin . ' ' . __('Refund', 'blockonomics-bitcoin-payments');
+    $message = __('Your order couldn\'t be processed as you paid less than expected.<br>The amount you paid will be refunded.<br>Visit the link below to enter your refund address.<br>', 'blockonomics-bitcoin-payments').'<a href="'.$order_link.'">'.$order_link.'</a>';
     bnomics_email_woocommerce_style($email, $subject, $heading, $message);
     wp_die();
 }

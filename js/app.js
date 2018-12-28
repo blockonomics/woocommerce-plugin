@@ -78,8 +78,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     {
       $scope.alt_clock = 0;
       //Order expired
-      $interval.cancel(interval);
-      $scope.order.altstatus = -3;
+      $interval.cancel($scope.alt_tick_interval);
     }
     $scope.alt_progress = Math.floor($scope.alt_clock*totalProgress/alt_totalTime);
   };
@@ -94,44 +93,58 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
           params: {'action': 'check_order', 'uuid': uuid},
           url: given_ajax_url
           }).then(function successCallback(response) {
-            if(response.data['status'] == "WAITING_FOR_DEPOSIT"){
-              $scope.order.altstatus = 0;
-            }
-            if(response.data['status'] == "DEPOSIT_RECEIVED"){
-              if(send_email == true){
-                var order_id = $scope.order.order_id;
-                var order_link = $scope.order.pagelink;
-                var order_coin = $scope.altcoinselect;
-                var order_coin_sym = $scope.order.altsymbol;
-                //Send Email
-                $http({
-                  method: 'GET',
-                  params: {'action': 'send_email', 'order_id':order_id, 'order_link':order_link, 'order_coin':order_coin, 'order_coin_sym':order_coin_sym},
-                  url: given_ajax_url
-                  });
-                send_email = false;
+            if(response.data['payment_status'] == "PAYMENT_RECEIVED" || response.data['payment_status'] == "PAYMENT_CONFIRMED"){
+              $scope.order.altstatus = 'received';
+              $interval.cancel(interval);
+            }else if(response.data['payment_status'] == "OVERPAY_RECEIVED" || response.data['payment_status'] == "UNDERPAY_RECEIVED" || response.data['payment_status'] == "OVERPAY_CONFIRMED" || response.data['payment_status'] == "UNDERPAY_CONFIRMED"){
+              if(response.data['status'] == "EXPIRED"){
+                $scope.order.altstatus = 'refunded';
+                $interval.cancel(interval);
+              }else if(response.data['status'] == "REFUNDED"){
+              if(response.data['txid']){
+                $scope.order.altstatus = 'refunded-txid';
+                $scope.order.alttxid = response.data['txid'];
+                $scope.order.alttxurl = response.data['txurl'];
+                $interval.cancel(interval);
+              }else{
+                $scope.order.altstatus = 'refunded';
               }
-              $scope.order.altstatus = 1;
-            }
-            if(response.data['status'] == "DEPOSIT_CONFIRMED"){
-              $scope.order.altstatus = 2;
-            }
-            if(response.data['status'] == "EXECUTED"){
-              $scope.order.altstatus = 3;
+              }else{
+                if(send_email == true){
+                  var order_id = $scope.order.order_id;
+                  var order_link = $scope.order.pagelink;
+                  var order_coin = $scope.altcoinselect;
+                  var order_coin_sym = $scope.order.altsymbol;
+                  //Send Email
+                  $http({
+                    method: 'GET',
+                    params: {'action': 'send_email', 'order_id':order_id, 'order_link':order_link, 'order_coin':order_coin, 'order_coin_sym':order_coin_sym},
+                    url: given_ajax_url
+                    });
+                  send_email = false;
+                }
+                if(address_present == true){
+                  $scope.order.altstatus = 'refunded';
+                }else{
+                  $scope.order.altstatus = 'add_refund';
+                  $interval.cancel(interval);
+                }
+              }
+            }else if(response.data['status'] == "WAITING_FOR_DEPOSIT"){
+              $scope.order.altstatus = 'waiting';
+            }else if(response.data['status'] == "EXPIRED"){
+              $scope.order.altstatus = 'expired';
               $interval.cancel(interval);
-            }
-            if(response.data['status'] == "REFUNDED"){
-              $scope.order.altstatus = -1;
-              $interval.cancel(interval);
-            }
-            if(response.data['status'] == "CANCELED"){
-              $scope.order.altstatus = -2;
-              $interval.cancel(interval);
-            }
-            if(response.data['status'] == "EXPIRED"){
-              $scope.order.altstatus = -3;
-              $interval.cancel(interval);
-            }
+            }else if(response.data['status'] == "REFUNDED"){
+              if(response.data['txid']){
+                $scope.order.altstatus = 'refunded-txid';
+                $scope.order.alttxid = response.data['txid'];
+                $scope.order.alttxurl = response.data['txurl'];
+                $interval.cancel(interval);
+              }else{
+                $scope.order.altstatus = 'refunded';
+              }
+            }            
             }, function errorCallback(response) {
               //console.log(response);
             });
@@ -142,7 +155,6 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     $interval.cancel($scope.alt_tick_interval);
     $scope.order.altaddress = '';
     $scope.order.altamount = '';
-    $scope.order.altstatus = 0;
     $scope.altcoin_waiting = true;
     $scope.alt_clock = 1200;
     send_email = true;
@@ -151,54 +163,73 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     var amount = $scope.order.satoshi/1.0e8;
     var address = $scope.order.address;
     var order_id = $scope.order.order_id;
-    $http({
-    method: 'GET',
-    params: {'action': 'fetch_limit', 'altcoin': altcoin},
-    url: given_ajax_url
-    }).then(function successCallback(response) {
-      var alt_minimum = response.data['min'];
-      var alt_maximum = response.data['max'];
-      if(amount >= alt_minimum && amount <= alt_maximum){
-        $http({
-        method: 'GET',
-        params: {'action': 'create_order', 'altcoin': altcoin, 'amount': amount, 'address': address, 'order_id':order_id},
-        url: given_ajax_url
-        }).then(function successCallback(response) {
-          alt_totalTime = response.data['expires'];
-          $scope.alt_clock = response.data['expires'];
-          $scope.alt_tick_interval  = $interval($scope.alt_tick, 1000);
-          $scope.order.altaddress = response.data['deposit_address'];
-          if($scope.order.altsymbol == 'ETH'){
-            $scope.order.altaddress_link = 'https://etherscan.io/address/' + response.data['deposit_address'];
-          }
-          if($scope.order.altsymbol == 'LTC'){
-            $scope.order.altaddress_link = 'https://chainz.cryptoid.info/ltc/address.dws?' + response.data['deposit_address'];
-          }
-          $scope.order.altamount = response.data['order']['invoiced_amount'];
-          var uuid = response.data['order']['uuid'];
-          $scope.order.pagelink = window.location.href + '&uuid=' + uuid;
-          $scope.altuuid = uuid;
-            interval = $interval(function(response) {
-              checkOrder(uuid);
-            }, 10000);
-          }, function errorCallback(response) {
-            //console.log(response);
-          });
-      }else if(amount <= alt_minimum){
-        //Min/Max Error
-        $scope.order.altstatus = -4;
-        $scope.lowhigh = "low";
-      }else{
-        $scope.order.altstatus = -4;
-        $scope.lowhigh = "high";        
-      }
-      }, function errorCallback(response) {
-        //console.log(response);
+
+
+
+    ( function( promises ){
+      return new Promise( ( resolve, reject ) => {
+          Promise.all( promises )
+              .then( values => {
+                  var alt_minimum = values[0]['min'];
+              var alt_maximum = values[0]['max'];
+            if(amount <= alt_minimum){
+                //Min/Max Error
+                $scope.order.altstatus = 'low_high';
+                $scope.lowhigh = "low";
+              }else if(amount >= alt_maximum){
+                $scope.order.altstatus = 'low_high';
+                $scope.lowhigh = "high";        
+              }else{
+                  var response = values[1];
+                  alt_totalTime = response['expires'];
+                  $scope.alt_clock = response['expires'];
+                  $scope.alt_tick_interval  = $interval($scope.alt_tick, 1000);
+                  $scope.order.altaddress = response['deposit_address'];
+                  $scope.order.altamount = response['order']['invoiced_amount'];
+                  var uuid = response['order']['uuid'];
+                  $scope.order.pagelink = window.location.href + '&uuid=' + uuid;
+                  $scope.altuuid = uuid;
+                  $scope.order.altstatus = 'waiting';
+                    interval = $interval(function(response) {
+                      checkOrder(uuid);
+                    }, 10000);
+              }
+                  resolve( values );
+              })
+              .catch( err => {
+                  console.dir( err );
+                  throw err;
+              });
       });
+  })([ 
+      new Promise( ( resolve, reject ) => {
+          $http({
+          method: 'GET',
+          params: {'action': 'fetch_limit', 'altcoin': altcoin},
+          url: given_ajax_url
+          }).then(function successCallback(response) {
+            resolve( response.data );
+            }, function errorCallback(response) {
+              //console.log(response);
+            });
+      }),
+      new Promise( ( resolve, reject ) => {
+        $http({
+            method: 'GET',
+            params: {'action': 'create_order', 'altcoin': altcoin, 'amount': amount, 'address': address, 'order_id':order_id},
+            url: given_ajax_url
+            }).then(function successCallback(response) {
+              resolve( response.data );
+              }, function errorCallback(response) {
+                //console.log(response);
+              });
+      })
+   ]);
   }
   function getAltKeyByValue(object, value) {
     return Object.keys(object).find(key => object[key] === value);
   }
+  var address_present = false;
   function infoOrder(uuid) {
     $scope.altuuid = uuid;
     $http({
@@ -207,12 +238,6 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     url: given_ajax_url
     }).then(function successCallback(response) {
         $scope.order.altaddress = response.data['deposit_address'];
-        if(response.data['order']['from_currency'] == 'ETH'){
-          $scope.order.altaddress_link = 'https://etherscan.io/address/' + response.data['deposit_address'];
-        }
-        if(response.data['order']['from_currency'] == 'LTC'){
-          $scope.order.altaddress_link = 'https://chainz.cryptoid.info/ltc/address.dws?' + response.data['deposit_address'];
-        }
         $scope.order.altamount = response.data['order']['invoiced_amount'];
         var altsymbol = response.data['order']['from_currency'];
         $scope.order.altsymbol = altsymbol;
@@ -220,31 +245,34 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         interval = $interval(function(response) {
           checkOrder(uuid);
         }, 10000);
-            if(response.data['status'] == "WAITING_FOR_DEPOSIT"){
-              $scope.order.altstatus = 0;
-            }
-            if(response.data['status'] == "DEPOSIT_RECEIVED"){
-              $scope.order.altstatus = 1;
-            }
-            if(response.data['status'] == "DEPOSIT_CONFIRMED"){
-              $scope.order.altstatus = 2;
-            }
-            if(response.data['status'] == "EXECUTED"){
-              $scope.order.altstatus = 3;
+            if(response.data['payment_status'] == "PAYMENT_RECEIVED" || response.data['payment_status'] == "PAYMENT_CONFIRMED"){
+              $scope.order.altstatus = 'received';
               $interval.cancel(interval);
-            }
-            if(response.data['status'] == "REFUNDED"){
-              $scope.order.altstatus = -1;
+            }else if(response.data['status'] == "REFUNDED" || response.data['refund_address']){
+                if(response.data['txid']){
+                $scope.order.altstatus = 'refunded-txid';
+                $scope.order.alttxid = response.data['txid'];
+                $scope.order.alturl = response.data['txurl'];
+                $interval.cancel(interval);
+              }else{
+                $scope.order.altstatus = 'refunded';
+                if(response.data['refund_address']){
+                  address_present = true;
+                }
+              }
+            }else if(response.data['payment_status'] == "OVERPAY_RECEIVED" || response.data['payment_status'] == "UNDERPAY_RECEIVED" || response.data['payment_status'] == "OVERPAY_CONFIRMED" || response.data['payment_status'] == "UNDERPAY_CONFIRMED"){
+              if(response.data['refund_address']){
+                $scope.order.altstatus = 'refunded';
+              }else{
+                $scope.order.altstatus = 'add_refund';
+                $interval.cancel(interval);
+              }
+            }else if(response.data['status'] == "WAITING_FOR_DEPOSIT"){
+              $scope.order.altstatus = 'waiting';
+            }else if(response.data['status'] == "EXPIRED"){
+              $scope.order.altstatus = 'expired';
               $interval.cancel(interval);
-            }
-            if(response.data['status'] == "CANCELED"){
-              $scope.order.altstatus = -2;
-              $interval.cancel(interval);
-            }
-            if(response.data['status'] == "EXPIRED"){
-              $scope.order.altstatus = -3;
-              $interval.cancel(interval);
-            }
+            }            
       }, function errorCallback(response) {
         //console.log(response);
       });
@@ -283,6 +311,24 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
           }
         }
       }
+    });
+  }
+  //Add Refund Address click
+  $scope.add_refund_click = function() {
+    var refund_address = document.getElementById("bnomics-refund-input").value;
+    uuid = $scope.altuuid;
+    $http({
+    method: 'GET',
+    params: {'action': 'add_refund', 'uuid': uuid, 'address': refund_address},
+    url: given_ajax_url
+    }).then(function successCallback(response) {
+        if(response.data['result'] == 'ok'){
+          address_present = true;
+          $scope.order.altstatus = 'refunded';
+          interval = $interval(function(response) {
+              checkOrder(uuid);
+            }, 10000);
+        }
     });
   }
   $scope.copyshow = false;
