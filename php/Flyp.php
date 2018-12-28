@@ -147,6 +147,20 @@ class FlypMe
         ];
         return $this->post('order/cancel', $body, 'json');
     }
+    /**
+     * @param $uuid
+     * @param $address
+     * @return mixed
+     * @throws Exception
+     */
+    public function addRefund($uuid, $address)
+    {
+        $body = [
+            "uuid" => $uuid,
+            "address" => $address
+        ];
+        return $this->post('order/addrefund', $body, 'json');
+    }
     // private methods
     /**
      * @param string $method
