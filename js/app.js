@@ -99,7 +99,6 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
             }else if(response.data['payment_status'] == "OVERPAY_RECEIVED" || response.data['payment_status'] == "UNDERPAY_RECEIVED" || response.data['payment_status'] == "OVERPAY_CONFIRMED" || response.data['payment_status'] == "UNDERPAY_CONFIRMED"){
               if(response.data['status'] == "EXPIRED"){
                 $scope.order.altstatus = 'refunded';
-                $interval.cancel(interval);
               }else if(response.data['status'] == "REFUNDED"){
               if(response.data['txid']){
                 $scope.order.altstatus = 'refunded-txid';
@@ -163,8 +162,6 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     var amount = $scope.order.satoshi/1.0e8;
     var address = $scope.order.address;
     var order_id = $scope.order.order_id;
-
-
 
     ( function( promises ){
       return new Promise( ( resolve, reject ) => {
