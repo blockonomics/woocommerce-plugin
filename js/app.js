@@ -275,8 +275,12 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
       $scope.order.altcoin = $scope.altcoin;
       var order_id = $scope.order.order_id;
       if(given_uuid!=''){
-        $scope.order.pagelink = window.location.href;
-        infoOrder(given_uuid);
+        if(given_uuid == 'low' || given_uuid == 'high'){
+          $scope.order.altstatus = 'low_high';
+          $scope.lowhigh = given_uuid;
+        }else{
+          infoOrder(given_uuid);
+        }
       }else{
         //Listen on websocket for payment notification
         //After getting notification,  refresh page
@@ -324,7 +328,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
   }
   //Go Back click
   $scope.go_back = function() {
-    window.location.search = '?show_order='+ $scope.order.destination;
+    window.history.back();
   }
   $scope.copyshow = false;
   //Order Form Copy To Clipboard
