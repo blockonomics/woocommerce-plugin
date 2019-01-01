@@ -162,10 +162,10 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                 $blockonomics = new Blockonomics;
                 $responseObj = $blockonomics->new_address(get_option('blockonomics_api_key'), get_option("blockonomics_callback_secret"));
                 if(get_woocommerce_currency() != 'BTC'){
-                	$price = $blockonomics->get_price(get_woocommerce_currency());
-                	$price = $price * 100/(100+get_option('blockonomics_margin', 0));
+                    $price = $blockonomics->get_price(get_woocommerce_currency());
+                    $price = $price * 100/(100+get_option('blockonomics_margin', 0));
                 }else{
-                	$price = 1;
+                    $price = 1;
                 }
 
                 if($responseObj->response_code != 200) {
@@ -204,10 +204,16 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
             {
                 $orders = get_option('blockonomics_orders');
                 $address = isset($_REQUEST["show_order"]) ? $_REQUEST["show_order"] : "";
+                $uuid = isset($_REQUEST["uuid"]) ? $_REQUEST["uuid"] : "";
                 if ($address) {
                     $dir = plugin_dir_path(__FILE__);
                     add_action('wp_enqueue_scripts', 'bnomics_enqueue_scripts' );
-                    include $dir."order.php";
+                    include $dir."templates/order.php";
+                    exit();
+                }else if ($uuid){
+                    $dir = plugin_dir_path(__FILE__);
+                    add_action('wp_enqueue_scripts', 'bnomics_enqueue_scripts' );
+                    include $dir."templates/track.php";
                     exit();
                 }
                 $address = isset($_REQUEST["finish_order"]) ? $_REQUEST["finish_order"] : "";

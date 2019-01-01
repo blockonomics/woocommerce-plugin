@@ -99,6 +99,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
             }else if(response.data['payment_status'] == "OVERPAY_RECEIVED" || response.data['payment_status'] == "UNDERPAY_RECEIVED" || response.data['payment_status'] == "OVERPAY_CONFIRMED" || response.data['payment_status'] == "UNDERPAY_CONFIRMED"){
               if(response.data['status'] == "EXPIRED"){
                 $scope.order.altstatus = 'refunded';
+                $interval.cancel(interval);
               }else if(response.data['status'] == "REFUNDED"){
               if(response.data['txid']){
                 $scope.order.altstatus = 'refunded-txid';
@@ -155,43 +156,34 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     $scope.order.altaddress = '';
     $scope.order.altamount = '';
     $scope.altcoin_waiting = true;
-    $scope.alt_clock = 1200;
+    $scope.alt_clock = 600;
     send_email = true;
     var altcoin = getAltKeyByValue($scope.altcoins, $scope.altcoinselect);
     $scope.order.altsymbol = getAltKeyByValue($scope.altcoins, $scope.altcoinselect);
     var amount = $scope.order.satoshi/1.0e8;
     var address = $scope.order.address;
     var order_id = $scope.order.order_id;
-
+    create_order(altcoin, amount, address, order_id);
+  }
+  function getAltKeyByValue(object, value) {
+    return Object.keys(object).find(key => object[key] === value);
+  }
+  function create_order(altcoin, amount, address, order_id){
     ( function( promises ){
       return new Promise( ( resolve, reject ) => {
           Promise.all( promises )
               .then( values => {
-                  var alt_minimum = values[0]['min'];
-              var alt_maximum = values[0]['max'];
-            if(amount <= alt_minimum){
-                //Min/Max Error
-                $scope.order.altstatus = 'low_high';
-                $scope.lowhigh = "low";
-              }else if(amount >= alt_maximum){
-                $scope.order.altstatus = 'low_high';
-                $scope.lowhigh = "high";        
-              }else{
-                  var response = values[1];
-                  alt_totalTime = response['expires'];
-                  $scope.alt_clock = response['expires'];
-                  $scope.alt_tick_interval  = $interval($scope.alt_tick, 1000);
-                  $scope.order.altaddress = response['deposit_address'];
-                  $scope.order.altamount = response['order']['invoiced_amount'];
-                  var uuid = response['order']['uuid'];
-                  $scope.order.pagelink = window.location.href + '&uuid=' + uuid;
-                  $scope.altuuid = uuid;
-                  $scope.order.altstatus = 'waiting';
-                    interval = $interval(function(response) {
-                      checkOrder(uuid);
-                    }, 10000);
-              }
-                  resolve( values );
+                var alt_minimum = values[0]['min'];
+                var alt_maximum = values[0]['max'];
+                //Min/Max Check
+                if(amount <= alt_minimum){
+                    window.location.search = '?uuid='+ 'low';
+                }else if(amount >= alt_maximum){
+                    window.location.search = '?uuid='+ 'high';        
+                }else{
+                    window.location.search = '?uuid='+ values[1]['order']['uuid'];                   
+                }
+                resolve( values );
               })
               .catch( err => {
                   console.dir( err );
@@ -223,9 +215,6 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
       })
    ]);
   }
-  function getAltKeyByValue(object, value) {
-    return Object.keys(object).find(key => object[key] === value);
-  }
   var address_present = false;
   function infoOrder(uuid) {
     $scope.altuuid = uuid;
@@ -236,7 +225,12 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     }).then(function successCallback(response) {
         $scope.order.altaddress = response.data['deposit_address'];
         $scope.order.altamount = response.data['order']['invoiced_amount'];
+        $scope.order.destination = response.data['order']['destination'];
         var altsymbol = response.data['order']['from_currency'];
+        response.data['order']['expires'];
+        alt_totalTime = response.data['expires'];
+        $scope.alt_clock = response.data['expires'];
+        $scope.alt_tick_interval  = $interval($scope.alt_tick, 1000);
         $scope.order.altsymbol = altsymbol;
         $scope.altcoinselect = $scope.altcoins[altsymbol];
         interval = $interval(function(response) {
@@ -246,7 +240,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
               $scope.order.altstatus = 'received';
               $interval.cancel(interval);
             }else if(response.data['status'] == "REFUNDED" || response.data['refund_address']){
-                if(response.data['txid']){
+              if(response.data['txid']){
                 $scope.order.altstatus = 'refunded-txid';
                 $scope.order.alttxid = response.data['txid'];
                 $scope.order.alturl = response.data['txurl'];
@@ -327,6 +321,10 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
             }, 10000);
         }
     });
+  }
+  //Go Back click
+  $scope.go_back = function() {
+    window.location.search = '?show_order='+ $scope.order.destination;
   }
   $scope.copyshow = false;
   //Order Form Copy To Clipboard
