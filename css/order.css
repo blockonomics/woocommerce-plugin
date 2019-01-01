@@ -35,6 +35,7 @@
 .bnomics-order-container {
   margin: 12vh auto;
   padding: 10px;
+  max-width: 700px;
 }
 
 .bnomics-order-container h4 {
@@ -258,6 +259,18 @@
   width: 100% !important;
   font-size:60px !important;
   margin: 25px 0px !important;
+}
+
+.bnomics-small{
+  font-size: 0.8em;
+}
+
+.bnomics-bold{
+  font-weight: bold;
+}
+
+.bnomics-left{
+  text-align: left;
 }
 
 /* ---- Mobile -----*/

@@ -1,7 +1,7 @@
 <?php get_header(); ?>
 <div ng-app="shopping-cart-demo">
   <div ng-controller="CheckoutController">
-    <div class="bnomics-order-container" style="max-width: 700px;">
+    <div class="bnomics-order-container">
       <!-- Heading row -->
       <div class="bnomics-order-heading">
         <div class="bnomics-order-heading-wrapper">
@@ -63,10 +63,7 @@
                     </span>
                   </div>
                   <div class="bnomics-altcoin-cancel">
-                    <a href="" ng-click="go_back()"> 
-                      <?= __('Click here', 'blockonomics-bitcoin-payments') ?>
-                    </a> 
-                    <?= __('to go back', 'blockonomics-bitcoin-payments') ?>
+                    <a href="" ng-click="go_back()"><?= __('Click here', 'blockonomics-bitcoin-payments') ?></a> <?= __('to go back', 'blockonomics-bitcoin-payments') ?>
                   </div>
                   <!-- Blockonomics Credit -->
                   <div class="bnomics-powered-by">
@@ -77,23 +74,15 @@
               <!-- RECEIVED -->
               <div class="bnomics-altcoin-bg-color" ng-show="order.altstatus == 'received'" ng-cloak>
                 <h4>Received</h4>
-                <h4>
-                  <i class="material-icons bnomics-alt-icon">check_circle</i>
-                </h4>
+                <h4><i class="material-icons bnomics-alt-icon">check_circle</i></h4>
                 <?= __('Your payment has been received and your order will be processed shortly.', 'blockonomics-bitcoin-payments') ?>
               </div>
               <!-- ADD_REFUND -->
               <div class="bnomics-status-flex bnomics-altcoin-bg-color" ng-show="order.altstatus == 'add_refund'" ng-cloak >
                 <h4>Refund Required</h4>
-                <p>
-                  <?= __('Your order couldn\'t be processed as you paid less than expected.<br>The amount you paid will be refunded.', 'blockonomics-bitcoin-payments') ?>
-                </p>
-                <h4>
-                  <i class="material-icons bnomics-alt-icon">error</i>
-                </h4>
-                <p>
-                  <?= __('Enter your refund address and click the button below to recieve your refund.', 'blockonomics-bitcoin-payments') ?>
-                </p>
+                <p><?= __('Your order couldn\'t be processed as you paid less than expected.<br>The amount you paid will be refunded.', 'blockonomics-bitcoin-payments') ?></p>
+                <h4><i class="material-icons bnomics-alt-icon">error</i></h4>
+                <p><?= __('Enter your refund address and click the button below to recieve your refund.', 'blockonomics-bitcoin-payments') ?></p>
                 <input type="text" id="bnomics-refund-input" placeholder="{{order.altsymbol}} Address">
                 <br>
                 <button id="alt-refund-button" ng-click="add_refund_click()">Refund</button>
@@ -101,73 +90,39 @@
               <!-- REFUNDED no txid-->
               <div class="bnomics-status-flex bnomics-altcoin-bg-color" ng-show="order.altstatus == 'refunded'" ng-cloak >
                 <h4>Refund Submitted</h4>
-                <p>
-                  <?= __('Your refund details have been submitted. You should recieve your refund shortly.', 'blockonomics-bitcoin-payments') ?>
-                </p>
-                <h4>
-                  <i class="material-icons bnomics-alt-icon">autorenew</i>
-                </h4>
-                <p>
-                  <?= __('If you don\'t get refunded in a few hours, contact <a href="mailto:hello@flyp.me">hello@flyp.me</a> with the following uuid:', 'blockonomics-bitcoin-payments') ?>
-                  <br>
-                  <span id="alt-uuid">{{altuuid}}</span>
-                </p>
+                <p><?= __('Your refund details have been submitted. You should recieve your refund shortly.', 'blockonomics-bitcoin-payments') ?></p>
+                <h4><i class="material-icons bnomics-alt-icon">autorenew</i></h4>
+                <p><?= __('If you don\'t get refunded in a few hours, contact <a href="mailto:hello@flyp.me">hello@flyp.me</a> with the following uuid:', 'blockonomics-bitcoin-payments') ?><br><span id="alt-uuid">{{altuuid}}</span></p>
               </div>
               <!-- REFUNDED with txid-->
               <div class="bnomics-status-flex bnomics-altcoin-bg-color" ng-show="order.altstatus == 'refunded-txid'" ng-cloak >
                 <h4>Refunded</h4>
-                <h4>
-                  <i class="material-icons bnomics-alt-icon">autorenew</i>
-                </h4>
-                <p>
-                  <?= __('This payment has been refunded.', 'blockonomics-bitcoin-payments') ?>
-                </p>
+                <h4><i class="material-icons bnomics-alt-icon">autorenew</i></h4>
+                <p><?= __('This payment has been refunded.', 'blockonomics-bitcoin-payments') ?></p>
                 <div>
                   <?= __('Refund Details:', 'blockonomics-bitcoin-payments') ?>
-                  <div style="text-align: left; font-size: 0.8em; font-weight: bold;">
-                    <?= __('Transaction ID:', 'blockonomics-bitcoin-payments') ?>
-                  </div> 
-                  <div style="text-align: left; font-size: 0.8em;" id="alt-refund-txid">{{order.alttxid}}
-                  </div>
-                  <div style="text-align: left; font-size: 0.8em; font-weight: bold;">
-                    <?= __('Transaction URL:', 'blockonomics-bitcoin-payments') ?>
-                  </div> 
-                  <div style="text-align: left; font-size: 0.8em;" id="alt-refund-url">
-                    <a href="{{order.alturl}}" target="_blank">{{order.alturl}}</a>
-                  </div>
+                  <div class="bnomics-small bnomics-bold bnomics-left"><?= __('Transaction ID:', 'blockonomics-bitcoin-payments') ?></div> 
+                  <div class="bnomics-small bnomics-left" id="alt-refund-txid">{{order.alttxid}}</div>
+                  <div class="bnomics-small bnomics-bold bnomics-left"><?= __('Transaction URL:', 'blockonomics-bitcoin-payments') ?></div>
+                  <div class="bnomics-small bnomics-left" id="alt-refund-url"><a href="{{order.alturl}}" target="_blank">{{order.alturl}}</a></div>
                 </div>
               </div>
               <!-- EXPIRED -->
               <div class="bnomics-status-flex bnomics-altcoin-bg-color" ng-show="order.altstatus == 'expired'" ng-cloak >
                 <h4>Expired</h4>
-                <h4>
-                  <i class="material-icons bnomics-alt-icon">timer</i>
-                </h4>
-                <p>
-                  <?= __('Payment Expired. Use the browser back button and try again.', 'blockonomics-bitcoin-payments') ?>
-                </p>
+                <h4><i class="material-icons bnomics-alt-icon">timer</i></h4>
+                <p><?= __('Payment Expired. Use the browser back button and try again.', 'blockonomics-bitcoin-payments') ?></p>
               </div>
               <!-- LOW/HIGH -->
               <div class="bnomics-status-flex bnomics-altcoin-bg-color" ng-show="order.altstatus == 'low_high'" ng-cloak >
                 <h4>Error</h4>
-                <h4>
-                  <i class="material-icons bnomics-alt-icon">error</i>
-                </h4>
-                <p>
-                  <?= __('Order amount too <strong>{{lowhigh}}</strong> for {{order.altsymbol}} payment.', 'blockonomics-bitcoin-payments') ?>
-                </p>
-                <p>
-                  <a href="" ng-click="go_back()"> 
-                    <?= __('Click here', 'blockonomics-bitcoin-payments') ?>
-                  </a> 
-                  <?= __('to go back and use BTC to complete the payment.', 'blockonomics-bitcoin-payments') ?>
-                </p>
+                <h4><i class="material-icons bnomics-alt-icon">error</i></h4>
+                <p><?= __('Order amount too <strong>{{lowhigh}}</strong> for {{order.altsymbol}} payment.', 'blockonomics-bitcoin-payments') ?></p>
+                <p><a href="" ng-click="go_back()"><?= __('Click here', 'blockonomics-bitcoin-payments') ?></a> <?= __('to go back and use BTC to complete the payment.', 'blockonomics-bitcoin-payments') ?></p>
               </div>
             </div>
           <!-- Blockonomics Credit -->
-          <div class="bnomics-powered-by" ng-hide="order.altstatus == 'waiting'">
-            <?= __('Powered by ', 'blockonomics-bitcoin-payments') ?>Blockonomics
-          </div>
+          <div class="bnomics-powered-by" ng-hide="order.altstatus == 'waiting'"><?= __('Powered by ', 'blockonomics-bitcoin-payments') ?>Blockonomics</div>
         </div>
       </div>
     </div>

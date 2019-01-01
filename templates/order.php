@@ -1,7 +1,7 @@
 <?php get_header();?>
 <div ng-app="shopping-cart-demo">
   <div ng-controller="CheckoutController">
-    <div class="bnomics-order-container" style="max-width: 700px;">
+    <div class="bnomics-order-container">
       <!-- Heading row -->
       <div class="bnomics-order-heading">
         <div class="bnomics-order-heading-wrapper">
@@ -22,7 +22,7 @@
       <div class="bnomics-order-panel">
         <div class="bnomics-order-info">
 
-          <div class="bnomics-bitcoin-pane" ng-hide="show_altcoin != 0" ng-init=<?php if(isset($_REQUEST['uuid'])){echo "show_altcoin=1";}else{echo "show_altcoin=0";}?>>
+          <div class="bnomics-bitcoin-pane" ng-hide="show_altcoin != 0" ng-init="show_altcoin=0">
             <div class="bnomics-btc-info">
               <!-- QR and Amount -->
               <div class="bnomics-qr-code" ng-hide="order.status == -3">
