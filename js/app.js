@@ -135,15 +135,6 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
             }else if(response.data['status'] == "EXPIRED"){
               $scope.order.altstatus = 'expired';
               $interval.cancel(interval);
-            }else if(response.data['status'] == "REFUNDED"){
-              if(response.data['txid']){
-                $scope.order.altstatus = 'refunded-txid';
-                $scope.order.alttxid = response.data['txid'];
-                $scope.order.alttxurl = response.data['txurl'];
-                $interval.cancel(interval);
-              }else{
-                $scope.order.altstatus = 'refunded';
-              }
             }            
             }, function errorCallback(response) {
               //console.log(response);
