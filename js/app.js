@@ -101,14 +101,14 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
                 $scope.order.altstatus = 'refunded';
                 $interval.cancel(interval);
               }else if(response.data['status'] == "REFUNDED"){
-              if(response.data['txid']){
-                $scope.order.altstatus = 'refunded-txid';
-                $scope.order.alttxid = response.data['txid'];
-                $scope.order.alttxurl = response.data['txurl'];
-                $interval.cancel(interval);
-              }else{
-                $scope.order.altstatus = 'refunded';
-              }
+                if(response.data['txid']){
+                  $scope.order.altstatus = 'refunded-txid';
+                  $scope.order.alttxid = response.data['txid'];
+                  $scope.order.alttxurl = response.data['txurl'];
+                  $interval.cancel(interval);
+                }else{
+                  $scope.order.altstatus = 'refunded';
+                }
               }else{
                 if(send_email == true){
                   var order_id = $scope.order.order_id;
@@ -190,7 +190,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
                   throw err;
               });
       });
-  })([ 
+    })([ 
       new Promise( ( resolve, reject ) => {
           $http({
           method: 'GET',
@@ -213,11 +213,12 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
                 //console.log(response);
               });
       })
-   ]);
+    ]);
   }
   var address_present = false;
   function infoOrder(uuid) {
     $scope.altuuid = uuid;
+    $scope.order.pagelink = window.location.href;
     $http({
     method: 'GET',
     params: {'action': 'info_order', 'uuid': uuid},
