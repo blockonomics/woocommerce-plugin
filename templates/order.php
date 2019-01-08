@@ -57,7 +57,7 @@
                   <input ng-click="btc_address_click()" id="bnomics-address-input" class="bnomics-address-input" type="text" ng-value="order.address" readonly="readonly">
                   <i ng-click="btc_address_click()" class="material-icons bnomics-copy-icon">file_copy</i>
                 </div>
-                <div class="bnomics-copy-text" ng-show="copyshow" ng-hide="order.status == -3" ng-cloak>Copied to clipboard</div>
+                <div class="bnomics-copy-text" ng-hide="order.status == -3 || copyshow == false" ng-cloak>Copied to clipboard</div>
             <!-- Countdown Timer -->
                 <div ng-cloak ng-hide="order.status != -1" class="bnomics-progress-bar-wrapper">
                   <div class="bnomics-progress-bar-container">
