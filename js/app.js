@@ -60,6 +60,11 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     return url;
   }
 
+  $scope.alt_track_url = function(uuid){
+    url = window.location.pathname + '?uuid='+ uuid;
+    return url;
+  }
+
   $scope.tick = function() {
     $scope.clock = $scope.clock-1;
     $scope.progress = Math.floor($scope.clock*totalProgress/totalTime);
@@ -168,11 +173,11 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
                 var alt_maximum = values[0]['max'];
                 //Min/Max Check
                 if(amount <= alt_minimum){
-                    window.location.search = '?uuid='+ 'low';
+                  window.location = $scope.alt_track_url('low');
                 }else if(amount >= alt_maximum){
-                    window.location.search = '?uuid='+ 'high';        
+                  window.location = $scope.alt_track_url('high');     
                 }else{
-                    window.location.search = '?uuid='+ values[1]['order']['uuid'];                   
+                  window.location = $scope.alt_track_url(values[1]['order']['uuid']);                   
                 }
                 resolve( values );
               })
