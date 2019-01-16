@@ -61,7 +61,17 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
   }
 
   $scope.alt_track_url = function(uuid){
-    url = window.location.pathname + '?uuid='+ uuid;
+  	var params = getParameterByNameBlocko('wc-api');
+    if (params)
+      params = {"wc-api" : params};
+    else
+      params = {};
+    params.uuid = uuid;
+    url = window.location.pathname;
+    var serializedParams = $httpParamSerializer(params);
+    if (serializedParams.length > 0) {
+        url += ((url.indexOf('?') === -1) ? '?' : '&') + serializedParams;
+    }
     return url;
   }
 
