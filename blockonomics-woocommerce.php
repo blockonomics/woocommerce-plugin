@@ -650,18 +650,20 @@ function show_options()
 <?php
 }
 
+//Ajax for user checkouts through Woocommerce
 add_action( 'wp_ajax_fetch_limit', 'bnomics_fetch_limit' );
 add_action( 'wp_ajax_create_order', 'bnomics_create_order' );
 add_action( 'wp_ajax_check_order', 'bnomics_check_order' );
-add_action( 'wp_ajax_send_email', 'bnomics_alt_deposit_email' );
+add_action( 'wp_ajax_send_email', 'bnomics_alt_refund_email' );
 add_action( 'wp_ajax_info_order', 'bnomics_info_order' );
 add_action( 'wp_ajax_add_refund', 'bnomics_add_refund' );
 add_action( 'wp_ajax_fetch_order_id', 'bnomics_fetch_order_id' );
 
+//Ajax for guest checkouts through Woocommerce
 add_action( 'wp_ajax_nopriv_fetch_limit', 'bnomics_fetch_limit' );
 add_action( 'wp_ajax_nopriv_create_order', 'bnomics_create_order' );
 add_action( 'wp_ajax_nopriv_check_order', 'bnomics_check_order' );
-add_action( 'wp_ajax_nopriv_send_email', 'bnomics_alt_deposit_email' );
+add_action( 'wp_ajax_nopriv_send_email', 'bnomics_alt_refund_email' );
 add_action( 'wp_ajax_nopriv_info_order', 'bnomics_info_order' );
 add_action( 'wp_ajax_nopriv_add_refund', 'bnomics_add_refund' );
 add_action( 'wp_ajax_nopriv_fetch_order_id', 'bnomics_fetch_order_id' );
@@ -742,7 +744,7 @@ function bnomics_add_refund(){
     wp_die();
 }
 
-function bnomics_alt_deposit_email(){
+function bnomics_alt_refund_email(){
     $order_id = $_REQUEST['order_id'];
     $order_link = $_REQUEST['order_link'];
     $order_coin = $_REQUEST['order_coin'];
