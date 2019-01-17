@@ -657,7 +657,6 @@ add_action( 'wp_ajax_check_order', 'bnomics_check_order' );
 add_action( 'wp_ajax_send_email', 'bnomics_alt_refund_email' );
 add_action( 'wp_ajax_info_order', 'bnomics_info_order' );
 add_action( 'wp_ajax_add_refund', 'bnomics_add_refund' );
-add_action( 'wp_ajax_fetch_order_id', 'bnomics_fetch_order_id' );
 
 //Ajax for guest checkouts through Woocommerce
 add_action( 'wp_ajax_nopriv_fetch_limit', 'bnomics_fetch_limit' );
@@ -666,7 +665,6 @@ add_action( 'wp_ajax_nopriv_check_order', 'bnomics_check_order' );
 add_action( 'wp_ajax_nopriv_send_email', 'bnomics_alt_refund_email' );
 add_action( 'wp_ajax_nopriv_info_order', 'bnomics_info_order' );
 add_action( 'wp_ajax_nopriv_add_refund', 'bnomics_add_refund' );
-add_action( 'wp_ajax_nopriv_fetch_order_id', 'bnomics_fetch_order_id' );
 
 function bnomics_fetch_limit(){
     include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Flyp.php';
@@ -677,15 +675,6 @@ function bnomics_fetch_limit(){
     if(isset($limits)){
         print(json_encode($limits));
     }
-    wp_die();
-}
-
-function bnomics_fetch_order_id(){
-    $orders = get_option('blockonomics_orders');
-    $address = $_REQUEST['address'];
-    $order = $orders[$address];
-    $wc_order = new WC_Order($order['order_id']);
-    echo $order['order_id'];
     wp_die();
 }
 
@@ -727,6 +716,11 @@ function bnomics_info_order(){
     $flypme = new FlypMe();
     $order = $flypme->orderInfo($flypID);
     if(isset($order)){
+        $bnomics_orders = get_option('blockonomics_orders');
+        $address = $order->deposit_address;
+        $bnomics_order = $bnomics_orders[$address];
+        $wc_order = new WC_Order($bnomics_order['order_id']);
+        $order->order_id = $wc_order['order_id'];
         print(json_encode($order));
     }
     wp_die();

@@ -233,15 +233,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         $scope.order.altaddress = response.data['deposit_address'];
         $scope.order.altamount = response.data['order']['invoiced_amount'];
         $scope.order.destination = response.data['order']['destination'];
-        $http({
-        method: 'GET',
-        params: {'action': 'fetch_order_id', 'address': $scope.order.destination},
-        url: given_ajax_url
-        }).then(function successCallback(order) {
-          $scope.order.order_id = order.data;
-        },function errorCallback(order) {
-          //console.log(response);
-        });
+        $scope.order.order_id = response.data['order_id'];
         var altsymbol = response.data['order']['from_currency'];
         response.data['order']['expires'];
         alt_totalTime = response.data['expires'];
