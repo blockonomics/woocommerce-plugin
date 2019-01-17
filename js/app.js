@@ -13,6 +13,81 @@ service.factory('Order', function ($resource) {
   return item;
 });
 
+var flyp_base = 'https://flyp.me/api/v1';
+
+service.factory('AltcoinNew', function ($resource) {
+		var rsc = $resource(flyp_base+'/order/new', {}, {
+			'post': { method: 'POST' }
+			});
+		return rsc;
+});
+//var newOrder = OrderNew.post(JSON.stringify(formData));
+
+service.factory('AltcoinAccept', function ($resource) {
+		var rsc = $resource(flyp_base+'/order/accept', {}, {
+			'post': { method: 'POST' }
+			});
+		return rsc;
+});
+
+service.factory('AltcoinCheck', function ($resource) {
+		var rsc = $resource(flyp_base+'/order/check', {}, {
+			'post': { method: 'POST' }
+			});
+		return rsc;
+});
+
+service.factory('AltcoinInfo', function ($resource) {
+		var rsc = $resource(flyp_base+'/order/info', {}, {
+			'post': { method: 'POST' }
+			});
+		return rsc;
+});
+
+service.factory('AltcoinAddRefund', function ($resource) {
+		var rsc = $resource(flyp_base+'/order/addrefund', {}, {
+			'post': { method: 'POST' }
+			});
+		return rsc;
+});
+
+service.factory('AltcoinLimits', function ($resource) {
+		var rsc = $resource(flyp_base+'/order/limits/ETH/BTC', {}, {
+			'get': { method: 'GET' }
+			});
+		return rsc;
+});
+
+service.factory("AltcoinWpAjax", ['$http',function($http){  
+    var obj = {};
+
+    obj.fetchOrderId = function(address){
+    return $http.get(ajax_object.ajax_url, {
+		    params: {'action': 'fetch_order_id', 'address':address}
+		}).then(function successCallback(response) {
+			return response.data;
+        });
+    }
+
+    obj.saveAltcoinUuid = function(address,uuid){ 
+    return $http.get(ajax_object.ajax_url, {
+		    params: {'action': 'save_uuid', 'address':address, 'uuid': uuid}
+		}).then(function successCallback(response) {
+            return response.data;
+        });
+    }
+
+    obj.sendAltcoinEmail = function(order_id,order_link,order_coin,order_coin_sym){
+    return $http.get(ajax_object.ajax_url, {
+		    params: {'action': 'send_email', 'order_id':order_id, 'order_link':order_link, 'order_coin':order_coin, 'order_coin_sym':order_coin_sym}
+		}).then(function successCallback(response) {
+            return response.data;
+        });
+    }
+
+ 	return obj;
+}]);
+
 app = angular.module("shopping-cart-demo", ["monospaced.qrcode",  "shoppingcart.services"]);
 
 
@@ -35,16 +110,18 @@ function getParameterByNameBlocko(name, url) {
 
 
 
-app.controller('CheckoutController', function($scope, $interval, Order, $httpParamSerializer, $http,  $timeout) {
+app.controller('CheckoutController', function($scope, $interval, Order, AltcoinNew, AltcoinAccept, AltcoinCheck, AltcoinInfo, AltcoinAddRefund, AltcoinLimits, AltcoinWpAjax, $httpParamSerializer, $timeout) {
   //get order id from url
   $scope.address =  getParameterByNameBlocko("show_order");
   var totalProgress = 100;
   //blockonomics_time_period is defined on JS file as global var
   var totalTime = blockonomics_time_period * 60;
   var alt_totalTime = 0;
+
   $scope.getJson = function(data){
     return JSON.parse(data);
   };
+
   $scope.finish_order_url = function() {
     var params = getParameterByNameBlocko('wc-api');
     if (params)
@@ -86,6 +163,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     }
     $scope.progress = Math.floor($scope.clock*totalProgress/totalTime);
   };
+
   $scope.alt_tick = function() {
     $scope.alt_clock = $scope.alt_clock-1;
     $scope.alt_progress = Math.floor($scope.alt_clock*totalProgress/alt_totalTime);
@@ -97,23 +175,19 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     }
     $scope.alt_progress = Math.floor($scope.alt_clock*totalProgress/alt_totalTime);
   };
+
   var interval;
   var given_uuid=get_uuid;
-  var given_ajax_url = ajax_object.ajax_url;
   var send_email = false;
   $scope.altsymbol = 'ETH';
+  var address_present = false;
 
   function sendEmail(){
   	var order_id = $scope.order.order_id;
 	var order_link = $scope.order.pagelink;
 	var order_coin = $scope.altcoinselect;
 	var order_coin_sym = $scope.order.altsymbol;
-	//Send Email
-	$http({
-		method: 'GET',
-		params: {'action': 'send_email', 'order_id':order_id, 'order_link':order_link, 'order_coin':order_coin, 'order_coin_sym':order_coin_sym},
-		url: given_ajax_url
-	});
+	AltcoinWpAjax.sendAltcoinEmail(order_id,order_link,order_coin,order_coin_sym);
 	send_email = false;
   }
 
@@ -124,61 +198,62 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
   	}
   }
 
+  function startCheckOrder(uuid){
+	interval = $interval(function(response) {
+	  checkOrder(uuid);
+	}, 10000);
+  }
+
   function checkOrder(uuid){
-    $http({
-          method: 'GET',
-          params: {'action': 'check_order', 'uuid': uuid},
-          url: given_ajax_url
-          }).then(function successCallback(response) {
-				var payment_status = response.data['payment_status'];
-				switch (payment_status) {
-					case "PAYMENT_RECEIVED":
-				  	case "PAYMENT_CONFIRMED":
-				  		updateAltcoinStatus('received',true);
-						break;
-					case "OVERPAY_RECEIVED":
-				  	case "UNDERPAY_RECEIVED":
-				  	case "OVERPAY_CONFIRMED":
-				  	case "UNDERPAY_CONFIRMED":
-						var status = response.data['status'];
-						switch (status) {
-							case "EXPIRED"://Orders not refundable (Extremely Low)
-								updateAltcoinStatus('refunded',true);
-			        			break;
-							case "REFUNDED":
-				                if(response.data['txid']){
-				                  updateAltcoinStatus('refunded-txid',true);
-				                  $scope.order.alttxid = response.data['txid'];
-				                  $scope.order.alttxurl = response.data['txurl'];
-				                }else{
-				                  updateAltcoinStatus('refunded');
-				                }
-			        			break;
-			        		default:
-				                if(send_email == true){
-				                	sendEmail();
-				                }
-				                if(address_present == true){
-				                  updateAltcoinStatus('refunded');
-				                }else{
-				                  updateAltcoinStatus('add_refund',true);
-				                }
-			        			break;
-						}
-					default:
-						var status = response.data['status'];
-						switch (status) {
-							case "WAITING_FOR_DEPOSIT":
-			        			updateAltcoinStatus('waiting');
-			        			break;
-							case "EXPIRED":
-								updateAltcoinStatus('expired',true);
-			        			break;			        			
-						}
-				}            
-            }, function errorCallback(response) {
-              //console.log(response);
-            });
+  	var response = AltcoinCheck.post(JSON.stringify({'uuid' : uuid}))
+    	.$promise.then(function successCallback(data) {
+			var payment_status = data['payment_status'];
+			switch (payment_status) {
+				case "PAYMENT_RECEIVED":
+			  	case "PAYMENT_CONFIRMED":
+			  		updateAltcoinStatus('received',true);
+					break;
+				case "OVERPAY_RECEIVED":
+			  	case "UNDERPAY_RECEIVED":
+			  	case "OVERPAY_CONFIRMED":
+			  	case "UNDERPAY_CONFIRMED":
+					var status = data['status'];
+					switch (status) {
+						case "EXPIRED"://Orders not refundable (Extremely Low)
+							updateAltcoinStatus('refunded',true);
+		        			break;
+						case "REFUNDED":
+			                if(data['txid']){
+			                  updateAltcoinStatus('refunded-txid',true);
+			                  $scope.order.alttxid = data['txid'];
+			                  $scope.order.alttxurl = data['txurl'];
+			                }else{
+			                  updateAltcoinStatus('refunded');
+			                }
+		        			break;
+		        		default:
+			                if(send_email == true){
+			                	sendEmail();
+			                }
+			                if(address_present == true){
+			                  updateAltcoinStatus('refunded');
+			                }else{
+			                  updateAltcoinStatus('add_refund',true);
+			                }
+		        			break;
+					}
+				default:
+					var status = data['status'];
+					switch (status) {
+						case "WAITING_FOR_DEPOSIT":
+		        			updateAltcoinStatus('waiting');
+		        			break;
+						case "EXPIRED":
+							updateAltcoinStatus('expired',true);
+		        			break;			        			
+					}
+			}
+		});
   }
 
   $scope.pay_altcoins = function() {
@@ -196,14 +271,17 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     var order_id = $scope.order.order_id;
     create_order(altcoin, amount, address, order_id);
   }
+
   function getAltKeyByValue(object, value) {
     return Object.keys(object).find(key => object[key] === value);
   }
+
   function create_order(altcoin, amount, address, order_id){
     ( function( promises ){
       return new Promise( ( resolve, reject ) => {
           Promise.all( promises )
               .then( values => {
+              	console.log(values);
                 var alt_minimum = values[0]['min'];
                 var alt_maximum = values[0]['max'];
                 //Min/Max Check
@@ -212,6 +290,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
                 }else if(amount >= alt_maximum){
                   window.location = $scope.alt_track_url('high');     
                 }else{
+                  AltcoinWpAjax.saveAltcoinUuid(values[1]['order']['destination'],values[1]['order']['uuid']);
                   window.location = $scope.alt_track_url(values[1]['order']['uuid']);                   
                 }
                 resolve( values );
@@ -223,94 +302,86 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
       });
     })([ 
       new Promise( ( resolve, reject ) => {
-          $http({
-          method: 'GET',
-          params: {'action': 'fetch_limit', 'altcoin': altcoin},
-          url: given_ajax_url
-          }).then(function successCallback(response) {
-            resolve( response.data );
-            }, function errorCallback(response) {
-              //console.log(response);
-            });
+      	var response = AltcoinLimits.get();
+      	resolve( response );
       }),
       new Promise( ( resolve, reject ) => {
-        $http({
-            method: 'GET',
-            params: {'action': 'create_order', 'altcoin': altcoin, 'amount': amount, 'address': address, 'order_id':order_id},
-            url: given_ajax_url
-            }).then(function successCallback(response) {
-              resolve( response.data );
-              }, function errorCallback(response) {
-                //console.log(response);
-              });
+      	var newAltcoin = AltcoinNew.post(JSON.stringify({
+									  "order": {
+									    "from_currency": altcoin,
+									    "to_currency": "BTC",
+									    "ordered_amount": amount,
+									    "destination":address
+									  }
+									})).$promise.then(function successCallback(data) {
+								        var response = AltcoinAccept.post(JSON.stringify({'uuid' : data['order']['uuid']}))
+								        	.$promise.then(function successCallback(data) {
+	    										resolve( data );
+								    		});
+								    	});
       })
     ]);
   }
-  var address_present = false;
+
   function infoOrder(uuid) {
     $scope.altuuid = uuid;
     $scope.order.pagelink = window.location.href;
-    $http({
-    method: 'GET',
-    params: {'action': 'info_order', 'uuid': uuid},
-    url: given_ajax_url
-    }).then(function successCallback(response) {
-        $scope.order.altaddress = response.data['deposit_address'];
-        $scope.order.altamount = response.data['order']['invoiced_amount'];
-        $scope.order.destination = response.data['order']['destination'];
-        $scope.order.order_id = response.data['order_id'];
-        var altsymbol = response.data['order']['from_currency'];
-        response.data['order']['expires'];
-        alt_totalTime = response.data['expires'];
-        $scope.alt_clock = response.data['expires'];
-        $scope.alt_tick_interval  = $interval($scope.alt_tick, 1000);
-        $scope.order.altsymbol = altsymbol;
-        $scope.altcoinselect = $scope.altcoins[altsymbol];
-        interval = $interval(function(response) {
-          checkOrder(uuid);
-        }, 10000);
-    	var refund_address = response.data['refund_address'];
-		if(refund_address){
-			var txid = response.data['txid'];
-		    if(txid){
-		    	updateAltcoinStatus('refunded-txid',true);
-                $scope.order.alttxid = response.data['txid'];
-                $scope.order.alturl = response.data['txurl'];
+    var response = AltcoinInfo.post(JSON.stringify({'uuid' : uuid}))
+    	.$promise.then(function successCallback(data) {
+    		AltcoinWpAjax.fetchOrderId(data['order']['destination']).then(function(response){
+		         $scope.order.order_id = response;
+		    });
+	    	$scope.order.altaddress = data['deposit_address'];
+		    $scope.order.altamount = data['order']['invoiced_amount'];
+		    $scope.order.destination = data['order']['destination'];
+		    var altsymbol = data['order']['from_currency'];
+		    data['order']['expires'];
+		    alt_totalTime = data['expires'];
+		    $scope.alt_clock = data['expires'];
+		    $scope.alt_tick_interval  = $interval($scope.alt_tick, 1000);
+		    $scope.order.altsymbol = altsymbol;
+		    $scope.altcoinselect = $scope.altcoins[altsymbol];
+			startCheckOrder(uuid);
+			var refund_address = data['refund_address'];
+			if(refund_address){
+				var txid = data['txid'];
+			    if(txid){
+			    	updateAltcoinStatus('refunded-txid',true);
+		            $scope.order.alttxid = data['txid'];
+		            $scope.order.alturl = data['txurl'];
+				}else{
+					updateAltcoinStatus('refunded-txid');
+		            address_present = true;
+				}
 			}else{
-				updateAltcoinStatus('refunded-txid');
-                address_present = true;
-			}
-		}else{
-			var payment_status = response.data['payment_status'];
-			switch (payment_status) {
-				case "PAYMENT_RECEIVED":
-    		  	case "PAYMENT_CONFIRMED":
-    		  		updateAltcoinStatus('received',true);
-        			break;
-        		case "OVERPAY_RECEIVED":
-    		  	case "UNDERPAY_RECEIVED":
-    		  	case "OVERPAY_CONFIRMED":
-    		  	case "UNDERPAY_CONFIRMED":
-    		  		updateAltcoinStatus('add_refund',true);
-        			break;
-        		default:
-        			var status = response.data['status'];
-        			switch (status) {
-        				case "WAITING_FOR_DEPOSIT":
-        					updateAltcoinStatus('waiting');
-		        			break;
-        				case "EXPIRED":
-        					updateAltcoinStatus('expired',true);
-		        			break;			        			
-        			}
+				var payment_status = data['payment_status'];
+				switch (payment_status) {
+					case "PAYMENT_RECEIVED":
+				  	case "PAYMENT_CONFIRMED":
+				  		updateAltcoinStatus('received',true);
+		    			break;
+		    		case "OVERPAY_RECEIVED":
+				  	case "UNDERPAY_RECEIVED":
+				  	case "OVERPAY_CONFIRMED":
+				  	case "UNDERPAY_CONFIRMED":
+				  		updateAltcoinStatus('add_refund',true);
+		    			break;
+		    		default:
+		    			var status = data['status'];
+		    			switch (status) {
+		    				case "WAITING_FOR_DEPOSIT":
+		    					updateAltcoinStatus('waiting');
+			        			break;
+		    				case "EXPIRED":
+		    					updateAltcoinStatus('expired',true);
+			        			break;			        			
+		    			}
 
-			}
-		}    
-
-      }, function errorCallback(response) {
-        //console.log(response);
-      });
+				}
+			} 
+		});
   }
+
   if ( typeof $scope.address != 'undefined'){
     Order.get({"get_order":$scope.address}, function(data){
       $scope.order = data;
@@ -355,19 +426,14 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
   $scope.add_refund_click = function() {
     var refund_address = document.getElementById("bnomics-refund-input").value;
     uuid = $scope.altuuid;
-    $http({
-    method: 'GET',
-    params: {'action': 'add_refund', 'uuid': uuid, 'address': refund_address},
-    url: given_ajax_url
-    }).then(function successCallback(response) {
-        if(response.data['result'] == 'ok'){
-          address_present = true;
-          $scope.order.altstatus = 'refunded';
-          interval = $interval(function(response) {
-              checkOrder(uuid);
-            }, 10000);
-        }
-    });
+    var response = AltcoinAddRefund.post(JSON.stringify({'uuid' : uuid, 'address' : refund_address}))
+        .$promise.then(function successCallback(data) {
+			if(data['result'] == 'ok'){
+		      address_present = true;
+		      $scope.order.altstatus = 'refunded';
+		      startCheckOrder(uuid);
+		    }
+		});
   }
   //Go Back click
   $scope.go_back = function() {

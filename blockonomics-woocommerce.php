@@ -651,90 +651,32 @@ function show_options()
 }
 
 //Ajax for user checkouts through Woocommerce
-add_action( 'wp_ajax_fetch_limit', 'bnomics_fetch_limit' );
-add_action( 'wp_ajax_create_order', 'bnomics_create_order' );
-add_action( 'wp_ajax_check_order', 'bnomics_check_order' );
+add_action( 'wp_ajax_fetch_order_id', 'bnomics_fetch_order_id' );
+add_action( 'wp_ajax_save_uuid', 'bnomics_alt_save_uuid' );
 add_action( 'wp_ajax_send_email', 'bnomics_alt_refund_email' );
-add_action( 'wp_ajax_info_order', 'bnomics_info_order' );
-add_action( 'wp_ajax_add_refund', 'bnomics_add_refund' );
 
 //Ajax for guest checkouts through Woocommerce
-add_action( 'wp_ajax_nopriv_fetch_limit', 'bnomics_fetch_limit' );
-add_action( 'wp_ajax_nopriv_create_order', 'bnomics_create_order' );
-add_action( 'wp_ajax_nopriv_check_order', 'bnomics_check_order' );
+add_action( 'wp_ajax_nopriv_fetch_order_id', 'bnomics_fetch_order_id' );
+add_action( 'wp_ajax_nopriv_save_uuid', 'bnomics_alt_save_uuid' );
 add_action( 'wp_ajax_nopriv_send_email', 'bnomics_alt_refund_email' );
-add_action( 'wp_ajax_nopriv_info_order', 'bnomics_info_order' );
-add_action( 'wp_ajax_nopriv_add_refund', 'bnomics_add_refund' );
 
-function bnomics_fetch_limit(){
-    include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Flyp.php';
-    $flypFrom           = $_REQUEST['altcoin'];
-    $flypTo             = "BTC";
-    $flypme = new FlypMe();
-    $limits = $flypme->orderLimits($flypFrom, $flypTo);
-    if(isset($limits)){
-        print(json_encode($limits));
-    }
+function bnomics_fetch_order_id(){
+    $orders = get_option('blockonomics_orders');
+    $address = $_REQUEST['address'];
+    $order = $orders[$address];
+    $wc_order = new WC_Order($order['order_id']);
+    print($wc_order->get_id());
     wp_die();
 }
 
-function bnomics_create_order(){
-    include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Flyp.php';
-    $flypFrom           = $_REQUEST['altcoin'];
-    $flypAmount         = $_REQUEST['amount'];
-    $flypDestination    = $_REQUEST['address'];
-    $flypTo             = "BTC";
-    $woocommerce_order_id = $_REQUEST['order_id'];
-    $flypme = new FlypMe();
-    $order = $flypme->orderNew($flypFrom, $flypTo, $flypAmount, $flypDestination);
-    if(isset($order->order->uuid)){
-        $order_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-        $order_url = add_query_arg('show_order', $flypDestination, $order_url);
-        update_post_meta($woocommerce_order_id, 'flyp_uuid', $order->order->uuid);
-        $order = $flypme->orderAccept($order->order->uuid);
-        if(isset($order->deposit_address)){
-            print(json_encode($order));
-        }
-    }
-    wp_die();
-}
-
-function bnomics_check_order(){
-    include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Flyp.php';
-    $flypID             = $_REQUEST['uuid'];
-    $flypme = new FlypMe();
-    $order = $flypme->orderCheck($flypID);
-    if(isset($order)){
-        print(json_encode($order));
-    }
-    wp_die();
-}
-
-function bnomics_info_order(){
-    include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Flyp.php';
-    $flypID             = $_REQUEST['uuid'];
-    $flypme = new FlypMe();
-    $order = $flypme->orderInfo($flypID);
-    if(isset($order)){
-        $bnomics_orders = get_option('blockonomics_orders');
-        $address = $order->deposit_address;
-        $bnomics_order = $bnomics_orders[$address];
-        $wc_order = new WC_Order($bnomics_order['order_id']);
-        $order->order_id = $wc_order['order_id'];
-        print(json_encode($order));
-    }
-    wp_die();
-}
-
-function bnomics_add_refund(){
-    include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Flyp.php';
-    $flypID             = $_REQUEST['uuid'];
-    $flypAddress        = $_REQUEST['address'];
-    $flypme = new FlypMe();
-    $order = $flypme->addRefund($flypID, $flypAddress);
-    if(isset($order)){
-        print(json_encode($order));
-    }
+function bnomics_alt_save_uuid(){
+    $orders = get_option('blockonomics_orders');
+    $address = $_REQUEST['address'];
+    $uuid = $_REQUEST['uuid'];
+    $order = $orders[$address];
+    $wc_order = new WC_Order($order['order_id']);
+    update_post_meta($wc_order->get_id(), 'flyp_uuid', $uuid); 
+    print("saved");
     wp_die();
 }
 
@@ -774,24 +716,6 @@ function bnomics_email_woocommerce_style($email, $subject, $heading, $message) {
   //wp_mail( $email, $subject, $html_message, HTML_EMAIL_HEADERS );
   // Send the email using woocommerce mailer send
   $mailer->send( $email, $subject, $html_message, array('Content-Type: text/html; charset=UTF-8') );
-}
-
-// Setting a custom timeout value for cURL. Using a high value for priority to ensure the function runs after any other added to the same action hook.
-add_action('http_api_curl', 'bnomics_custom_curl_timeout', 9999, 1);
-function bnomics_custom_curl_timeout( $handle ){
-    curl_setopt( $handle, CURLOPT_CONNECTTIMEOUT, 30 ); // 30 seconds. Too much for production, only for testing.
-    curl_setopt( $handle, CURLOPT_TIMEOUT, 30 ); // 30 seconds. Too much for production, only for testing.
-}
-// Setting custom timeout for the HTTP request
-add_filter( 'http_request_timeout', 'bnomics_custom_http_request_timeout', 9999 );
-function bnomics_custom_http_request_timeout( $timeout_value ) {
-    return 30; // 30 seconds. Too much for production, only for testing.
-}
-// Setting custom timeout in HTTP request args
-add_filter('http_request_args', 'bnomics_custom_http_request_args', 9999, 1);
-function bnomics_custom_http_request_args( $r ){
-    $r['timeout'] = 30; // 30 seconds. Too much for production, only for testing.
-    return $r;
 }
 
 ?>
