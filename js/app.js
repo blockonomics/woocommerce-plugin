@@ -108,19 +108,15 @@ function getParameterByNameBlocko(name, url) {
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
-
-
-app.controller('CheckoutController', function($scope, $interval, Order, AltcoinNew, AltcoinAccept, AltcoinCheck, AltcoinInfo, AltcoinAddRefund, AltcoinLimits, AltcoinWpAjax, $httpParamSerializer, $timeout) {
+//CheckoutController
+app.controller('CheckoutController', function($scope, $interval, Order, AltcoinNew, AltcoinAccept, AltcoinLimits, AltcoinWpAjax, $httpParamSerializer, $timeout) {
   //get order id from url
   $scope.address =  getParameterByNameBlocko("show_order");
   var totalProgress = 100;
+  var interval;
+  var address_present = false;
   //blockonomics_time_period is defined on JS file as global var
   var totalTime = blockonomics_time_period * 60;
-  var alt_totalTime = 0;
-
-  $scope.getJson = function(data){
-    return JSON.parse(data);
-  };
 
   $scope.finish_order_url = function() {
     var params = getParameterByNameBlocko('wc-api');
@@ -164,6 +160,131 @@ app.controller('CheckoutController', function($scope, $interval, Order, AltcoinN
     $scope.progress = Math.floor($scope.clock*totalProgress/totalTime);
   };
 
+  $scope.pay_altcoins = function() {
+    $interval.cancel(interval);
+    $interval.cancel($scope.alt_tick_interval);
+    $scope.order.altaddress = '';
+    $scope.order.altamount = '';
+    $scope.altcoin_waiting = true;
+    $scope.alt_clock = 600;
+    send_email = true;
+    var altcoin = getAltKeyByValue($scope.altcoins, $scope.altcoinselect);
+    $scope.order.altsymbol = getAltKeyByValue($scope.altcoins, $scope.altcoinselect);
+    var amount = $scope.order.satoshi/1.0e8;
+    var address = $scope.order.address;
+    var order_id = $scope.order.order_id;
+    create_order(altcoin, amount, address, order_id);
+  }
+
+  //Altcoin Create
+  function create_order(altcoin, amount, address, order_id){
+    ( function( promises ){
+      return new Promise( ( resolve, reject ) => {
+          Promise.all( promises )
+              .then( values => {
+              	console.log(values);
+                var alt_minimum = values[0]['min'];
+                var alt_maximum = values[0]['max'];
+                //Min/Max Check
+                if(amount <= alt_minimum){
+                  window.location = $scope.alt_track_url('low');
+                }else if(amount >= alt_maximum){
+                  window.location = $scope.alt_track_url('high');     
+                }else{
+                  AltcoinWpAjax.saveAltcoinUuid(values[1]['order']['destination'],values[1]['order']['uuid']);
+                  window.location = $scope.alt_track_url(values[1]['order']['uuid']);                   
+                }
+                resolve( values );
+              })
+              .catch( err => {
+                  console.dir( err );
+                  throw err;
+              });
+      });
+    })([ 
+      new Promise( ( resolve, reject ) => {
+      	var response = AltcoinLimits.get();
+      	resolve( response );
+      }),
+      new Promise( ( resolve, reject ) => {
+      	var newAltcoin = AltcoinNew.post(JSON.stringify({
+									  "order": {
+									    "from_currency": altcoin,
+									    "to_currency": "BTC",
+									    "ordered_amount": amount,
+									    "destination":address
+									  }
+									})).$promise.then(function successCallback(data) {
+								        var response = AltcoinAccept.post(JSON.stringify({'uuid' : data['order']['uuid']}))
+								        	.$promise.then(function successCallback(data) {
+	    										resolve( data );
+								    		});
+								    	});
+      })
+    ]);
+  }
+
+  function getAltKeyByValue(object, value) {
+    return Object.keys(object).find(key => object[key] === value);
+  }
+
+  if ( typeof $scope.address != 'undefined'){
+    Order.get({"get_order":$scope.address}, function(data){
+      $scope.order = data;
+      $scope.order.address = $scope.address;
+      $scope.order.altcoin = $scope.altcoin;
+        //Listen on websocket for payment notification
+        //After getting notification,  refresh page
+        if($scope.order.status == -1){
+          $scope.clock = $scope.order.timestamp + totalTime - Math.floor(Date.now() / 1000); 
+          //Mark order as expired if we ran out of time
+          if ($scope.clock < 0)
+          {
+            $scope.order.status = -3;
+            return;
+          }
+          $scope.tick_interval  = $interval($scope.tick, 1000);
+          //Websocket
+          var ws = new ReconnectingWebSocket("wss://www.blockonomics.co/payment/" + $scope.order.address + "?timestamp=" + $scope.order.timestamp);
+          ws.onmessage = function (evt) {
+            ws.close();
+            $interval(function(){
+              //Redirect to order received page
+              window.location = $scope.finish_order_url();
+              //Wait for 2 seconds for order status
+                    //to update on server
+            }, 2000, 1);
+          }
+        }
+    });
+  }
+
+  $scope.copyshow = false;
+  //Order Form Copy To Clipboard
+  $scope.btc_address_click = function() {
+    var copyText = document.getElementById("bnomics-address-input");
+    copyText.select();
+    document.execCommand("copy");
+    //Open Message
+    $scope.copyshow = true;
+    $timeout(function() {
+        $scope.copyshow = false;
+     }, 2000); 
+  }
+
+  $scope.altcoins = {"ETH": "Ethereum", "LTC": "Litecoin"};
+});
+
+//AltcoinController
+app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCheck, AltcoinInfo, AltcoinAddRefund, AltcoinWpAjax, $timeout) {
+  var totalProgress = 100;
+  var alt_totalTime = 0;
+  var interval;
+  var given_uuid=get_uuid;
+  var send_email = false;
+  $scope.altsymbol = 'ETH';
+  var address_present = false;
+
   $scope.alt_tick = function() {
     $scope.alt_clock = $scope.alt_clock-1;
     $scope.alt_progress = Math.floor($scope.alt_clock*totalProgress/alt_totalTime);
@@ -175,12 +296,6 @@ app.controller('CheckoutController', function($scope, $interval, Order, AltcoinN
     }
     $scope.alt_progress = Math.floor($scope.alt_clock*totalProgress/alt_totalTime);
   };
-
-  var interval;
-  var given_uuid=get_uuid;
-  var send_email = false;
-  $scope.altsymbol = 'ETH';
-  var address_present = false;
 
   function sendEmail(){
   	var order_id = $scope.order.order_id;
@@ -254,78 +369,11 @@ app.controller('CheckoutController', function($scope, $interval, Order, AltcoinN
 					}
 			}
 		});
-  }
-
-  $scope.pay_altcoins = function() {
-    $interval.cancel(interval);
-    $interval.cancel($scope.alt_tick_interval);
-    $scope.order.altaddress = '';
-    $scope.order.altamount = '';
-    $scope.altcoin_waiting = true;
-    $scope.alt_clock = 600;
-    send_email = true;
-    var altcoin = getAltKeyByValue($scope.altcoins, $scope.altcoinselect);
-    $scope.order.altsymbol = getAltKeyByValue($scope.altcoins, $scope.altcoinselect);
-    var amount = $scope.order.satoshi/1.0e8;
-    var address = $scope.order.address;
-    var order_id = $scope.order.order_id;
-    create_order(altcoin, amount, address, order_id);
-  }
-
-  function getAltKeyByValue(object, value) {
-    return Object.keys(object).find(key => object[key] === value);
-  }
-
-  function create_order(altcoin, amount, address, order_id){
-    ( function( promises ){
-      return new Promise( ( resolve, reject ) => {
-          Promise.all( promises )
-              .then( values => {
-              	console.log(values);
-                var alt_minimum = values[0]['min'];
-                var alt_maximum = values[0]['max'];
-                //Min/Max Check
-                if(amount <= alt_minimum){
-                  window.location = $scope.alt_track_url('low');
-                }else if(amount >= alt_maximum){
-                  window.location = $scope.alt_track_url('high');     
-                }else{
-                  AltcoinWpAjax.saveAltcoinUuid(values[1]['order']['destination'],values[1]['order']['uuid']);
-                  window.location = $scope.alt_track_url(values[1]['order']['uuid']);                   
-                }
-                resolve( values );
-              })
-              .catch( err => {
-                  console.dir( err );
-                  throw err;
-              });
-      });
-    })([ 
-      new Promise( ( resolve, reject ) => {
-      	var response = AltcoinLimits.get();
-      	resolve( response );
-      }),
-      new Promise( ( resolve, reject ) => {
-      	var newAltcoin = AltcoinNew.post(JSON.stringify({
-									  "order": {
-									    "from_currency": altcoin,
-									    "to_currency": "BTC",
-									    "ordered_amount": amount,
-									    "destination":address
-									  }
-									})).$promise.then(function successCallback(data) {
-								        var response = AltcoinAccept.post(JSON.stringify({'uuid' : data['order']['uuid']}))
-								        	.$promise.then(function successCallback(data) {
-	    										resolve( data );
-								    		});
-								    	});
-      })
-    ]);
-  }
-
+  }  
+  //Altcoin Info
   function infoOrder(uuid) {
     $scope.altuuid = uuid;
-    $scope.order.pagelink = window.location.href;
+    // $scope.order.pagelink = window.location.href;
     var response = AltcoinInfo.post(JSON.stringify({'uuid' : uuid}))
     	.$promise.then(function successCallback(data) {
     		AltcoinWpAjax.fetchOrderId(data['order']['destination']).then(function(response){
@@ -381,47 +429,19 @@ app.controller('CheckoutController', function($scope, $interval, Order, AltcoinN
 			} 
 		});
   }
-
-  if ( typeof $scope.address != 'undefined'){
-    Order.get({"get_order":$scope.address}, function(data){
+  //Check UUID in request
+  var given_uuid=get_uuid;
+  Order.get({"get_order":$scope.address}, function(data){
       $scope.order = data;
-      $scope.order.address = $scope.address;
-      $scope.order.altcoin = $scope.altcoin;
-      var order_id = $scope.order.order_id;
       if(given_uuid!=''){
-        if(given_uuid == 'low' || given_uuid == 'high'){
-          $scope.order.altstatus = 'low_high';
-          $scope.lowhigh = given_uuid;
-        }else{
-          infoOrder(given_uuid);
-        }
-      }else{
-        //Listen on websocket for payment notification
-        //After getting notification,  refresh page
-        if($scope.order.status == -1){
-          $scope.clock = $scope.order.timestamp + totalTime - Math.floor(Date.now() / 1000); 
-          //Mark order as expired if we ran out of time
-          if ($scope.clock < 0)
-          {
-            $scope.order.status = -3;
-            return;
-          }
-          $scope.tick_interval  = $interval($scope.tick, 1000);
-          //Websocket
-          var ws = new ReconnectingWebSocket("wss://www.blockonomics.co/payment/" + $scope.order.address + "?timestamp=" + $scope.order.timestamp);
-          ws.onmessage = function (evt) {
-            ws.close();
-            $interval(function(){
-              //Redirect to order received page
-              window.location = $scope.finish_order_url();
-              //Wait for 2 seconds for order status
-                    //to update on server
-            }, 2000, 1);
-          }
-        }
-      }
-    });
-  }
+	    if(given_uuid == 'low' || given_uuid == 'high'){
+	      $scope.order.altstatus = 'low_high';
+	      $scope.lowhigh = given_uuid;
+	    }else{
+	      infoOrder(given_uuid);
+	    }
+	  }
+  })
   //Add Refund Address click
   $scope.add_refund_click = function() {
     var refund_address = document.getElementById("bnomics-refund-input").value;
@@ -439,18 +459,8 @@ app.controller('CheckoutController', function($scope, $interval, Order, AltcoinN
   $scope.go_back = function() {
     window.history.back();
   }
+  //Altcoin Form Copy To Clipboard
   $scope.copyshow = false;
-  //Order Form Copy To Clipboard
-  $scope.btc_address_click = function() {
-    var copyText = document.getElementById("bnomics-address-input");
-    copyText.select();
-    document.execCommand("copy");
-    //Open Message
-    $scope.copyshow = true;
-    $timeout(function() {
-        $scope.copyshow = false;
-     }, 2000); 
-  }
   $scope.alt_address_click = function() {
     var copyText = document.getElementById("bnomics-alt-address-input");
     copyText.select();
@@ -460,16 +470,6 @@ app.controller('CheckoutController', function($scope, $interval, Order, AltcoinN
         $scope.copyshow = false;
      }, 2000); 
   }
-
+  //Altcoin List
   $scope.altcoins = {"ETH": "Ethereum", "LTC": "Litecoin"};
-
-  $scope.page_link_click = function() {
-    var copyText = document.getElementById("bnomics-page-link-input");
-    copyText.select();
-    document.execCommand("copy");  
-    $scope.copyshow = true;
-    $timeout(function() {
-        $scope.copyshow = false;
-     }, 2000); 
-  }
 });

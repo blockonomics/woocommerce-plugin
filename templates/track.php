@@ -1,6 +1,6 @@
 <?php get_header(); ?>
 <div ng-app="shopping-cart-demo">
-  <div ng-controller="CheckoutController">
+  <div ng-controller="AltcoinController">
     <div class="bnomics-order-container">
       <!-- Heading row -->
       <div class="bnomics-order-heading">
