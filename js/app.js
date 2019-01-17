@@ -102,55 +102,80 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
   var given_ajax_url = ajax_object.ajax_url;
   var send_email = false;
   $scope.altsymbol = 'ETH';
+
+  function sendEmail(){
+  	var order_id = $scope.order.order_id;
+	var order_link = $scope.order.pagelink;
+	var order_coin = $scope.altcoinselect;
+	var order_coin_sym = $scope.order.altsymbol;
+	//Send Email
+	$http({
+		method: 'GET',
+		params: {'action': 'send_email', 'order_id':order_id, 'order_link':order_link, 'order_coin':order_coin, 'order_coin_sym':order_coin_sym},
+		url: given_ajax_url
+	});
+	send_email = false;
+  }
+
+  function updateAltcoinStatus(status,cancel_interval = false){
+  	$scope.order.altstatus = status;
+  	if(cancel_interval == true){
+  		$interval.cancel(interval);
+  	}
+  }
+
   function checkOrder(uuid){
     $http({
           method: 'GET',
           params: {'action': 'check_order', 'uuid': uuid},
           url: given_ajax_url
           }).then(function successCallback(response) {
-            if(response.data['payment_status'] == "PAYMENT_RECEIVED" || response.data['payment_status'] == "PAYMENT_CONFIRMED"){
-              $scope.order.altstatus = 'received';
-              $interval.cancel(interval);
-            }else if(response.data['payment_status'] == "OVERPAY_RECEIVED" || response.data['payment_status'] == "UNDERPAY_RECEIVED" || response.data['payment_status'] == "OVERPAY_CONFIRMED" || response.data['payment_status'] == "UNDERPAY_CONFIRMED"){
-              if(response.data['status'] == "EXPIRED"){
-                $scope.order.altstatus = 'refunded';
-                $interval.cancel(interval);
-              }else if(response.data['status'] == "REFUNDED"){
-                if(response.data['txid']){
-                  $scope.order.altstatus = 'refunded-txid';
-                  $scope.order.alttxid = response.data['txid'];
-                  $scope.order.alttxurl = response.data['txurl'];
-                  $interval.cancel(interval);
-                }else{
-                  $scope.order.altstatus = 'refunded';
-                }
-              }else{
-                if(send_email == true){
-                  var order_id = $scope.order.order_id;
-                  var order_link = $scope.order.pagelink;
-                  var order_coin = $scope.altcoinselect;
-                  var order_coin_sym = $scope.order.altsymbol;
-                  //Send Email
-                  $http({
-                    method: 'GET',
-                    params: {'action': 'send_email', 'order_id':order_id, 'order_link':order_link, 'order_coin':order_coin, 'order_coin_sym':order_coin_sym},
-                    url: given_ajax_url
-                    });
-                  send_email = false;
-                }
-                if(address_present == true){
-                  $scope.order.altstatus = 'refunded';
-                }else{
-                  $scope.order.altstatus = 'add_refund';
-                  $interval.cancel(interval);
-                }
-              }
-            }else if(response.data['status'] == "WAITING_FOR_DEPOSIT"){
-              $scope.order.altstatus = 'waiting';
-            }else if(response.data['status'] == "EXPIRED"){
-              $scope.order.altstatus = 'expired';
-              $interval.cancel(interval);
-            }            
+				var payment_status = response.data['payment_status'];
+				switch (payment_status) {
+					case "PAYMENT_RECEIVED":
+				  	case "PAYMENT_CONFIRMED":
+				  		updateAltcoinStatus('received',true);
+						break;
+					case "OVERPAY_RECEIVED":
+				  	case "UNDERPAY_RECEIVED":
+				  	case "OVERPAY_CONFIRMED":
+				  	case "UNDERPAY_CONFIRMED":
+						var status = response.data['status'];
+						switch (status) {
+							case "EXPIRED"://Orders not refundable (Extremely Low)
+								updateAltcoinStatus('refunded',true);
+			        			break;
+							case "REFUNDED":
+				                if(response.data['txid']){
+				                  updateAltcoinStatus('refunded-txid',true);
+				                  $scope.order.alttxid = response.data['txid'];
+				                  $scope.order.alttxurl = response.data['txurl'];
+				                }else{
+				                  updateAltcoinStatus('refunded');
+				                }
+			        			break;
+			        		default:
+				                if(send_email == true){
+				                	sendEmail();
+				                }
+				                if(address_present == true){
+				                  updateAltcoinStatus('refunded');
+				                }else{
+				                  updateAltcoinStatus('add_refund',true);
+				                }
+			        			break;
+						}
+					default:
+						var status = response.data['status'];
+						switch (status) {
+							case "WAITING_FOR_DEPOSIT":
+			        			updateAltcoinStatus('waiting');
+			        			break;
+							case "EXPIRED":
+								updateAltcoinStatus('expired',true);
+			        			break;			        			
+						}
+				}            
             }, function errorCallback(response) {
               //console.log(response);
             });
@@ -244,34 +269,44 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         interval = $interval(function(response) {
           checkOrder(uuid);
         }, 10000);
-            if(response.data['payment_status'] == "PAYMENT_RECEIVED" || response.data['payment_status'] == "PAYMENT_CONFIRMED"){
-              $scope.order.altstatus = 'received';
-              $interval.cancel(interval);
-            }else if(response.data['status'] == "REFUNDED" || response.data['refund_address']){
-              if(response.data['txid']){
-                $scope.order.altstatus = 'refunded-txid';
+    	var refund_address = response.data['refund_address'];
+		if(refund_address){
+			var txid = response.data['txid'];
+		    if(txid){
+		    	updateAltcoinStatus('refunded-txid',true);
                 $scope.order.alttxid = response.data['txid'];
                 $scope.order.alturl = response.data['txurl'];
-                $interval.cancel(interval);
-              }else{
-                $scope.order.altstatus = 'refunded';
-                if(response.data['refund_address']){
-                  address_present = true;
-                }
-              }
-            }else if(response.data['payment_status'] == "OVERPAY_RECEIVED" || response.data['payment_status'] == "UNDERPAY_RECEIVED" || response.data['payment_status'] == "OVERPAY_CONFIRMED" || response.data['payment_status'] == "UNDERPAY_CONFIRMED"){
-              if(response.data['refund_address']){
-                $scope.order.altstatus = 'refunded';
-              }else{
-                $scope.order.altstatus = 'add_refund';
-                $interval.cancel(interval);
-              }
-            }else if(response.data['status'] == "WAITING_FOR_DEPOSIT"){
-              $scope.order.altstatus = 'waiting';
-            }else if(response.data['status'] == "EXPIRED"){
-              $scope.order.altstatus = 'expired';
-              $interval.cancel(interval);
-            }            
+			}else{
+				updateAltcoinStatus('refunded-txid');
+                address_present = true;
+			}
+		}else{
+			var payment_status = response.data['payment_status'];
+			switch (payment_status) {
+				case "PAYMENT_RECEIVED":
+    		  	case "PAYMENT_CONFIRMED":
+    		  		updateAltcoinStatus('received',true);
+        			break;
+        		case "OVERPAY_RECEIVED":
+    		  	case "UNDERPAY_RECEIVED":
+    		  	case "OVERPAY_CONFIRMED":
+    		  	case "UNDERPAY_CONFIRMED":
+    		  		updateAltcoinStatus('add_refund',true);
+        			break;
+        		default:
+        			var status = response.data['status'];
+        			switch (status) {
+        				case "WAITING_FOR_DEPOSIT":
+        					updateAltcoinStatus('waiting');
+		        			break;
+        				case "EXPIRED":
+        					updateAltcoinStatus('expired',true);
+		        			break;			        			
+        			}
+
+			}
+		}    
+
       }, function errorCallback(response) {
         //console.log(response);
       });
