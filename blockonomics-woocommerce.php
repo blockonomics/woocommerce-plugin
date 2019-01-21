@@ -389,18 +389,6 @@ function bnomics_alt_refund_email(){
     wp_die();
 }
 
-function bnomics_alt_deposit_email_content( $order, $heading = false, $mailer ){
-    $template = 'emails/customer-processing-order.php';
- 
-    return wc_get_template_html( $template, array(
-        'order'         => $order,
-        'email_heading' => $heading,
-        'sent_to_admin' => true,
-        'plain_text'    => false,
-        'email'         => $mailer
-    ) );
-}
-
 function bnomics_email_woocommerce_style($email, $subject, $heading, $message) {
   $mailer = WC()->mailer();
   $wrapped_message = $mailer->wrap_message($heading, $message);
