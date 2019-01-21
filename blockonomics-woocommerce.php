@@ -359,7 +359,8 @@ function bnomics_fetch_order_id(){
     $address = $_REQUEST['address'];
     $order = $orders[$address];
     $wc_order = new WC_Order($order['order_id']);
-    print($wc_order->get_id());
+    $idArr = array("id" => $wc_order->get_id());
+    print(json_encode($idArr));
     wp_die();
 }
 
@@ -369,8 +370,7 @@ function bnomics_alt_save_uuid(){
     $uuid = $_REQUEST['uuid'];
     $order = $orders[$address];
     $wc_order = new WC_Order($order['order_id']);
-    update_post_meta($wc_order->get_id(), 'flyp_uuid', $uuid); 
-    print("saved");
+    update_post_meta($wc_order->get_id(), 'flyp_uuid', $uuid);
     wp_die();
 }
 

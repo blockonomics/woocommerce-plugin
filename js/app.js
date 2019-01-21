@@ -74,10 +74,6 @@ function getParameterByNameBlocko(name, url) {
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
-function transformUrlEncoded(data) {
-    return $httpParamSerializer(parameters);
-}
-
 //CheckoutController
 app.controller('CheckoutController', function($scope, $interval, Order, AltcoinNew, AltcoinAccept, AltcoinLimits, WpAjax, $httpParamSerializer, $timeout) {
     //get order id from url
@@ -155,7 +151,6 @@ app.controller('CheckoutController', function($scope, $interval, Order, AltcoinN
             return new Promise((resolve, reject) => {
                 Promise.all(promises)
                     .then(values => {
-                        console.log(values);
                         var alt_minimum = values[0]['min'];
                         var alt_maximum = values[0]['max'];
                         //Min/Max Check
@@ -164,7 +159,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, AltcoinN
                         } else if (amount >= alt_maximum) {
                             window.location = $scope.alt_track_url('high');
                         } else {
-                            WpAjax.query({
+                            WpAjax.get({
                                 action: 'save_uuid',
                                 address: values[1]['order']['destination'],
                                 uuid: values[1]['order']['uuid']
@@ -283,7 +278,7 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
     };
 
     function sendEmail() {
-        WpAjax.query({
+        WpAjax.get({
             action: 'send_email',
             order_id: $scope.order.order_id,
             order_link: $scope.order.pagelink,
@@ -367,13 +362,12 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
                 'uuid': uuid
             })
             .$promise.then(function successCallback(data) {
-                WpAjax.query({
+                WpAjax.get({
                         action: 'fetch_order_id',
                         address: data.order.destination
                     })
-                    .$promise.then(function(id) {
-                        $scope.order.order_id = id;
-                        console.log(id);
+                    .$promise.then(function(response) {
+                        $scope.order.order_id = response.id;
                     });
                 Order.get({
                     "get_order": data.order.destination
