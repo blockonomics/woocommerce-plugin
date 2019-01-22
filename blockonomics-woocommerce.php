@@ -284,6 +284,62 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
           wp_enqueue_script( 'vendors', plugins_url('js/vendors.min.js', __FILE__) );
           wp_enqueue_script( 'reconnecting-websocket', plugins_url('js/reconnecting-websocket.min.js', __FILE__) );
         }
+
+        //Ajax for user checkouts through Woocommerce
+        add_action( 'wp_ajax_fetch_order_id', 'bnomics_fetch_order_id' );
+        add_action( 'wp_ajax_save_uuid', 'bnomics_alt_save_uuid' );
+        add_action( 'wp_ajax_send_email', 'bnomics_alt_refund_email' );
+
+        //Ajax for guest checkouts through Woocommerce
+        add_action( 'wp_ajax_nopriv_fetch_order_id', 'bnomics_fetch_order_id' );
+        add_action( 'wp_ajax_nopriv_save_uuid', 'bnomics_alt_save_uuid' );
+        add_action( 'wp_ajax_nopriv_send_email', 'bnomics_alt_refund_email' );
+
+        function bnomics_fetch_order_id(){
+            $orders = get_option('blockonomics_orders');
+            $address = $_REQUEST['address'];
+            $order = $orders[$address];
+            $wc_order = new WC_Order($order['order_id']);
+            $idArr = array("id" => $wc_order->get_id());
+            print(json_encode($idArr));
+            wp_die();
+        }
+
+        function bnomics_alt_save_uuid(){
+            $orders = get_option('blockonomics_orders');
+            $address = $_REQUEST['address'];
+            $uuid = $_REQUEST['uuid'];
+            $order = $orders[$address];
+            $wc_order = new WC_Order($order['order_id']);
+            update_post_meta($wc_order->get_id(), 'flyp_uuid', $uuid);
+            wp_die();
+        }
+
+        function bnomics_alt_refund_email(){
+            $order_id = $_REQUEST['order_id'];
+            $order_link = $_REQUEST['order_link'];
+            $order_coin = $_REQUEST['order_coin'];
+            $order_coin_sym = $_REQUEST['order_coin_sym'];
+            $order = new WC_Order($order_id);
+            $billing_email = $order->billing_email;
+            $email = $billing_email;
+            $subject = $order_coin . ' ' . __('Refund', 'blockonomics-bitcoin-payments');
+            $heading = $order_coin . ' ' . __('Refund', 'blockonomics-bitcoin-payments');
+            $message = __('Your order couldn\'t be processed as you paid less than expected.<br>The amount you paid will be refunded.<br>Visit the link below to enter your refund address.<br>', 'blockonomics-bitcoin-payments').'<a href="'.$order_link.'">'.$order_link.'</a>';
+            bnomics_email_woocommerce_style($email, $subject, $heading, $message);
+            wp_die();
+        }
+
+        function bnomics_email_woocommerce_style($email, $subject, $heading, $message) {
+          $mailer = WC()->mailer();
+          $wrapped_message = $mailer->wrap_message($heading, $message);
+          $wc_email = new WC_Email;
+          $html_message = $wc_email->style_inline($wrapped_message);
+          // Send the email using wordpress mail function
+          //wp_mail( $email, $subject, $html_message, HTML_EMAIL_HEADERS );
+          // Send the email using woocommerce mailer send
+          $mailer->send( $email, $subject, $html_message, array('Content-Type: text/html; charset=UTF-8') );
+        }
     }
 
     // After all plugins have been loaded, initialize our payment gateway plugin
@@ -342,62 +398,6 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
     }
     $plugin = plugin_basename( __FILE__ );
     add_filter( "plugin_action_links_$plugin", 'plugin_add_settings_link' );
-}
-
-//Ajax for user checkouts through Woocommerce
-add_action( 'wp_ajax_fetch_order_id', 'bnomics_fetch_order_id' );
-add_action( 'wp_ajax_save_uuid', 'bnomics_alt_save_uuid' );
-add_action( 'wp_ajax_send_email', 'bnomics_alt_refund_email' );
-
-//Ajax for guest checkouts through Woocommerce
-add_action( 'wp_ajax_nopriv_fetch_order_id', 'bnomics_fetch_order_id' );
-add_action( 'wp_ajax_nopriv_save_uuid', 'bnomics_alt_save_uuid' );
-add_action( 'wp_ajax_nopriv_send_email', 'bnomics_alt_refund_email' );
-
-function bnomics_fetch_order_id(){
-    $orders = get_option('blockonomics_orders');
-    $address = $_REQUEST['address'];
-    $order = $orders[$address];
-    $wc_order = new WC_Order($order['order_id']);
-    $idArr = array("id" => $wc_order->get_id());
-    print(json_encode($idArr));
-    wp_die();
-}
-
-function bnomics_alt_save_uuid(){
-    $orders = get_option('blockonomics_orders');
-    $address = $_REQUEST['address'];
-    $uuid = $_REQUEST['uuid'];
-    $order = $orders[$address];
-    $wc_order = new WC_Order($order['order_id']);
-    update_post_meta($wc_order->get_id(), 'flyp_uuid', $uuid);
-    wp_die();
-}
-
-function bnomics_alt_refund_email(){
-    $order_id = $_REQUEST['order_id'];
-    $order_link = $_REQUEST['order_link'];
-    $order_coin = $_REQUEST['order_coin'];
-    $order_coin_sym = $_REQUEST['order_coin_sym'];
-    $order = new WC_Order($order_id);
-    $billing_email = $order->billing_email;
-    $email = $billing_email;
-    $subject = $order_coin . ' ' . __('Refund', 'blockonomics-bitcoin-payments');
-    $heading = $order_coin . ' ' . __('Refund', 'blockonomics-bitcoin-payments');
-    $message = __('Your order couldn\'t be processed as you paid less than expected.<br>The amount you paid will be refunded.<br>Visit the link below to enter your refund address.<br>', 'blockonomics-bitcoin-payments').'<a href="'.$order_link.'">'.$order_link.'</a>';
-    bnomics_email_woocommerce_style($email, $subject, $heading, $message);
-    wp_die();
-}
-
-function bnomics_email_woocommerce_style($email, $subject, $heading, $message) {
-  $mailer = WC()->mailer();
-  $wrapped_message = $mailer->wrap_message($heading, $message);
-  $wc_email = new WC_Email;
-  $html_message = $wc_email->style_inline($wrapped_message);
-  // Send the email using wordpress mail function
-  //wp_mail( $email, $subject, $html_message, HTML_EMAIL_HEADERS );
-  // Send the email using woocommerce mailer send
-  $mailer->send( $email, $subject, $html_message, array('Content-Type: text/html; charset=UTF-8') );
 }
 
 ?>
