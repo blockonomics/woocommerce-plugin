@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 1.6.8  =
+* Added refunds to altcoin payments
+
 = 1.6.7  =
 * Fixes for comptability to Wordpress 5.0
 * TOR callbacks supported
