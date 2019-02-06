@@ -98,9 +98,15 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
         function add_page()
         {
             include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
-            
-            generate_secret();
-            register_setting('blockonomics_g', 'blockonomics_gen_callback', 'gen_callback');
+            $blockonomics = new Blockonomics;
+
+            $api_key = $blockonomics->get_api_key();
+
+            if ($api_key == null)
+            {
+                generate_secret();
+            }
+
             add_options_page(
                 'Blockonomics', 'Blockonomics', 'manage_options',
                 'blockonomics_options', 'show_options'
@@ -113,9 +119,13 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                 add_settings_error('option_notice', 'option_notice', $message, $type);
             }
 
+            if (isset($_POST['generateSecret']))
+            {
+                generate_secret(true);
+            }
+
             if (isset($_POST['runTest']))
             {
-                $blockonomics = new Blockonomics;
                 $setup_errors = $blockonomics->testSetup();
 
                 if($setup_errors)
@@ -133,15 +143,13 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
             }
         }
 
-        function gen_callback($input)
+        function generate_secret($force_generate = false)
         {
-          if ($input == 1)
-          {
-            $callback_secret = sha1(openssl_random_pseudo_bytes(20));
-            update_option("blockonomics_callback_secret", $callback_secret);
-          }
-
-          return 0;
+            $callback_secret = get_option("blockonomics_callback_secret");
+            if (!$callback_secret || $force_generate) {
+                $callback_secret = sha1(openssl_random_pseudo_bytes(20));
+                update_option("blockonomics_callback_secret", $callback_secret);
+            }
         }
 
         function show_options()
@@ -172,19 +180,17 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                         </tr>
                         <tr valign="top">
                             <th scope="row">CALLBACK URL 
-                                <a href="javascript:gen_callback()" id="generate-callback" style="font:400 20px/1 dashicons;margin-left: 5px;top: 4px;position:relative;text-decoration: none;" title="Generate New Callback URL">&#xf463;<a>
+                                <a href="javascript:gen_secret()" id="generate-callback" style="font:400 20px/1 dashicons;margin-left: 5px;top: 4px;position:relative;text-decoration: none;" title="Generate New Callback URL">&#xf463;<a>
                             </th>
                             <td><?php
                                     $callback_secret = get_option('blockonomics_callback_secret');
                                     $notify_url = WC()->api_request_url('WC_Gateway_Blockonomics');
                                     $notify_url = add_query_arg('secret', $callback_secret, $notify_url);
                                     echo $notify_url ?></td>
-                            <input hidden="text" value="0" id="callback_flag" name="blockonomics_gen_callback"/>
                               <script type="text/javascript">
-                              function gen_callback()
+                              function gen_secret()
                               {
-                                document.getElementById("callback_flag").value = 1;
-                                document.getElementById("myform").submit();
+                                document.generateSecretForm.submit();
                               }
                               function value_changed()
                               {
@@ -226,7 +232,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                     <p class="submit">
                         <input type="submit" class="button-primary" value="Save"/>
                         <input type="hidden" name="action" value="update" />
-                        <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback, api_updated" />
+                        <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_margin, api_updated" />
                         <input onclick="checkForAPIKeyChange();" class="button-primary" name="test-setup-submit" value="Test Setup" style="max-width:85px;">
                     </p>
                 </form>
@@ -236,19 +242,16 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                         <input type="hidden" name="runTest" value="true">
                     </p>
                 </form>
+                <form method="POST" name="generateSecretForm">
+                    <p class="submit">
+                        <input type="hidden" name="generateSecret" value="true">
+                    </p>
+                </form>
             </div>
 
         <?php
         }
 
-        function generate_secret()
-        {
-            $callback_secret = get_option("blockonomics_callback_secret");
-            if (!$callback_secret) {
-                $callback_secret = sha1(openssl_random_pseudo_bytes(20));
-                update_option("blockonomics_callback_secret", $callback_secret);
-            }
-        }
         function nolo_custom_field_display_cust_order_meta($order)
         {
             $txid = get_post_meta($order->get_id(), 'blockonomics_txid', true);

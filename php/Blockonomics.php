@@ -13,7 +13,17 @@ class Blockonomics
 
     public function __construct()
     {
-        $this->api_key = get_option("blockonomics_api_key");
+        $this->api_key = $this->get_api_key();
+    }
+
+    public function get_api_key()
+    {
+        $api_key = get_option("blockonomics_api_key");
+        if ($api_key == null)
+        {
+            $api_key = get_option("blockonomics_temp_api_key");
+        }
+        return $api_key;
     }
 
 
