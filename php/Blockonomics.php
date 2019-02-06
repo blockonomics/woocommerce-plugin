@@ -8,16 +8,16 @@ class Blockonomics
     const BASE_URL = 'https://www.blockonomics.co';
     const NEW_ADDRESS_URL = 'https://www.blockonomics.co/api/new_address';
     const PRICE_URL = 'https://www.blockonomics.co/api/price';
-    const ADDRESS_URL = 'https://www.blockonomics.co/api/address?only_xpub=true&get_callback=true';
     const SET_CALLBACK_URL = 'https://www.blockonomics.co/api/update_callback';
     const GET_CALLBACKS_URL = 'https://www.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
 
     public function __construct()
     {
+        $this->api_key = get_option("blockonomics_api_key");
     }
 
 
-    public function new_address($api_key, $secret, $reset=false)
+    public function new_address($secret, $reset=false)
     {
         if($reset)
         {
@@ -28,7 +28,7 @@ class Blockonomics
             $get_params = "?match_callback=$secret";
         }
         $url = Blockonomics::NEW_ADDRESS_URL.$get_params;
-        $response = $this->post($url, $api_key);
+        $response = $this->post($url, $this->api_key);
         if (!isset($responseObj)) $responseObj = new stdClass();
         $responseObj->{'response_code'} = wp_remote_retrieve_response_code($response);
         if (wp_remote_retrieve_body($response))
@@ -47,25 +47,18 @@ class Blockonomics
         return json_decode(wp_remote_retrieve_body($response))->price;
     }
 
-    public function get_xpubs($api_key)
-    {
-    	$url = Blockonomics::ADDRESS_URL;
-        $response = $this->get($url, $api_key);
-        return json_decode(wp_remote_retrieve_body($response));
-    }
-
-    public function update_callback($api_key, $callback_url, $xpub)
+    public function update_callback($callback_url, $xpub)
     {
     	$url = Blockonomics::SET_CALLBACK_URL;
     	$body = json_encode(array('callback' => $callback_url, 'xpub' => $xpub));
-    	$response = $this->post($url, $api_key, $body);
+    	$response = $this->post($url, $this->api_key, $body);
         return json_decode(wp_remote_retrieve_body($response));
     }
 
-    public function get_callbacks($api_key)
+    public function get_callbacks()
     {
     	$url = Blockonomics::GET_CALLBACKS_URL;
-    	$response = $this->get($url, $api_key);
+    	$response = $this->get($url, $this->api_key);
         return $response;
     }
 
@@ -116,8 +109,7 @@ class Blockonomics
 
     public function testSetup()
     {
-        $api_key = get_option("blockonomics_api_key");
-        $response = $this->get_callbacks($api_key);
+        $response = $this->get_callbacks();
         $error_str = '';
         $responseBody = json_decode(wp_remote_retrieve_body($response));
         $callback_secret = get_option('blockonomics_callback_secret');
@@ -144,7 +136,7 @@ class Blockonomics
             if(!$responseBody[0]->callback || $responseBody[0]->callback == null)
             {
               //No callback URL set, set one 
-              $this->update_callback($api_key, $callback_url, $responseBody[0]->address);   
+              $this->update_callback($callback_url, $responseBody[0]->address);   
             }
             elseif($response_callback_without_schema != $callback_url_without_schema)
             {
@@ -155,7 +147,7 @@ class Blockonomics
               {
                 //Looks like the user regenrated callback by mistake
                 //Just force Update_callback on server
-                $this->update_callback($api_key, $callback_url, $responseBody[0]->address);  
+                $this->update_callback($callback_url, $responseBody[0]->address);  
               }
               else
               {
@@ -174,7 +166,7 @@ class Blockonomics
         if (!$error_str)
         {
             //Everything OK ! Test address generation
-            $response= $this->new_address($api_key, $callback_secret, true);
+            $response= $this->new_address($callback_secret, true);
             if ($response->response_code!=200){
               $error_str = $response->response_message;
             }
