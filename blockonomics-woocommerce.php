@@ -107,6 +107,9 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
 
             $api_key = $blockonomics->get_api_key();
             
+            // get_api_key() will return api key or temp api key
+            // if both are null, generate new blockonomics guest account with temporary wallet
+            // temp wallet will be used with temp api key
             if ($api_key == null)
             {
                 generate_secret();
@@ -212,14 +215,8 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                 <h2>Blockonomics</h2>
                 <div id="installation-instructions">
                     <p>
-                        <b><?php echo __('Installation instructions', 'blockonomics-bitcoin-payments');?>: </b><a href="https://www.youtube.com/watch?v=Kck3a-9nh6E" target="_blank">Youtube Tutorial</a> | <a href="https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62" target="_blank">Blog Tutorial</a>
+                        <b><?php echo __('Installation instructions', 'blockonomics-bitcoin-payments');?>: </b><a href="https://www.youtube.com/watch?v=Kck3a-9nh6E" target="_blank">Youtube Tutorial</a> | <a href="https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62" target="_blank">Blog Tutorial</a>
                     </p>
-                    <?php
-                        if (get_option('blockonomics_api_key') == null) {
-                            echo __('<p>You are few clicks away from accepting bitcoin payments</p>', 'blockonomics-bitcoin-payments');
-                            echo __("<p>Click on <b>Get Started for Free</b> on <a href='https://www.blockonomics.co/merchants' target='_blank'>Blockonomics Merchants</a>. Complete the Wizard, Copy the API Key when shown here</p>", 'blockonomics-bitcoin-payments');
-                        }
-                    ?>
                 </div>
                 <form method="post" id="myform" action="options.php">
                     <?php wp_nonce_field('update-options') ?>
@@ -255,6 +252,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                             <td>
                                 <?php
                                 $total_received = get_total_received();
+                                $api_key = get_option("blockonomics_api_key");
                                 $temp_api_key = get_option("blockonomics_temp_api_key");
                                 if ($temp_api_key != null && $total_received == 0): ?>
 
@@ -267,10 +265,14 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                                 <p><b>Blockonomics Wallet</b></p>
                                 <p>You currenlty have <b><?php echo "$total_received"; ?> BTC</b> worth of payments in Blockonomics Wallet. To withdraw, Click on <i>Get Started for Free</i> on <a href="https://www.blockonomics.co/merchants" target="_blank">Merchants</a> and enter the APIKey below</p>
 
-                                <?php else: ?>
+                                <?php elseif ($api_key != null): ?>
 
                                 <p><b>Your wallet</b></p>
                                 <p>Payments will go directly to the wallet which your setup on <a href="https://www.blockonomics.co/" target="_blank">Blockonomics</a>. There is no need for withdraw</p>
+
+                                <?php else: ?>
+
+                                <p><b>ERROR:</b> No wallet setup</p>
 
                                 <?php endif; ?>
 
