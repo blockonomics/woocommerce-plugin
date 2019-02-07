@@ -101,10 +101,12 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
             $blockonomics = new Blockonomics;
 
             $api_key = $blockonomics->get_api_key();
-
+            
             if ($api_key == null)
             {
                 generate_secret();
+                $callback_url = get_callback_url();
+                $temp_api_key = $blockonomics->get_temp_api_key($callback_url);
             }
 
             add_options_page(
@@ -152,6 +154,14 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
             }
         }
 
+        function get_callback_url()
+        {
+            $callback_secret = get_option('blockonomics_callback_secret');
+            $callback_url = WC()->api_request_url('WC_Gateway_Blockonomics');
+            $callback_url = add_query_arg('secret', $callback_secret, $callback_url);
+            return $callback_url;
+        }
+
         function show_options()
         {
             load_plugin_textdomain('blockonomics-bitcoin-payments', false, dirname(plugin_basename(__FILE__)) . '/languages/');
@@ -182,11 +192,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                             <th scope="row">CALLBACK URL 
                                 <a href="javascript:gen_secret()" id="generate-callback" style="font:400 20px/1 dashicons;margin-left: 5px;top: 4px;position:relative;text-decoration: none;" title="Generate New Callback URL">&#xf463;<a>
                             </th>
-                            <td><?php
-                                    $callback_secret = get_option('blockonomics_callback_secret');
-                                    $notify_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-                                    $notify_url = add_query_arg('secret', $callback_secret, $notify_url);
-                                    echo $notify_url ?></td>
+                            <td><?php echo get_callback_url(); ?></td>
                               <script type="text/javascript">
                               function gen_secret()
                               {
