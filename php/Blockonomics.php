@@ -79,17 +79,20 @@ class Blockonomics
         $url = Blockonomics::TEMP_API_KEY_URL;
         $body = json_encode(array('callback' => $callback_url));
         $response = $this->post($url, '', $body);
-        return json_decode(wp_remote_retrieve_body($response));
+        $responseObj = json_decode(wp_remote_retrieve_body($response));
+        $responseObj->{'response_code'} = wp_remote_retrieve_response_code($response);
+        return $responseObj;
     }
 
     public function make_withdraw()
     {
         $temp_api_key = get_option('blockonomics_temp_api_key');
-
-        $url = Blockonomics::TEMP_WITHDRAW_URL;
-        $body = json_encode(array('tempkey' => $temp_api_key));
-        $response = $this->post($url, '', $body);
-        return json_decode(wp_remote_retrieve_body($response));
+        $url = Blockonomics::TEMP_WITHDRAW_URL.'?tempkey='.$temp_api_key;
+        // $body = json_encode(array('tempkey' => $temp_api_key));        
+        $response = $this->post($url, $temp_api_key);
+        $responseObj = json_decode(wp_remote_retrieve_body($response));
+        $responseObj->{'response_code'} = wp_remote_retrieve_response_code($response);
+        return $responseObj;
     }
 
     private function get($url, $api_key = '')
