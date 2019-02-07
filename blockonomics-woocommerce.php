@@ -114,17 +114,16 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
             {
                 generate_secret();
                 $callback_url = get_callback_url();
-                $result = $blockonomics->get_temp_api_key($callback_url);
+                $response = $blockonomics->get_temp_api_key($callback_url);
 
-                if ($result->status != 200)
+                if ($response->response_code != 200)
                 {
-                    $message = __('Error while generating temporary APIKey: '. $result->message, 'blockonomics-bitcoin-payments');
-                    $type = 'error';
-                    add_settings_error('option_notice', 'option_notice', $message, $type);
+                    $message = __('Error while generating temporary APIKey: '. $response->message, 'blockonomics-bitcoin-payments');
+                    display_admin_message($message, 'error');
                 }
                 else
                 {
-                    update_option("blockonomics_temp_api_key", $result->apikey);
+                    update_option("blockonomics_temp_api_key", $response->apikey);
                 }
             }
 
@@ -146,17 +145,42 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
 
                 if($setup_errors)
                 {
-                    $message = $setup_errors;
-                    $type = 'error';
-                    add_settings_error('option_notice', 'option_notice', $message, $type);
+                    display_admin_message($setup_errors, 'error');
                 }
                 else
                 {
                     $message = __('Congrats ! Setup is all done', 'blockonomics-bitcoin-payments');
-                    $type = 'updated';
-                    add_settings_error('option_notice', 'option_notice', $message, $type);
+                    display_admin_message($message, 'updated');
+
+                    // Check if merchant has received any confirmed BTC payments
+                    // If there are funds, make a withdraw request. Only set temp api key to null if success
+                    if (get_total_received() > 0)
+                    {
+                        $response = $blockonomics->make_withdraw();
+                        if ($response->response_code != 200)
+                        {
+                            $message = __('Error while making withdraw: '. $response->message, 'blockonomics-bitcoin-payments');
+                            display_admin_message($message, 'error');
+                        }
+                        else
+                        {
+                            $message = __('Your funds withdraw request has been submitted. Please check your Blockonomics registered emailid for details', 'blockonomics-bitcoin-payments');
+                            display_admin_message($message, 'updated');
+                            update_option("blockonomics_temp_api_key", null);
+                        }
+                    }
+                    // No funds in account, no need to withdraw
+                    else
+                    {
+                        update_option("blockonomics_temp_api_key", null);
+                    }
                 }
             }
+        }
+
+        function display_admin_message($msg, $type)
+        {
+            add_settings_error('option_notice', 'option_notice', $msg, $type);
         }
 
         function generate_secret($force_generate = false)
@@ -272,7 +296,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
 
                                 <?php else: ?>
 
-                                <p><b>ERROR:</b> No wallet setup</p>
+                                <p><b>ERROR:</b> No wallet set up</p>
 
                                 <?php endif; ?>
 
