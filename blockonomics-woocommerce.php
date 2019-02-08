@@ -157,7 +157,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                     {
                         // Check if merchant has received any confirmed BTC payments
                         // If there are funds, make a withdraw request. Only set temp api key to null if success
-                        if (get_total_received() > 0)
+                        if (get_option('temp_withdraw_amount') > 0)
                         {
                             $response = $blockonomics->make_withdraw();
                             if ($response->response_code != 200)
@@ -170,6 +170,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                                 $message = __('Your funds withdraw request has been submitted. Please check your Blockonomics registered emailid for details', 'blockonomics-bitcoin-payments');
                                 display_admin_message($message, 'updated');
                                 update_option("blockonomics_temp_api_key", null);
+                                update_option('temp_withdraw_amount', 0);
                             }
                         }
                         // No funds in account, no need to withdraw
@@ -202,20 +203,6 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
             $callback_url = WC()->api_request_url('WC_Gateway_Blockonomics');
             $callback_url = add_query_arg('secret', $callback_secret, $callback_url);
             return $callback_url;
-        }
-
-        function get_total_received()
-        {
-            $blockonomics_orders = get_option('blockonomics_orders');
-            $total_satoshi = 0;
-            foreach ($blockonomics_orders as $order) {
-                if ($order['status'] == 2)
-                {
-                    $total_satoshi += $order['satoshi'];
-                }
-            }
-
-            return $total_satoshi / 1.0e8;
         }
 
         function show_options()
@@ -287,7 +274,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                             <th scope="row">Destination BTC wallet for payments</th>
                             <td>
                                 <?php
-                                $total_received = get_total_received();
+                                $total_received = get_option('temp_withdraw_amount') / 1.0e8;
                                 $api_key = get_option("blockonomics_api_key");
                                 $temp_api_key = get_option("blockonomics_temp_api_key");
                                 if ($temp_api_key && $total_received == 0): ?>
