@@ -236,6 +236,14 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                         document.testSetupForm.submit();
                     }
                 }
+                function validateBlockonomicsForm() {
+                    apiKey = document.getElementById("blockonomics_api_key").value;
+                    if (apiKey.length != 43) {
+                        alert("ERROR: Invalid APIKey. Length must be 43");
+                        return false
+                    }
+                    return true;
+                }
             </script>
 
             <div class="wrap">
@@ -245,7 +253,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                         <b><?php echo __('Installation instructions', 'blockonomics-bitcoin-payments');?>: </b><a href="https://www.youtube.com/watch?v=Kck3a-9nh6E" target="_blank">Youtube Tutorial</a> | <a href="https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62" target="_blank">Blog Tutorial</a>
                     </p>
                 </div>
-                <form method="post" id="myform" action="options.php">
+                <form method="post" id="myform" onsubmit="return validateBlockonomicsForm()" action="options.php">
                     <?php wp_nonce_field('update-options') ?>
                     <input type="hidden" name="api_updated" id="api_updated" value="false">
                     <table class="form-table">
@@ -307,7 +315,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                         </tr>
                         <tr valign="top">
                             <th scope="row">APIKey</th>
-                            <td><input onchange="value_changed()" type="text" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" /></td>
+                            <td><input onchange="value_changed()" type="text" id="blockonomics_api_key" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" /></td>
                         </tr>
                     </table>
                     <p class="submit">
