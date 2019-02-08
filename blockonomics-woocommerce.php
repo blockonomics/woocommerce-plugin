@@ -104,14 +104,15 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
             {
                 generate_secret(true);
             }
-
+            
             $api_key = $blockonomics->get_api_key();
             
             // get_api_key() will return api key or temp api key
             // if both are null, generate new blockonomics guest account with temporary wallet
             // temp wallet will be used with temp api key
-            if ($api_key == null)
-            {
+            if (!$api_key)
+            { 
+                display_admin_message('Null api key found', 'error');
                 generate_secret();
                 $callback_url = get_callback_url();
                 $response = $blockonomics->get_temp_api_key($callback_url);
@@ -152,7 +153,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                     display_admin_message($message, 'updated');
 
                     // Only make withdraw if temp api key is not null
-                    if(get_option('blockonomics_temp_api_key') != null)
+                    if(get_option('blockonomics_temp_api_key'))
                     {
                         // Check if merchant has received any confirmed BTC payments
                         // If there are funds, make a withdraw request. Only set temp api key to null if success
@@ -289,18 +290,18 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                                 $total_received = get_total_received();
                                 $api_key = get_option("blockonomics_api_key");
                                 $temp_api_key = get_option("blockonomics_temp_api_key");
-                                if ($temp_api_key != null && $total_received == 0): ?>
+                                if ($temp_api_key && $total_received == 0): ?>
 
                                 <p><b>Blockonomics Wallet</b></p>
                                 <p>We are using a temporary wallet on Blockonomics to receive your payments. You currently have 0 BTC in Blockonomics wallet</p>
                                 <p>To receive payments directly to your wallet (recommended), Click on <i>Get Started for Free</i> on <a href="https://www.blockonomics.co/merchants" target="_blank">Merchants</a> and enter the APIKey below</p>
 
-                                <?php elseif ($temp_api_key != null && $total_received != 0): ?>
+                                <?php elseif ($temp_api_key && $total_received != 0): ?>
 
                                 <p><b>Blockonomics Wallet</b></p>
                                 <p>You currenlty have <b><?php echo "$total_received"; ?> BTC</b> worth of payments in Blockonomics Wallet. To withdraw, Click on <i>Get Started for Free</i> on <a href="https://www.blockonomics.co/merchants" target="_blank">Merchants</a> and enter the APIKey below</p>
 
-                                <?php elseif ($api_key != null): ?>
+                                <?php elseif ($api_key): ?>
 
                                 <p><b>Your wallet</b></p>
                                 <p>Payments will go directly to the wallet which your setup on <a href="https://www.blockonomics.co/" target="_blank">Blockonomics</a>. There is no need for withdraw</p>
