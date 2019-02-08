@@ -239,7 +239,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                 function validateBlockonomicsForm() {
                     apiKey = document.getElementById("blockonomics_api_key").value;
                     if (apiKey.length != 43) {
-                        alert("ERROR: Invalid APIKey. Length must be 43");
+                        alert("ERROR: Invalid APIKey");
                         return false
                     }
                     return true;
@@ -303,7 +303,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                                 <?php elseif ($api_key != null): ?>
 
                                 <p><b>Your wallet</b></p>
-                                <p>Payments will go directly to the wallet which your setup on <a href="https://www.blockonomics.co/" target="_blank">Blockonomics</a>. There is no need for withdraw</p>
+                                <p>Payments will go directly to the wallet which your setup on <a href="https://www.blockonomics.co/merchants" target="_blank">Blockonomics</a>. There is no need for withdraw</p>
 
                                 <?php else: ?>
 
