@@ -107,10 +107,8 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $cancel_url = add_query_arg('cancelled', true, $cancel_url);
         $cancel_url = add_query_arg('order_key', $order->order_key, $cancel_url);
 
-        $api_key    = get_option('blockonomics_api_key');
-
         $blockonomics = new Blockonomics;
-        $responseObj = $blockonomics->new_address($api_key, get_option("blockonomics_callback_secret"));
+        $responseObj = $blockonomics->new_address(get_option("blockonomics_callback_secret"));
         if(get_woocommerce_currency() != 'BTC'){
             $price = $blockonomics->get_price(get_woocommerce_currency());
             $price = $price * 100/(100+get_option('blockonomics_margin', 0));
@@ -207,6 +205,12 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                         }
                         $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
                         $wc_order->payment_complete($order['txid']);
+                    }
+                    // Keep track of funds in temp wallet
+                    if(get_option('blockonomics_temp_api_key')) {
+                        $current_temp_amount = get_option('temp_withdraw_amount');
+                        $new_temp_amount = $current_temp_amount + $_REQUEST['value'];
+                        update_option('temp_withdraw_amount', $new_temp_amount);
                     }
                 }
                 $order['txid'] =  $_REQUEST['txid'];
