@@ -452,6 +452,21 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
       }
     }
 
+    // On uninstallation, clear every option the plugin has set
+    register_uninstall_hook( __FILE__, 'blockonomics_uninstall_hook' );
+    function blockonomics_uninstall_hook() {
+        delete_option('blockonomics_callback_secret');
+        delete_option('blockonomics_api_key');
+        delete_option('blockonomics_temp_api_key');
+        delete_option('temp_withdraw_amount');
+        delete_option('api_updated');
+        delete_option('blockonomics_orders');
+        delete_option('review_notice_dismissed_timestamp');
+        delete_option('blockonomics_margin');
+        delete_option('blockonomics_timeperiod');
+    }
+
+
     function plugin_add_settings_link( $links ) {
         $settings_link = '<a href="options-general.php?page=blockonomics_options">' . __( 'Settings' ) . '</a>';
         array_unshift( $links, $settings_link );
