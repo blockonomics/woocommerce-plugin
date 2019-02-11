@@ -132,7 +132,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                 'blockonomics_options', 'show_options'
             );
 
-            if (get_option('api_updated') == 'true' && $_GET['settings-updated'] == 'true')
+            if ($_GET['settings-updated'] == 'true')
             {
                 $message = __('API Key updated! Please click on Test Setup to verify Installation. ', 'blockonomics-bitcoin-payments');
                 display_admin_message($message, 'updated');
@@ -290,7 +290,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                     <p class="submit">
                         <input type="submit" class="button-primary" value="Save"/>
                         <input type="hidden" name="action" value="update" />
-                        <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_margin, api_updated" />
+                        <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback" />
                         <input onclick="checkForAPIKeyChange();" class="button-primary" name="test-setup-submit" value="Test Setup" style="max-width:85px;">
                     </p>
                 </form>
@@ -427,17 +427,17 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
         delete_transient( 'fx-admin-notice-example' );
       }
       if ( isset( $_GET['review_later'] ) ){
-        update_option('review_notice_dismissed_timestamp', time());
+        update_option('blockonomics_review_notice_dismissed_timestamp', time());
       } 
       if ( isset( $_GET['already_reviewed'] ) ){
-        update_option('review_notice_dismissed_timestamp', 1);
+        update_option('blockonomics_review_notice_dismissed_timestamp', 1);
       } 
       $admin_page = get_current_screen();
       if (in_array($admin_page->base, array('dashboard', 'settings_page_blockonomics_options', 'plugins'))){
         //Show review notice only on three pages
         $blockonomics_orders = get_option('blockonomics_orders', array());
         if (count($blockonomics_orders)>10){
-          $dismiss_timestamp = get_option('review_notice_dismissed_timestamp', 0);
+          $dismiss_timestamp = get_option('blockonomics_review_notice_dismissed_timestamp', 0);
           if ($dismiss_timestamp!=1 && time()-$dismiss_timestamp>1209600){
             //Prompt user to review the plugin after every 2 weeks 
             //if he has more than 10 orders, until he clicks on I already reviewed
@@ -459,9 +459,8 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
         delete_option('blockonomics_api_key');
         delete_option('blockonomics_temp_api_key');
         delete_option('temp_withdraw_amount');
-        delete_option('api_updated');
         delete_option('blockonomics_orders');
-        delete_option('review_notice_dismissed_timestamp');
+        delete_option('blockonomics_review_notice_dismissed_timestamp');
         delete_option('blockonomics_margin');
         delete_option('blockonomics_timeperiod');
     }
