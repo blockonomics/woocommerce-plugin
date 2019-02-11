@@ -208,9 +208,9 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                     }
                     // Keep track of funds in temp wallet
                     if(get_option('blockonomics_temp_api_key')) {
-                        $current_temp_amount = get_option('temp_withdraw_amount');
+                        $current_temp_amount = get_option('blockonomics_temp_withdraw_amount');
                         $new_temp_amount = $current_temp_amount + $_REQUEST['value'];
-                        update_option('temp_withdraw_amount', $new_temp_amount);
+                        update_option('blockonomics_temp_withdraw_amount', $new_temp_amount);
                     }
                 }
                 $order['txid'] =  $_REQUEST['txid'];

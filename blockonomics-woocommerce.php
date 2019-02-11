@@ -132,7 +132,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                 'blockonomics_options', 'show_options'
             );
 
-            if (get_option('api_updated') == 'true' && $_GET['settings-updated'] == 'true')
+            if (get_option('blockonomics_api_updated') == 'true' && $_GET['settings-updated'] == 'true')
             {
                 $message = __('API Key updated! Please click on Test Setup to verify Installation. ', 'blockonomics-bitcoin-payments');
                 display_admin_message($message, 'updated');
@@ -191,10 +191,10 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                     document.generateSecretForm.submit();
                 }
                 function value_changed() {
-                    document.getElementById('api_updated').value = 'true';
+                    document.getElementById('blockonomics_api_updated').value = 'true';
                 }
                 function checkForAPIKeyChange() {
-                    if (document.getElementById('api_updated').value == 'true') {
+                    if (document.getElementById('blockonomics_api_updated').value == 'true') {
                         alert('Settings have changed, click on Save first');
                     } else {
                         document.testSetupForm.submit();
@@ -219,7 +219,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                 </div>
                 <form method="post" id="myform" onsubmit="return validateBlockonomicsForm()" action="options.php">
                     <?php wp_nonce_field('update-options') ?>
-                    <input type="hidden" name="api_updated" id="api_updated" value="false">
+                    <input type="hidden" name="blockonomics_api_updated" id="blockonomics_api_updated" value="false">
                     <table class="form-table">
                         <tr valign="top">
                             <th scope="row">CALLBACK URL 
@@ -250,7 +250,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                             <th scope="row">Destination BTC wallet for payments</th>
                             <td>
                                 <?php
-                                $total_received = get_option('temp_withdraw_amount') / 1.0e8;
+                                $total_received = get_option('blockonomics_temp_withdraw_amount') / 1.0e8;
                                 $api_key = get_option("blockonomics_api_key");
                                 $temp_api_key = get_option("blockonomics_temp_api_key");
                                 if ($temp_api_key && !($total_received > 0)): ?>
@@ -290,7 +290,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                     <p class="submit">
                         <input type="submit" class="button-primary" value="Save"/>
                         <input type="hidden" name="action" value="update" />
-                        <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_margin, api_updated" />
+                        <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated" />
                         <input onclick="checkForAPIKeyChange();" class="button-primary" name="test-setup-submit" value="Test Setup" style="max-width:85px;">
                     </p>
                 </form>
@@ -427,17 +427,17 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
         delete_transient( 'fx-admin-notice-example' );
       }
       if ( isset( $_GET['review_later'] ) ){
-        update_option('review_notice_dismissed_timestamp', time());
+        update_option('blockonomics_review_notice_dismissed_timestamp', time());
       } 
       if ( isset( $_GET['already_reviewed'] ) ){
-        update_option('review_notice_dismissed_timestamp', 1);
+        update_option('blockonomics_review_notice_dismissed_timestamp', 1);
       } 
       $admin_page = get_current_screen();
       if (in_array($admin_page->base, array('dashboard', 'settings_page_blockonomics_options', 'plugins'))){
         //Show review notice only on three pages
         $blockonomics_orders = get_option('blockonomics_orders', array());
         if (count($blockonomics_orders)>10){
-          $dismiss_timestamp = get_option('review_notice_dismissed_timestamp', 0);
+          $dismiss_timestamp = get_option('blockonomics_review_notice_dismissed_timestamp', 0);
           if ($dismiss_timestamp!=1 && time()-$dismiss_timestamp>1209600){
             //Prompt user to review the plugin after every 2 weeks 
             //if he has more than 10 orders, until he clicks on I already reviewed
@@ -451,6 +451,21 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
         }
       }
     }
+
+    // On uninstallation, clear every option the plugin has set
+    register_uninstall_hook( __FILE__, 'blockonomics_uninstall_hook' );
+    function blockonomics_uninstall_hook() {
+        delete_option('blockonomics_callback_secret');
+        delete_option('blockonomics_api_key');
+        delete_option('blockonomics_temp_api_key');
+        delete_option('blockonomics_temp_withdraw_amount');
+        delete_option('blockonomics_orders');
+        delete_option('blockonomics_review_notice_dismissed_timestamp');
+        delete_option('blockonomics_margin');
+        delete_option('blockonomics_timeperiod');
+        delete_option('blockonomics_api_updated');
+    }
+
 
     function plugin_add_settings_link( $links ) {
         $settings_link = '<a href="options-general.php?page=blockonomics_options">' . __( 'Settings' ) . '</a>';
