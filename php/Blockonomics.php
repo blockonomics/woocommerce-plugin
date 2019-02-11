@@ -89,13 +89,26 @@ class Blockonomics
         $api_key = $this->api_key;
         $temp_api_key = get_option('blockonomics_temp_api_key');
         if (!$api_key || !$temp_api_key) {
-            return;
+            return null;
         }
-        $url = Blockonomics::TEMP_WITHDRAW_URL.'?tempkey='.$temp_api_key;
-        $response = $this->post($url, $api_key);
-        $responseObj = json_decode(wp_remote_retrieve_body($response));
-        $responseObj->{'response_code'} = wp_remote_retrieve_response_code($response);
-        return $responseObj;
+        if (get_option('temp_withdraw_amount') > 0)
+        {
+            $url = Blockonomics::TEMP_WITHDRAW_URL.'?tempkey='.$temp_api_key;
+            $response = $this->post($url, $api_key);
+            $responseObj = json_decode(wp_remote_retrieve_body($response));
+            $response_code = wp_remote_retrieve_response_code($response);
+            if ($response_code != 200)
+            {
+                $message = __('Error while making withdraw: '.$responseObj->message, 'blockonomics-bitcoin-payments');
+                return [$message, 'error'];
+            }
+            update_option("blockonomics_temp_api_key", null);
+            update_option('temp_withdraw_amount', 0);
+            $message = __('Your funds withdraw request has been submitted. Please check your Blockonomics registered emailid for details', 'blockonomics-bitcoin-payments');
+            return [$message, 'updated'];
+        }
+        update_option("blockonomics_temp_api_key", null);
+        return null;
     }
 
     private function get($url, $api_key = '')

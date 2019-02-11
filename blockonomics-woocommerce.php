@@ -151,32 +151,9 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                     $message = __('Congrats ! Setup is all done', 'blockonomics-bitcoin-payments');
                     display_admin_message($message, 'updated');
 
-                    // Only make withdraw if temp api key is not null
-                    if(get_option('blockonomics_temp_api_key'))
-                    {
-                        // Check if merchant has received any confirmed BTC payments
-                        // If there are funds, make a withdraw request. Only set temp api key to null if success
-                        if (get_option('temp_withdraw_amount') > 0)
-                        {
-                            $response = $blockonomics->make_withdraw();
-                            if ($response->response_code != 200)
-                            {
-                                $message = __('Error while making withdraw: '. $response->message, 'blockonomics-bitcoin-payments');
-                                display_admin_message($message, 'error');
-                            }
-                            else
-                            {
-                                $message = __('Your funds withdraw request has been submitted. Please check your Blockonomics registered emailid for details', 'blockonomics-bitcoin-payments');
-                                display_admin_message($message, 'updated');
-                                update_option("blockonomics_temp_api_key", null);
-                                update_option('temp_withdraw_amount', 0);
-                            }
-                        }
-                        // No funds in account, no need to withdraw
-                        else
-                        {
-                            update_option("blockonomics_temp_api_key", null);
-                        }
+                    $message = $blockonomics->make_withdraw();
+                    if ($message) {
+                        display_admin_message($message[0], $message[1]);
                     }
                 }
             }
