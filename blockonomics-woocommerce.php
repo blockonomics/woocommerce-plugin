@@ -132,7 +132,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                 'blockonomics_options', 'show_options'
             );
 
-            if ($_GET['settings-updated'] == 'true')
+            if (get_option('blockonomics_api_updated') == 'true' && $_GET['settings-updated'] == 'true')
             {
                 $message = __('API Key updated! Please click on Test Setup to verify Installation. ', 'blockonomics-bitcoin-payments');
                 display_admin_message($message, 'updated');
@@ -191,10 +191,10 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                     document.generateSecretForm.submit();
                 }
                 function value_changed() {
-                    document.getElementById('api_updated').value = 'true';
+                    document.getElementById('blockonomics_api_updated').value = 'true';
                 }
                 function checkForAPIKeyChange() {
-                    if (document.getElementById('api_updated').value == 'true') {
+                    if (document.getElementById('blockonomics_api_updated').value == 'true') {
                         alert('Settings have changed, click on Save first');
                     } else {
                         document.testSetupForm.submit();
@@ -219,7 +219,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                 </div>
                 <form method="post" id="myform" onsubmit="return validateBlockonomicsForm()" action="options.php">
                     <?php wp_nonce_field('update-options') ?>
-                    <input type="hidden" name="api_updated" id="api_updated" value="false">
+                    <input type="hidden" name="blockonomics_api_updated" id="blockonomics_api_updated" value="false">
                     <table class="form-table">
                         <tr valign="top">
                             <th scope="row">CALLBACK URL 
@@ -290,7 +290,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                     <p class="submit">
                         <input type="submit" class="button-primary" value="Save"/>
                         <input type="hidden" name="action" value="update" />
-                        <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback" />
+                        <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated" />
                         <input onclick="checkForAPIKeyChange();" class="button-primary" name="test-setup-submit" value="Test Setup" style="max-width:85px;">
                     </p>
                 </form>
@@ -463,6 +463,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
         delete_option('blockonomics_review_notice_dismissed_timestamp');
         delete_option('blockonomics_margin');
         delete_option('blockonomics_timeperiod');
+        delete_option('blockonomics_api_updated');
     }
 
 
