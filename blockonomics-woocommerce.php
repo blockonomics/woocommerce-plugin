@@ -104,15 +104,14 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
             {
                 generate_secret(true);
             }
-            
+
             $api_key = $blockonomics->get_api_key();
             
             // get_api_key() will return api key or temp api key
             // if both are null, generate new blockonomics guest account with temporary wallet
             // temp wallet will be used with temp api key
             if (!$api_key)
-            { 
-                display_admin_message('Null api key found', 'error');
+            {
                 generate_secret();
                 $callback_url = get_callback_url();
                 $response = $blockonomics->get_temp_api_key($callback_url);
