@@ -91,7 +91,7 @@ class Blockonomics
         if (!$api_key || !$temp_api_key || $temp_api_key == $api_key) {
             return null;
         }
-        if (get_option('temp_withdraw_amount') > 0)
+        if (get_option('blockonomics_temp_withdraw_amount') > 0)
         {
             $url = Blockonomics::TEMP_WITHDRAW_URL.'?tempkey='.$temp_api_key;
             $response = $this->post($url, $api_key);
@@ -103,7 +103,7 @@ class Blockonomics
                 return [$message, 'error'];
             }
             update_option("blockonomics_temp_api_key", null);
-            update_option('temp_withdraw_amount', 0);
+            update_option('blockonomics_temp_withdraw_amount', 0);
             $message = __('Your funds withdraw request has been submitted. Please check your Blockonomics registered emailid for details', 'blockonomics-bitcoin-payments');
             return [$message, 'updated'];
         }

@@ -250,7 +250,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                             <th scope="row">Destination BTC wallet for payments</th>
                             <td>
                                 <?php
-                                $total_received = get_option('temp_withdraw_amount') / 1.0e8;
+                                $total_received = get_option('blockonomics_temp_withdraw_amount') / 1.0e8;
                                 $api_key = get_option("blockonomics_api_key");
                                 $temp_api_key = get_option("blockonomics_temp_api_key");
                                 if ($temp_api_key && !($total_received > 0)): ?>
@@ -458,7 +458,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
         delete_option('blockonomics_callback_secret');
         delete_option('blockonomics_api_key');
         delete_option('blockonomics_temp_api_key');
-        delete_option('temp_withdraw_amount');
+        delete_option('blockonomics_temp_withdraw_amount');
         delete_option('blockonomics_orders');
         delete_option('blockonomics_review_notice_dismissed_timestamp');
         delete_option('blockonomics_margin');
