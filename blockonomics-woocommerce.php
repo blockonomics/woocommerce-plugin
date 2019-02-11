@@ -276,16 +276,22 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                                 $total_received = get_option('temp_withdraw_amount') / 1.0e8;
                                 $api_key = get_option("blockonomics_api_key");
                                 $temp_api_key = get_option("blockonomics_temp_api_key");
-                                if ($temp_api_key && $total_received == 0): ?>
+                                if ($temp_api_key && !($total_received > 0)): ?>
 
                                 <p><b>Blockonomics Wallet</b></p>
-                                <p>We are using a temporary wallet on Blockonomics to receive your payments. You currently have 0 BTC in Blockonomics wallet</p>
+                                <p>We are using a temporary wallet on Blockonomics to receive your payments.</p>
                                 <p>To receive payments directly to your wallet (recommended), Click on <i>Get Started for Free</i> on <a href="https://www.blockonomics.co/merchants" target="_blank">Merchants</a> and enter the APIKey below</p>
 
-                                <?php elseif ($temp_api_key && $total_received != 0): ?>
+                                <?php elseif ($temp_api_key && $total_received > 0): ?>
 
                                 <p><b>Blockonomics Wallet</b></p>
-                                <p>You currenlty have <b><?php echo "$total_received"; ?> BTC</b> worth of payments in Blockonomics Wallet. To withdraw, Click on <i>Get Started for Free</i> on <a href="https://www.blockonomics.co/merchants" target="_blank">Merchants</a> and enter the APIKey below</p>
+                                <p>You currently have <b><?php echo "$total_received"; ?> BTC</b> worth of payments in Blockonomics Wallet.
+                                <?php if (!$api_key): ?>
+<p> To withdraw, follow wizard by clicking on <i>Get Started for Free</i> on <a href="https://www.blockonomics.co/merchants" target="_blank">Merchants</a>, then enter the APIKey below.
+</p>
+                                <?php else: ?>
+<p> To withdraw, Click on <b>Test Setup</b></p>
+                                <?php endif; ?>
 
                                 <?php elseif ($api_key): ?>
 
