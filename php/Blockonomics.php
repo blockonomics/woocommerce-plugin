@@ -86,8 +86,11 @@ class Blockonomics
 
     public function make_withdraw()
     {
-        $api_key = get_option("blockonomics_api_key");
+        $api_key = $this->api_key;
         $temp_api_key = get_option('blockonomics_temp_api_key');
+        if (!$api_key || !$temp_api_key) {
+            return;
+        }
         $url = Blockonomics::TEMP_WITHDRAW_URL.'?tempkey='.$temp_api_key;
         $response = $this->post($url, $api_key);
         $responseObj = json_decode(wp_remote_retrieve_body($response));
