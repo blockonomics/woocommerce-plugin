@@ -21,7 +21,7 @@ class Blockonomics
     public function get_api_key()
     {
         $api_key = get_option("blockonomics_api_key");
-        if ($api_key == null)
+        if (!$api_key)
         {
             $api_key = get_option("blockonomics_temp_api_key");
         }
@@ -88,7 +88,7 @@ class Blockonomics
     {
         $api_key = $this->api_key;
         $temp_api_key = get_option('blockonomics_temp_api_key');
-        if (!$api_key || !$temp_api_key) {
+        if (!$api_key || !$temp_api_key || $temp_api_key == $api_key) {
             return null;
         }
         if (get_option('temp_withdraw_amount') > 0)
