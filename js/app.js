@@ -291,7 +291,7 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinNe
         var response = AltcoinCheck.save({
                 'uuid': uuid
             },function successCallback(data) {
-                proccess_alt_response(data);
+                process_alt_response(data);
             });
     }
 
@@ -322,7 +322,7 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinNe
                     $scope.alt_tick_interval = $interval($scope.alt_tick, 1000);
                     $scope.order.altsymbol = altsymbol;
                     $scope.altcoinselect = $scope.altcoins[altsymbol];
-                    proccess_alt_response(data, true);
+                    process_alt_response(data, true);
                 });
             });
     }
@@ -414,7 +414,7 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinNe
     }
 
     //Process altcoin response
-    function proccess_alt_response(data, info=false) {
+    function process_alt_response(data, info=false) {
         if(info){
             //Check if the refund address is set (cannot do this in check_order)
             if ('refund_address' in data) {
@@ -532,7 +532,7 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinNe
         window.history.back();
     }
 
-    //Copy bitcoin address to clipboard
+    //Copy altcoin address to clipboard
     $scope.alt_address_click = function() {
         var copyText = document.getElementById("bnomics-alt-address-input");
         copyText.select();
