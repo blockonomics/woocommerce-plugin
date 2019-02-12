@@ -433,21 +433,17 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinNe
             switch (data.payment_status) {
                 case "PAYMENT_RECEIVED":
                 case "PAYMENT_CONFIRMED":
+                    update_altcoin_status('received');
                     if(info){
-                        update_altcoin_status('received');
                         stop_check_order();
-                        break;
-                    }else{
-                        update_altcoin_status('received');
-                        break;
                     }
+                    break;
                 case "OVERPAY_RECEIVED":
                 case "UNDERPAY_RECEIVED":
                 case "OVERPAY_CONFIRMED":
                 case "UNDERPAY_CONFIRMED":
                     if(info){
                         update_altcoin_status('add_refund');
-                        break;
                     }else{
                         //Check the altcoin status
                         switch (data.status) {
@@ -482,31 +478,25 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinNe
                                         send_email = false;
                                     }
                                 }
-                                break;
                         }
                     }
+                    break;
                 default:
                     var status = data['status'];
                     switch (status) {
                         case "WAITING_FOR_DEPOSIT":
+                            update_altcoin_status('waiting');
                             if(info){
-                                update_altcoin_status('waiting');
                                 //Start checking the order status
                                 start_check_order(uuid);
-                                break;
-                            }else{
-                                update_altcoin_status('waiting');
-                                break;
                             }
+                            break;
                         case "EXPIRED":
-                            if(info){
-                                update_altcoin_status('expired');
-                                break;
-                            }else{
-                                update_altcoin_status('expired');
+                            update_altcoin_status('expired');
+                            if(info == false){
                                 stop_check_order();
-                                break;
                             }
+                            break;
                     }
             }
         }
