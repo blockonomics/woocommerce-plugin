@@ -347,24 +347,12 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
         }
 
         //Ajax for user checkouts through Woocommerce
-        add_action( 'wp_ajax_fetch_order_id', 'bnomics_fetch_order_id' );
         add_action( 'wp_ajax_save_uuid', 'bnomics_alt_save_uuid' );
         add_action( 'wp_ajax_send_email', 'bnomics_alt_refund_email' );
 
         //Ajax for guest checkouts through Woocommerce
-        add_action( 'wp_ajax_nopriv_fetch_order_id', 'bnomics_fetch_order_id' );
         add_action( 'wp_ajax_nopriv_save_uuid', 'bnomics_alt_save_uuid' );
         add_action( 'wp_ajax_nopriv_send_email', 'bnomics_alt_refund_email' );
-
-        function bnomics_fetch_order_id(){
-            $orders = get_option('blockonomics_orders');
-            $address = $_REQUEST['address'];
-            $order = $orders[$address];
-            $wc_order = new WC_Order($order['order_id']);
-            $idArr = array("id" => $wc_order->get_id());
-            print(json_encode($idArr));
-            wp_die();
-        }
 
         function bnomics_alt_save_uuid(){
             $orders = get_option('blockonomics_orders');
