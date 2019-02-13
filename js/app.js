@@ -334,38 +334,38 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinNe
                 //Wait for both the altcoin limits and new altcoin order uuid
                 Promise.all(promises)
                     .then(values => {
-                        var alt_minimum = values[0].min;
-                        var alt_maximum = values[0].max;
-                        //Compare the min/max limits for altcoin payments with the order amount
-                        if(amount <= alt_minimum) {
-                            //Order amount too low for altcoin payment
-                            update_altcoin_status('low_high');
-                            $scope.lowhigh = 'low';
-                        }else if(amount >= alt_maximum) {
-                            //Order amount too high for altcoin payment
-                            update_altcoin_status('low_high');
-                            $scope.lowhigh = 'high';
-                        }else{
-                            var uuid = values[1].order.uuid;
-                            //Save the altcoin uuid to database
-                            WpAjax.get({
-                                action: 'save_uuid',
-                                address: address,
-                                uuid: uuid
-                            });
-                            $scope.altuuid = uuid;
-                            $scope.refundlink = $scope.alt_refund_url(uuid);
-                            //Accept the altcoin order using the uuid
-                            AltcoinAccept.save({
-                                    "uuid": uuid
-                                },function(order_accept) {
-                                    //Fetch the order details using bitcoin address
-                                    Order.get({
-                                        "get_order": order_accept.order.destination
-                                    }, function(order) {
+                        //Fetch the order details using bitcoin address
+                        Order.get({
+                            "get_order": address
+                        }, function(order) {
+                            $scope.order = order;
+                            var alt_minimum = values[0].min;
+                            var alt_maximum = values[0].max;
+                            //Compare the min/max limits for altcoin payments with the order amount
+                            if(amount <= alt_minimum) {
+                                //Order amount too low for altcoin payment
+                                update_altcoin_status('low_high');
+                                $scope.lowhigh = 'low';
+                            }else if(amount >= alt_maximum) {
+                                //Order amount too high for altcoin payment
+                                update_altcoin_status('low_high');
+                                $scope.lowhigh = 'high';
+                            }else{
+                                var uuid = values[1].order.uuid;
+                                //Save the altcoin uuid to database
+                                WpAjax.get({
+                                    action: 'save_uuid',
+                                    address: address,
+                                    uuid: uuid
+                                });
+                                $scope.altuuid = uuid;
+                                $scope.refundlink = $scope.alt_refund_url(uuid);
+                                //Accept the altcoin order using the uuid
+                                AltcoinAccept.save({
+                                        "uuid": uuid
+                                    },function(order_accept) {
                                         $scope.order = order;
                                         //Display altcoin order info
-                                        $scope.order = order;
                                         $scope.order.altaddress = order_accept.deposit_address;
                                         $scope.order.altamount = order_accept.order.invoiced_amount;
                                         $scope.order.destination = order_accept.order.destination;
@@ -375,14 +375,15 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinNe
                                         $scope.alt_tick_interval = $interval($scope.alt_tick, 1000);
                                         $scope.order.altsymbol = altsymbol;
                                         $scope.altcoinselect = $scope.altcoins[altsymbol];
+                                        //Only send email if create order
                                         send_email = true;
                                         //Update altcoin status to waiting
                                         update_altcoin_status('waiting');
                                         //Start checking the order status
                                         start_check_order(uuid);
                                     });
-                                });
-                        }
+                            }
+                        });
                     })
                     .catch(err => {
                         console.dir(err);
