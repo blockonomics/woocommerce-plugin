@@ -215,6 +215,7 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinNe
     var send_email = false;
     $scope.altsymbol = 'ETH';
     $scope.copyshow = false;
+    $scope.spinner = true;
 
     //Check UUID in request
     if (given_uuid != '') {
@@ -323,6 +324,7 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinNe
                     $scope.order.altsymbol = altsymbol;
                     $scope.altcoinselect = $scope.altcoins[altsymbol];
                     process_alt_response(data, true);
+                    $scope.spinner = false;
                 });
             });
     }
@@ -381,6 +383,7 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinNe
                                         update_altcoin_status('waiting');
                                         //Start checking the order status
                                         start_check_order(uuid);
+                                        $scope.spinner = false;
                                     });
                             }
                         });
