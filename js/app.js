@@ -383,9 +383,10 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinNe
                                         update_altcoin_status('waiting');
                                         //Start checking the order status
                                         start_check_order(uuid);
-                                        $scope.spinner = false;
                                     });
                             }
+                            //Hide the spinner
+                            $scope.spinner = false;
                         });
                     })
                     .catch(err => {
