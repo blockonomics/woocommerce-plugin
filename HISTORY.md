@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 1.7.0  =
+* Installation now only requires plugin activate
+* Altcoin Code refactored 
+
 = 1.6.8  =
 * Added refunds to altcoin payments
 
