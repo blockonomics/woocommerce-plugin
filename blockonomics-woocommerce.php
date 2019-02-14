@@ -201,8 +201,21 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                     }
                 }
                 function validateBlockonomicsForm() {
-                    apiKey = document.getElementById("blockonomics_api_key").value;
-                    if (apiKey.length != 43) {
+                    newApiKey = document.getElementById("blockonomics_api_key").value;
+                    currentApiKey = document.getElementById("current_blockonomics_api_key").value;
+                    tempApiKey = document.getElementById("blockonomics_temp_api_key").value;
+                    // Empty api key allowed if:
+                    // 1. Temp api key is present
+                    // 2. Temp api key and api key are present
+                    if(newApiKey.length == 0) {
+                        if(tempApiKey || (tempApiKey && currentApiKey)) {
+                            return true
+                        } else {
+                            alert("ERROR: Invalid APIKey");
+                            return false
+                        }
+                    }
+                    if (newApiKey.length != 43) {
                         alert("ERROR: Invalid APIKey");
                         return false
                     }
@@ -217,6 +230,8 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                         <b><?php echo __('Installation instructions', 'blockonomics-bitcoin-payments');?>: </b><a href="https://www.youtube.com/watch?v=Kck3a-9nh6E" target="_blank">Youtube Tutorial</a> | <a href="https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62" target="_blank">Blog Tutorial</a>
                     </p>
                 </div>
+                <input type="hidden" id="blockonomics_temp_api_key" value="<?php echo get_option("blockonomics_temp_api_key"); ?>">
+                <input type="hidden" id="current_blockonomics_api_key" value="<?php echo get_option("blockonomics_api_key"); ?>">
                 <form method="post" id="myform" onsubmit="return validateBlockonomicsForm()" action="options.php">
                     <?php wp_nonce_field('update-options') ?>
                     <input type="hidden" name="blockonomics_api_updated" id="blockonomics_api_updated" value="false">
@@ -452,6 +467,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
         delete_option('blockonomics_margin');
         delete_option('blockonomics_timeperiod');
         delete_option('blockonomics_api_updated');
+        delete_option('blockonomics_altcoins');
     }
 
 
