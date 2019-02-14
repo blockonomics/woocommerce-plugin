@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 1.7.1  =
+* Patch fix for save settings not working for users without APIKey
+
 = 1.7.0  =
 * Installation now only requires plugin activate
 * Altcoin Code refactored 
