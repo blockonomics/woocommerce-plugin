@@ -202,7 +202,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                 }
                 function validateBlockonomicsForm() {
                     newApiKey = document.getElementById("blockonomics_api_key").value;
-                    apiKeyChanged = newApiKey != <?php echo get_option("blockonomics_api_key")?>;
+                    apiKeyChanged = newApiKey != "<?php echo get_option("blockonomics_api_key")?>";
                     if (apiKeyChanged && newApiKey.length != 43) {
                         alert("ERROR: Invalid APIKey");
                         return false
