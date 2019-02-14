@@ -201,8 +201,9 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
                     }
                 }
                 function validateBlockonomicsForm() {
-                    apiKey = document.getElementById("blockonomics_api_key").value;
-                    if (apiKey.length != 43) {
+                    apiKeyChanged = document.getElementById('blockonomics_api_updated').value;
+                    newApiKey = document.getElementById("blockonomics_api_key").value;
+                    if (apiKeyChanged == 'true' && newApiKey.length != 43) {
                         alert("ERROR: Invalid APIKey");
                         return false
                     }
@@ -452,6 +453,7 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
         delete_option('blockonomics_margin');
         delete_option('blockonomics_timeperiod');
         delete_option('blockonomics_api_updated');
+        delete_option('blockonomics_altcoins');
     }
 
 
