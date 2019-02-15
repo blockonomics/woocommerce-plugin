@@ -339,10 +339,16 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinNe
                             //Order amount too low for altcoin payment
                             update_altcoin_status('low_high');
                             $scope.lowhigh = 'low';
+                            //Promise is run outside of the turn Angular sees so we need to tell
+                            //Angular to update all of our bindings as data has changed
+                            $scope.$apply();
                         }else if(amount >= alt_maximum) {
                             //Order amount too high for altcoin payment
                             update_altcoin_status('low_high');
                             $scope.lowhigh = 'high';
+                            //Promise is run outside of the turn Angular sees so we need to tell
+                            //Angular to update all of our bindings as data has changed
+                            $scope.$apply();
                         }else{
                             var uuid = values[1].order.uuid;
                             //Save the altcoin uuid to database
