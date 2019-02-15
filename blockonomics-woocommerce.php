@@ -42,8 +42,6 @@ if (!defined('ABSPATH')) {
 }
 
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
-
-if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce')) {
     
     /**
      * Initialize hooks needed for the payment gateway
@@ -399,11 +397,24 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
     add_action('admin_notices', 'plugin_activation');
     
     function blockonomics_activation_hook() {
+        if(!is_plugin_active('woocommerce/woocommerce.php'))
+        {
+            die('Wordpress Bitcoin Payments - Blockonomics requires WooCommere plugin to be installed and active');
+        }
         set_transient( 'blockonomics_activation_hook_transient', true, 5);
     }
 
     //Show message when plugin is activated
     function plugin_activation() {
+      if(!is_plugin_active('woocommerce/woocommerce.php'))
+      {
+          $html = '<div class="error">';
+          $html .= '<p>';
+          $html .= __( 'Wordpress Bitcoin Payments - Blockonomics failed to load. Please activate WooCommere plugin.', 'blockonomics-bitcoin-payments' );
+          $html .= '</p>';
+          $html .= '</div>';
+          echo $html;
+      }
       if( get_transient( 'blockonomics_activation_hook_transient' ) ){
 
         $html = '<div class="updated">';
@@ -464,6 +475,4 @@ if (is_plugin_active('woocommerce/woocommerce.php') || class_exists('WooCommerce
     }
     $plugin = plugin_basename( __FILE__ );
     add_filter( "plugin_action_links_$plugin", 'plugin_add_settings_link' );
-}
-
 ?>
