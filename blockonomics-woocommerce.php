@@ -1,4 +1,3 @@
-?>
 <?php
 /**
  * Plugin Name: Wordpress Bitcoin Payments - Blockonomics
