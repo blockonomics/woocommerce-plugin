@@ -399,7 +399,7 @@ add_action('admin_notices', 'plugin_activation');
 function blockonomics_activation_hook() {
     if(!is_plugin_active('woocommerce/woocommerce.php'))
     {
-        die('Wordpress Bitcoin Payments - Blockonomics requires WooCommere plugin to be installed and active');
+        trigger_error(__( 'Wordpress Bitcoin Payments - Blockonomics requires WooCommere plugin to be installed and active.', 'blockonomics-bitcoin-payments' ).'<br>', E_USER_ERROR);
     }
     set_transient( 'blockonomics_activation_hook_transient', true, 5);
 }
