@@ -258,7 +258,7 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinNe
     };
 
     //Send altcoin refund email 
-    function send_email() {
+    function send_refund_email() {
         WpAjax.get({
             action: 'send_email',
             order_id: $scope.order.order_id,
@@ -273,20 +273,41 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinNe
         $scope.order.altstatus = status;
     }
 
-    //Start checking the altcoin payment status every 10 sec
-    function start_check_order(uuid, address_present = false) {
+    function get_uuid() {
+        if($scope.altuuid) {
+            uuid = $scope.altuuid;
+        } else {
+            uuid = getParameterByNameBlocko("uuid");
+        }
+        return uuid;
+    }
+
+    function wait_for_refund() {
+        //Make sure only one interval is running
+        stop_interval();
+        uuid = get_uuid();
         check_interval = $interval(function(response) {
-            check_order(uuid, address_present, send_email);
+            info_order(uuid);
+        }, 30000);
+    }
+
+    //Start checking the altcoin payment status every 10 sec
+    function start_check_order() {
+        //Make sure only one interval is running
+        stop_interval();
+        uuid = get_uuid();
+        check_interval = $interval(function(response) {
+            check_order(uuid);
         }, 10000);
     }
 
     //Stop checking the altcoin payment status every 10 sec
-    function stop_check_order() {
+    function stop_interval() {
         $interval.cancel(check_interval);
     }
 
     //Check the altcoin payment status
-    function check_order(uuid, address_present) {
+    function check_order(uuid) {
         var response = AltcoinCheck.save({
                 'uuid': uuid
             },function successCallback(data) {
@@ -311,7 +332,8 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinNe
                 $scope.order.altsymbol = altsymbol;
                 $scope.altcoinselect = $scope.altcoins[altsymbol];
                 $scope.spinner = false;
-                process_alt_response(data, true);
+
+                process_alt_response(data);
                 //Fetch the order id using bitcoin address
                 Order.get({
                     "get_order": data.order.destination
@@ -412,86 +434,51 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinNe
     }
 
     //Process altcoin response
-    function process_alt_response(data, info=false) {
-        //Check if the refund address is set (cannot do this in check_order)
-        if ('refund_address' in data) {
-            if ('txid'in data) {
-                update_altcoin_status('refunded-txid');
-                $scope.order.alttxid = data.txid;
-                $scope.order.alturl = data.txurl;
-            } else {
-                update_altcoin_status('refunded');
-                //Start checking the order status with refund address true
-                start_check_order(uuid, true);
-            }
-        } 
-        //Check the altcoin payment status
+    function process_alt_response(data) {
         switch (data.payment_status) {
             case "PAYMENT_RECEIVED":
             case "PAYMENT_CONFIRMED":
                 update_altcoin_status('received');
-                if(info){
-                    stop_check_order();
-                }
+                stop_interval();
                 break;
             case "OVERPAY_RECEIVED":
             case "UNDERPAY_RECEIVED":
             case "OVERPAY_CONFIRMED":
             case "UNDERPAY_CONFIRMED":
-                if(info){
-                    update_altcoin_status('add_refund');
-                }else{
-                    //Check the altcoin status
-                    switch (data.status) {
-                        case "REFUNDED":
-                            if ('txid'in data) {
-                                //Refund has been sent
-                                update_altcoin_status('refunded-txid');
-                                stop_check_order();
-                                $scope.order.alttxid = data.txid;
-                                $scope.order.alttxurl = data.txurl;
-                            } else {
-                                //Refund is being processed
-                                update_altcoin_status('refunded');
-                            }
-                            break;
-                        case "EXPIRED":
-                            //Orders not refundable
-                            update_altcoin_status('refunded');
-                            stop_check_order();
-                            break;
-                        default:
-                            if (address_present) {
-                                //Refund address has been added but flyp has not started refund 
-                                update_altcoin_status('refunded');
-                            } else {
-                                //Refund address has not been added
-                                update_altcoin_status('add_refund');
-                                stop_check_order();
-                                //Send email if not sent
-                                if (send_email) {
-                                    send_email();
-                                    send_email = false;
-                                }
-                            }
+                if ('refund_address' in data) {
+                    if ('txid'in data) {
+                        //Refund has been sent
+                        update_altcoin_status('refunded-txid');
+                        stop_interval();
+                        $scope.order.alttxid = data.txid;
+                        $scope.order.alttxurl = data.txurl;
+                        break;
+                    } else {
+                        //Refund is being processed
+                        wait_for_refund();
+                        $scope.altuuid = uuid;
+                        update_altcoin_status('refunded');
+                        break;
                     }
+                }
+                //Refund address has not been added
+                update_altcoin_status('add_refund');
+                stop_interval();
+                //Send email if not sent
+                if (send_email) {
+                    send_refund_email();
+                    send_email = false;
                 }
                 break;
             default:
-                var status = data['status'];
-                switch (status) {
+                switch (data['status']) {
                     case "WAITING_FOR_DEPOSIT":
                         update_altcoin_status('waiting');
-                        if(info){
-                            //Start checking the order status
-                            start_check_order(uuid);
-                        }
+                        start_check_order();
                         break;
                     case "EXPIRED":
                         update_altcoin_status('expired');
-                        if(info == false){
-                            stop_check_order();
-                        }
+                        stop_interval();
                         break;
                 }
         }
