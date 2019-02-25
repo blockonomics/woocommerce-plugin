@@ -451,7 +451,7 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinNe
                         update_altcoin_status('refunded-txid');
                         stop_interval();
                         $scope.order.alttxid = data.txid;
-                        $scope.order.alttxurl = data.txurl;
+                        $scope.order.alturl = data.txurl;
                         break;
                     } else {
                         //Refund is being processed
