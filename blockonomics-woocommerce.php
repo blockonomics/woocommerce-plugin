@@ -59,6 +59,7 @@ function blockonomics_woocommerce_init()
     add_action('woocommerce_order_details_after_order_table', 'nolo_custom_field_display_cust_order_meta', 10, 1);
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
+    add_action('wp_enqueue_scripts', 'bnomics_fix_vc' );
     add_action('wp_enqueue_scripts', 'bnomics_enqueue_stylesheets' );
 
     /**
@@ -343,6 +344,12 @@ function blockonomics_woocommerce_init()
       wp_enqueue_script( 'angular-qrcode', plugins_url('js/angular-qrcode.js', __FILE__) );
       wp_enqueue_script( 'vendors', plugins_url('js/vendors.min.js', __FILE__) );
       wp_enqueue_script( 'reconnecting-websocket', plugins_url('js/reconnecting-websocket.min.js', __FILE__) );
+    }
+
+    function bnomics_fix_vc(){
+        if(class_exists('WPBMap') && method_exists('WPBMap', 'addAllMappedShortcodes')) {
+            WPBMap::addAllMappedShortcodes(); // Ensure's composer shortcodes are interpreted
+        }
     }
 
     //Ajax for user checkouts through Woocommerce
