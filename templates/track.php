@@ -1,4 +1,9 @@
 <?php get_header(); ?>
+<style>
+.page-title-container{
+  display:none !important;
+}
+</style>
 <div ng-app="shopping-cart-demo">
   <div ng-controller="AltcoinController">
     <div class="bnomics-order-container">
