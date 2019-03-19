@@ -3,6 +3,12 @@
 .page-title-container{
   display:none !important;
 }
+#site-navigation{
+  top:0;
+  right:0;
+  position:absolute;
+  z-index: 9999;
+}
 </style>
 <div ng-app="shopping-cart-demo">
   <div ng-controller="CheckoutController">
