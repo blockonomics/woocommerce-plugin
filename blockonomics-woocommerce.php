@@ -209,36 +209,6 @@ function blockonomics_woocommerce_init()
                 return true;
             }
         </script>
-        <style type="text/css">
-            /* Style the tab */
-            .tab {
-              overflow: hidden;
-              border: 1px solid #ccc;
-              background-color: #f1f1f1;
-            }
-
-            /* Style the buttons inside the tab */
-            .tab span {
-              background-color: inherit;
-              float: left;
-              border: none;
-              outline: none;
-              cursor: pointer;
-              padding: 14px 16px;
-              transition: 0.3s;
-              font-size: 17px;
-            }
-
-            /* Change background color of buttons on hover */
-            .tab span:hover, .tab .selected {
-              background-color: #ddd;
-            }
-
-            /* Create an active/current tablink class */
-            .tab span.active {
-              background-color: #ccc;
-            }
-        </style>
         <div ng-app="blockonomics-admin">
           <div ng-controller="AdminController">
             <div class="wrap">
@@ -392,6 +362,7 @@ function blockonomics_woocommerce_init()
         if($_GET["page"] == "blockonomics_options") {
             wp_enqueue_script( 'angular', plugins_url('js/angular.min.js', __FILE__) );
             wp_enqueue_script( 'admin', plugins_url('js/admin.js', __FILE__) );
+            wp_enqueue_style('admin-style', plugin_dir_url(__FILE__) . "css/admin.css");
         }
     }
 
