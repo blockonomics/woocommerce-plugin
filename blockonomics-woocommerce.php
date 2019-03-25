@@ -295,6 +295,10 @@ function blockonomics_woocommerce_init()
                                 <th scope="row"><?php echo __('Extra Currency Rate Margin % (Increase live fiat to BTC rate by small percent)', 'blockonomics-bitcoin-payments')?></th>
                                 <td><input type="number" min="0" max="4" step="0.01" name="blockonomics_margin" value="<?php echo esc_attr( get_option('blockonomics_margin', 0) ); ?>" /></td>
                             </tr>
+                            <tr valign="top">
+                                <th scope="row"><?php echo __('Factor tx fee (Allow payments that do not include the bitcoin transaction fee)', 'blockonomics-bitcoin-payments')?></th>
+                                <td><input type="checkbox" name="blockonomics_factor_tx_fee" value="1" <?php checked("1", get_option('blockonomics_factor_tx_fee')); ?>" /></td>
+                            </tr>
                         </table>
                     </div>
                     <p class="submit">
@@ -486,6 +490,7 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_timeperiod');
     delete_option('blockonomics_api_updated');
     delete_option('blockonomics_altcoins');
+    delete_option('blockonomics_factor_tx_fee');
 }
 
 
