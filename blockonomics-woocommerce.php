@@ -299,6 +299,10 @@ function blockonomics_woocommerce_init()
                                 <th scope="row"><?php echo __('Factor tx fee (Allow payments that do not include the bitcoin transaction fee)', 'blockonomics-bitcoin-payments')?></th>
                                 <td><input type="checkbox" name="blockonomics_factor_tx_fee" value="1" <?php checked("1", get_option('blockonomics_factor_tx_fee')); ?>" /></td>
                             </tr>
+                            <tr valign="top">
+                                <th scope="row"><?php echo __('Underpayment Slack % (Allow payments that are off by a small percentage)', 'blockonomics-bitcoin-payments')?></th>
+                                <td><input type="number" min="0" max="10" step="0.01" name="blockonomics_underpayment_slack" value="<?php echo esc_attr( get_option('blockonomics_underpayment_slack', 0) ); ?>" /></td>
+                            </tr>
                         </table>
                     </div>
                     <p class="submit">
@@ -491,6 +495,7 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_api_updated');
     delete_option('blockonomics_altcoins');
     delete_option('blockonomics_factor_tx_fee');
+    delete_option('blockonomics_underpayment_slack');
 }
 
 

@@ -196,20 +196,27 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                 elseif ($status == 2) {
                     update_post_meta($wc_order->get_id(), 'paid_btc_amount', $_REQUEST['value']/1.0e8);
                     if ($order['satoshi'] > $_REQUEST['value']) {
-                        //Check factor tx fee setting
-                        $factor_tx_fee = get_option("blockonomics_factor_tx_fee", 0);
-                        if($factor_tx_fee){
-                            //Check tx fee for the order
-                            include 'Blockonomics.php';
-                            $blockonomics = new Blockonomics;
-                            $tx_fee = $blockonomics->get_tx_fee($order['txid']);
-                            if($order['satoshi'] > $_REQUEST['value'] - $tx_fee){
-                                $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
-                                $wc_order->payment_complete($order['txid']);
-                            }
+                        //Check underpayment slack
+                        $underpayment_slack = get_option("blockonomics_underpayment_slack", 0);
+                        if ($order['satoshi'] > $_REQUEST['value'] - $underpayment_slack) {
+                            $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
+                            $wc_order->payment_complete($order['txid']);
                         }else{
-                            $status = -2; //Payment error , amount not matching
-                            $wc_order->update_status('failed', __('Paid BTC amount less than expected.', 'blockonomics-bitcoin-payments'));
+                            //Check factor tx fee setting
+                            $factor_tx_fee = get_option("blockonomics_factor_tx_fee", 0);
+                            if($factor_tx_fee){
+                                //Check tx fee for the order
+                                include 'Blockonomics.php';
+                                $blockonomics = new Blockonomics;
+                                $tx_fee = $blockonomics->get_tx_fee($order['txid']);
+                                if($order['satoshi'] > $_REQUEST['value'] - $tx_fee){
+                                    $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
+                                    $wc_order->payment_complete($order['txid']);
+                                }
+                            }else{
+                                $status = -2; //Payment error , amount not matching
+                                $wc_order->update_status('failed', __('Paid BTC amount less than expected.', 'blockonomics-bitcoin-payments'));
+                            }
                         }
                     }
                     else{
