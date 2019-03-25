@@ -212,6 +212,9 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                                 if($order['satoshi'] > $_REQUEST['value'] - $tx_fee){
                                     $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
                                     $wc_order->payment_complete($order['txid']);
+                                }else{
+                                    $status = -2; //Payment error , amount not matching
+                                    $wc_order->update_status('failed', __('Paid BTC amount less than expected.', 'blockonomics-bitcoin-payments'));
                                 }
                             }else{
                                 $status = -2; //Payment error , amount not matching
