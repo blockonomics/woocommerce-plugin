@@ -60,7 +60,6 @@ function blockonomics_woocommerce_init()
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_action('wp_enqueue_scripts', 'bnomics_enqueue_stylesheets' );
-    //add_action('admin_enqueue_scripts', 'bnomics_enqueue_admin');
 
     /**
      * Add this Gateway to WooCommerce
@@ -362,12 +361,6 @@ function blockonomics_woocommerce_init()
       wp_enqueue_script( 'vendors', plugins_url('js/vendors.min.js', __FILE__) );
       wp_enqueue_script( 'reconnecting-websocket', plugins_url('js/reconnecting-websocket.min.js', __FILE__) );
     }
-
-    // function bnomics_enqueue_admin(){
-    //     if($_GET["page"] == "blockonomics_options") {
-    //         wp_enqueue_script( 'admin', plugins_url('js/admin.js', __FILE__) );
-    //     }
-    // }
 
     //Ajax for user checkouts through Woocommerce
     add_action( 'wp_ajax_save_uuid', 'bnomics_alt_save_uuid' );
