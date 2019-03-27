@@ -12,7 +12,6 @@ class Blockonomics
     const GET_CALLBACKS_URL = 'https://www.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
     const TEMP_API_KEY_URL = 'https://www.blockonomics.co/api/temp_wallet';
     const TEMP_WITHDRAW_URL = 'https://www.blockonomics.co/api/temp_withdraw_request';
-    const TX_DETAIL_URL = 'https://www.blockonomics.co/api/tx_detail';
 
     public function __construct()
     {
@@ -73,13 +72,6 @@ class Blockonomics
         $url = Blockonomics::GET_CALLBACKS_URL;
         $response = $this->get($url, $this->api_key);
         return $response;
-    }
-
-    public function get_tx_fee($txid)
-    {
-        $url = Blockonomics::TX_DETAIL_URL. "?txid=$txid";
-        $response = $this->get($url);
-        return json_decode(wp_remote_retrieve_body($response))->fee;
     }
 
     public function get_temp_api_key($callback_url)

@@ -296,10 +296,6 @@ function blockonomics_woocommerce_init()
                                 <td><input type="number" min="0" max="4" step="0.01" name="blockonomics_margin" value="<?php echo esc_attr( get_option('blockonomics_margin', 0) ); ?>" /></td>
                             </tr>
                             <tr valign="top">
-                                <th scope="row"><?php echo __('Factor tx fee (Allow payments that do not include the bitcoin transaction fee)', 'blockonomics-bitcoin-payments')?></th>
-                                <td><input type="checkbox" name="blockonomics_factor_tx_fee" value="1" <?php checked("1", get_option('blockonomics_factor_tx_fee')); ?>" /></td>
-                            </tr>
-                            <tr valign="top">
                                 <th scope="row"><?php echo __('Underpayment Slack % (Allow payments that are off by a small percentage)', 'blockonomics-bitcoin-payments')?></th>
                                 <td><input type="number" min="0" max="10" step="0.01" name="blockonomics_underpayment_slack" value="<?php echo esc_attr( get_option('blockonomics_underpayment_slack', 0) ); ?>" /></td>
                             </tr>
@@ -308,7 +304,7 @@ function blockonomics_woocommerce_init()
                     <p class="submit">
                         <input type="submit" class="button-primary" value="Save"/>
                         <input type="hidden" name="action" value="update" />
-                        <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated,blockonomics_factor_tx_fee,blockonomics_underpayment_slack" />
+                        <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated,blockonomics_underpayment_slack" />
                         <input onclick="checkForAPIKeyChange();" class="button-primary" name="test-setup-submit" value="Test Setup" style="max-width:85px;">
                     </p>
                 </form>
@@ -494,7 +490,6 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_timeperiod');
     delete_option('blockonomics_api_updated');
     delete_option('blockonomics_altcoins');
-    delete_option('blockonomics_factor_tx_fee');
     delete_option('blockonomics_underpayment_slack');
 }
 
