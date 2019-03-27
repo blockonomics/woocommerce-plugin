@@ -199,11 +199,11 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                         //Check underpayment slack
                         $underpayment_slack = get_option("blockonomics_underpayment_slack", 0)/100 * $order['satoshi'];
                         if ($order['satoshi'] - $underpayment_slack > $_REQUEST['value']) {
-                            $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
-                            $wc_order->payment_complete($order['txid']);
-                        }else{
                             $status = -2; //Payment error , amount not matching
                             $wc_order->update_status('failed', __('Paid BTC amount less than expected.', 'blockonomics-bitcoin-payments'));
+                        }else{
+                            $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
+                            $wc_order->payment_complete($order['txid']);
                         }
                     }
                     else{
