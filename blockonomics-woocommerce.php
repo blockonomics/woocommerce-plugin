@@ -278,9 +278,9 @@ function blockonomics_woocommerce_init()
                         <td><input onchange="value_changed()" type="text" id="blockonomics_api_key" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" /></td>
                     </tr>
                 </table>
-                <p id="advanced_title" style="font-weight:bold"><a href="javascript:show_advanced()">Advanced &#9660;</a></p>
+                <p id="advanced_title" style="font-weight:bold"><a href="javascript:show_advanced()">Advanced Settings &#9660;</a></p>
                 <div id="advanced_window" style="display:none">
-                    <p style="font-weight:bold"><a href="javascript:show_basic()">Basic &#9650;</a></p>
+                    <p style="font-weight:bold"><a href="javascript:show_basic()">Advanced Settings &#9650;</a></p>
                     <table class="form-table">
                         <tr valign="top"><th scope="row"><?php echo __('Time period of countdown timer on payment page (in minutes)', 'blockonomics-bitcoin-payments')?></th>
                             <td>
