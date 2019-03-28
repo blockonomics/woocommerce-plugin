@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 1.7.4  =
+* Added Underpayment slack options, advanced settings section
+
 = 1.7.2  =
 * Fixed issue with Bitcoin Image not showing, code refactoring
 

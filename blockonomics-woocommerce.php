@@ -3,7 +3,7 @@
  * Plugin Name: Wordpress Bitcoin Payments - Blockonomics
  * Plugin URI: https://github.com/blockonomics/woocommerce-plugin
  * Description: Accept Bitcoin Payments on your WooCommerce-powered website with Blockonomics
- * Version: 1.7.3
+ * Version: 1.7.4
  * Author: Blockonomics
  * Author URI: https://www.blockonomics.co
  * License: MIT
@@ -218,11 +218,6 @@ function blockonomics_woocommerce_init()
         </script>
         <div class="wrap">
             <h2>Blockonomics</h2>
-            <div id="installation-instructions">
-                <p>
-                    <b><?php echo __('Installation instructions', 'blockonomics-bitcoin-payments');?>: </b><a href="https://www.youtube.com/watch?v=Kck3a-9nh6E" target="_blank">Youtube Tutorial</a> | <a href="https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62" target="_blank">Blog Tutorial</a>
-                </p>
-            </div>
             <form method="post" id="myform" onsubmit="return validateBlockonomicsForm()" action="options.php">
                 <?php wp_nonce_field('update-options') ?>
                 <input type="hidden" name="blockonomics_api_updated" id="blockonomics_api_updated" value="false">
@@ -248,13 +243,13 @@ function blockonomics_woocommerce_init()
 
                             <p><b>Blockonomics Wallet</b> (Balance: 0 BTC)</p>
                             <p>We are using a temporary wallet on Blockonomics to receive your payments.</p>
-                            <p>To receive payments directly to your wallet (recommended) -> Follow Wizard by clicking on <i>Get Started for Free</i> on <a href="https://www.blockonomics.co/merchants" target="_blank">Merchants</a> and enter the APIKey below</p>
+                            <p>To receive payments directly to your wallet (recommended) -> Follow Wizard by clicking on <i>Get Started for Free</i> on <a href="https://www.blockonomics.co/merchants" target="_blank">Merchants</a> and enter the APIKey below [<a href="https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62">Blog Instructions</a>]</p>
 
                             <?php elseif ($temp_api_key && $total_received > 0): ?>
 
                             <p><b>Blockonomics Wallet</b> (Balance: <?php echo "$total_received"; ?> BTC)</p>
                             <?php if (!$api_key): ?>
-                            <p> To withdraw, follow wizard by clicking on <i>Get Started for Free</i> on <a href="https://www.blockonomics.co/merchants" target="_blank">Merchants</a>, then enter the APIKey below.
+                            <p> To withdraw, follow wizard by clicking on <i>Get Started for Free</i> on <a href="https://www.blockonomics.co/merchants" target="_blank">Merchants</a>, then enter the APIKey below [<a href="https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62">Blog Instructions</a>]
                             </p>
                             <?php else: ?>
                             <p> To withdraw, Click on <b>Test Setup</b></p>
