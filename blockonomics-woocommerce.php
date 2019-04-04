@@ -341,20 +341,24 @@ function blockonomics_woocommerce_init()
     }
 
     function bnomics_enqueue_stylesheets(){
-      wp_enqueue_style('bnomics-style', plugin_dir_url(__FILE__) . "css/order.css");
-      wp_enqueue_style( 'bnomics-altcoins', plugin_dir_url(__FILE__) . "css/cryptofont/cryptofont.min.css");
-      wp_enqueue_style( 'bnomics-icons', plugin_dir_url(__FILE__) . "css/icons/icons.css");
+        if ( stripos($_SERVER['REQUEST_URI'], 'wc-api') ){
+          wp_enqueue_style('bnomics-style', plugin_dir_url(__FILE__) . "css/order.css");
+          wp_enqueue_style( 'bnomics-altcoins', plugin_dir_url(__FILE__) . "css/cryptofont/cryptofont.min.css");
+          wp_enqueue_style( 'bnomics-icons', plugin_dir_url(__FILE__) . "css/icons/icons.css");
+        }
     }
 
     function bnomics_enqueue_scripts(){
-      wp_enqueue_script( 'angular', plugins_url('js/angular.min.js', __FILE__) );
-      wp_enqueue_script( 'angular-resource', plugins_url('js/angular-resource.min.js', __FILE__) );
-      wp_enqueue_script( 'app', plugins_url('js/app.js', __FILE__) );
-                        wp_localize_script( 'app', 'ajax_object',
-                            array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
-      wp_enqueue_script( 'angular-qrcode', plugins_url('js/angular-qrcode.js', __FILE__) );
-      wp_enqueue_script( 'vendors', plugins_url('js/vendors.min.js', __FILE__) );
-      wp_enqueue_script( 'reconnecting-websocket', plugins_url('js/reconnecting-websocket.min.js', __FILE__) );
+        if ( stripos($_SERVER['REQUEST_URI'], 'wc-api') ){
+          wp_enqueue_script( 'angular', plugins_url('js/angular.min.js', __FILE__) );
+          wp_enqueue_script( 'angular-resource', plugins_url('js/angular-resource.min.js', __FILE__) );
+          wp_enqueue_script( 'app', plugins_url('js/app.js', __FILE__) );
+                            wp_localize_script( 'app', 'ajax_object',
+                                array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
+          wp_enqueue_script( 'angular-qrcode', plugins_url('js/angular-qrcode.js', __FILE__) );
+          wp_enqueue_script( 'vendors', plugins_url('js/vendors.min.js', __FILE__) );
+          wp_enqueue_script( 'reconnecting-websocket', plugins_url('js/reconnecting-websocket.min.js', __FILE__) );
+        }
     }
 
     //Ajax for user checkouts through Woocommerce
