@@ -60,6 +60,8 @@ function blockonomics_woocommerce_init()
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_action('wp_enqueue_scripts', 'bnomics_enqueue_stylesheets' );
+    add_action('wp_enqueue_scripts', 'bnomics_enqueue_scripts' );
+    add_action( 'init', 'bnomics_register_bitcoin_order_post_type' );
 
     /**
      * Add this Gateway to WooCommerce
@@ -399,6 +401,53 @@ function blockonomics_woocommerce_init()
       //wp_mail( $email, $subject, $html_message, HTML_EMAIL_HEADERS );
       // Send the email using woocommerce mailer send
       $mailer->send( $email, $subject, $html_message, array('Content-Type: text/html; charset=UTF-8') );
+    }
+
+	// Create custom post type page from order details
+	function bnomics_register_bitcoin_order_post_type($order) {
+	  $labels = array(
+	     'name' => _x( 'Bitcoin Orders', 'post type general name' ),
+	     'singular_name' => _x( 'Bitcoin Order', 'post type singular name' ),
+	  );
+	  $args = array(
+	    'labels' => $labels,
+	    'description' => 'Blockonomics order pages',
+	    'public' => true,
+	  );
+	  register_post_type( 'bitcoin_orders', $args );
+	  $show_page = get_page_by_title( 'Show', OBJECT, 'bitcoin_orders' );
+	  $track_page = get_page_by_title( 'Track', OBJECT, 'bitcoin_orders' );
+	  if ( ! $show_page || ! $track_page ) {
+		bnomics_create_pages();
+		flush_rewrite_rules(); 
+ 	  }
+	}
+
+    function bnomics_create_pages() {
+        $template_url = plugins_url('templates/order.htm', __FILE__);
+        $checkout_page = array(
+          'post_title'    => wp_strip_all_tags( 'Show' ),
+          'post_content'  => '<div ng-app="shopping-cart-demo">
+                              <div ng-controller="CheckoutController">
+                              <div ng-include="\''.$template_url.'\'">
+                              </div></div></div>',
+          'post_status'   => 'publish',
+          'post_author'   => 1,
+          'post_type'     => 'bitcoin_orders',
+        );
+        wp_insert_post( $checkout_page );
+
+        $altcoin_page = array(
+          'post_title'    => wp_strip_all_tags( 'Track' ),
+          'post_content'  => '<div ng-app="shopping-cart-demo">
+                              <div ng-controller="AltcoinController">
+                              <div ng-include="\''.$template_url.'\'">
+                              </div></div></div>',
+          'post_status'   => 'publish',
+          'post_author'   => 1,
+          'post_type'     => 'bitcoin_orders',
+        );
+        wp_insert_post( $altcoin_page );
     }
 }
 

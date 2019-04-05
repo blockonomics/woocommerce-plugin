@@ -57,9 +57,12 @@ service.factory('WpAjax', function($resource) {
 app = angular.module("shopping-cart-demo", ["monospaced.qrcode", "shoppingcart.services"]);
 
 
-app.config(function($compileProvider) {
+app.config(function($compileProvider,$sceDelegateProvider) {
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|data|chrome-extension|bitcoin|ethereum|litecoin):/);
     // Angular before v1.2 uses $compileProvider.urlSanitizationWhitelist(...)
+    $sceDelegateProvider.resourceUrlWhitelist([
+        'http://localhost/**'
+    ]);
 });
 
 function getParameterByNameBlocko(name, url) {
@@ -77,11 +80,11 @@ function getParameterByNameBlocko(name, url) {
 //CheckoutController
 app.controller('CheckoutController', function($scope, $interval, Order, $httpParamSerializer, $timeout) {
     //get order id from url
-    $scope.address = getParameterByNameBlocko("show_order");
+    $scope.address = getParameterByNameBlocko("order");
     var totalProgress = 100;
     $scope.copyshow = false;
     //blockonomics_time_period is defined on JS file as global var
-    var totalTime = blockonomics_time_period * 60;
+    var totalTime = 10 * 60;
 
     //Create url when the order is received 
     $scope.finish_order_url = function() {
