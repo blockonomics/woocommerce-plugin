@@ -61,7 +61,11 @@ app.config(function($compileProvider,$sceDelegateProvider) {
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|data|chrome-extension|bitcoin|ethereum|litecoin):/);
     // Angular before v1.2 uses $compileProvider.urlSanitizationWhitelist(...)
     $sceDelegateProvider.resourceUrlWhitelist([
-        'http://localhost/**'
+        // Allow same origin resource loads.
+        'self',
+        // Allow localhost resource loads.
+        'http://localhost/**',
+        'http://enigma-laptop.local/**'
     ]);
 });
 
