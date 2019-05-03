@@ -429,7 +429,7 @@ function blockonomics_woocommerce_init()
           'post_title'    => wp_strip_all_tags( 'Show' ),
           'post_content'  => '<div ng-app="shopping-cart-demo">
                               <div ng-controller="CheckoutController">
-                              <div ng-include="\''.$template_url.'\'">
+                              <div ng-include="\''.wp_make_link_relative($template_url).'\'">
                               </div></div></div>',
           'post_status'   => 'publish',
           'post_author'   => 1,

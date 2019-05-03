@@ -62,10 +62,7 @@ app.config(function($compileProvider,$sceDelegateProvider) {
     // Angular before v1.2 uses $compileProvider.urlSanitizationWhitelist(...)
     $sceDelegateProvider.resourceUrlWhitelist([
         // Allow same origin resource loads.
-        'self',
-        // Allow localhost resource loads.
-        'http://localhost/**',
-        'http://enigma-laptop.local/**'
+        'self'
     ]);
 });
 
