@@ -425,24 +425,25 @@ function blockonomics_woocommerce_init()
 
     function bnomics_create_pages() {
         $template_url = plugins_url('templates/order.htm', __FILE__);
+        $post_content = '<div ng-app="shopping-cart-demo"><div ng-controller="CheckoutController">';
+        $post_content .= '<div ng-include="\''.wp_make_link_relative($template_url).'\'"></div>';
+        $post_content .= '</div></div>';
         $checkout_page = array(
           'post_title'    => wp_strip_all_tags( 'Show' ),
-          'post_content'  => '<div ng-app="shopping-cart-demo">
-                              <div ng-controller="CheckoutController">
-                              <div ng-include="\''.wp_make_link_relative($template_url).'\'">
-                              </div></div></div>',
+          'post_content'  => $post_content,
           'post_status'   => 'publish',
           'post_author'   => 1,
           'post_type'     => 'bitcoin_orders',
         );
         wp_insert_post( $checkout_page );
 
+        $template_url = plugins_url('templates/track.htm', __FILE__);
+        $post_content = '<div ng-app="shopping-cart-demo"><div ng-controller="AltcoinController">';
+        $post_content .= '<div ng-include="\''.wp_make_link_relative($template_url).'\'"></div>';
+        $post_content .= '</div></div>';
         $altcoin_page = array(
           'post_title'    => wp_strip_all_tags( 'Track' ),
-          'post_content'  => '<div ng-app="shopping-cart-demo">
-                              <div ng-controller="AltcoinController">
-                              <div ng-include="\''.$template_url.'\'">
-                              </div></div></div>',
+          'post_content'  => $post_content,
           'post_status'   => 'publish',
           'post_author'   => 1,
           'post_type'     => 'bitcoin_orders',
