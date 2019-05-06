@@ -11,7 +11,7 @@ service.factory('Order', function($resource) {
         };
     else
         param = {};
-    var item = $resource(window.location.pathname, param);
+    var item = $resource(ajax_object.wc_url, param);
     return item;
 });
 
@@ -97,7 +97,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         else
             params = {};
         params.finish_order = $scope.address;
-        url = window.location.pathname;
+        url = ajax_object.wc_url;
         var serializedParams = $httpParamSerializer(params);
         if (serializedParams.length > 0) {
             url += ((url.indexOf('?') === -1) ? '?' : '&') + serializedParams;
@@ -119,7 +119,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         params.amount = amount;
         params.address = address;
         params.order_id = order_id;
-        url = window.location.pathname;
+        url = ajax_object.wc_url;
         var serializedParams = $httpParamSerializer(params);
         if (serializedParams.length > 0) {
             url += ((url.indexOf('?') === -1) ? '?' : '&') + serializedParams;
@@ -140,13 +140,13 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     };
 
     //Pay with altcoin button clicked
-    $scope.pay_altcoins = function() {
+    $scope.pay_altcoins = function(data) {
         $interval.cancel($scope.alt_tick_interval);
         $scope.order.altaddress = '';
         $scope.order.altamount = '';
         $scope.altcoin_waiting = true;
         $scope.alt_clock = 600;
-        var altcoin = getAltKeyByValue($scope.altcoins, $scope.altcoinselect);
+        var altcoin = getAltKeyByValue($scope.altcoins, data);
         $scope.order.altsymbol = getAltKeyByValue($scope.altcoins, $scope.altcoinselect);
         var amount = $scope.order.satoshi / 1.0e8;
         var address = $scope.order.address;
@@ -241,7 +241,7 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinNe
         else
             params = {};
         params.uuid = uuid;
-        url = window.location.pathname;
+        url = ajax_object.wc_url;
         var serializedParams = $httpParamSerializer(params);
         if (serializedParams.length > 0) {
             url += ((url.indexOf('?') === -1) ? '?' : '&') + serializedParams;

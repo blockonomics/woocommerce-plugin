@@ -158,8 +158,13 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             wp_redirect( get_post_permalink($post->ID). "?order=".$address );
             exit;
         }else if ($uuid){
+            $amount = isset($_REQUEST["amount"]) ? $_REQUEST["amount"] : "";
             $post = get_page_by_path( 'track', OBJECT, 'bitcoin_orders' );
-            wp_redirect( get_post_permalink($post->ID). "?uuid=".$uuid );
+            if ($amount){
+                wp_redirect( get_post_permalink($post->ID). "?uuid=".$uuid. "&amount=".$amount. "&altcoin=".$_REQUEST["altcoin"]. "&address=".$_REQUEST["address"]. "&order_id=".$_REQUEST["order_id"] );
+            }else{
+                wp_redirect( get_post_permalink($post->ID). "?uuid=".$uuid );
+            }
             exit;
         }
         $address = isset($_REQUEST["finish_order"]) ? $_REQUEST["finish_order"] : "";

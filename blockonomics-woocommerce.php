@@ -353,7 +353,7 @@ function blockonomics_woocommerce_init()
       wp_enqueue_script( 'angular-resource', plugins_url('js/angular-resource.min.js', __FILE__) );
       wp_enqueue_script( 'app', plugins_url('js/app.js', __FILE__) );
                         wp_localize_script( 'app', 'ajax_object',
-                            array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
+                            array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 'wc_url' => WC()->api_request_url('WC_Gateway_Blockonomics') ) );
       wp_enqueue_script( 'angular-qrcode', plugins_url('js/angular-qrcode.js', __FILE__) );
       wp_enqueue_script( 'vendors', plugins_url('js/vendors.min.js', __FILE__) );
       wp_enqueue_script( 'reconnecting-websocket', plugins_url('js/reconnecting-websocket.min.js', __FILE__) );
