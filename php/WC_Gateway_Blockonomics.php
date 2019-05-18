@@ -155,11 +155,13 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $uuid = isset($_REQUEST["uuid"]) ? $_REQUEST["uuid"] : "";
         if ($address) {
             $dir = plugin_dir_path(__FILE__);
+            add_action('wp_enqueue_scripts', 'bnomics_enqueue_stylesheets' );
             add_action('wp_enqueue_scripts', 'bnomics_enqueue_scripts' );
             include $dir."../templates/order.php";
             exit();
         }else if ($uuid){
             $dir = plugin_dir_path(__FILE__);
+            add_action('wp_enqueue_scripts', 'bnomics_enqueue_stylesheets' );
             add_action('wp_enqueue_scripts', 'bnomics_enqueue_scripts' );
             include $dir."../templates/track.php";
             exit();
