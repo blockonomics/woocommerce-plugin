@@ -126,7 +126,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $blockonomics_orders = get_option('blockonomics_orders');
         $order = array(
         'value'              => $order->get_total(),
-        'satoshi'            => intval(1.0e8*$order->get_total()/$price),
+        'satoshi'            => intval(round(1.0e8*$order->get_total()/$price)),
         'currency'           => get_woocommerce_currency(),
         'order_id'            => $order_id,
         'status'             => -1,
