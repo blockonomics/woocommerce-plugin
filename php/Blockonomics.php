@@ -135,6 +135,7 @@ class Blockonomics
 
         $response = wp_remote_post( $url, array(
             'method' => 'POST',
+            'timeout' => 8,
             'headers' => $headers,
             'body' => $body
             )
