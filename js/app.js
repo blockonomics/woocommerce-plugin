@@ -11,7 +11,7 @@ service.factory('Order', function($resource) {
         };
     else
         param = {};
-    var item = $resource(window.location.pathname, param);
+    var item = $resource(ajax_object.wc_url, param);
     return item;
 });
 
@@ -57,9 +57,13 @@ service.factory('WpAjax', function($resource) {
 app = angular.module("shopping-cart-demo", ["monospaced.qrcode", "shoppingcart.services"]);
 
 
-app.config(function($compileProvider) {
+app.config(function($compileProvider,$sceDelegateProvider) {
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|data|chrome-extension|bitcoin|ethereum|litecoin):/);
     // Angular before v1.2 uses $compileProvider.urlSanitizationWhitelist(...)
+    $sceDelegateProvider.resourceUrlWhitelist([
+        // Allow same origin resource loads.
+        'self'
+    ]);
 });
 
 function getParameterByNameBlocko(name, url) {
@@ -77,11 +81,11 @@ function getParameterByNameBlocko(name, url) {
 //CheckoutController
 app.controller('CheckoutController', function($scope, $interval, Order, $httpParamSerializer, $timeout) {
     //get order id from url
-    $scope.address = getParameterByNameBlocko("show_order");
+    $scope.address = getParameterByNameBlocko("order");
     var totalProgress = 100;
     $scope.copyshow = false;
     //blockonomics_time_period is defined on JS file as global var
-    var totalTime = blockonomics_time_period * 60;
+    var totalTime = 10 * 60;
 
     //Create url when the order is received 
     $scope.finish_order_url = function() {
@@ -93,7 +97,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         else
             params = {};
         params.finish_order = $scope.address;
-        url = window.location.pathname;
+        url = ajax_object.wc_url;
         var serializedParams = $httpParamSerializer(params);
         if (serializedParams.length > 0) {
             url += ((url.indexOf('?') === -1) ? '?' : '&') + serializedParams;
@@ -115,7 +119,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         params.amount = amount;
         params.address = address;
         params.order_id = order_id;
-        url = window.location.pathname;
+        url = ajax_object.wc_url;
         var serializedParams = $httpParamSerializer(params);
         if (serializedParams.length > 0) {
             url += ((url.indexOf('?') === -1) ? '?' : '&') + serializedParams;
@@ -136,13 +140,13 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     };
 
     //Pay with altcoin button clicked
-    $scope.pay_altcoins = function() {
+    $scope.pay_altcoins = function(data) {
         $interval.cancel($scope.alt_tick_interval);
         $scope.order.altaddress = '';
         $scope.order.altamount = '';
         $scope.altcoin_waiting = true;
         $scope.alt_clock = 600;
-        var altcoin = getAltKeyByValue($scope.altcoins, $scope.altcoinselect);
+        var altcoin = getAltKeyByValue($scope.altcoins, data);
         $scope.order.altsymbol = getAltKeyByValue($scope.altcoins, $scope.altcoinselect);
         var amount = $scope.order.satoshi / 1.0e8;
         var address = $scope.order.address;
@@ -237,7 +241,7 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinNe
         else
             params = {};
         params.uuid = uuid;
-        url = window.location.pathname;
+        url = ajax_object.wc_url;
         var serializedParams = $httpParamSerializer(params);
         if (serializedParams.length > 0) {
             url += ((url.indexOf('?') === -1) ? '?' : '&') + serializedParams;

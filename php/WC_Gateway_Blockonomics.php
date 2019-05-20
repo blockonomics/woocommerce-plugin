@@ -154,15 +154,18 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $address = isset($_REQUEST["show_order"]) ? $_REQUEST["show_order"] : "";
         $uuid = isset($_REQUEST["uuid"]) ? $_REQUEST["uuid"] : "";
         if ($address) {
-            $dir = plugin_dir_path(__FILE__);
-            add_action('wp_enqueue_scripts', 'bnomics_enqueue_scripts' );
-            include $dir."../templates/order.php";
-            exit();
+            $post = get_page_by_path( 'show', OBJECT, 'bitcoin_orders' );
+            wp_redirect( get_post_permalink($post->ID). "?order=".$address );
+            exit;
         }else if ($uuid){
-            $dir = plugin_dir_path(__FILE__);
-            add_action('wp_enqueue_scripts', 'bnomics_enqueue_scripts' );
-            include $dir."../templates/track.php";
-            exit();
+            $amount = isset($_REQUEST["amount"]) ? $_REQUEST["amount"] : "";
+            $post = get_page_by_path( 'track', OBJECT, 'bitcoin_orders' );
+            if ($amount){
+                wp_redirect( get_post_permalink($post->ID). "?uuid=".$uuid. "&amount=".$amount. "&altcoin=".$_REQUEST["altcoin"]. "&address=".$_REQUEST["address"]. "&order_id=".$_REQUEST["order_id"] );
+            }else{
+                wp_redirect( get_post_permalink($post->ID). "?uuid=".$uuid );
+            }
+            exit;
         }
         $address = isset($_REQUEST["finish_order"]) ? $_REQUEST["finish_order"] : "";
         if ($address) {

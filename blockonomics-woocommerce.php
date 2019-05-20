@@ -60,6 +60,8 @@ function blockonomics_woocommerce_init()
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_action('wp_enqueue_scripts', 'bnomics_enqueue_stylesheets' );
+    add_action('wp_enqueue_scripts', 'bnomics_enqueue_scripts' );
+    add_action( 'init', 'bnomics_register_bitcoin_order_post_type' );
 
     /**
      * Add this Gateway to WooCommerce
@@ -351,7 +353,7 @@ function blockonomics_woocommerce_init()
       wp_enqueue_script( 'angular-resource', plugins_url('js/angular-resource.min.js', __FILE__) );
       wp_enqueue_script( 'app', plugins_url('js/app.js', __FILE__) );
                         wp_localize_script( 'app', 'ajax_object',
-                            array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
+                            array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 'wc_url' => WC()->api_request_url('WC_Gateway_Blockonomics') ) );
       wp_enqueue_script( 'angular-qrcode', plugins_url('js/angular-qrcode.js', __FILE__) );
       wp_enqueue_script( 'vendors', plugins_url('js/vendors.min.js', __FILE__) );
       wp_enqueue_script( 'reconnecting-websocket', plugins_url('js/reconnecting-websocket.min.js', __FILE__) );
@@ -399,6 +401,54 @@ function blockonomics_woocommerce_init()
       //wp_mail( $email, $subject, $html_message, HTML_EMAIL_HEADERS );
       // Send the email using woocommerce mailer send
       $mailer->send( $email, $subject, $html_message, array('Content-Type: text/html; charset=UTF-8') );
+    }
+
+	// Create custom post type page from order details
+	function bnomics_register_bitcoin_order_post_type($order) {
+	  $labels = array(
+	     'name' => _x( 'Bitcoin Orders', 'post type general name' ),
+	     'singular_name' => _x( 'Bitcoin Order', 'post type singular name' ),
+	  );
+	  $args = array(
+	    'labels' => $labels,
+	    'description' => 'Blockonomics order pages',
+	    'public' => true,
+	  );
+	  register_post_type( 'bitcoin_orders', $args );
+	  $show_page = get_page_by_title( 'Show', OBJECT, 'bitcoin_orders' );
+	  $track_page = get_page_by_title( 'Track', OBJECT, 'bitcoin_orders' );
+	  if ( ! $show_page || ! $track_page ) {
+		bnomics_create_pages();
+		flush_rewrite_rules(); 
+ 	  }
+	}
+
+    function bnomics_create_pages() {
+        $template_url = plugins_url('templates/order.htm', __FILE__);
+        $post_content = '<div ng-app="shopping-cart-demo"><div ng-controller="CheckoutController">';
+        $post_content .= '<div ng-include="\''.wp_make_link_relative($template_url).'\'"></div>';
+        $post_content .= '</div></div>';
+        $checkout_page = array(
+          'post_title'    => wp_strip_all_tags( 'Show' ),
+          'post_content'  => $post_content,
+          'post_status'   => 'publish',
+          'post_author'   => 1,
+          'post_type'     => 'bitcoin_orders',
+        );
+        wp_insert_post( $checkout_page );
+
+        $template_url = plugins_url('templates/track.htm', __FILE__);
+        $post_content = '<div ng-app="shopping-cart-demo"><div ng-controller="AltcoinController">';
+        $post_content .= '<div ng-include="\''.wp_make_link_relative($template_url).'\'"></div>';
+        $post_content .= '</div></div>';
+        $altcoin_page = array(
+          'post_title'    => wp_strip_all_tags( 'Track' ),
+          'post_content'  => $post_content,
+          'post_status'   => 'publish',
+          'post_author'   => 1,
+          'post_type'     => 'bitcoin_orders',
+        );
+        wp_insert_post( $altcoin_page );
     }
 }
 
