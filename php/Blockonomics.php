@@ -129,17 +129,20 @@ class Blockonomics
         }
     }
 
-    private function post($url, $api_key = '', $body = '', $timeout = 5)
+    private function post($url, $api_key = '', $body = '', $timeout = '')
     {
         $headers = $this->set_headers($api_key);
 
-        $response = wp_remote_post( $url, array(
+        $data = array(
             'method' => 'POST',
-            'timeout' => $timeout,
             'headers' => $headers,
             'body' => $body
-            )
-        );
+            );
+        if($timeout){
+            $data['timeout'] = $timeout;
+        }
+        
+        $response = wp_remote_post( $url, $data );
         if(is_wp_error( $response )){
            $error_message = $response->get_error_message();
            echo "Something went wrong: $error_message";
