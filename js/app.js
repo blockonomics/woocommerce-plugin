@@ -423,7 +423,8 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinNe
                             "from_currency": altcoin,
                             "to_currency": "BTC",
                             "ordered_amount": amount,
-                            "destination": address
+                            "destination": address,
+                            "referral_code": 'BLOCKO'
                         }
                     },function(order_new) {
                         //Resolve the new altcoin order uuid

@@ -59,6 +59,7 @@ function blockonomics_woocommerce_init()
     add_action('woocommerce_order_details_after_order_table', 'nolo_custom_field_display_cust_order_meta', 10, 1);
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
+    add_filter('clean_url', 'bnomics_async_scripts', 11, 1 );
 
     /**
      * Add this Gateway to WooCommerce
@@ -346,14 +347,25 @@ function blockonomics_woocommerce_init()
     }
 
     function bnomics_enqueue_scripts(){
-      wp_enqueue_script( 'angular', plugins_url('js/angular.min.js', __FILE__) );
-      wp_enqueue_script( 'angular-resource', plugins_url('js/angular-resource.min.js', __FILE__) );
-      wp_enqueue_script( 'app', plugins_url('js/app.js', __FILE__) );
+      wp_enqueue_script( 'angular', plugins_url('js/angular.min.js#deferload', __FILE__) );
+      wp_enqueue_script( 'angular-resource', plugins_url('js/angular-resource.min.js#deferload', __FILE__) );
+      wp_enqueue_script( 'app', plugins_url('js/app.js#deferload', __FILE__) );
                         wp_localize_script( 'app', 'ajax_object',
                             array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
-      wp_enqueue_script( 'angular-qrcode', plugins_url('js/angular-qrcode.js', __FILE__) );
-      wp_enqueue_script( 'vendors', plugins_url('js/vendors.min.js', __FILE__) );
-      wp_enqueue_script( 'reconnecting-websocket', plugins_url('js/reconnecting-websocket.min.js', __FILE__) );
+      wp_enqueue_script( 'angular-qrcode', plugins_url('js/angular-qrcode.js#deferload', __FILE__) );
+      wp_enqueue_script( 'vendors', plugins_url('js/vendors.min.js#deferload', __FILE__) );
+      wp_enqueue_script( 'reconnecting-websocket', plugins_url('js/reconnecting-websocket.min.js#deferload', __FILE__) );
+    }
+
+    // Async load
+    function bnomics_async_scripts($url)
+    {
+        if ( strpos( $url, '#deferload') === false )
+            return $url;
+        else if ( is_admin() )
+            return str_replace( '#deferload', '', $url );
+        else
+        return str_replace( '#deferload', '', $url )."' defer='defer"; 
     }
 
     //Ajax for user checkouts through Woocommerce
