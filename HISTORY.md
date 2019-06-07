@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 1.7.5  =
+* Checkout page performance improvements and bug fixes
+
 = 1.7.4  =
 * Added Underpayment slack options, advanced settings section
 

@@ -2,8 +2,8 @@
 **Contributors:** juhasiivikko, darrenwestwood, blockonomics
 **Tags:** bitcoin, accept bitcoin, bitcoin woocommerce, bitcoin wordpress plugin, bitcoin payments 
 **Requires at least:** 3.0.1 
-**Tested up to:** 5.1
-**Stable tag:** 1.7.4
+**Tested up to:** 5.2
+**Stable tag:** 1.7.5
 **License:** MIT 
 **License URI:** http://opensource.org/licenses/MIT 
 
@@ -22,7 +22,7 @@ Blockonomics is the only Bitcoin payment gateway that enables full decentralizat
 - Payments are received **directly into your wallet** 
 - **No approvals** of API key/documentation required 
 - **Safe and secure** transactions 
-- Installation only takes **five minutes** - [Video Tutorial](https://youtu.be/Kck3a-9nh6E)  
+- Installation only takes **two minutes** - [Video Tutorial](https://www.youtube.com/watch?v=tysaHV2CxPI)  
 - Eliminate chargebacks and fraud 
 - **World-class** customer support team 
 
