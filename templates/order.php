@@ -1,4 +1,21 @@
-<?php get_header();?>
+<?php
+$current_theme = wp_get_theme();
+$themes = array('Divi');
+foreach ($themes as $theme) {
+  if ( $theme == $current_theme->name || $theme == $current_theme->parent_theme ) {
+    $simple_version = true;
+  }
+}
+if($simple_version){
+?>
+  <link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/order.css', dirname(__FILE__));?>">
+  <link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/cryptofont/cryptofont.min.css', dirname(__FILE__));?>">
+  <link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/icons/icons.css', dirname(__FILE__));?>">
+<?php
+}else{
+  get_header();
+}
+?>
 <div ng-app="shopping-cart-demo">
   <div ng-controller="CheckoutController">
     <div class="bnomics-order-container">
@@ -105,5 +122,19 @@
     </script>
   </div>
 </div>
-
-<?php get_footer();?>
+<?php 
+if($simple_version){
+?>
+  <script>var ajax_object = {ajax_url:"<?php echo admin_url( 'admin-ajax.php' ); ?>", wc_url:"<?php echo WC()->api_request_url('WC_Gateway_Blockonomics'); ?>"};
+  </script>
+  <script src="<?php echo plugins_url('js/angular.min.js', dirname(__FILE__));?>"></script>
+  <script src="<?php echo plugins_url('js/angular-resource.min.js', dirname(__FILE__));?>"></script>
+  <script src="<?php echo plugins_url('js/app.js', dirname(__FILE__));?>"></script>
+  <script src="<?php echo plugins_url('js/angular-qrcode.js', dirname(__FILE__));?>"></script>
+  <script src="<?php echo plugins_url('js/vendors.min.js', dirname(__FILE__));?>"></script>
+  <script src="<?php echo plugins_url('js/reconnecting-websocket.min.js', dirname(__FILE__));?>"></script>
+<?php
+}else{
+  get_footer();
+}
+?>
