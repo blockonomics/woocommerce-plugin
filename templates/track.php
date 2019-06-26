@@ -3,10 +3,8 @@ $current_theme = wp_get_theme();
 if('Divi' == $current_theme->name || 'Divi' == $current_theme->parent_theme){
   et_builder_init_global_settings ();
   et_builder_add_main_elements ();
-  get_header();
-}else{
-  get_header();
 }
+get_header();
 ?>
 <div ng-app="shopping-cart-demo">
   <div ng-controller="AltcoinController">
