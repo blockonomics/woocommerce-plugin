@@ -296,12 +296,16 @@ function blockonomics_woocommerce_init()
                             <th scope="row"><?php echo __('Underpayment Slack % (Allow payments that are off by a small percentage)', 'blockonomics-bitcoin-payments')?></th>
                             <td><input type="number" min="0" max="10" step="0.01" name="blockonomics_underpayment_slack" value="<?php echo esc_attr( get_option('blockonomics_underpayment_slack', 0) ); ?>" /></td>
                         </tr>
+                        <tr valign="top">
+                            <th scope="row"><?php echo __('Display Payment Page in Lite Mode (Enable this if you are having problems in rendering checkout page)', 'blockonomics-bitcoin-payments')?></th>
+                            <td><input type="checkbox" name="blockonomics_lite" value="1" <?php checked("1", get_option('blockonomics_lite')); ?>" /></td>
+                        </tr>
                     </table>
                 </div>
                 <p class="submit">
                     <input type="submit" class="button-primary" value="Save"/>
                     <input type="hidden" name="action" value="update" />
-                    <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated,blockonomics_underpayment_slack" />
+                    <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated,blockonomics_underpayment_slack,blockonomics_lite" />
                     <input onclick="checkForAPIKeyChange();" class="button-primary" name="test-setup-submit" value="Test Setup" style="max-width:85px;">
                 </p>
             </form>
@@ -489,6 +493,7 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_api_updated');
     delete_option('blockonomics_altcoins');
     delete_option('blockonomics_underpayment_slack');
+    delete_option('blockonomics_lite');
 }
 
 
