@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 1.7.6  =
+* Added Lite mode rendering option 
+
 = 1.7.5  =
 * Checkout page performance improvements and bug fixes
 
