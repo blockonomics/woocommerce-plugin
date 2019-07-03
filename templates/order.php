@@ -113,6 +113,12 @@ if($lite_version){
     </script>
     <script>
     var get_uuid="<?php if(isset($_REQUEST['uuid'])){echo $_REQUEST['uuid'];} ?>";
+    var display_problems=true;
+    setTimeout(function(){ 
+      if (display_problems==true) {
+         alert("Unable to render correctly, Note to Administrator: Please enable lite mode in Blockonomics plugin"); 
+      }
+    }, 5000);
     </script>
   </div>
 </div>
