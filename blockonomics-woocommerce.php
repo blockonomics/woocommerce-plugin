@@ -304,8 +304,6 @@ function blockonomics_woocommerce_init()
                             foreach ($themes as $theme) {
                               if ( $theme == $current_theme->name || $theme == $current_theme->parent_theme ) {
                                 $simple_version = true;
-                              }else{
-                                $simple_version = false; 
                               }
                             }
                             checked("1", get_option('blockonomics_lite', $simple_version));
