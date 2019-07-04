@@ -84,7 +84,12 @@ if($lite_version){
               </div>
             </div>
           </div>
-
+          <!-- Display Error -->
+          <div class="bnomics-display-error" style="display: none; text-align: center;">
+            <h4>Display Error</h4>
+            <h4><i class="material-icons bnomics-alt-icon">error</i></h4>
+            <?= __('Unable to render correctly, Note to Administrator: Please enable lite mode in Blockonomics plugin.', 'blockonomics-bitcoin-payments') ?>
+          </div>
           <?php if (get_option('blockonomics_altcoins')) : ?>
           <div class="bnomics-altcoin-pane" ng-style="{'border-left': (altcoin_waiting)?'none':''}" ng-hide="show_altcoin != 1">
             <div class="bnomics-altcoin-bg">
@@ -116,7 +121,8 @@ if($lite_version){
     var display_problems=true;
     setTimeout(function(){ 
       if (display_problems==true) {
-         alert("Unable to render correctly, Note to Administrator: Please enable lite mode in Blockonomics plugin"); 
+        document.getElementsByClassName("bnomics-display-error")[0].style.display='inline';
+        document.getElementsByClassName("bnomics-bitcoin-pane")[0].style.display='none';
       }
     }, 5000);
     </script>
