@@ -298,16 +298,7 @@ function blockonomics_woocommerce_init()
                         </tr>
                         <tr valign="top">
                             <th scope="row"><?php echo __('Display Payment Page in Lite Mode (Enable this if you are having problems in rendering checkout page)', 'blockonomics-bitcoin-payments')?></th>
-                            <td><input type="checkbox" name="blockonomics_lite" value="1" <?php 
-                            $current_theme = wp_get_theme();
-                            $themes = array('Divi');
-                            foreach ($themes as $theme) {
-                              if ( $theme == $current_theme->name || $theme == $current_theme->parent_theme ) {
-                                $simple_version = true;
-                              }
-                            }
-                            checked("1", get_option('blockonomics_lite', $simple_version));
-                            ?> /></td>
+                            <td><input type="checkbox" name="blockonomics_lite" value="1" <?php checked("1", get_option('blockonomics_lite')); ?> /></td>
                         </tr>
                     </table>
                 </div>
