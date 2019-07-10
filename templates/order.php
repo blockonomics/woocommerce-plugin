@@ -33,7 +33,7 @@ if($lite_version){
       <div class="bnomics-order-panel">
         <div class="bnomics-order-info">
 
-          <div class="bnomics-bitcoin-pane" ng-hide="show_altcoin != 0" ng-init="show_altcoin=0">
+          <div class="bnomics-bitcoin-pane" ng-hide="show_altcoin != 0" ng-init="show_altcoin=0;" ng-cloak>
             <div class="bnomics-btc-info">
               <!-- QR and Amount -->
               <div class="bnomics-qr-code" ng-hide="order.status == -3">
@@ -85,7 +85,7 @@ if($lite_version){
             </div>
           </div>
           <!-- Display Error -->
-          <div class="bnomics-display-error" style="display: none; text-align: center;">
+          <div class="bnomics-display-error" style="text-align: center;" ng-hide="display_problems">
             <h4>Display Error</h4>
             <h4><i class="material-icons bnomics-alt-icon">error</i></h4>
             <?= __('Unable to render correctly, Note to Administrator: Please enable lite mode in Blockonomics plugin.', 'blockonomics-bitcoin-payments') ?>
@@ -118,13 +118,6 @@ if($lite_version){
     </script>
     <script>
     var get_uuid="<?php if(isset($_REQUEST['uuid'])){echo $_REQUEST['uuid'];} ?>";
-    var display_problems=true;
-    setTimeout(function(){ 
-      if (display_problems==true) {
-        document.getElementsByClassName("bnomics-display-error")[0].style.display='inline';
-        document.getElementsByClassName("bnomics-bitcoin-pane")[0].style.display='none';
-      }
-    }, 5000);
     </script>
   </div>
 </div>
