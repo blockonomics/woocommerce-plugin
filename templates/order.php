@@ -8,6 +8,7 @@ if($lite_version){
 <?php
 }else{
   get_header();
+  bnomics_before_checkout();
 }
 ?>
 <div ng-app="shopping-cart-demo">
@@ -129,6 +130,7 @@ if($lite_version){
   <script src="<?php echo plugins_url('js/reconnecting-websocket.min.js', dirname(__FILE__));?>"></script>
 <?php
 }else{
+  bnomics_after_checkout();
   get_footer();
 }
 ?>
