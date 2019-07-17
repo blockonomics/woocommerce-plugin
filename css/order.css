@@ -250,7 +250,7 @@
 }
 
 .bnomics-display-error {
-  animation: errorAnimation 0s 1s forwards;
+  animation: errorAnimation 0s 3s forwards;
   height: 0; 
   width: 0;
   overflow: hidden;
