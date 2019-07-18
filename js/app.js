@@ -82,7 +82,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     $scope.copyshow = false;
     //blockonomics_time_period is defined on JS file as global var
     var totalTime = blockonomics_time_period * 60;
-
+    $scope.display_problems = true;
     //Create url when the order is received 
     $scope.finish_order_url = function() {
         var params = getParameterByNameBlocko('wc-api');

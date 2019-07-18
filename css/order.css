@@ -249,6 +249,19 @@
   text-align: left;
 }
 
+.bnomics-display-error {
+  animation: errorAnimation 0s 3s forwards;
+  height: 0; 
+  width: 0;
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+@keyframes errorAnimation {
+  to   { width:auto;height: auto; }
+}
+
 /* ---- Mobile -----*/
 @media screen and (max-width: 800px) {
   .bnomics-btc-info {
