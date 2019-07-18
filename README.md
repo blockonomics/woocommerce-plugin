@@ -68,7 +68,7 @@ You can use single blockonomics account to integrate multiple website. Please co
 
 ## Screenshots ## 
 
-![](assets-wp-repo/demo.gif)     
+![](assets-wp-repo/screenshot-1.gif)     
 Animated Demo
 
 ![](assets-wp-repo/screenshot-2.png)     
