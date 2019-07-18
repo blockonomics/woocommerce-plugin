@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 1.7.7  =
+* Automatically detects rendering issues on checkout screen 
+
 = 1.7.6  =
 * Added Lite mode rendering option 
 
