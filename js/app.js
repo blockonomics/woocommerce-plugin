@@ -237,7 +237,7 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinNe
         else
             params = {};
         params.uuid = uuid;
-        url = window.location.pathname;
+        url = window.location.protocol + "//" + window.location.host + window.location.pathname;
         var serializedParams = $httpParamSerializer(params);
         if (serializedParams.length > 0) {
             url += ((url.indexOf('?') === -1) ? '?' : '&') + serializedParams;
