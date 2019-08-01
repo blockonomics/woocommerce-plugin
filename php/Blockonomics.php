@@ -165,13 +165,15 @@ class Blockonomics
         $response = $this->get_callbacks();
         $error_str = '';
         $responseBody = json_decode(wp_remote_retrieve_body($response));
+        $response_callback = isset($response_body[0]) ? isset($response_body[0]->callback) ? $response_body[0]->callback : '' : '';
+        $response_address = isset($response_body[0]) ? isset($response_body[0]->address) ? $response_body[0]->address : '' : '';
         $callback_secret = get_option('blockonomics_callback_secret');
         $api_url = WC()->api_request_url('WC_Gateway_Blockonomics');
         $callback_url = add_query_arg('secret', $callback_secret, $api_url);
         // Remove http:// or https:// from urls
         $api_url_without_schema = preg_replace('/https?:\/\//', '', $api_url);
         $callback_url_without_schema = preg_replace('/https?:\/\//', '', $callback_url);
-        $response_callback_without_schema = preg_replace('/https?:\/\//', '', $responseBody[0]->callback);
+        $response_callback_without_schema = preg_replace('/https?:\/\//', '', $response_callback);
         //TODO: Check This: WE should actually check code for timeout
         if (!wp_remote_retrieve_response_code($response)) {
             $error_str = __('Your server is blocking outgoing HTTPS calls', 'blockonomics-bitcoin-payments');
@@ -186,21 +188,21 @@ class Blockonomics
         }
         elseif (count($responseBody) == 1)
         {
-            if(!$responseBody[0]->callback || $responseBody[0]->callback == null)
+            if(!$response_callback || $response_callback == null)
             {
               //No callback URL set, set one 
-              $this->update_callback($callback_url, $responseBody[0]->address);   
+              $this->update_callback($callback_url, $response_address);   
             }
             elseif($response_callback_without_schema != $callback_url_without_schema)
             {
               $base_url = get_bloginfo('wpurl');
               $base_url = preg_replace('/https?:\/\//', '', $base_url);
               // Check if only secret differs
-              if(strpos($responseBody[0]->callback, $base_url) !== false)
+              if(strpos($response_callback, $base_url) !== false)
               {
                 //Looks like the user regenrated callback by mistake
                 //Just force Update_callback on server
-                $this->update_callback($callback_url, $responseBody[0]->address);  
+                $this->update_callback($callback_url, $response_address);  
               }
               else
               {
