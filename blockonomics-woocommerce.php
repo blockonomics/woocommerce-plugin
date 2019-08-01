@@ -116,12 +116,12 @@ function blockonomics_woocommerce_init()
 
             if ($response->response_code != 200)
             {
-                $message = __('Error while generating temporary APIKey: '. $response->message, 'blockonomics-bitcoin-payments');
+                $message = __('Error while generating temporary APIKey: '. isset($response->message) ? $response->message : '', 'blockonomics-bitcoin-payments');
                 display_admin_message($message, 'error');
             }
             else
             {
-                update_option("blockonomics_temp_api_key", $response->apikey);
+                update_option("blockonomics_temp_api_key", isset($response->apikey) ? $response->apikey : '');
             }
         }
 
