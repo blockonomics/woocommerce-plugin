@@ -46,8 +46,8 @@ class Blockonomics
         if (wp_remote_retrieve_body($response))
         {
           $body = json_decode(wp_remote_retrieve_body($response));
-          $responseObj->{'response_message'} = $body->message;
-          $responseObj->{'address'} = $body->address;
+          $responseObj->{'response_message'} = isset($body->message) ? $body->message : '';
+          $responseObj->{'address'} = isset($body->address) ? $body->address : '';
         }
         return $responseObj;
     }
