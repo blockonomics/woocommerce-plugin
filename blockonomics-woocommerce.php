@@ -130,7 +130,7 @@ function blockonomics_woocommerce_init()
             'blockonomics_options', 'show_options'
         );
 
-        if (get_option('blockonomics_api_updated') == 'true' && $_GET['settings-updated'] == 'true')
+        if (get_option('blockonomics_api_updated') == 'true' && isset($_GET['settings-updated']) ? $_GET['settings-updated'] : '' == 'true')
         {
             $message = __('API Key updated! Please click on Test Setup to verify Installation. ', 'blockonomics-bitcoin-payments');
             display_admin_message($message, 'updated');
