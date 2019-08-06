@@ -164,9 +164,14 @@ class Blockonomics
     {
         $response = $this->get_callbacks();
         $error_str = '';
-        $responseBody = json_decode(wp_remote_retrieve_body($response));
-        $response_callback = isset($response_body[0]) ? isset($response_body[0]->callback) ? $response_body[0]->callback : '' : '';
-        $response_address = isset($response_body[0]) ? isset($response_body[0]->address) ? $response_body[0]->address : '' : '';
+        $response_body = json_decode(wp_remote_retrieve_body($response));
+        if(isset($response_body[0])){
+            $response_callback = isset($response_body[0]->callback) ? $response_body[0]->callback : '';
+            $response_address = isset($response_body[0]->address) ? $response_body[0]->address : '';
+        }else{
+            $response_callback = '';
+            $response_address = '';
+        }
         $callback_secret = get_option('blockonomics_callback_secret');
         $api_url = WC()->api_request_url('WC_Gateway_Blockonomics');
         $callback_url = add_query_arg('secret', $callback_secret, $api_url);
@@ -182,11 +187,11 @@ class Blockonomics
             $error_str = __('API Key is incorrect', 'blockonomics-bitcoin-payments');
         elseif (wp_remote_retrieve_response_code($response)!=200)  
             $error_str = $response->data;
-        elseif (!isset($responseBody) || count($responseBody) == 0)
+        elseif (!isset($response_body) || count($response_body) == 0)
         {
             $error_str = __('You have not entered an xpub', 'blockonomics-bitcoin-payments');
         }
-        elseif (count($responseBody) == 1)
+        elseif (count($response_body) == 1)
         {
             if(!$response_callback || $response_callback == null)
             {
@@ -214,8 +219,8 @@ class Blockonomics
         {
             $error_str = __("You have an existing callback URL. Refer instructions on integrating multiple websites", 'blockonomics-bitcoin-payments');
             // Check if callback url is set
-            foreach ($responseBody as $resObj)
-             if(preg_replace('/https?:\/\//', '', $resObj->callback) == $callback_url_without_schema)
+            foreach ($response_body as $res_obj)
+             if(preg_replace('/https?:\/\//', '', $res_obj->callback) == $callback_url_without_schema)
                 $error_str = "";
         }  
         if (!$error_str)
