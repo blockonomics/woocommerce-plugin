@@ -239,7 +239,7 @@ function blockonomics_woocommerce_init()
                             $total_received = get_option('blockonomics_temp_withdraw_amount') / 1.0e8;
                             $api_key = get_option("blockonomics_api_key");
                             $temp_api_key = get_option("blockonomics_temp_api_key");
-                            if ($temp_api_key && !($total_received > 0)): ?>
+                            if ($temp_api_key && !$api_key && !($total_received > 0)): ?>
 
                             <p><b>Blockonomics Wallet</b> (Balance: 0 BTC)</p>
                             <p>We are using a temporary wallet on Blockonomics to receive your payments.</p>
