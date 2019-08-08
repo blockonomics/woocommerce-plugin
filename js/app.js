@@ -501,10 +501,11 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinNe
 
     //Go to add refund page
     $scope.get_refund = function() {
+        send_refund_email();
         $scope.hide_refund_reason = true;
         update_altcoin_status('add_refund');
     }
-    
+
     //Copy altcoin address to clipboard
     $scope.alt_address_click = function() {
         var copyText = document.getElementById("bnomics-alt-address-input");
