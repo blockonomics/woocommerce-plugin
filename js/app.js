@@ -289,15 +289,8 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
     $scope.copyshow = false;
     $scope.spinner = true;
 
-    //Check UUID in request
-    if(getParameterByNameBlocko("uuid") == 'create'){
-        //Create a new altcoin order
-        create_order(getParameterByNameBlocko("altcoin"), getParameterByNameBlocko("amount"), getParameterByNameBlocko("address"), getParameterByNameBlocko("order_id"));
-    } 
-    else {
-        //Check the info for altcoin order
-        info_order(getParameterByNameBlocko("uuid"));
-    }
+    //Check the info for altcoin order
+    info_order(getParameterByNameBlocko("uuid"));
 
     //Create url for refund page
     $scope.alt_refund_url = function(uuid) {
@@ -389,6 +382,7 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
 
     //Check the full altcoin payment info
     function info_order(uuid) {
+        $scope.altuuid = uuid;
         //Fetch the altcoin info using uuid
         var response = AltcoinInfo.save({
                 'uuid': uuid
@@ -484,6 +478,12 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
     //Go back to bitcoin payment page
     $scope.go_back = function() {
         window.history.back();
+    }
+
+    //Go to add refund page
+    $scope.get_refund = function() {
+        $scope.hide_refund_reason = true;
+        update_altcoin_status('add_refund');
     }
 
     //Copy altcoin address to clipboard
