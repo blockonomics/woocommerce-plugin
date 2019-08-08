@@ -482,6 +482,7 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
 
     //Go to add refund page
     $scope.get_refund = function() {
+        send_refund_email();
         $scope.hide_refund_reason = true;
         update_altcoin_status('add_refund');
     }
