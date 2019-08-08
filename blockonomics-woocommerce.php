@@ -116,12 +116,12 @@ function blockonomics_woocommerce_init()
 
             if ($response->response_code != 200)
             {
-                $message = __('Error while generating temporary APIKey: '. $response->message, 'blockonomics-bitcoin-payments');
+                $message = __('Error while generating temporary APIKey: '. isset($response->message) ? $response->message : '', 'blockonomics-bitcoin-payments');
                 display_admin_message($message, 'error');
             }
             else
             {
-                update_option("blockonomics_temp_api_key", $response->apikey);
+                update_option("blockonomics_temp_api_key", isset($response->apikey) ? $response->apikey : '');
             }
         }
 
@@ -130,7 +130,7 @@ function blockonomics_woocommerce_init()
             'blockonomics_options', 'show_options'
         );
 
-        if (get_option('blockonomics_api_updated') == 'true' && $_GET['settings-updated'] == 'true')
+        if (get_option('blockonomics_api_updated') == 'true' && isset($_GET['settings-updated']) ? $_GET['settings-updated'] : '' == 'true')
         {
             $message = __('API Key updated! Please click on Test Setup to verify Installation. ', 'blockonomics-bitcoin-payments');
             display_admin_message($message, 'updated');
