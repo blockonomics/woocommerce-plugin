@@ -148,6 +148,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
 
     //Create the altcoin order
     function create_order(altcoin, amount, address, order_id) {
+        $scope.spinner = true;
         (function(promises) {
             return new Promise((resolve, reject) => {
                 //Wait for both the altcoin limits and new altcoin order uuid
@@ -155,12 +156,11 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
                     .then(values => {
                         $scope.order = {};
                         $scope.order.order_id = order_id;
-                        //Hide the spinner
-                        $scope.spinner = false;
                         var alt_minimum = values[0].min;
                         var alt_maximum = values[0].max;
                         //Compare the min/max limits for altcoin payments with the order amount
                         if(amount <= alt_minimum) {
+                            $scope.spinner = false;
                             //Order amount too low for altcoin payment
                             update_altcoin_status('low_high');
                             $scope.lowhigh = 'low';
@@ -168,6 +168,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
                             //Angular to update all of our bindings as data has changed
                             $scope.$apply();
                         }else if(amount >= alt_maximum) {
+                            $scope.spinner = false;
                             //Order amount too high for altcoin payment
                             update_altcoin_status('low_high');
                             $scope.lowhigh = 'high';
@@ -182,28 +183,13 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
                                 address: address,
                                 uuid: uuid
                             });
-                            $scope.altuuid = uuid;
-                            $scope.refundlink = $scope.alt_refund_url(uuid);
                             //Accept the altcoin order using the uuid
                             AltcoinAccept.save({
                                     "uuid": uuid
                                 },function(order_accept) {
-                                    //Display altcoin order info
-                                    $scope.order.altaddress = order_accept.deposit_address;
-                                    $scope.order.altamount = order_accept.order.invoiced_amount;
-                                    $scope.order.destination = order_accept.order.destination;
-                                    var altsymbol = order_accept.order.from_currency;
-                                    alt_totalTime = order_accept.expires;
-                                    $scope.alt_clock = order_accept.expires;
-                                    $scope.alt_tick_interval = $interval($scope.alt_tick, 1000);
-                                    $scope.order.altsymbol = altsymbol;
-                                    $scope.altcoinselect = $scope.altcoins[altsymbol];
-                                    //Only send email if create order
-                                    send_email = true;
-                                    //Update altcoin status to waiting
-                                    update_altcoin_status('waiting');
-                                    //Start checking the order status
-                                    start_check_order(uuid);
+                                    $scope.spinner = false;
+                                    //Forward user to altcoin tracking page with details
+                                    window.location = $scope.alt_track_url(uuid);
                                 });
                         }
                     })
@@ -236,8 +222,6 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
             })
         ]);
     }
-
-
 
     //Fetch the altcoin symbol from name
     function getAltKeyByValue(object, value) {
