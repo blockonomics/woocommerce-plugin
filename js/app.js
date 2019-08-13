@@ -223,6 +223,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         ]);
     }
 
+
     //Fetch the altcoin symbol from name
     function getAltKeyByValue(object, value) {
         return Object.keys(object).find(key => object[key] === value);
