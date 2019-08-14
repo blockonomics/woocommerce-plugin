@@ -75,7 +75,7 @@ function getParameterByNameBlocko(name, url) {
 }
 
 //CheckoutController
-app.controller('CheckoutController', function($scope, $interval, Order, $httpParamSerializer, $timeout) {
+app.controller('CheckoutController', function($scope, $interval, Order, $httpParamSerializer, $timeout, AltcoinNew, AltcoinAccept, AltcoinLimits, WpAjax) {
     //get order id from url
     $scope.address = getParameterByNameBlocko("show_order");
     var totalProgress = 100;
@@ -102,7 +102,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     }
 
     //Create url for altcoin payment
-    $scope.alt_track_url = function(altcoin, amount, address, order_id) {
+    $scope.alt_track_url = function(uuid) {
         var params = getParameterByNameBlocko('wc-api');
         if (params)
             params = {
@@ -110,11 +110,8 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
             };
         else
             params = {};
-        params.uuid = 'create';
-        params.altcoin = altcoin;
-        params.amount = amount;
-        params.address = address;
-        params.order_id = order_id;
+        params.uuid = uuid;
+        params.mail = 1;
         url = window.location.pathname;
         var serializedParams = $httpParamSerializer(params);
         if (serializedParams.length > 0) {
@@ -147,8 +144,84 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         var amount = $scope.order.satoshi / 1.0e8;
         var address = $scope.order.address;
         var order_id = $scope.order.order_id;
-        //Forward user to altcoin tracking page with details
-        window.location = $scope.alt_track_url(altcoin, amount, address, order_id);
+        create_order(altcoin, amount, address, order_id);
+    }
+
+    //Create the altcoin order
+    function create_order(altcoin, amount, address, order_id) {
+        $scope.spinner = true;
+        (function(promises) {
+            return new Promise((resolve, reject) => {
+                //Wait for both the altcoin limits and new altcoin order uuid
+                Promise.all(promises)
+                    .then(values => {
+                        $scope.order = {};
+                        $scope.order.order_id = order_id;
+                        var alt_minimum = values[0].min;
+                        var alt_maximum = values[0].max;
+                        //Compare the min/max limits for altcoin payments with the order amount
+                        if(amount <= alt_minimum) {
+                            $scope.spinner = false;
+                            //Order amount too low for altcoin payment
+                            update_altcoin_status('low_high');
+                            $scope.lowhigh = 'low';
+                            //Promise is run outside of the turn Angular sees so we need to tell
+                            //Angular to update all of our bindings as data has changed
+                            $scope.$apply();
+                        }else if(amount >= alt_maximum) {
+                            $scope.spinner = false;
+                            //Order amount too high for altcoin payment
+                            update_altcoin_status('low_high');
+                            $scope.lowhigh = 'high';
+                            //Promise is run outside of the turn Angular sees so we need to tell
+                            //Angular to update all of our bindings as data has changed
+                            $scope.$apply();
+                        }else{
+                            var uuid = values[1].order.uuid;
+                            //Save the altcoin uuid to database
+                            WpAjax.get({
+                                action: 'save_uuid',
+                                address: address,
+                                uuid: uuid
+                            });
+                            //Accept the altcoin order using the uuid
+                            AltcoinAccept.save({
+                                    "uuid": uuid
+                                },function(order_accept) {
+                                    $scope.spinner = false;
+                                    //Forward user to altcoin tracking page with details
+                                    window.location = $scope.alt_track_url(uuid);
+                                });
+                        }
+                    })
+                    .catch(err => {
+                        console.dir(err);
+                        throw err;
+                    });
+            });
+        })([
+            new Promise((resolve, reject) => {
+                //Fetch altcoin min/max limits
+                AltcoinLimits.get({coin: altcoin},function(order_limits) {
+                    resolve(order_limits);
+                });
+            }),
+            new Promise((resolve, reject) => {
+                //Create the new altcoin order
+                AltcoinNew.save({
+                        "order": {
+                            "from_currency": altcoin,
+                            "to_currency": "BTC",
+                            "ordered_amount": amount,
+                            "destination": address,
+                            "referral_code": 'BLOCKO'
+                        }
+                    },function(order_new) {
+                        //Resolve the new altcoin order uuid
+                        resolve(order_new);
+                    });
+            })
+        ]);
     }
 
     //Fetch the altcoin symbol from name
@@ -208,7 +281,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
 });
 
 //AltcoinController
-app.controller('AltcoinController', function($scope, $interval, Order, AltcoinNew, AltcoinAccept, AltcoinLimits, AltcoinCheck, AltcoinInfo, AltcoinAddRefund, WpAjax, $timeout, $httpParamSerializer) {
+app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCheck, AltcoinInfo, AltcoinAddRefund, WpAjax, $timeout, $httpParamSerializer) {
     var totalProgress = 100;
     var alt_totalTime = 0;
     var check_interval;
@@ -216,6 +289,12 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinNe
     $scope.altsymbol = 'ETH';
     $scope.copyshow = false;
     $scope.spinner = true;
+
+    //Check mail in request
+    if(getParameterByNameBlocko("mail") == 1){
+        //Create a new altcoin order
+        send_email = true;
+    } 
 
     //Check the info for altcoin order
     info_order(getParameterByNameBlocko("uuid"));
@@ -335,97 +414,6 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinNe
                     $scope.order.order_id = order.order_id;
                 });
             });
-    }
-
-    //Create the altcoin order
-    function create_order(altcoin, amount, address, order_id) {
-        (function(promises) {
-            return new Promise((resolve, reject) => {
-                //Wait for both the altcoin limits and new altcoin order uuid
-                Promise.all(promises)
-                    .then(values => {
-                        $scope.order = {};
-                        $scope.order.order_id = order_id;
-                        //Hide the spinner
-                        $scope.spinner = false;
-                        var alt_minimum = values[0].min;
-                        var alt_maximum = values[0].max;
-                        //Compare the min/max limits for altcoin payments with the order amount
-                        if(amount <= alt_minimum) {
-                            //Order amount too low for altcoin payment
-                            update_altcoin_status('low_high');
-                            $scope.lowhigh = 'low';
-                            //Promise is run outside of the turn Angular sees so we need to tell
-                            //Angular to update all of our bindings as data has changed
-                            $scope.$apply();
-                        }else if(amount >= alt_maximum) {
-                            //Order amount too high for altcoin payment
-                            update_altcoin_status('low_high');
-                            $scope.lowhigh = 'high';
-                            //Promise is run outside of the turn Angular sees so we need to tell
-                            //Angular to update all of our bindings as data has changed
-                            $scope.$apply();
-                        }else{
-                            var uuid = values[1].order.uuid;
-                            //Save the altcoin uuid to database
-                            WpAjax.get({
-                                action: 'save_uuid',
-                                address: address,
-                                uuid: uuid
-                            });
-                            $scope.altuuid = uuid;
-                            $scope.refundlink = $scope.alt_refund_url(uuid);
-                            //Accept the altcoin order using the uuid
-                            AltcoinAccept.save({
-                                    "uuid": uuid
-                                },function(order_accept) {
-                                    //Display altcoin order info
-                                    $scope.order.altaddress = order_accept.deposit_address;
-                                    $scope.order.altamount = order_accept.order.invoiced_amount;
-                                    $scope.order.destination = order_accept.order.destination;
-                                    var altsymbol = order_accept.order.from_currency;
-                                    alt_totalTime = order_accept.expires;
-                                    $scope.alt_clock = order_accept.expires;
-                                    $scope.alt_tick_interval = $interval($scope.alt_tick, 1000);
-                                    $scope.order.altsymbol = altsymbol;
-                                    $scope.altcoinselect = $scope.altcoins[altsymbol];
-                                    //Only send email if create order
-                                    send_email = true;
-                                    //Update altcoin status to waiting
-                                    update_altcoin_status('waiting');
-                                    //Start checking the order status
-                                    start_check_order(uuid);
-                                });
-                        }
-                    })
-                    .catch(err => {
-                        console.dir(err);
-                        throw err;
-                    });
-            });
-        })([
-            new Promise((resolve, reject) => {
-                //Fetch altcoin min/max limits
-                AltcoinLimits.get({coin: altcoin},function(order_limits) {
-                    resolve(order_limits);
-                });
-            }),
-            new Promise((resolve, reject) => {
-                //Create the new altcoin order
-                AltcoinNew.save({
-                        "order": {
-                            "from_currency": altcoin,
-                            "to_currency": "BTC",
-                            "ordered_amount": amount,
-                            "destination": address,
-                            "referral_code": 'BLOCKO'
-                        }
-                    },function(order_new) {
-                        //Resolve the new altcoin order uuid
-                        resolve(order_new);
-                    });
-            })
-        ]);
     }
 
     //Process altcoin response
