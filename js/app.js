@@ -111,6 +111,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         else
             params = {};
         params.uuid = uuid;
+        params.mail = 1;
         url = window.location.pathname;
         var serializedParams = $httpParamSerializer(params);
         if (serializedParams.length > 0) {
@@ -289,15 +290,13 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
     $scope.copyshow = false;
     $scope.spinner = true;
 
-    //Check UUID in request
-    if(getParameterByNameBlocko("uuid") == 'create'){
+    //Check mail in request
+    if(getParameterByNameBlocko("mail") == 1){
         //Create a new altcoin order
-        create_order(getParameterByNameBlocko("altcoin"), getParameterByNameBlocko("amount"), getParameterByNameBlocko("address"), getParameterByNameBlocko("order_id"));
+        send_email = true;
     } 
-    else {
-        //Check the info for altcoin order
-        info_order(getParameterByNameBlocko("uuid"));
-    }
+    //Check the info for altcoin order
+    info_order(getParameterByNameBlocko("uuid"));
 
     //Create url for refund page
     $scope.alt_refund_url = function(uuid) {
