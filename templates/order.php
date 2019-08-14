@@ -29,6 +29,8 @@ if($lite_version){
           </div>
         </div>
       </div>
+      <!-- Spinner -->
+      <div class="bnomics-spinner" ng-show="spinner" ng-cloak><div class="bnomics-ring"><div></div><div></div><div></div><div></div></div></div>
       <!-- Amount row -->
       <div class="bnomics-order-panel">
         <div class="bnomics-order-info">
