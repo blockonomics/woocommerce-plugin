@@ -161,21 +161,9 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
                         var alt_maximum = values[0].max;
                         //Compare the min/max limits for altcoin payments with the order amount
                         if(amount <= alt_minimum) {
-                            $scope.spinner = false;
-                            //Order amount too low for altcoin payment
-                            update_altcoin_status('low_high');
-                            $scope.lowhigh = 'low';
-                            //Promise is run outside of the turn Angular sees so we need to tell
-                            //Angular to update all of our bindings as data has changed
-                            $scope.$apply();
+                            window.location = $scope.alt_track_url('low');
                         }else if(amount >= alt_maximum) {
-                            $scope.spinner = false;
-                            //Order amount too high for altcoin payment
-                            update_altcoin_status('low_high');
-                            $scope.lowhigh = 'high';
-                            //Promise is run outside of the turn Angular sees so we need to tell
-                            //Angular to update all of our bindings as data has changed
-                            $scope.$apply();
+                            window.location = $scope.alt_track_url('high');
                         }else{
                             var uuid = values[1].order.uuid;
                             //Save the altcoin uuid to database
@@ -294,7 +282,8 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
     if(getParameterByNameBlocko("mail") == 1){
         //Create a new altcoin order
         send_email = true;
-    } 
+    }
+
     //Check the info for altcoin order
     info_order(getParameterByNameBlocko("uuid"));
 
@@ -388,30 +377,39 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
 
     //Check the full altcoin payment info
     function info_order(uuid) {
-        //Fetch the altcoin info using uuid
-        var response = AltcoinInfo.save({
-                'uuid': uuid
-            },function successCallback(data) {
-                $scope.order = {};
-                $scope.order.altaddress = data.deposit_address;
-                $scope.order.altamount = data.order.invoiced_amount;
-                $scope.order.destination = data.order.destination;
-                var altsymbol = data.order.from_currency;
-                alt_totalTime = data.expires;
-                $scope.alt_clock = data.expires;
-                $scope.alt_tick_interval = $interval($scope.alt_tick, 1000);
-                $scope.order.altsymbol = altsymbol;
-                $scope.altcoinselect = $scope.altcoins[altsymbol];
-                $scope.spinner = false;
+        //Check if min/max
+        if(getParameterByNameBlocko("uuid") == "low" || getParameterByNameBlocko("uuid") == "high" ){
+            $scope.order = {};
+            $scope.spinner = false;
+            //Order amount too high for altcoin payment
+            update_altcoin_status('low_high');
+            $scope.lowhigh = getParameterByNameBlocko("uuid");
+        }else{
+            //Fetch the altcoin info using uuid
+            var response = AltcoinInfo.save({
+                    'uuid': uuid
+                },function successCallback(data) {
+                    $scope.order = {};
+                    $scope.order.altaddress = data.deposit_address;
+                    $scope.order.altamount = data.order.invoiced_amount;
+                    $scope.order.destination = data.order.destination;
+                    var altsymbol = data.order.from_currency;
+                    alt_totalTime = data.expires;
+                    $scope.alt_clock = data.expires;
+                    $scope.alt_tick_interval = $interval($scope.alt_tick, 1000);
+                    $scope.order.altsymbol = altsymbol;
+                    $scope.altcoinselect = $scope.altcoins[altsymbol];
+                    $scope.spinner = false;
 
-                process_alt_response(data);
-                //Fetch the order id using bitcoin address
-                Order.get({
-                    "get_order": data.order.destination
-                }, function(order) {
-                    $scope.order.order_id = order.order_id;
+                    process_alt_response(data);
+                    //Fetch the order id using bitcoin address
+                    Order.get({
+                        "get_order": data.order.destination
+                    }, function(order) {
+                        $scope.order.order_id = order.order_id;
+                    });
                 });
-            });
+        }
     }
 
     //Process altcoin response
