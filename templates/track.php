@@ -93,7 +93,7 @@ if($lite_version){
               <!-- ADD_REFUND -->
               <div class="bnomics-status-flex bnomics-altcoin-bg-color" ng-show="order.altstatus == 'add_refund'" ng-cloak >
                 <h4>Refund Required</h4>
-                <p><?= __('Your order couldn\'t be processed as you didn\'t pay the exact expected amount.<br>The amount you paid will be refunded.', 'blockonomics-bitcoin-payments') ?></p>
+                <p ng-hide="hide_refund_reason"><?= __('Your order couldn\'t be processed as you didn\'t pay the exact expected amount.<br>The amount you paid will be refunded.', 'blockonomics-bitcoin-payments') ?></p>
                 <h4><i class="material-icons bnomics-alt-icon">error</i></h4>
                 <p id="bnomics-refund-message"><?= __('Enter your refund address and click the button below to recieve your refund.', 'blockonomics-bitcoin-payments') ?></p>
                 <input type="text" id="bnomics-refund-input" placeholder="{{order.altsymbol}} Address">
@@ -124,7 +124,8 @@ if($lite_version){
               <div class="bnomics-status-flex bnomics-altcoin-bg-color" ng-show="order.altstatus == 'expired'" ng-cloak >
                 <h4>Expired</h4>
                 <h4><i class="material-icons bnomics-alt-icon">timer</i></h4>
-                <p><?= __('Payment Expired. Use the browser back button and try again.', 'blockonomics-bitcoin-payments') ?></p>
+                <p><?= __('Use the browser back button and try again.', 'blockonomics-bitcoin-payments') ?></p>
+                <p><?= __('If you already paid,', 'blockonomics-bitcoin-payments') ?> <strong><a href="" ng-click="get_refund()"><?= __('click here', 'blockonomics-bitcoin-payments') ?></a></strong> <?= __('to get a refund.', 'blockonomics-bitcoin-payments') ?></p>
               </div>
               <!-- LOW/HIGH -->
               <div class="bnomics-status-flex bnomics-altcoin-bg-color" ng-show="order.altstatus == 'low_high'" ng-cloak >
