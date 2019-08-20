@@ -466,7 +466,7 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
     //Add a refund address to altcoin order
     $scope.add_refund_click = function() {
         var refund_address = document.getElementById("bnomics-refund-input").value;
-        uuid = $scope.altuuid;
+        uuid = get_uuid();
         var response = AltcoinAddRefund.save({
                 'uuid': uuid,
                 'address': refund_address
