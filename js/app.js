@@ -474,6 +474,10 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
                 if(data.result == 'ok') {
                     update_altcoin_status('refunded');
                     info_order(uuid);
+                }else if(data.errors){
+                    var refund_message = document.getElementById("bnomics-refund-message");
+                    refund_message.innerHTML = data.errors.address[0];
+                    $scope.hide_refund_reason = true; 
                 }
             });
     }

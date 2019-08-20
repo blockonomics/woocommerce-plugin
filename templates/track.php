@@ -95,7 +95,7 @@ if($lite_version){
                 <h4>Refund Required</h4>
                 <p><?= __('Your order couldn\'t be processed as you didn\'t pay the exact expected amount.<br>The amount you paid will be refunded.', 'blockonomics-bitcoin-payments') ?></p>
                 <h4><i class="material-icons bnomics-alt-icon">error</i></h4>
-                <p><?= __('Enter your refund address and click the button below to recieve your refund.', 'blockonomics-bitcoin-payments') ?></p>
+                <p id="bnomics-refund-message"><?= __('Enter your refund address and click the button below to recieve your refund.', 'blockonomics-bitcoin-payments') ?></p>
                 <input type="text" id="bnomics-refund-input" placeholder="{{order.altsymbol}} Address">
                 <br>
                 <button id="alt-refund-button" ng-click="add_refund_click()">Refund</button>
