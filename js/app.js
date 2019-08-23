@@ -466,7 +466,7 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
     //Add a refund address to altcoin order
     $scope.add_refund_click = function() {
         var refund_address = document.getElementById("bnomics-refund-input").value;
-        uuid = $scope.altuuid;
+        uuid = get_uuid();
         var response = AltcoinAddRefund.save({
                 'uuid': uuid,
                 'address': refund_address
@@ -474,6 +474,10 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
                 if(data.result == 'ok') {
                     update_altcoin_status('refunded');
                     info_order(uuid);
+                }else if(data.errors){
+                    var refund_message = document.getElementById("bnomics-refund-message");
+                    refund_message.innerHTML = data.errors.address[0];
+                    $scope.hide_refund_reason = true; 
                 }
             });
     }
