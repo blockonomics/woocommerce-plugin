@@ -392,7 +392,8 @@ function blockonomics_woocommerce_init()
 
     function bnomics_alt_refund_email(){
         $order_id = $_REQUEST['order_id'];
-        $order_link = $_REQUEST['order_link'];
+        $uuid = $_REQUEST['order_uuid'];
+        $order_link = WC()->api_request_url('WC_Gateway_Blockonomics').'?uuid='.$uuid;
         $order_coin = $_REQUEST['order_coin'];
         $order_coin_sym = $_REQUEST['order_coin_sym'];
         $order = new WC_Order($order_id);

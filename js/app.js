@@ -319,10 +319,11 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
 
     //Send altcoin refund email 
     function send_refund_email() {
+        uuid = get_uuid();
         WpAjax.get({
             action: 'send_email',
             order_id: $scope.order.order_id,
-            order_link: $scope.refundlink,
+            order_uuid: uuid,
             order_coin: $scope.altcoinselect,
             order_coin_sym: $scope.order.altsymbol
         });
