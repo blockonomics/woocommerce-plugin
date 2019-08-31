@@ -477,7 +477,7 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
                     info_order(uuid);
                 }else if(data.errors){
                     var refund_message = document.getElementById("bnomics-refund-message");
-                    refund_message.innerHTML = data.errors.address[0];
+                    refund_message.innerHTML += "<p style='color:red'>"+data.errors.address[0]+"</p>";
                     $scope.hide_refund_reason = true; 
                 }
             });
