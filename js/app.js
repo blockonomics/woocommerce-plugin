@@ -395,7 +395,7 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
                     $scope.order.altamount = data.order.invoiced_amount;
                     $scope.order.destination = data.order.destination;
                     var altsymbol = data.order.from_currency;
-                    alt_totalTime = data.expires;
+                    alt_totalTime = 600;
                     $scope.alt_clock = data.expires;
                     $scope.alt_tick_interval = $interval($scope.alt_tick, 1000);
                     $scope.order.altsymbol = altsymbol;
