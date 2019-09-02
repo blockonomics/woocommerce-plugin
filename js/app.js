@@ -415,52 +415,83 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
 
     //Process altcoin response
     function process_alt_response(data) {
-        switch (data.payment_status) {
-            case "PAYMENT_RECEIVED":
-            case "PAYMENT_CONFIRMED":
-                update_altcoin_status('received');
-                stop_interval();
-                break;
-            case "OVERPAY_RECEIVED":
-            case "UNDERPAY_RECEIVED":
-            case "OVERPAY_CONFIRMED":
-            case "UNDERPAY_CONFIRMED":
-                if ('refund_address' in data) {
-                    if ('txid'in data) {
-                        //Refund has been sent
-                        update_altcoin_status('refunded-txid');
-                        stop_interval();
-                        $scope.order.alttxid = data.txid;
-                        $scope.order.alturl = data.txurl;
-                        break;
-                    } else {
-                        //Refund is being processed
-                        wait_for_refund();
-                        $scope.altuuid = uuid;
-                        update_altcoin_status('refunded');
-                        break;
-                    }
+        //Needs Refund
+        if( needsRefund() && !('refund_address' in data) ){
+            //Refund address has not been added
+            $scope.altuuid = get_uuid();
+            update_altcoin_status('add_refund');
+            stop_interval();
+            //Send email if not sent
+            if (send_email) {
+                send_refund_email();
+                send_email = false;
+            }
+        }
+
+        //Refunded
+        if( 'refund_address' in data ){
+            if(!gotFunds()){
+                //Refund address no payment
+                $scope.altaddr = data.deposit_address;
+                $scope.altrefund = data.refund_address;
+                update_altcoin_status('refunded-nopay');
+            }else{
+                if( 'txid' in data ){
+                    //Refund has been sent
+                    update_altcoin_status('refunded-txid');
+                    stop_interval();
+                    $scope.order.alttxid = data.txid;
+                    $scope.order.alturl = data.txurl;
+                }else{
+                    //Refund is being processed
+                    $scope.altuuid = get_uuid();
+                    wait_for_refund();
+                    update_altcoin_status('refunded');
                 }
-                //Refund address has not been added
-                update_altcoin_status('add_refund');
-                stop_interval();
-                //Send email if not sent
-                if (send_email) {
-                    send_refund_email();
-                    send_email = false;
-                }
-                break;
-            default:
-                switch (data['status']) {
-                    case "WAITING_FOR_DEPOSIT":
-                        update_altcoin_status('waiting');
-                        start_check_order();
-                        break;
-                    case "EXPIRED":
-                        update_altcoin_status('expired');
-                        stop_interval();
-                        break;
-                }
+            }
+        }
+
+        //Waiting
+        if( "WAITING_FOR_DEPOSIT" == data.status && !gotWrongAmount() ){
+            update_altcoin_status('waiting');
+            start_check_order();
+        }
+
+        //Recieved
+        if( ("DEPOSIT_RECEIVED" == data.status || "DEPOSIT_CONFIRMED" == data.status || "EXECUTED" == data.status) && isPaymentReceived()){
+            update_altcoin_status('received');
+            stop_interval();
+        }
+
+        //Expired
+        if( "EXPIRED" == data.status && !needsRefund() && !('refund_address' in data) ){
+            update_altcoin_status('expired');
+            stop_interval();
+        }
+
+        function gotWrongAmount(){
+            if( ["UNDERPAY_RECEIVED", "UNDERPAY_CONFIRMED", "OVERPAY_RECEIVED", "OVERPAY_CONFIRMED"].indexOf(data.payment_status) > -1 ){
+                return true;
+            }
+            return false;
+        }
+        function isPaymentReceived(){
+            if( ["PAYMENT_RECEIVED", "PAYMENT_CONFIRMED"].indexOf(data.payment_status) > -1 ){
+                return true;
+            }
+            return false;
+        }
+        function gotFunds(){
+            if(gotWrongAmount() || isPaymentReceived()){
+                return true;
+            }
+            return false;
+        }
+        function needsRefund(){
+            if( ["EXPIRED", "NEEDS_REFUND", "WAITING_FOR_DEPOSIT"].indexOf(status) > -1 && gotFunds() ){
+                return true;
+            }
+            return false;
         }
     }
 

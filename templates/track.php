@@ -107,6 +107,13 @@ if($lite_version){
                 <h4><i class="material-icons bnomics-alt-icon">autorenew</i></h4>
                 <p><?= __('If you don\'t get refunded in a few hours, contact <a href="mailto:hello@flyp.me">hello@flyp.me</a> with the following uuid:', 'blockonomics-bitcoin-payments') ?><br><span id="alt-uuid">{{altuuid}}</span></p>
               </div>
+              <!-- REFUNDED no payment-->
+              <div class="bnomics-status-flex bnomics-altcoin-bg-color" ng-show="order.altstatus == 'refunded-nopay'" ng-cloak >
+                <h4>Refund Submitted</h4>
+                <p><?= __('Your refund details have been submitted. However, we haven\'t yet recevied your payment to ', 'blockonomics-bitcoin-payments') ?>{{altaddr}}</p>
+                <p><?= __('When we detect your payment, the refund will be automatically sent to ', 'blockonomics-bitcoin-payments') ?>{{altrefund}}</p>
+                <p><?= __('We have emailed you a link to track your refund status. ', 'blockonomics-bitcoin-payments') ?><?= __('You can safely close this window or navigate away.', 'blockonomics-bitcoin-payments') ?></p>
+              </div>
               <!-- REFUNDED with txid-->
               <div class="bnomics-status-flex bnomics-altcoin-bg-color" ng-show="order.altstatus == 'refunded-txid'" ng-cloak >
                 <h4>Refunded</h4>
