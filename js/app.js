@@ -430,25 +430,9 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
 
         //Refunded
         if( 'refund_address' in data ){
-            if(!gotFunds()){
-                //Refund address no payment
-                $scope.altaddr = data.deposit_address;
-                $scope.altrefund = data.refund_address;
-                update_altcoin_status('refunded-nopay');
-            }else{
-                if( 'txid' in data ){
-                    //Refund has been sent
-                    update_altcoin_status('refunded-txid');
-                    stop_interval();
-                    $scope.order.alttxid = data.txid;
-                    $scope.order.alturl = data.txurl;
-                }else{
-                    //Refund is being processed
-                    $scope.altuuid = get_uuid();
-                    wait_for_refund();
-                    update_altcoin_status('refunded');
-                }
-            }
+            $scope.altuuid = get_uuid();
+            $scope.altrefund = data.refund_address;
+            update_altcoin_status('refunded');
         }
 
         //Waiting
