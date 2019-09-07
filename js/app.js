@@ -409,7 +409,6 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
     function process_alt_response(data) {
         if( needsRefund() && !('refund_address' in data) ){
         //Needs Refund
-            //Refund address has not been added
             $scope.altuuid = get_uuid();
             update_altcoin_status('add_refund');
             stop_interval();
