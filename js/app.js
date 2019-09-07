@@ -317,7 +317,7 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
             order_id: $scope.order.order_id,
             order_uuid: uuid,
             order_coin: $scope.altcoinselect,
-            order_coin_sym: $scope.order.altsymbol
+            refund_address: $scope.altrefund
         });
     }
 
@@ -475,6 +475,7 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
                 'address': $scope.altrefund
             },function successCallback(data) {
                 if(data.result == 'ok') {
+                    send_refund_email();
                     update_altcoin_status('refunded');
                 }else if(data.errors){
                     var refund_message = document.getElementById("bnomics-refund-errors");

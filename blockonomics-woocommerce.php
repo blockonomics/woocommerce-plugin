@@ -393,15 +393,14 @@ function blockonomics_woocommerce_init()
     function bnomics_alt_refund_email(){
         $order_id = $_REQUEST['order_id'];
         $uuid = $_REQUEST['order_uuid'];
-        $order_link = WC()->api_request_url('WC_Gateway_Blockonomics').'?uuid='.$uuid;
         $order_coin = $_REQUEST['order_coin'];
-        $order_coin_sym = $_REQUEST['order_coin_sym'];
+        $refund_address = $_REQUEST['refund_address'];
         $order = new WC_Order($order_id);
         $billing_email = $order->billing_email;
         $email = $billing_email;
         $subject = $order_coin . ' ' . __('Refund', 'blockonomics-bitcoin-payments');
         $heading = $order_coin . ' ' . __('Refund', 'blockonomics-bitcoin-payments');
-        $message = __('Your order couldn\'t be processed as you paid less than expected.<br>The amount you paid will be refunded.<br>Visit the link below to enter your refund address.<br>', 'blockonomics-bitcoin-payments').'<a href="'.$order_link.'">'.$order_link.'</a>';
+        $message = __('Your refund details have been submitted. The refund will be automatically sent to $refund_address.<br>If you don\'t get refunded in a few hours, contact <a href="mailto:support@flyp.me">support@flyp.me</a> with the following uuid:<br>$uuid';
         bnomics_email_woocommerce_style($email, $subject, $heading, $message);
         wp_die();
     }
