@@ -104,10 +104,10 @@ if($lite_version){
               <!-- REFUNDED -->
               <div class="bnomics-status-flex bnomics-altcoin-bg-color" ng-show="order.altstatus == 'refunded'" ng-cloak >
                 <h4>Refund Submitted</h4>
-                <div><?= __('Your refund details have been submitted. The refund will be automatically sent to', 'blockonomics-bitcoin-payments') ?> {{altrefund}}</div>
-                <div><?= __('If you don\'t get refunded in a few hours, contact <a href="mailto:support@flyp.me">support@flyp.me</a> with the following uuid:', 'blockonomics-bitcoin-payments') ?><br><span id="alt-uuid">{{altuuid}}</span></div>
+                <div><?= __('Your refund details have been submitted. The refund will be automatically sent to', 'blockonomics-bitcoin-payments') ?> <b>{{altrefund}}</b></div>
                 <h4><i class="material-icons bnomics-alt-icon">autorenew</i></h4>
-                <div><?= __('We have emailid you the information on this page. You can safely close this window or navigate away', 'blockonomics-bitcoin-payments') ?></div>
+                <div><?= __('If you don\'t get refunded in a few hours, contact <a href="mailto:support@flyp.me">support@flyp.me</a> with the following uuid:', 'blockonomics-bitcoin-payments') ?><br><span id="alt-uuid"><b>{{altuuid}}</b></span></div>
+                <div><?= __('We have emailed you the information on this page. You can safely close this window or navigate away', 'blockonomics-bitcoin-payments') ?></div>
               </div>
               <!-- EXPIRED -->
               <div class="bnomics-status-flex bnomics-altcoin-bg-color" ng-show="order.altstatus == 'expired'" ng-cloak >

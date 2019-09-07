@@ -400,7 +400,7 @@ function blockonomics_woocommerce_init()
         $email = $billing_email;
         $subject = $order_coin . ' ' . __('Refund', 'blockonomics-bitcoin-payments');
         $heading = $order_coin . ' ' . __('Refund', 'blockonomics-bitcoin-payments');
-        $message = __('Your refund details have been submitted. The refund will be automatically sent to $refund_address.<br>If you don\'t get refunded in a few hours, contact <a href="mailto:support@flyp.me">support@flyp.me</a> with the following uuid:<br>$uuid';
+        $message = __('Your refund details have been submitted. The refund will be automatically sent to <b>$refund_address</b>.<br>If you don\'t get refunded in a few hours, contact <a href="mailto:support@flyp.me">support@flyp.me</a> with the following uuid:<br><b>$uuid</b>', 'blockonomics-bitcoin-payments');
         bnomics_email_woocommerce_style($email, $subject, $heading, $message);
         wp_die();
     }
