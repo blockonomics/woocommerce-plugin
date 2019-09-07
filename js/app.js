@@ -111,7 +111,6 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         else
             params = {};
         params.uuid = uuid;
-        params.mail = 1;
         url = window.location.pathname;
         var serializedParams = $httpParamSerializer(params);
         if (serializedParams.length > 0) {
@@ -273,16 +272,9 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
     var totalProgress = 100;
     var alt_totalTime = 0;
     var check_interval;
-    var send_email = false;
     $scope.altsymbol = 'ETH';
     $scope.copyshow = false;
     $scope.spinner = true;
-
-    //Check mail in request
-    if(getParameterByNameBlocko("mail") == 1){
-        //Create a new altcoin order
-        send_email = true;
-    } 
 
     //Check the info for altcoin order
     info_order(getParameterByNameBlocko("uuid"));
@@ -421,11 +413,6 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
             $scope.altuuid = get_uuid();
             update_altcoin_status('add_refund');
             stop_interval();
-            //Send email if not sent
-            if (send_email) {
-                send_refund_email();
-                send_email = false;
-            }
         }
 
         //Refunded
@@ -481,15 +468,14 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
 
     //Add a refund address to altcoin order
     $scope.add_refund_click = function() {
-        var refund_address = document.getElementById("bnomics-refund-input").value;
-        uuid = get_uuid();
+        $scope.altrefund = document.getElementById("bnomics-refund-input").value;
+        $scope.altuuid = get_uuid();
         var response = AltcoinAddRefund.save({
-                'uuid': uuid,
-                'address': refund_address
+                'uuid': $scope.altuuid,
+                'address': $scope.altrefund
             },function successCallback(data) {
                 if(data.result == 'ok') {
                     update_altcoin_status('refunded');
-                    info_order(uuid);
                 }else if(data.errors){
                     var refund_message = document.getElementById("bnomics-refund-errors");
                     refund_message.innerHTML = "";
@@ -498,8 +484,7 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
                         for (var i = value.length - 1; i >= 0; i--) {
                             refund_message.innerHTML += "<p style='color:red'>"+value[i]+"</p>";
                         }
-                    }
-                    $scope.hide_refund_reason = true; 
+                    } 
                 }
             });
     }
@@ -511,7 +496,6 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
 
     //Go to add refund page
     $scope.get_refund = function() {
-        send_refund_email();
         $scope.hide_refund_reason = true;
         update_altcoin_status('add_refund');
     }
