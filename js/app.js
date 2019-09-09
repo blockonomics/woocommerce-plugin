@@ -407,13 +407,13 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
 
     //Process altcoin response
     function process_alt_response(data) {
-        if( needsRefund() && !('refund_address' in data) ){
+        if( needsRefund() && !isRefundAddress() ){
         //Needs Refund
             $scope.altuuid = get_uuid();
             update_altcoin_status('add_refund');
             stop_interval();
         }
-        else if( 'refund_address' in data ){
+        else if( isRefundAddress() ){
         //Refunded
             $scope.altuuid = get_uuid();
             $scope.altrefund = data.refund_address;
@@ -455,6 +455,12 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
         }
         function needsRefund(){
             if( ["EXPIRED", "NEEDS_REFUND", "WAITING_FOR_DEPOSIT"].indexOf(status) > -1 && gotFunds() ){
+                return true;
+            }
+            return false;
+        }
+        function isRefundAddress(){
+            if( 'refund_address' in data ){
                 return true;
             }
             return false;
