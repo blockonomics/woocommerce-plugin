@@ -429,7 +429,7 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
             update_altcoin_status('received');
             stop_interval();
         }
-        else if( "EXPIRED" == data.status && !needsRefund() && !('refund_address' in data) ){
+        else if( "EXPIRED" == data.status && !needsRefund() && !isRefundAddress() ){
         //Expired
             update_altcoin_status('expired');
             stop_interval();
