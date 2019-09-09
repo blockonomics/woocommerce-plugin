@@ -407,29 +407,29 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
 
     //Process altcoin response
     function process_alt_response(data) {
-        if( needsRefund() && !isRefundAddress() ){
-        //Needs Refund
-            $scope.altuuid = get_uuid();
-            update_altcoin_status('add_refund');
-            stop_interval();
-        }
-        else if( isRefundAddress() ){
+        if( isRefundAddress() ){
         //Refunded
             $scope.altuuid = get_uuid();
             $scope.altrefund = data.refund_address;
             update_altcoin_status('refunded');
         }
-        else if( "WAITING_FOR_DEPOSIT" == data.status && !gotWrongAmount() ){
+        else if( needsRefund() ){
+        //Needs Refund
+            $scope.altuuid = get_uuid();
+            update_altcoin_status('add_refund');
+            stop_interval();
+        }
+        else if( "WAITING_FOR_DEPOSIT" == data.status ){
         //Waiting
             update_altcoin_status('waiting');
             start_check_order();
         }
-        else if( ("DEPOSIT_RECEIVED" == data.status || "DEPOSIT_CONFIRMED" == data.status || "EXECUTED" == data.status) && isPaymentReceived()){
+        else if( ("DEPOSIT_RECEIVED" == data.status || "DEPOSIT_CONFIRMED" == data.status || "EXECUTED" == data.status) ){
         //Recieved
             update_altcoin_status('received');
             stop_interval();
         }
-        else if( "EXPIRED" == data.status && !needsRefund() && !isRefundAddress() ){
+        else if( "EXPIRED" == data.status ){
         //Expired
             update_altcoin_status('expired');
             stop_interval();
