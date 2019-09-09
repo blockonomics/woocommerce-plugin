@@ -454,7 +454,7 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
             return false;
         }
         function needsRefund(){
-            if( ["EXPIRED", "NEEDS_REFUND", "WAITING_FOR_DEPOSIT"].indexOf(status) > -1 && gotFunds() ){
+            if( ["EXPIRED", "NEEDS_REFUND", "WAITING_FOR_DEPOSIT"].indexOf(data.status) > -1 && gotFunds() ){
                 return true;
             }
             return false;
