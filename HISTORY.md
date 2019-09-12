@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 1.7.8  =
+* Improvements to flypme refund flow
+* Minor bug fixes
+
 = 1.7.7  =
 * Automatically detects rendering issues on checkout screen 
 
