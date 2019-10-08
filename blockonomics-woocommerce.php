@@ -60,6 +60,12 @@ function blockonomics_woocommerce_init()
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_filter('clean_url', 'bnomics_async_scripts', 11, 1 );
+    add_action('init', 'custom_rewrite_rules');
+
+    /* Custom Rewrite Rule */
+    function custom_rewrite_rules() {
+        add_rewrite_rule( 'crypto/?$', 'index.php?wc-api=WC_Gateway_Blockonomics', 'top' );
+    }
 
     /**
      * Add this Gateway to WooCommerce
