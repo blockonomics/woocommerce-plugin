@@ -300,12 +300,20 @@ function blockonomics_woocommerce_init()
                             <th scope="row"><?php echo __('Display Payment Page in Lite Mode (Enable this if you are having problems in rendering checkout page)', 'blockonomics-bitcoin-payments')?></th>
                             <td><input type="checkbox" name="blockonomics_lite" value="1" <?php checked("1", get_option('blockonomics_lite')); ?> /></td>
                         </tr>
+						<tr valign="top">
+                            <th scope="row"><?php echo __('Network Confirmations required for payment to complete)', 'blockonomics-bitcoin-payments')?></th>
+                            <td><select name="blockonomics_network_confirmation" />
+                                    <option value="2" <?php selected(get_option('blockonomics_network_confirmation'), 2); ?>>2 (Recommended)</option>
+                                    <option value="1" <?php selected(get_option('blockonomics_network_confirmation'), 1); ?>>1</option>
+                                    <option value="0" <?php selected(get_option('blockonomics_network_confirmation'), 0); ?>>0</option>
+                                </select></td>
+                        </tr>
                     </table>
                 </div>
                 <p class="submit">
                     <input type="submit" class="button-primary" value="Save"/>
                     <input type="hidden" name="action" value="update" />
-                    <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated,blockonomics_underpayment_slack,blockonomics_lite" />
+                    <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated,blockonomics_underpayment_slack,blockonomics_lite,blockonomics_network_confirmation" />
                     <input onclick="checkForAPIKeyChange();" class="button-primary" name="test-setup-submit" value="Test Setup" style="max-width:85px;">
                 </p>
             </form>
@@ -324,7 +332,6 @@ function blockonomics_woocommerce_init()
 
     <?php
     }
-
     function nolo_custom_field_display_cust_order_meta($order)
     {
         $txid = get_post_meta($order->get_id(), 'blockonomics_txid', true);
@@ -494,6 +501,7 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_altcoins');
     delete_option('blockonomics_underpayment_slack');
     delete_option('blockonomics_lite');
+	delete_option('blockonomics_network_confirmation');
 }
 
 
