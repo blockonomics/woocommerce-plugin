@@ -182,7 +182,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 
         $callback_secret = get_option("blockonomics_callback_secret");
         $secret = isset($_REQUEST['secret']) ? $_REQUEST['secret'] : "";
-		$network_confirmations=get_option("blockonomics_network_confirmation");
+		$network_confirmations=get_option("blockonomics_network_confirmation",2);
         if ($callback_secret  && $callback_secret == $secret) {
             $addr = $_REQUEST['addr'];
             $order = $orders[$addr];
@@ -196,7 +196,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                     $minutes = (time() - $timestamp)/60;
                     $wc_order->add_order_note(__("Warning: Payment arrived after $minutes minutes. Received BTC may not match current bitcoin price", 'blockonomics-bitcoin-payments'));
                 }
-                elseif ($status >= $network_confirmations) {
+                elseif ($status >= $network_confirmations && !metadata_exists('post',$wc_order->get_id(),'paid_btc_amount') )  {
                     update_post_meta($wc_order->get_id(), 'paid_btc_amount', $_REQUEST['value']/1.0e8);
                     if ($order['satoshi'] > $_REQUEST['value']) {
                         //Check underpayment slack
