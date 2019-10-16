@@ -122,6 +122,7 @@ padding: 0;
 .bnomics-how-to-pay a {
 text-decoration: underline;
 font-style: normal;
+color:inherit;
 }
 
 .bnomics-qr-code-hint {
