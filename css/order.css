@@ -113,18 +113,6 @@
   padding: 0;
 }
 
-.bnomics-how-to-pay {
-text-align: center;
-font-size: 0.8em;
-padding: 0;
-}
-
-.bnomics-how-to-pay a {
-color: #6d6d6d;
-text-decoration: underline;
-font-style: normal;
-}
-
 .bnomics-qr-code-hint {
   text-align: center;
   margin-top: 1.6em;
