@@ -78,6 +78,7 @@ function getParameterByNameBlocko(name, url) {
 app.controller('CheckoutController', function($scope, $interval, Order, $httpParamSerializer, $timeout, AltcoinNew, AltcoinAccept, AltcoinLimits, WpAjax) {
     //get order id from url
     $scope.address = getParameterByNameBlocko("show_order");
+	$scope.refresh = getParameterByNameBlocko("refresh");
     var totalProgress = 100;
     $scope.copyshow = false;
     //blockonomics_time_period is defined on JS file as global var
@@ -230,8 +231,13 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
                 $scope.clock = $scope.order.timestamp + totalTime - Math.floor(Date.now() / 1000);
                 //Mark order as expired if we ran out of time
                 if ($scope.clock < 0) {
-                    $scope.order.status = -3;
-                    return;
+						$scope.order.status = -3;
+						if($scope.refresh == 1) {
+							$scope.order.status = -1;
+							$scope.clock = totalTime;
+						} else { 
+						return;
+						}
                 }
                 $scope.tick_interval = $interval($scope.tick, 1000);
                 //Connect and Listen on websocket for payment notification
