@@ -80,7 +80,7 @@ if($lite_version){
                 <span class="ng-cloak bnomics-time-left" ng-hide="order.status != -1">{{clock*1000 | date:'mm:ss' : 'UTC'}} min left to pay your order</span>
               </div>
         <!-- Blockonomics Credit -->
-			<div class="bnomics-how-to-pay">
+			<div class="bnomics-how-to-pay" ng-hide="order.status != -1">
 				<a href="https://blog.blockonomics.co/how-to-pay-a-bitcoin-invoice-abf4a04d041c" target="_blank">How do I pay this?</a>
 			</div>
             <div class="bnomics-powered-by">
