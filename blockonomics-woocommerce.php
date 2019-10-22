@@ -483,6 +483,7 @@ function plugin_activation() {
       }
     }
   }
+  flush_rewrite_rules();
 }
 
 // On uninstallation, clear every option the plugin has set
@@ -500,6 +501,7 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_altcoins');
     delete_option('blockonomics_underpayment_slack');
     delete_option('blockonomics_lite');
+    flush_rewrite_rules();
 }
 
 
