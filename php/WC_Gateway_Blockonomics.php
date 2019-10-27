@@ -108,7 +108,11 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $cancel_url = add_query_arg('order_key', $order->get_order_key(), $cancel_url);
 
         $blockonomics = new Blockonomics;
-        $responseObj = $blockonomics->new_address(get_option("blockonomics_callback_secret"));
+		if(isset($_REQUEST["reset"])) { 
+			$responseObj = $blockonomics->new_address(get_option("blockonomics_callback_secret"),1);
+		} else {
+			$responseObj = $blockonomics->new_address(get_option("blockonomics_callback_secret"),0);
+		}
         if(get_woocommerce_currency() != 'BTC'){
             $price = $blockonomics->get_price(get_woocommerce_currency());
             $price = $price * 100/(100+get_option('blockonomics_margin', 0));

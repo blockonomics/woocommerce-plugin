@@ -54,7 +54,7 @@ if($lite_version){
                 <!-- Order Status -->
                 <div class="bnomics-order-status-wrapper">
                   <span class="bnomics-order-status-title" ng-show="order.status == -1" ng-cloak ><?=__('To confirm your order, please send the exact amount of <strong>BTC</strong> to the given address', 'blockonomics-bitcoin-payments')?></span>
-                  <span class="warning bnomics-status-warning" ng-show="order.status == -3" ng-cloak><?=__('<b>PAYMENT EXPIRED</b> <br /><br /><ul><li><div style="width:100%;display:table;"><span style="width:20%;display:table-cell;"><b>If you already paid :</b></span><span style="display:table-cell;"> Order will automatically confirmed when we detect your payment. You can safely close this window.</span></div></li><li> <b>If you have not already made the payment :</b> <a href="?show_order={{order.address}}&refresh=1">Click here</a> to try again.</li></ul>', 'blockonomics-bitcoin-payments')?></span>
+                  <span class="warning bnomics-status-warning" ng-show="order.status == -3" ng-cloak><?=__('<b>PAYMENT EXPIRED</b> <br /><br /><a href="/index.php/checkout?reset=1">Click here</a> to try again.<br /><br /><p>If you already paid, your order will be processed automatically. <br />You can safely close this window.</p>', 'blockonomics-bitcoin-payments')?></span>
                   <span class="warning bnomics-status-warning" ng-show="order.status == -2" ng-cloak><?=__('Payment Error', 'blockonomics-bitcoin-payments')?></span>
                 </div>
                     <h4 class="bnomics-amount-title" for="invoice-amount" ng-hide="order.status == -3">
@@ -80,9 +80,6 @@ if($lite_version){
                 <span class="ng-cloak bnomics-time-left" ng-hide="order.status != -1">{{clock*1000 | date:'mm:ss' : 'UTC'}} min left to pay your order</span>
               </div>
         <!-- Blockonomics Credit -->
-			<div class="bnomics-how-to-pay">
-				<a href="https://blog.blockonomics.co/how-to-pay-a-bitcoin-invoice-abf4a04d041c" target="_blank">How do I pay this?</a>
-			</div>
             <div class="bnomics-powered-by">
               <?=__('Powered by ', 'blockonomics-bitcoin-payments')?>Blockonomics
             </div>
