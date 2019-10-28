@@ -98,7 +98,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         global $woocommerce;
 
         $order = new WC_Order($order_id);
-
+		$blockonomics_orders = get_option('blockonomics_orders');
         $success_url = add_query_arg('return_from_blockonomics', true, $this->get_return_url($order));
 
         // Blockonomics mangles the order param so we have to put it somewhere else and restore it on init
@@ -108,8 +108,12 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $cancel_url = add_query_arg('order_key', $order->get_order_key(), $cancel_url);
 
         $blockonomics = new Blockonomics;
-		if(isset($_REQUEST["reset"])) { 
-			$responseObj = $blockonomics->new_address(get_option("blockonomics_callback_secret"),1);
+		$time_period = get_option("blockonomics_timeperiod", 10) *60;
+		$currentOrder = $blockonomics_orders[$order_id];
+		if(isset($currentOrder[$address])) {
+			if(time() > $timestamp + $time_period) {
+				$responseObj = $blockonomics->new_address(get_option("blockonomics_callback_secret"),1); 
+			}
 		} else {
 			$responseObj = $blockonomics->new_address(get_option("blockonomics_callback_secret"),0);
 		}
@@ -127,7 +131,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 
         $address = $responseObj->address;
 
-        $blockonomics_orders = get_option('blockonomics_orders');
+        
         $order = array(
         'value'              => $order->get_total(),
         'satoshi'            => intval(round(1.0e8*$order->get_total()/$price)),
