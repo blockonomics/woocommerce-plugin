@@ -105,7 +105,8 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $cancel_url = $order->get_cancel_order_url_raw();
         $cancel_url = add_query_arg('return_from_blockonomics', true, $cancel_url);
         $cancel_url = add_query_arg('cancelled', true, $cancel_url);
-        $cancel_url = add_query_arg('order_key', $order->get_order_key(), $cancel_url);
+        $order_key = method_exists( $order, 'get_order_key' ) ? $order->get_order_key() : $order->order_key;
+        $cancel_url = add_query_arg('order_key', $order_key, $cancel_url);
 
         $blockonomics = new Blockonomics;
         $responseObj = $blockonomics->new_address(get_option("blockonomics_callback_secret"));
