@@ -64,7 +64,7 @@ function blockonomics_woocommerce_init()
 
     /* Custom Rewrite Rule */
     function custom_rewrite_rules() {
-        add_rewrite_rule( 'crypto/?$', 'index.php?wc-api=WC_Gateway_Blockonomics', 'top' );
+        add_rewrite_rule( '^crypto/?$', 'index.php?wc-api=WC_Gateway_Blockonomics', 'top' );
     }
 
     /**
