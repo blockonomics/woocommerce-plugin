@@ -109,27 +109,23 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 
         $blockonomics = new Blockonomics;
 		$time_period = get_option("blockonomics_timeperiod", 10) *60;
-		$currentOrder = $blockonomics_orders[$order_id];
-		if(isset($currentOrder[$address])) {
-			if(time() > $timestamp + $time_period) {
-				$responseObj = $blockonomics->new_address(get_option("blockonomics_callback_secret"),1); 
-			}
-		} else {
-			$responseObj = $blockonomics->new_address(get_option("blockonomics_callback_secret"),0);
-		}
         if(get_woocommerce_currency() != 'BTC'){
             $price = $blockonomics->get_price(get_woocommerce_currency());
             $price = $price * 100/(100+get_option('blockonomics_margin', 0));
         }else{
             $price = 1;
         }
-
-        if($responseObj->response_code != 200) {
-            $this->displayError($woocommerce);
-            return;
-        }
-
-        $address = $responseObj->address;
+		$currentAddress = get_post_meta($order_id,"blockonomics_address");
+		if($currentAddress) {
+			$address = $currentAddress[0];
+		} else {
+			$responseObj = $blockonomics->new_address(get_option("blockonomics_callback_secret"));
+			if($responseObj->response_code != 200) {
+				$this->displayError($woocommerce);
+				return;
+			}
+			$address = $responseObj->address;
+		}
 
         
         $order = array(
