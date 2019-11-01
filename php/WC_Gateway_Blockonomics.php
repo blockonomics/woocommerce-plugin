@@ -115,17 +115,17 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         }else{
             $price = 1;
         }
-		$currentAddress = get_post_meta($order_id,"blockonomics_address");
-		if($currentAddress) {
-			$address = $currentAddress[0];
-		} else {
-			$responseObj = $blockonomics->new_address(get_option("blockonomics_callback_secret"));
-			if($responseObj->response_code != 200) {
-				$this->displayError($woocommerce);
-				return;
-			}
-			$address = $responseObj->address;
+	$currentAddress = get_post_meta($order_id,"blockonomics_address");
+	if($currentAddress) {
+		$address = $currentAddress[0];
+	} else {
+		$responseObj = $blockonomics->new_address(get_option("blockonomics_callback_secret"));
+		if($responseObj->response_code != 200) {
+			$this->displayError($woocommerce);
+			return;
 		}
+		$address = $responseObj->address;
+	}
 
         
         $order = array(
