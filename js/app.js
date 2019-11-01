@@ -232,8 +232,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
                 if ($scope.clock < 0) {
 					$scope.order.status = -3;
 					return;
-					}
-                }
+				}
                 $scope.tick_interval = $interval($scope.tick, 1000);
                 //Connect and Listen on websocket for payment notification
                 var ws = new ReconnectingWebSocket("wss://www.blockonomics.co/payment/" + $scope.order.address + "?timestamp=" + $scope.order.timestamp);
