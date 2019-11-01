@@ -230,9 +230,9 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
                 $scope.clock = $scope.order.timestamp + totalTime - Math.floor(Date.now() / 1000);
                 //Mark order as expired if we ran out of time
                 if ($scope.clock < 0) {
-						$scope.order.status = -3;
-						return;
-						}
+					$scope.order.status = -3;
+					return;
+					}
                 }
                 $scope.tick_interval = $interval($scope.tick, 1000);
                 //Connect and Listen on websocket for payment notification
