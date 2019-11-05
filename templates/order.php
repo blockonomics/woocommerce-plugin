@@ -54,7 +54,7 @@ if($lite_version){
                 <!-- Order Status -->
                 <div class="bnomics-order-status-wrapper">
                   <span class="bnomics-order-status-title" ng-show="order.status == -1" ng-cloak ><?=__('To confirm your order, please send the exact amount of <strong>BTC</strong> to the given address', 'blockonomics-bitcoin-payments')?></span>
-                  <span class="warning bnomics-status-warning" ng-show="order.status == -3" ng-cloak><?=__('Payment Expired (Use the browser back button and try again)', 'blockonomics-bitcoin-payments')?></span>
+                  <span class="warning bnomics-status-warning" ng-show="order.status == -3" ng-cloak><?=__('<b>PAYMENT EXPIRED</b> <br /><br /><a href="javascript:history.back()">Click here</a> to try again.<br /><br /><div>If you already paid, your order will be processed automatically. <br />You can safely close this window.</div>', 'blockonomics-bitcoin-payments')?></span>
                   <span class="warning bnomics-status-warning" ng-show="order.status == -2" ng-cloak><?=__('Payment Error', 'blockonomics-bitcoin-payments')?></span>
                 </div>
                     <h4 class="bnomics-amount-title" for="invoice-amount" ng-hide="order.status == -3">

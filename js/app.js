@@ -9,11 +9,11 @@ service.factory('Order', function($resource) {
         param = {
             "wc-api": param
         };
-    else
-        param = {};
-    var item = $resource(window.location.pathname, param);
-    return item;
-});
+        else
+            param = {};
+        var item = $resource(window.location.pathname, param);
+        return item;
+    });
 
 var flyp_base = 'https://flyp.me/api/v1';
 
@@ -68,7 +68,7 @@ function getParameterByNameBlocko(name, url) {
     }
     name = name.replace(/[\[\]]/g, "\\$&");
     var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-        results = regex.exec(url);
+    results = regex.exec(url);
     if (!results) return null;
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, " "));
@@ -90,16 +90,16 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
             params = {
                 "wc-api": params
             };
-        else
-            params = {};
-        params.finish_order = $scope.address;
-        url = window.location.pathname;
-        var serializedParams = $httpParamSerializer(params);
-        if (serializedParams.length > 0) {
-            url += ((url.indexOf('?') === -1) ? '?' : '&') + serializedParams;
+            else
+                params = {};
+            params.finish_order = $scope.address;
+            url = window.location.pathname;
+            var serializedParams = $httpParamSerializer(params);
+            if (serializedParams.length > 0) {
+                url += ((url.indexOf('?') === -1) ? '?' : '&') + serializedParams;
+            }
+            return url;
         }
-        return url;
-    }
 
     //Create url for altcoin payment
     $scope.alt_track_url = function(uuid) {
@@ -108,16 +108,16 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
             params = {
                 "wc-api": params
             };
-        else
-            params = {};
-        params.uuid = uuid;
-        url = window.location.pathname;
-        var serializedParams = $httpParamSerializer(params);
-        if (serializedParams.length > 0) {
-            url += ((url.indexOf('?') === -1) ? '?' : '&') + serializedParams;
+            else
+                params = {};
+            params.uuid = uuid;
+            url = window.location.pathname;
+            var serializedParams = $httpParamSerializer(params);
+            if (serializedParams.length > 0) {
+                url += ((url.indexOf('?') === -1) ? '?' : '&') + serializedParams;
+            }
+            return url;
         }
-        return url;
-    }
 
     //Increment bitcoin timer 
     $scope.tick = function() {
@@ -153,11 +153,11 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
             return new Promise((resolve, reject) => {
                 //Wait for both the altcoin limits and new altcoin order uuid
                 Promise.all(promises)
-                    .then(values => {
-                        $scope.order = {};
-                        $scope.order.order_id = order_id;
-                        var alt_minimum = values[0].min;
-                        var alt_maximum = values[0].max;
+                .then(values => {
+                    $scope.order = {};
+                    $scope.order.order_id = order_id;
+                    var alt_minimum = values[0].min;
+                    var alt_maximum = values[0].max;
                         //Compare the min/max limits for altcoin payments with the order amount
                         if(amount <= alt_minimum) {
                             window.location = $scope.alt_track_url('low');
@@ -173,37 +173,37 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
                             });
                             //Accept the altcoin order using the uuid
                             AltcoinAccept.save({
-                                    "uuid": uuid
-                                },function(order_accept) {
-                                    $scope.spinner = false;
+                                "uuid": uuid
+                            },function(order_accept) {
+                                $scope.spinner = false;
                                     //Forward user to altcoin tracking page with details
                                     window.location = $scope.alt_track_url(uuid);
                                 });
                         }
                     })
-                    .catch(err => {
-                        console.dir(err);
-                        throw err;
-                    });
+                .catch(err => {
+                    console.dir(err);
+                    throw err;
+                });
             });
         })([
-            new Promise((resolve, reject) => {
+        new Promise((resolve, reject) => {
                 //Fetch altcoin min/max limits
                 AltcoinLimits.get({coin: altcoin},function(order_limits) {
                     resolve(order_limits);
                 });
             }),
-            new Promise((resolve, reject) => {
+        new Promise((resolve, reject) => {
                 //Create the new altcoin order
                 AltcoinNew.save({
-                        "order": {
-                            "from_currency": altcoin,
-                            "to_currency": "BTC",
-                            "ordered_amount": amount,
-                            "destination": address,
-                            "referral_code": 'BLOCKO'
-                        }
-                    },function(order_new) {
+                    "order": {
+                        "from_currency": altcoin,
+                        "to_currency": "BTC",
+                        "ordered_amount": amount,
+                        "destination": address,
+                        "referral_code": 'BLOCKO'
+                    }
+                },function(order_new) {
                         //Resolve the new altcoin order uuid
                         resolve(order_new);
                     });
@@ -230,10 +230,10 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
                 $scope.clock = $scope.order.timestamp + totalTime - Math.floor(Date.now() / 1000);
                 //Mark order as expired if we ran out of time
                 if ($scope.clock < 0) {
-                    $scope.order.status = -3;
-                    return;
-                }
-                $scope.tick_interval = $interval($scope.tick, 1000);
+                 $scope.order.status = -3;
+                 return;
+             }
+             $scope.tick_interval = $interval($scope.tick, 1000);
                 //Connect and Listen on websocket for payment notification
                 var ws = new ReconnectingWebSocket("wss://www.blockonomics.co/payment/" + $scope.order.address + "?timestamp=" + $scope.order.timestamp);
                 ws.onmessage = function(evt) {
@@ -242,7 +242,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
                         //Redirect to order received page if message from socket
                         window.location = $scope.finish_order_url();
                     //Wait for 2 seconds for order status to update on server
-                    }, 2000, 1);
+                }, 2000, 1);
                 }
             }
         });
@@ -258,7 +258,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         $timeout(function() {
             $scope.copyshow = false;
         //Close copy to clipboard message after 2 sec
-        }, 2000);
+    }, 2000);
     }
     //Define supported altcoins
     $scope.altcoins = {
@@ -286,16 +286,16 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
             params = {
                 "wc-api": params
             };
-        else
-            params = {};
-        params.uuid = uuid;
-        url = window.location.protocol + "//" + window.location.host + window.location.pathname;
-        var serializedParams = $httpParamSerializer(params);
-        if (serializedParams.length > 0) {
-            url += ((url.indexOf('?') === -1) ? '?' : '&') + serializedParams;
+            else
+                params = {};
+            params.uuid = uuid;
+            url = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            var serializedParams = $httpParamSerializer(params);
+            if (serializedParams.length > 0) {
+                url += ((url.indexOf('?') === -1) ? '?' : '&') + serializedParams;
+            }
+            return url;
         }
-        return url;
-    }
 
     //Increment altcoin timer
     $scope.alt_tick = function() {
@@ -362,10 +362,10 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
     //Check the altcoin payment status
     function check_order(uuid) {
         var response = AltcoinCheck.save({
-                'uuid': uuid
-            },function successCallback(data) {
-                process_alt_response(data);
-            });
+            'uuid': uuid
+        },function successCallback(data) {
+            process_alt_response(data);
+        });
     }
 
     //Check the full altcoin payment info
@@ -380,21 +380,21 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
         }else{
             //Fetch the altcoin info using uuid
             var response = AltcoinInfo.save({
-                    'uuid': uuid
-                },function successCallback(data) {
-                    $scope.order = {};
-                    $scope.order.altaddress = data.deposit_address;
-                    $scope.order.altamount = data.order.invoiced_amount;
-                    $scope.order.destination = data.order.destination;
-                    var altsymbol = data.order.from_currency;
-                    alt_totalTime = 600;
-                    $scope.alt_clock = data.expires;
-                    $scope.alt_tick_interval = $interval($scope.alt_tick, 1000);
-                    $scope.order.altsymbol = altsymbol;
-                    $scope.altcoinselect = $scope.altcoins[altsymbol];
-                    $scope.spinner = false;
+                'uuid': uuid
+            },function successCallback(data) {
+                $scope.order = {};
+                $scope.order.altaddress = data.deposit_address;
+                $scope.order.altamount = data.order.invoiced_amount;
+                $scope.order.destination = data.order.destination;
+                var altsymbol = data.order.from_currency;
+                alt_totalTime = 600;
+                $scope.alt_clock = data.expires;
+                $scope.alt_tick_interval = $interval($scope.alt_tick, 1000);
+                $scope.order.altsymbol = altsymbol;
+                $scope.altcoinselect = $scope.altcoins[altsymbol];
+                $scope.spinner = false;
 
-                    process_alt_response(data);
+                process_alt_response(data);
                     //Fetch the order id using bitcoin address
                     Order.get({
                         "get_order": data.order.destination
@@ -409,86 +409,86 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
     function process_alt_response(data) {
         if( isRefundAddress() ){
         //Refunded
-            $scope.altuuid = get_uuid();
-            $scope.altrefund = data.refund_address;
-            update_altcoin_status('refunded');
-        }
-        else if( needsRefund() ){
-        //Needs Refund
-            $scope.altuuid = get_uuid();
-            update_altcoin_status('add_refund');
-            stop_interval();
-        }
-        else if( "WAITING_FOR_DEPOSIT" == data.status ){
-        //Waiting
-            update_altcoin_status('waiting');
-            start_check_order();
-        }
-        else if( ("DEPOSIT_RECEIVED" == data.status || "DEPOSIT_CONFIRMED" == data.status || "EXECUTED" == data.status) ){
-        //Recieved
-            update_altcoin_status('received');
-            stop_interval();
-        }
-        else if( "EXPIRED" == data.status ){
-        //Expired
-            update_altcoin_status('expired');
-            stop_interval();
-        }
-
-        function gotWrongAmount(){
-            if( ["UNDERPAY_RECEIVED", "UNDERPAY_CONFIRMED", "OVERPAY_RECEIVED", "OVERPAY_CONFIRMED"].indexOf(data.payment_status) > -1 ){
-                return true;
-            }
-            return false;
-        }
-        function isPaymentReceived(){
-            if( ["PAYMENT_RECEIVED", "PAYMENT_CONFIRMED"].indexOf(data.payment_status) > -1 ){
-                return true;
-            }
-            return false;
-        }
-        function gotFunds(){
-            if(gotWrongAmount() || isPaymentReceived()){
-                return true;
-            }
-            return false;
-        }
-        function needsRefund(){
-            if( ["EXPIRED", "NEEDS_REFUND", "WAITING_FOR_DEPOSIT"].indexOf(data.status) > -1 && gotFunds() ){
-                return true;
-            }
-            return false;
-        }
-        function isRefundAddress(){
-            if( 'refund_address' in data ){
-                return true;
-            }
-            return false;
-        }
+        $scope.altuuid = get_uuid();
+        $scope.altrefund = data.refund_address;
+        update_altcoin_status('refunded');
     }
+    else if( needsRefund() ){
+        //Needs Refund
+        $scope.altuuid = get_uuid();
+        update_altcoin_status('add_refund');
+        stop_interval();
+    }
+    else if( "WAITING_FOR_DEPOSIT" == data.status ){
+        //Waiting
+        update_altcoin_status('waiting');
+        start_check_order();
+    }
+    else if( ("DEPOSIT_RECEIVED" == data.status || "DEPOSIT_CONFIRMED" == data.status || "EXECUTED" == data.status) ){
+        //Recieved
+        update_altcoin_status('received');
+        stop_interval();
+    }
+    else if( "EXPIRED" == data.status ){
+        //Expired
+        update_altcoin_status('expired');
+        stop_interval();
+    }
+
+    function gotWrongAmount(){
+        if( ["UNDERPAY_RECEIVED", "UNDERPAY_CONFIRMED", "OVERPAY_RECEIVED", "OVERPAY_CONFIRMED"].indexOf(data.payment_status) > -1 ){
+            return true;
+        }
+        return false;
+    }
+    function isPaymentReceived(){
+        if( ["PAYMENT_RECEIVED", "PAYMENT_CONFIRMED"].indexOf(data.payment_status) > -1 ){
+            return true;
+        }
+        return false;
+    }
+    function gotFunds(){
+        if(gotWrongAmount() || isPaymentReceived()){
+            return true;
+        }
+        return false;
+    }
+    function needsRefund(){
+        if( ["EXPIRED", "NEEDS_REFUND", "WAITING_FOR_DEPOSIT"].indexOf(data.status) > -1 && gotFunds() ){
+            return true;
+        }
+        return false;
+    }
+    function isRefundAddress(){
+        if( 'refund_address' in data ){
+            return true;
+        }
+        return false;
+    }
+}
 
     //Add a refund address to altcoin order
     $scope.add_refund_click = function() {
         $scope.altrefund = document.getElementById("bnomics-refund-input").value;
         $scope.altuuid = get_uuid();
         var response = AltcoinAddRefund.save({
-                'uuid': $scope.altuuid,
-                'address': $scope.altrefund
-            },function successCallback(data) {
-                if(data.result == 'ok') {
-                    send_refund_email();
-                    update_altcoin_status('refunded');
-                }else if(data.errors){
-                    var refund_message = document.getElementById("bnomics-refund-errors");
-                    refund_message.innerHTML = "";
-                    for (var key in data.errors){
-                        var value = data.errors[key];
-                        for (var i = value.length - 1; i >= 0; i--) {
-                            refund_message.innerHTML += "<p style='color:red'>"+value[i]+"</p>";
-                        }
-                    } 
-                }
-            });
+            'uuid': $scope.altuuid,
+            'address': $scope.altrefund
+        },function successCallback(data) {
+            if(data.result == 'ok') {
+                send_refund_email();
+                update_altcoin_status('refunded');
+            }else if(data.errors){
+                var refund_message = document.getElementById("bnomics-refund-errors");
+                refund_message.innerHTML = "";
+                for (var key in data.errors){
+                    var value = data.errors[key];
+                    for (var i = value.length - 1; i >= 0; i--) {
+                        refund_message.innerHTML += "<p style='color:red'>"+value[i]+"</p>";
+                    }
+                } 
+            }
+        });
     }
 
     //Go back to bitcoin payment page
