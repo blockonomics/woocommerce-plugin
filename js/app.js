@@ -491,13 +491,14 @@ app.controller('AltcoinController', function($scope, $interval, Order, AltcoinCh
         });
     }
 
-    //Go back to bitcoin payment page
-    $scope.go_back = function() {
-        window.history.back();
+    //Display more info about payment status, refund etc.
+    $scope.already_paid = function() {
+        $scope.show_refund_info = true;
     }
 
     //Go to add refund page
     $scope.get_refund = function() {
+        stop_interval();
         $scope.hide_refund_reason = true;
         update_altcoin_status('add_refund');
     }

@@ -76,7 +76,8 @@ if($lite_version){
                     </span>
                   </div>
                   <div class="bnomics-altcoin-cancel">
-                    <a href="" ng-click="go_back()"><?= __('Click here', 'blockonomics-bitcoin-payments') ?></a> <?= __('to go back', 'blockonomics-bitcoin-payments') ?>
+                    <p ng-hide='show_refund_info'><?= __('Already paid? ', 'blockonomics-bitcoin-payments') ?><a href="" ng-click="already_paid()"><?= __('Click here', 'blockonomics-bitcoin-payments') ?></a></p>
+                    <p ng-show='show_refund_info'><?= __('We haven\'t detected your payment yet. Please wait a while for your transaction to confirm. If it is already confirmed, ', 'blockonomics-bitcoin-payments') ?><a href="" ng-click="get_refund()"><?= __('Click here ', 'blockonomics-bitcoin-payments') ?></a><?= __('to claim refund', 'blockonomics-bitcoin-payments') ?></p>
                   </div>
                   <!-- Blockonomics Credit -->
                   <div class="bnomics-powered-by">
