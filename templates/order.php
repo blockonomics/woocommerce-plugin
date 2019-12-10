@@ -30,11 +30,13 @@ if($lite_version){
           </div>
         </div>
       </div>
+      <!-- Spinner -->
+      <div class="bnomics-spinner" ng-show="spinner" ng-cloak><div class="bnomics-ring"><div></div><div></div><div></div><div></div></div></div>
       <!-- Amount row -->
       <div class="bnomics-order-panel">
         <div class="bnomics-order-info">
 
-          <div class="bnomics-bitcoin-pane" ng-hide="show_altcoin != 0" ng-init="show_altcoin=0">
+          <div class="bnomics-bitcoin-pane" ng-hide="show_altcoin != 0" ng-init="show_altcoin=0;" ng-cloak>
             <div class="bnomics-btc-info">
               <!-- QR and Amount -->
               <div class="bnomics-qr-code" ng-hide="order.status == -3">
@@ -53,7 +55,7 @@ if($lite_version){
                 <!-- Order Status -->
                 <div class="bnomics-order-status-wrapper">
                   <span class="bnomics-order-status-title" ng-show="order.status == -1" ng-cloak ><?=__('To confirm your order, please send the exact amount of <strong>BTC</strong> to the given address', 'blockonomics-bitcoin-payments')?></span>
-                  <span class="warning bnomics-status-warning" ng-show="order.status == -3" ng-cloak><?=__('Payment Expired (Use the browser back button and try again)', 'blockonomics-bitcoin-payments')?></span>
+                  <span class="warning bnomics-status-warning" ng-show="order.status == -3" ng-cloak><?=__('<b>PAYMENT EXPIRED</b> <br /><br /><a href="javascript:history.back()">Click here</a> to try again.<br /><br /><div>If you already paid, your order will be processed automatically. <br />You can safely close this window.</div>', 'blockonomics-bitcoin-payments')?></span>
                   <span class="warning bnomics-status-warning" ng-show="order.status == -2" ng-cloak><?=__('Payment Error', 'blockonomics-bitcoin-payments')?></span>
                 </div>
                     <h4 class="bnomics-amount-title" for="invoice-amount" ng-hide="order.status == -3">
@@ -79,13 +81,21 @@ if($lite_version){
                 <span class="ng-cloak bnomics-time-left" ng-hide="order.status != -1">{{clock*1000 | date:'mm:ss' : 'UTC'}} min left to pay your order</span>
               </div>
         <!-- Blockonomics Credit -->
+			<div class="bnomics-how-to-pay" ng-hide="order.status != -1">
+				<a href="https://blog.blockonomics.co/how-to-pay-a-bitcoin-invoice-abf4a04d041c" target="_blank">How do I pay this?</a>
+			</div>
             <div class="bnomics-powered-by">
               <?=__('Powered by ', 'blockonomics-bitcoin-payments')?>Blockonomics
             </div>
               </div>
             </div>
           </div>
-
+          <!-- Display Error -->
+          <div class="bnomics-display-error" style="text-align: center;" ng-hide="display_problems">
+            <h4>Display Error</h4>
+            <h4><i class="material-icons bnomics-alt-icon">error</i></h4>
+            <?= __('Unable to render correctly, Note to Administrator: Please enable lite mode in Blockonomics plugin.', 'blockonomics-bitcoin-payments') ?>
+          </div>
           <?php if (get_option('blockonomics_altcoins')) : ?>
           <div class="bnomics-altcoin-pane" ng-style="{'border-left': (altcoin_waiting)?'none':''}" ng-hide="show_altcoin != 1">
             <div class="bnomics-altcoin-bg">

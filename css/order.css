@@ -108,9 +108,21 @@
 
 .bnomics-powered-by {
   text-align: center;
-  margin-top: 1.6em;
-  font-size: 0.8em;
+  margin-top: 2.6em;
+  font-size: 0.6em;
   padding: 0;
+}
+
+.bnomics-how-to-pay {
+text-align: center;
+font-size: 0.8em;
+padding: 0;
+}
+
+.bnomics-how-to-pay a {
+text-decoration: underline;
+font-style: normal;
+color:inherit;
 }
 
 .bnomics-qr-code-hint {
@@ -133,7 +145,7 @@
 
 .bnomics-time-left {
   line-height: 3;
-  font-size: 12px;
+  font-size: 0.8em;
 }
 
 .bnomics-payment-option {
@@ -247,6 +259,19 @@
 
 .bnomics-left{
   text-align: left;
+}
+
+.bnomics-display-error {
+  animation: errorAnimation 0s 3s forwards;
+  height: 0; 
+  width: 0;
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+@keyframes errorAnimation {
+  to   { width:auto;height: auto; }
 }
 
 /* ---- Mobile -----*/

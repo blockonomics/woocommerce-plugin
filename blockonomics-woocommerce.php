@@ -3,7 +3,7 @@
  * Plugin Name: Wordpress Bitcoin Payments - Blockonomics
  * Plugin URI: https://github.com/blockonomics/woocommerce-plugin
  * Description: Accept Bitcoin Payments on your WooCommerce-powered website with Blockonomics
- * Version: 1.7.6
+ * Version: 1.8.0
  * Author: Blockonomics
  * Author URI: https://www.blockonomics.co
  * License: MIT
@@ -116,12 +116,12 @@ function blockonomics_woocommerce_init()
 
             if ($response->response_code != 200)
             {
-                $message = __('Error while generating temporary APIKey: '. $response->message, 'blockonomics-bitcoin-payments');
+                $message = __('Error while generating temporary APIKey: '. isset($response->message) ? $response->message : '', 'blockonomics-bitcoin-payments');
                 display_admin_message($message, 'error');
             }
             else
             {
-                update_option("blockonomics_temp_api_key", $response->apikey);
+                update_option("blockonomics_temp_api_key", isset($response->apikey) ? $response->apikey : '');
             }
         }
 
@@ -130,7 +130,7 @@ function blockonomics_woocommerce_init()
             'blockonomics_options', 'show_options'
         );
 
-        if (get_option('blockonomics_api_updated') == 'true' && $_GET['settings-updated'] == 'true')
+        if (get_option('blockonomics_api_updated') == 'true' && isset($_GET['settings-updated']) ? $_GET['settings-updated'] : '' == 'true')
         {
             $message = __('API Key updated! Please click on Test Setup to verify Installation. ', 'blockonomics-bitcoin-payments');
             display_admin_message($message, 'updated');
@@ -239,7 +239,7 @@ function blockonomics_woocommerce_init()
                             $total_received = get_option('blockonomics_temp_withdraw_amount') / 1.0e8;
                             $api_key = get_option("blockonomics_api_key");
                             $temp_api_key = get_option("blockonomics_temp_api_key");
-                            if ($temp_api_key && !($total_received > 0)): ?>
+                            if ($temp_api_key && !$api_key && !($total_received > 0)): ?>
 
                             <p><b>Blockonomics Wallet</b> (Balance: 0 BTC)</p>
                             <p>We are using a temporary wallet on Blockonomics to receive your payments.</p>
@@ -298,14 +298,22 @@ function blockonomics_woocommerce_init()
                         </tr>
                         <tr valign="top">
                             <th scope="row"><?php echo __('Display Payment Page in Lite Mode (Enable this if you are having problems in rendering checkout page)', 'blockonomics-bitcoin-payments')?></th>
-                            <td><input type="checkbox" name="blockonomics_lite" value="1" <?php checked("1", get_option('blockonomics_lite')); ?>" /></td>
+                            <td><input type="checkbox" name="blockonomics_lite" value="1" <?php checked("1", get_option('blockonomics_lite')); ?> /></td>
+                        </tr>
+						<tr valign="top">
+                            <th scope="row"><?php echo __('Network Confirmations required for payment to complete)', 'blockonomics-bitcoin-payments')?></th>
+                            <td><select name="blockonomics_network_confirmation" />
+                                    <option value="2" <?php selected(get_option('blockonomics_network_confirmation'), 2); ?>>2 (Recommended)</option>
+                                    <option value="1" <?php selected(get_option('blockonomics_network_confirmation'), 1); ?>>1</option>
+                                    <option value="0" <?php selected(get_option('blockonomics_network_confirmation'), 0); ?>>0</option>
+                                </select></td>
                         </tr>
                     </table>
                 </div>
                 <p class="submit">
                     <input type="submit" class="button-primary" value="Save"/>
                     <input type="hidden" name="action" value="update" />
-                    <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated,blockonomics_underpayment_slack,blockonomics_lite" />
+                    <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated,blockonomics_underpayment_slack,blockonomics_lite,blockonomics_network_confirmation" />
                     <input onclick="checkForAPIKeyChange();" class="button-primary" name="test-setup-submit" value="Test Setup" style="max-width:85px;">
                 </p>
             </form>
@@ -324,7 +332,6 @@ function blockonomics_woocommerce_init()
 
     <?php
     }
-
     function nolo_custom_field_display_cust_order_meta($order)
     {
         $txid = get_post_meta($order->get_id(), 'blockonomics_txid', true);
@@ -392,15 +399,15 @@ function blockonomics_woocommerce_init()
 
     function bnomics_alt_refund_email(){
         $order_id = $_REQUEST['order_id'];
-        $order_link = $_REQUEST['order_link'];
+        $uuid = $_REQUEST['order_uuid'];
         $order_coin = $_REQUEST['order_coin'];
-        $order_coin_sym = $_REQUEST['order_coin_sym'];
+        $refund_address = $_REQUEST['refund_address'];
         $order = new WC_Order($order_id);
         $billing_email = $order->billing_email;
         $email = $billing_email;
         $subject = $order_coin . ' ' . __('Refund', 'blockonomics-bitcoin-payments');
         $heading = $order_coin . ' ' . __('Refund', 'blockonomics-bitcoin-payments');
-        $message = __('Your order couldn\'t be processed as you paid less than expected.<br>The amount you paid will be refunded.<br>Visit the link below to enter your refund address.<br>', 'blockonomics-bitcoin-payments').'<a href="'.$order_link.'">'.$order_link.'</a>';
+        $message = __("Your refund details have been submitted. The refund will be automatically sent to", 'blockonomics-bitcoin-payments')."<br><b>".$refund_address."</b><br>".__("If you don&#39;t get refunded in a few hours, contact <a href='mailto:support@flyp.me'>support@flyp.me</a> with the following uuid", 'blockonomics-bitcoin-payments').":<br><b>".$uuid."</b>";
         bnomics_email_woocommerce_style($email, $subject, $heading, $message);
         wp_die();
     }
@@ -502,6 +509,7 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_altcoins');
     delete_option('blockonomics_underpayment_slack');
     delete_option('blockonomics_lite');
+	delete_option('blockonomics_network_confirmation');
 }
 
 

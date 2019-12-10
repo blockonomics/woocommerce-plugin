@@ -46,8 +46,8 @@ class Blockonomics
         if (wp_remote_retrieve_body($response))
         {
           $body = json_decode(wp_remote_retrieve_body($response));
-          $responseObj->{'response_message'} = $body->message;
-          $responseObj->{'address'} = $body->address;
+          $responseObj->{'response_message'} = isset($body->message) ? $body->message : '';
+          $responseObj->{'address'} = isset($body->address) ? $body->address : '';
         }
         return $responseObj;
     }
@@ -164,14 +164,21 @@ class Blockonomics
     {
         $response = $this->get_callbacks();
         $error_str = '';
-        $responseBody = json_decode(wp_remote_retrieve_body($response));
+        $response_body = json_decode(wp_remote_retrieve_body($response));
+        if(isset($response_body[0])){
+            $response_callback = isset($response_body[0]->callback) ? $response_body[0]->callback : '';
+            $response_address = isset($response_body[0]->address) ? $response_body[0]->address : '';
+        }else{
+            $response_callback = '';
+            $response_address = '';
+        }
         $callback_secret = get_option('blockonomics_callback_secret');
         $api_url = WC()->api_request_url('WC_Gateway_Blockonomics');
         $callback_url = add_query_arg('secret', $callback_secret, $api_url);
         // Remove http:// or https:// from urls
         $api_url_without_schema = preg_replace('/https?:\/\//', '', $api_url);
         $callback_url_without_schema = preg_replace('/https?:\/\//', '', $callback_url);
-        $response_callback_without_schema = preg_replace('/https?:\/\//', '', $responseBody[0]->callback);
+        $response_callback_without_schema = preg_replace('/https?:\/\//', '', $response_callback);
         //TODO: Check This: WE should actually check code for timeout
         if (!wp_remote_retrieve_response_code($response)) {
             $error_str = __('Your server is blocking outgoing HTTPS calls', 'blockonomics-bitcoin-payments');
@@ -180,27 +187,27 @@ class Blockonomics
             $error_str = __('API Key is incorrect', 'blockonomics-bitcoin-payments');
         elseif (wp_remote_retrieve_response_code($response)!=200)  
             $error_str = $response->data;
-        elseif (!isset($responseBody) || count($responseBody) == 0)
+        elseif (!isset($response_body) || count($response_body) == 0)
         {
             $error_str = __('You have not entered an xpub', 'blockonomics-bitcoin-payments');
         }
-        elseif (count($responseBody) == 1)
+        elseif (count($response_body) == 1)
         {
-            if(!$responseBody[0]->callback || $responseBody[0]->callback == null)
+            if(!$response_callback || $response_callback == null)
             {
               //No callback URL set, set one 
-              $this->update_callback($callback_url, $responseBody[0]->address);   
+              $this->update_callback($callback_url, $response_address);   
             }
             elseif($response_callback_without_schema != $callback_url_without_schema)
             {
               $base_url = get_bloginfo('wpurl');
               $base_url = preg_replace('/https?:\/\//', '', $base_url);
               // Check if only secret differs
-              if(strpos($responseBody[0]->callback, $base_url) !== false)
+              if(strpos($response_callback, $base_url) !== false)
               {
                 //Looks like the user regenrated callback by mistake
                 //Just force Update_callback on server
-                $this->update_callback($callback_url, $responseBody[0]->address);  
+                $this->update_callback($callback_url, $response_address);  
               }
               else
               {
@@ -212,8 +219,8 @@ class Blockonomics
         {
             $error_str = __("You have an existing callback URL. Refer instructions on integrating multiple websites", 'blockonomics-bitcoin-payments');
             // Check if callback url is set
-            foreach ($responseBody as $resObj)
-             if(preg_replace('/https?:\/\//', '', $resObj->callback) == $callback_url_without_schema)
+            foreach ($response_body as $res_obj)
+             if(preg_replace('/https?:\/\//', '', $res_obj->callback) == $callback_url_without_schema)
                 $error_str = "";
         }  
         if (!$error_str)

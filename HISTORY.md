@@ -1,5 +1,17 @@
 == Changelog ==
 
+= 1.8.0  =
+* Added Help text on Payment Page
+* Supporting zero/one blockchain confirmations
+* Reusing same address on order expiry
+
+= 1.7.8  =
+* Improvements to flypme refund flow
+* Minor bug fixes
+
+= 1.7.7  =
+* Automatically detects rendering issues on checkout screen 
+
 = 1.7.6  =
 * Added Lite mode rendering option 
 
