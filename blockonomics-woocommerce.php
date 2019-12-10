@@ -422,14 +422,6 @@ function blockonomics_woocommerce_init()
       // Send the email using woocommerce mailer send
       $mailer->send( $email, $subject, $html_message, array('Content-Type: text/html; charset=UTF-8') );
     }
-
-    function bnomics_before_checkout() {
-        do_action('bnomics_before_checkout');
-    }
-
-    function bnomics_after_checkout() {
-        do_action('bnomics_after_checkout');
-    }
 }
 
 // After all plugins have been loaded, initialize our payment gateway plugin
