@@ -156,8 +156,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         add_action('wp_enqueue_scripts', 'bnomics_enqueue_scripts' );
         if($template == 'order.php'){
             $theme_template = 'blockonomics_checkout.php';
-        }else if ($template == 'track.php') {
-            $theme_template = 'blockonomics_altcoin.php';
         }
         if ( $overridden_template = locate_template( $theme_template ) ) {
             // locate_template() returns path to file
