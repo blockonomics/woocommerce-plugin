@@ -151,23 +151,30 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         );
     }
 
+    public function redirect_to_template($template){
+        add_action('wp_enqueue_scripts', 'bnomics_enqueue_stylesheets' );
+        add_action('wp_enqueue_scripts', 'bnomics_enqueue_scripts' );
+        if ( $overridden_template = locate_template( $template ) ) {
+            // locate_template() returns path to file
+            // if either the child theme or the parent theme have overridden the template
+            load_template( $overridden_template );
+        } else {
+            // If neither the child nor parent theme have overridden the template,
+            // we load the template from the 'templates' sub-directory of the directory this file is in
+            load_template( plugin_dir_path(__FILE__)."../templates/" .$template );
+        }
+        exit();
+    }
+
     public function check_blockonomics_callback()
     {
         $orders = get_option('blockonomics_orders');
         $address = isset($_REQUEST["show_order"]) ? $_REQUEST["show_order"] : "";
         $uuid = isset($_REQUEST["uuid"]) ? $_REQUEST["uuid"] : "";
         if ($address) {
-            $dir = plugin_dir_path(__FILE__);
-            add_action('wp_enqueue_scripts', 'bnomics_enqueue_stylesheets' );
-            add_action('wp_enqueue_scripts', 'bnomics_enqueue_scripts' );
-            include $dir."../templates/order.php";
-            exit();
+            $this->redirect_to_template('blockonomics_checkout.php');
         }else if ($uuid){
-            $dir = plugin_dir_path(__FILE__);
-            add_action('wp_enqueue_scripts', 'bnomics_enqueue_stylesheets' );
-            add_action('wp_enqueue_scripts', 'bnomics_enqueue_scripts' );
-            include $dir."../templates/track.php";
-            exit();
+            $this->redirect_to_template('track.php');
         }
         $address = isset($_REQUEST["finish_order"]) ? $_REQUEST["finish_order"] : "";
         if ($address) {
