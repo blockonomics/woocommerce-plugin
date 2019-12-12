@@ -154,10 +154,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
     public function redirect_to_template($template){
         add_action('wp_enqueue_scripts', 'bnomics_enqueue_stylesheets' );
         add_action('wp_enqueue_scripts', 'bnomics_enqueue_scripts' );
-        if($template == 'blockonomics_checkout.php'){
-            $theme_template = $template;
-        }
-        if ( $overridden_template = locate_template( $theme_template ) ) {
+        if ( $overridden_template = locate_template( $template ) ) {
             // locate_template() returns path to file
             // if either the child theme or the parent theme have overridden the template
             load_template( $overridden_template );
