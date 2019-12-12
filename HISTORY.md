@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 1.8.1  =
+* Improved altcoin help text in case payment is not detected
+* Added support for adding custom checkout pages in theme
+
 = 1.8.0  =
 * Added Help text on Payment Page
 * Supporting zero/one blockchain confirmations
