@@ -428,7 +428,7 @@ function blockonomics_woocommerce_init()
 add_action('plugins_loaded', 'blockonomics_woocommerce_init', 0);
 
 register_activation_hook( __FILE__, 'blockonomics_activation_hook' );
-add_action('admin_notices', 'plugin_activation');
+add_action('admin_notices', 'blockonomics_plugin_activation');
 
 function blockonomics_activation_hook() {
     if(!is_plugin_active('woocommerce/woocommerce.php'))
@@ -439,7 +439,7 @@ function blockonomics_activation_hook() {
 }
 
 //Show message when plugin is activated
-function plugin_activation() {
+function blockonomics_plugin_activation() {
   if(!is_plugin_active('woocommerce/woocommerce.php'))
   {
       $html = '<div class="error">';
