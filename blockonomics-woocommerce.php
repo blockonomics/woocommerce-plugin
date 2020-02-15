@@ -505,10 +505,10 @@ function blockonomics_uninstall_hook() {
 }
 
 
-function plugin_add_settings_link( $links ) {
+function blockonomics_plugin_add_settings_link( $links ) {
     $settings_link = '<a href="options-general.php?page=blockonomics_options">' . __( 'Settings' ) . '</a>';
     array_unshift( $links, $settings_link );
     return $links;
 }
 $plugin = plugin_basename( __FILE__ );
-add_filter( "plugin_action_links_$plugin", 'plugin_add_settings_link' );
+add_filter( "plugin_action_links_$plugin", 'blockonomics_plugin_add_settings_link' );
