@@ -61,13 +61,13 @@ Please use Settings > Blockonomics **Test Setup** to diagnose and get more
 details about the issue
 
 ### Order is still on pending payment status even after two confirmations  ### 
-Your webhost is blocking incoming callbacks from bots, our you have a DDOS protection in place that is causing this. Blockonomics server does payment callbacks to update trasnsaction status and cannot emulate a browser accessing your website. Please consult [this article](https://blockonomics.freshdesk.com/solution/articles/33000219539-order-status-not-changing-ddos-protection) on how debug and fix this
+Your webhost is blocking incoming callbacks from bots, our you have a DDOS protection in place that is causing this. Blockonomics server does payment callbacks to update trasnsaction status and cannot emulate a browser accessing your website. Please consult [this article](http://help.blockonomics.co/solution/articles/33000219539-order-status-not-changing-ddos-protection) on how debug and fix this
 
 ### I have multiple websites, how do I set this up? ### 
-You can use single blockonomics account to integrate multiple website. Please consult [this article](https://blockonomics.freshdesk.com/solution/articles/33000209399-merchants-integrating-multiple-websites)
+You can use single blockonomics account to integrate multiple website. Please consult [this article](http://help.blockonomics.co/solution/articles/33000209399-merchants-integrating-multiple-websites)
 
 ### Can I remove Powered by Blockonomics text or customize the checkout page ? ### 
-You are free to customize the checkout page according to your needs. Feel free to consult [this article](https://blockonomics.freshdesk.com/support/solutions/articles/33000243991-how-to-customize-the-checkout-page-)
+You are free to customize the checkout page according to your needs. Feel free to consult [this article](http://help.blockonomics.co/support/solutions/articles/33000243991-how-to-customize-the-checkout-page-)
 
 ## Screenshots ## 
 
