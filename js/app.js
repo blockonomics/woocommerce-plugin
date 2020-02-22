@@ -75,7 +75,7 @@ function getParameterByNameBlocko(name, url) {
 }
 
 //CheckoutController
-app.controller('CheckoutController', function($scope, $interval, $timeout, Order, $httpParamSerializer, $timeout, AltcoinNew, AltcoinAccept, AltcoinLimits, WpAjax) {
+app.controller('CheckoutController', function($scope, $interval, Order, $httpParamSerializer, $timeout, AltcoinNew, AltcoinAccept, AltcoinLimits, WpAjax) {
     //get order id from url
     $scope.address = getParameterByNameBlocko("show_order");
     var totalProgress = 100;
