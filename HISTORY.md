@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 1.8.2  =
+* Removed conflicts with mailchimp plugin
+
 = 1.8.1  =
 * Improved altcoin help text in case payment is not detected
 * Added support for adding custom checkout pages in theme
