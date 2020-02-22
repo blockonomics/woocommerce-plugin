@@ -428,7 +428,7 @@ function blockonomics_woocommerce_init()
 add_action('plugins_loaded', 'blockonomics_woocommerce_init', 0);
 
 register_activation_hook( __FILE__, 'blockonomics_activation_hook' );
-add_action('admin_notices', 'plugin_activation');
+add_action('admin_notices', 'blockonomics_plugin_activation');
 
 function blockonomics_activation_hook() {
     if(!is_plugin_active('woocommerce/woocommerce.php'))
@@ -439,7 +439,7 @@ function blockonomics_activation_hook() {
 }
 
 //Show message when plugin is activated
-function plugin_activation() {
+function blockonomics_plugin_activation() {
   if(!is_plugin_active('woocommerce/woocommerce.php'))
   {
       $html = '<div class="error">';
@@ -505,10 +505,10 @@ function blockonomics_uninstall_hook() {
 }
 
 
-function plugin_add_settings_link( $links ) {
+function blockonomics_plugin_add_settings_link( $links ) {
     $settings_link = '<a href="options-general.php?page=blockonomics_options">' . __( 'Settings' ) . '</a>';
     array_unshift( $links, $settings_link );
     return $links;
 }
 $plugin = plugin_basename( __FILE__ );
-add_filter( "plugin_action_links_$plugin", 'plugin_add_settings_link' );
+add_filter( "plugin_action_links_$plugin", 'blockonomics_plugin_add_settings_link' );
