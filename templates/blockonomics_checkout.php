@@ -81,7 +81,7 @@ if($lite_version){
               </div>
         <!-- Blockonomics Credit -->
 			<div class="bnomics-how-to-pay" ng-hide="order.status != -1">
-				<a href="https://blog.blockonomics.co/how-to-pay-a-bitcoin-invoice-abf4a04d041c" target="_blank">How do I pay this?</a>
+				<a href="https://blog.blockonomics.co/how-to-pay-a-bitcoin-invoice-abf4a04d041c" target="_blank">How to pay | Check reviews of this shop</a>
 			</div>
             <div class="bnomics-powered-by">
               <?=__('Powered by ', 'blockonomics-bitcoin-payments')?>Blockonomics
