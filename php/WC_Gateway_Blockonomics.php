@@ -196,8 +196,8 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         if ($callback_secret  && $callback_secret == $secret) {
             $addr = $_REQUEST['addr'];
             $order = $orders[$addr];
-            $wc_order = new WC_Order($order['order_id']);
             if ($order) {
+                $wc_order = new WC_Order($order['order_id']);
                 $status = intval($_REQUEST['status']);
                 $existing_status = $order['status'];
                 $timestamp = $order['timestamp'];
@@ -241,7 +241,11 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                     update_post_meta($wc_order->get_id(), 'expected_btc_amount', $order['satoshi']/1.0e8);
                 }
                 update_option('blockonomics_orders', $orders);
+            }else{
+                exit("Error: order not found");
             }
+        }else{
+            exit();
         }
     }
 
