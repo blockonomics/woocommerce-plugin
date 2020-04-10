@@ -244,8 +244,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             }else{
                 exit("Error: order not found");
             }
-        }else{
-            exit();
         }
     }
 
