@@ -194,9 +194,9 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $secret = isset($_REQUEST['secret']) ? $_REQUEST['secret'] : "";
         $network_confirmations=get_option("blockonomics_network_confirmation",2);
         if ($callback_secret  && $callback_secret == $secret) {
-            $addr = $_REQUEST['addr'];
-            $order = $orders[$addr];
-            if ($order) {
+            $addr = isset($_REQUEST['addr']) ? $_REQUEST['addr'] : "";
+            if (array_key_exists($addr, $orders)){
+                $order = $orders[$addr];
                 $wc_order = new WC_Order($order['order_id']);
                 $status = intval($_REQUEST['status']);
                 $existing_status = $order['status'];
