@@ -45,7 +45,7 @@ You can operate the plugin in two different modes:
 - To withdraw received funds, user has to change to *Direct to Wallet* mode
 
 ### Direct to Wallet Mode (Recommended)  ### 
-[Video Tutorial](https://youtu.be/Kck3a-9nh6E) | [Blog Tutorial](https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62)  
+[Video Tutorial](https://www.youtube.com/watch?v=uY44SYEdyI0) | [Blog Tutorial](https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62)  
  
 - Click on **Get Started For Free** on [Blockonomics > Merchants](https://www.blockonomics.co/merchants) and proceed to complete merchant wizard. 
 - Your API key should be now shown on the [merchants page](https://www.blockonomics.co/merchants)   
