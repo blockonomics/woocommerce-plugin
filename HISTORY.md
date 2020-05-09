@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 1.8.3  =
+* Better handling callbacks errors
+
 = 1.8.2  =
 * Removed conflicts with mailchimp plugin
 
