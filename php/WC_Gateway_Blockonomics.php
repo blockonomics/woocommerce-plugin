@@ -109,7 +109,12 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $cancel_url = add_query_arg('order_key', $order_key, $cancel_url);
 
         $blockonomics = new Blockonomics;
-        $btc_price = $blockonomics->get_price(get_woocommerce_currency());
+        if(get_woocommerce_currency() != 'BTC'){
+            $btc_price = $blockonomics->get_price(get_woocommerce_currency());
+            $btc_price = $btc_price * 100/(100+get_option('blockonomics_margin', 0));
+        }else{
+            $btc_price = 1;
+        }
 
         $currentAddress = get_post_meta($order_id,"blockonomics_address");
         if($currentAddress) {
