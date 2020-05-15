@@ -142,7 +142,8 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         update_option('blockonomics_orders', $blockonomics_orders);
         $order_url = WC()->api_request_url('WC_Gateway_Blockonomics');
         $order_url = add_query_arg('show_order', $address, $order_url);
-
+        $order_url = str_replace('wc-api/WC_Gateway_Blockonomics', 'crypto', $order_url);
+        
         update_post_meta($order_id, 'blockonomics_address', $address);
 
         return array(

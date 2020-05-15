@@ -60,6 +60,12 @@ function blockonomics_woocommerce_init()
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_filter('clean_url', 'bnomics_async_scripts', 11, 1 );
+    add_action('init', 'custom_rewrite_rules');
+
+    /* Custom Rewrite Rule */
+    function custom_rewrite_rules() {
+        add_rewrite_rule( '^crypto/?$', 'index.php?wc-api=WC_Gateway_Blockonomics', 'top' );
+    }
 
     /**
      * Add this Gateway to WooCommerce
@@ -484,6 +490,7 @@ function blockonomics_plugin_activation() {
       }
     }
   }
+  flush_rewrite_rules();
 }
 
 // On uninstallation, clear every option the plugin has set
@@ -501,7 +508,8 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_altcoins');
     delete_option('blockonomics_underpayment_slack');
     delete_option('blockonomics_lite');
-	delete_option('blockonomics_network_confirmation');
+    delete_option('blockonomics_network_confirmation');
+    flush_rewrite_rules();
 }
 
 
