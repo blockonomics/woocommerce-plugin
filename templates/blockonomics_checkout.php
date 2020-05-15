@@ -37,7 +37,7 @@ $order = $orders[$address];
                   <!-- <span class="warning bnomics-status-warning"><?=__('<b>PAYMENT EXPIRED</b> <br /><br /><a href="javascript:history.back()">Click here</a> to try again.<br /><br /><div>If you already paid, your order will be processed automatically. <br />You can safely close this window.</div>', 'blockonomics-bitcoin-payments')?></span> -->
                 </div>
                     <h4 class="bnomics-amount-title" for="invoice-amount">
-                     <?php echo $order['satoshi']/1.0e8?> BTC
+                     <?php echo $order['satoshi']/1.0e8;?> BTC
 
 
                     </h4>

@@ -199,6 +199,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $callback_secret = get_option("blockonomics_callback_secret");
         $secret = isset($_REQUEST['secret']) ? $_REQUEST['secret'] : "";
         $network_confirmations=get_option("blockonomics_network_confirmation",2);
+
         if ($callback_secret  && $callback_secret == $secret) {
             $addr = isset($_REQUEST['addr']) ? $_REQUEST['addr'] : "";
             if (array_key_exists($addr, $orders)){
@@ -225,9 +226,11 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                             $wc_order->add_order_note(__('Overpayment of BTC amount', 'blockonomics-bitcoin-payments'));
                             $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
                             $wc_order->payment_complete($order['txid']);
+                            $order['status'] = 2;
                         }else if ($order['satoshi'] == $_REQUEST['value']){
                           $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
                           $wc_order->payment_complete($order['txid']);
+                          $order['status'] = 2;
                         }
 
                     }
@@ -237,6 +240,8 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                         $new_temp_amount = $current_temp_amount + $_REQUEST['value'];
                         update_option('blockonomics_temp_withdraw_amount', $new_temp_amount);
                     }
+                }elseif ($status == 1 && $order['satoshi'] <= $_REQUEST['value']) {
+                  $order['status'] = 1;
                 }
                 $order['txid'] =  $_REQUEST['txid'];
                 $order['status'] = $status;
