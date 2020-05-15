@@ -9,8 +9,6 @@ if($lite_version){
 }else{
   get_header();
 }
-
-
 $btc_priceurl = "https://www.blockonomics.co/api/price?currency=USD";
 $btc_pricejson = file_get_contents($btc_priceurl);
 $btc_price = json_decode($btc_pricejson, true);
@@ -18,12 +16,10 @@ $btc_price = json_decode($btc_pricejson, true);
 $orders = get_option('blockonomics_orders');
 $address = $_REQUEST['show_order'];
 $order = $orders[$address];
-
 ?>
 <div>
   <div>
     <div class="bnomics-order-container">
-
       <!-- Heading row -->
       <div class="bnomics-order-heading">
         <div class="bnomics-order-heading-wrapper">
@@ -32,8 +28,10 @@ $order = $orders[$address];
           </div>
         </div>
       </div>
+      <!-- Amount row -->
       <div class="bnomics-order-panel">
         <div class="bnomics-order-info">
+          
           <div class="bnomics-bitcoin-pane">
             <div class="bnomics-btc-info">
               <!-- BTC Amount -->
