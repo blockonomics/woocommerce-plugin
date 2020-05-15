@@ -1,8 +1,16 @@
-<link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/order.css', dirname(__FILE__));?>">
-<link rel="stylesheet" type="text/css"
-  href="<?php echo plugins_url('css/cryptofont/cryptofont.min.css', dirname(__FILE__));?>">
-<link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/icons/icons.css', dirname(__FILE__));?>">
-<?php get_header();
+<?php
+$lite_version = get_option('blockonomics_lite');
+if($lite_version){
+?>
+  <link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/order.css', dirname(__FILE__));?>">
+  <link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/cryptofont/cryptofont.min.css', dirname(__FILE__));?>">
+  <link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/icons/icons.css', dirname(__FILE__));?>">
+<?php
+}else{
+  get_header();
+}
+
+
 $btc_priceurl = "https://www.blockonomics.co/api/price?currency=USD";
 $btc_pricejson = file_get_contents($btc_priceurl);
 $btc_price = json_decode($btc_pricejson, true);
