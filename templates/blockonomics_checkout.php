@@ -7,6 +7,10 @@ $btc_priceurl = "https://www.blockonomics.co/api/price?currency=USD";
 $btc_pricejson = file_get_contents($btc_priceurl);
 $btc_price = json_decode($btc_pricejson, true);
 
+$orders = get_option('blockonomics_orders');
+$address = $_REQUEST['show_order'];
+$order = $orders[$address];
+
 ?>
 <div>
   <div>
@@ -16,7 +20,7 @@ $btc_price = json_decode($btc_pricejson, true);
       <div class="bnomics-order-heading">
         <div class="bnomics-order-heading-wrapper">
           <div class="bnomics-order-id">
-            <span class="bnomics-order-number"><?php echo 'ORDER #' . $_GET['id']?></span>
+            <span class="bnomics-order-number"><?php echo 'ORDER #' . $order['order_id']?></span>
           </div>
         </div>
       </div>
@@ -33,24 +37,28 @@ $btc_price = json_decode($btc_pricejson, true);
                   <!-- <span class="warning bnomics-status-warning"><?=__('<b>PAYMENT EXPIRED</b> <br /><br /><a href="javascript:history.back()">Click here</a> to try again.<br /><br /><div>If you already paid, your order will be processed automatically. <br />You can safely close this window.</div>', 'blockonomics-bitcoin-payments')?></span> -->
                 </div>
                     <h4 class="bnomics-amount-title" for="invoice-amount">
-                     <?php echo substr($_GET['price']/$btc_price["price"], 0, 10)?> BTC
+                     <?php echo $order['satoshi']/1.0e8?> BTC
 
 
                     </h4>
                     <div class="bnomics-amount-wrapper">
                       <hr class="bnomics-amount-seperator"> ≈
-                      <span ><?php echo $_GET['price']?> </span>
-                      <small >USD</small>
+                      <span ><?php echo $order['value']?> </span>
+                      <small><?php echo $order['currency']?></small>
                     </div>
               <!-- Bitcoin Address -->
                 <div class="bnomics-address" >
-                  <input ng-click="btc_address_click()" id="bnomics-address-input" class="bnomics-address-input" type="text"  readonly="readonly" value="<?php echo $_GET['show_order'];?>">
+                  <input id="bnomics-address-input" class="bnomics-address-input" type="text"  readonly="readonly" value="<?php echo $_GET['show_order'];?>">
                 </div>
               </div>
         <!-- Blockonomics Credit -->
 			<div class="bnomics-how-to-pay">
 				<a href="https://blog.blockonomics.co/how-to-pay-a-bitcoin-invoice-abf4a04d041c" target="_blank">How to pay | Check reviews of this shop</a>
 			</div>
+      <br>
+      <div>
+      <a href="/?wc-api=WC_Gateway_Blockonomics&payment_check=<?php echo $address;?>">Please click here if already paid</a>
+      </div>
             <div class="bnomics-powered-by">
               <?=__('Powered by ', 'blockonomics-bitcoin-payments')?>Blockonomics
             </div>
