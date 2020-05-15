@@ -91,7 +91,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             return false;
         }
     }
-    
+
     public function process_payment($order_id)
     {
         include_once 'Blockonomics.php';
@@ -153,7 +153,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 
     public function redirect_to_template($template){
         add_action('wp_enqueue_scripts', 'bnomics_enqueue_stylesheets' );
-        add_action('wp_enqueue_scripts', 'bnomics_enqueue_scripts' );
         if ( $overridden_template = locate_template( $template ) ) {
             // locate_template() returns path to file
             // if either the child theme or the parent theme have overridden the template
@@ -168,6 +167,9 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 
     public function check_blockonomics_callback()
     {
+        if(isset($_REQUEST["payment_check"])){
+            $this->redirect_to_template('payment_confirmed.php');
+        }
         $orders = get_option('blockonomics_orders');
         $address = isset($_REQUEST["show_order"]) ? $_REQUEST["show_order"] : "";
         $uuid = isset($_REQUEST["uuid"]) ? $_REQUEST["uuid"] : "";
@@ -249,7 +251,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 
     private function displayError($woocommerce) {
         $unable_to_generate = __('<h1>Unable to generate bitcoin address.</h1><p> Note for site webmaster: ', 'blockonomics-bitcoin-payments');
-        
+
         $error_msg = 'Please login to your admin panel, navigate to Settings > Blockonomics and click <i>Test Setup</i> to diagnose the issue';
 
         $error_message = $unable_to_generate . $error_msg;

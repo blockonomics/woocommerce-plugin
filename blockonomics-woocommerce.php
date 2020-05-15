@@ -104,7 +104,7 @@ function blockonomics_woocommerce_init()
         }
 
         $api_key = $blockonomics->get_api_key();
-        
+
         // get_api_key() will return api key or temp api key
         // if both are null, generate new blockonomics guest account with temporary wallet
         // temp wallet will be used with temp api key
@@ -223,7 +223,7 @@ function blockonomics_woocommerce_init()
                 <input type="hidden" name="blockonomics_api_updated" id="blockonomics_api_updated" value="false">
                 <table class="form-table">
                     <tr valign="top">
-                        <th scope="row">CALLBACK URL 
+                        <th scope="row">CALLBACK URL
                             <a href="javascript:gen_secret()" id="generate-callback" style="font:400 20px/1 dashicons;margin-left: 5px;top: 4px;position:relative;text-decoration: none;" title="Generate New Callback URL">&#xf463;</a>
                         </th>
                         <td><?php echo get_callback_url(); ?></td>
@@ -357,17 +357,6 @@ function blockonomics_woocommerce_init()
       wp_enqueue_style( 'bnomics-icons', plugin_dir_url(__FILE__) . "css/icons/icons.css");
     }
 
-    function bnomics_enqueue_scripts(){
-      wp_enqueue_script( 'angular', plugins_url('js/angular.min.js#deferload', __FILE__) );
-      wp_enqueue_script( 'angular-resource', plugins_url('js/angular-resource.min.js#deferload', __FILE__) );
-      wp_enqueue_script( 'app', plugins_url('js/app.js#deferload', __FILE__) );
-                        wp_localize_script( 'app', 'ajax_object',
-                            array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
-      wp_enqueue_script( 'angular-qrcode', plugins_url('js/angular-qrcode.js#deferload', __FILE__) );
-      wp_enqueue_script( 'vendors', plugins_url('js/vendors.min.js#deferload', __FILE__) );
-      wp_enqueue_script( 'reconnecting-websocket', plugins_url('js/reconnecting-websocket.min.js#deferload', __FILE__) );
-    }
-
     // Async load
     function bnomics_async_scripts($url)
     {
@@ -376,7 +365,7 @@ function blockonomics_woocommerce_init()
         else if ( is_admin() )
             return str_replace( '#deferload', '', $url );
         else
-        return str_replace( '#deferload', '', $url )."' defer='defer"; 
+        return str_replace( '#deferload', '', $url )."' defer='defer";
     }
 
     //Ajax for user checkouts through Woocommerce
@@ -457,15 +446,15 @@ function blockonomics_plugin_activation() {
     $html .= '</p>';
     $html .= '</div>';
 
-    echo $html;        
+    echo $html;
     delete_transient( 'fx-admin-notice-example' );
   }
   if ( isset( $_GET['review_later'] ) ){
     update_option('blockonomics_review_notice_dismissed_timestamp', time());
-  } 
+  }
   if ( isset( $_GET['already_reviewed'] ) ){
     update_option('blockonomics_review_notice_dismissed_timestamp', 1);
-  } 
+  }
   $admin_page = get_current_screen();
   if (in_array($admin_page->base, array('dashboard', 'settings_page_blockonomics_options', 'plugins'))){
     //Show review notice only on three pages
@@ -473,14 +462,14 @@ function blockonomics_plugin_activation() {
     if (count($blockonomics_orders)>10){
       $dismiss_timestamp = get_option('blockonomics_review_notice_dismissed_timestamp', 0);
       if ($dismiss_timestamp!=1 && time()-$dismiss_timestamp>1209600){
-        //Prompt user to review the plugin after every 2 weeks 
+        //Prompt user to review the plugin after every 2 weeks
         //if he has more than 10 orders, until he clicks on I already reviewed
         $class = 'notice notice-info';
         $message = __( 'Hey, I noticed you have been using blockonomics for accepting bitcoins - Awesome!</br> Could you please do me a BIG favor and rate it in on Wordpress?', 'blockonomics-bitcoin-payments' );
         $m1 = __('Ok, I will review it', 'blockonomics-bitcoin-payments');
         $m2=  __('I already did', 'blockonomics-bitcoin-payments');
         $m3=  __('Maybe Later', 'blockonomics-bitcoin-payments');
-        printf( '<div class="%1$s"><h4>%2$s</h4><ul><li><a target="_blank" href="https://wordpress.org/support/plugin/blockonomics-bitcoin-payments/reviews/#new-post">%3$s</a></li><li><a href="?already_reviewed">%4$s</a></li><li><a href="?review_later">%5$s</a></li></ul></div>', esc_attr( $class ),  $message, $m1, $m2, $m3); 
+        printf( '<div class="%1$s"><h4>%2$s</h4><ul><li><a target="_blank" href="https://wordpress.org/support/plugin/blockonomics-bitcoin-payments/reviews/#new-post">%3$s</a></li><li><a href="?already_reviewed">%4$s</a></li><li><a href="?review_later">%5$s</a></li></ul></div>', esc_attr( $class ),  $message, $m1, $m2, $m3);
       }
     }
   }
