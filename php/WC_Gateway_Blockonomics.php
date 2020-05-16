@@ -153,7 +153,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 
     public function redirect_to_template($template){
         add_action('wp_enqueue_scripts', 'bnomics_enqueue_stylesheets' );
-        add_action('wp_enqueue_scripts', 'bnomics_enqueue_scripts' );
         if ( $overridden_template = locate_template( $template ) ) {
             // locate_template() returns path to file
             // if either the child theme or the parent theme have overridden the template
@@ -168,6 +167,9 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 
     public function check_blockonomics_callback()
     {
+        if(isset($_REQUEST["payment_check"])){
+            $this->redirect_to_template('payment_confirmed.php');
+        }
         $orders = get_option('blockonomics_orders');
         $address = isset($_REQUEST["show_order"]) ? $_REQUEST["show_order"] : "";
         $uuid = isset($_REQUEST["uuid"]) ? $_REQUEST["uuid"] : "";
