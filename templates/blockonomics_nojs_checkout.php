@@ -38,7 +38,13 @@ $order = $orders[$address];
                   <span class="bnomics-order-status-title"><?=__('To confirm your order, please send the exact amount of <strong>BTC</strong> to the given address', 'blockonomics-bitcoin-payments')?></span>
                 </div>
                     <h4 class="bnomics-amount-title" for="invoice-amount">
-                     <?php echo $order['satoshi']/1.0e8;?> BTC
+                     <?php
+                     if($order['satoshi'] < 10000){
+                       echo rtrim(number_format($order['satoshi']/1.0e8, 8),0);
+                     }else{
+                       echo $order['satoshi']/1.0e8;
+                     }
+                     ?> BTC
                     </h4>
                     <div class="bnomics-amount-wrapper">
                       <hr class="bnomics-amount-seperator"> ≈

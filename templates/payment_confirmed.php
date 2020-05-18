@@ -28,7 +28,7 @@ if($lite_version){
   </div>
   </div>
   <?php
-  if(!isset($lite_version)){
+  if(!$lite_version){
     get_footer();
   }
   ?>
