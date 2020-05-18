@@ -1,8 +1,15 @@
-<link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/order.css', dirname(__FILE__));?>">
-<link rel="stylesheet" type="text/css"
-  href="<?php echo plugins_url('css/cryptofont/cryptofont.min.css', dirname(__FILE__));?>">
-<link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/icons/icons.css', dirname(__FILE__));?>">
-<?php get_header();?>
+<?php
+$lite_version = get_option('blockonomics_lite');
+if($lite_version){
+?>
+  <link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/order.css', dirname(__FILE__));?>">
+  <link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/cryptofont/cryptofont.min.css', dirname(__FILE__));?>">
+  <link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/icons/icons.css', dirname(__FILE__));?>">
+<?php
+}else{
+  get_header();
+}
+?>
   <div>
   <div class="bnomics-order-container">
     <?php
@@ -20,4 +27,8 @@
      ?>
   </div>
   </div>
-  <?php get_footer();?>
+  <?php
+  if(!isset($lite_version)){
+    get_footer();
+  }
+  ?>

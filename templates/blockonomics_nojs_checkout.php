@@ -69,4 +69,8 @@ $order = $orders[$address];
     </div>
   </div>
 </div>
-<?php get_footer();?>
+<?php
+if(!$lite_version){
+  get_footer();
+}
+?>
