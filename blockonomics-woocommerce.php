@@ -357,6 +357,17 @@ function blockonomics_woocommerce_init()
       wp_enqueue_style( 'bnomics-icons', plugin_dir_url(__FILE__) . "css/icons/icons.css");
     }
 
+    function bnomics_enqueue_scripts(){
+      wp_enqueue_script( 'angular', plugins_url('js/angular.min.js#deferload', __FILE__) );
+      wp_enqueue_script( 'angular-resource', plugins_url('js/angular-resource.min.js#deferload', __FILE__) );
+      wp_enqueue_script( 'app', plugins_url('js/app.js#deferload', __FILE__) );
+                        wp_localize_script( 'app', 'ajax_object',
+                            array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
+      wp_enqueue_script( 'angular-qrcode', plugins_url('js/angular-qrcode.js#deferload', __FILE__) );
+      wp_enqueue_script( 'vendors', plugins_url('js/vendors.min.js#deferload', __FILE__) );
+      wp_enqueue_script( 'reconnecting-websocket', plugins_url('js/reconnecting-websocket.min.js#deferload', __FILE__) );
+    }
+
     // Async load
     function bnomics_async_scripts($url)
     {
