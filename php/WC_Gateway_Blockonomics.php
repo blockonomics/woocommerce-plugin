@@ -168,11 +168,19 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 
     public function check_blockonomics_callback()
     {
+        if(isset($_REQUEST["payment_check"])){
+            $this->redirect_to_template('payment_confirmed.php');
+        }
         $orders = get_option('blockonomics_orders');
         $address = isset($_REQUEST["show_order"]) ? $_REQUEST["show_order"] : "";
         $uuid = isset($_REQUEST["uuid"]) ? $_REQUEST["uuid"] : "";
         if ($address) {
-            $this->redirect_to_template('blockonomics_checkout.php');
+            $nojs_version = get_option('blockonomics_nojs');
+            if($nojs_version){
+              $this->redirect_to_template('blockonomics_nojs_checkout.php');
+            }else{
+              $this->redirect_to_template('blockonomics_checkout.php');
+            }
         }else if ($uuid){
             $this->redirect_to_template('track.php');
         }
