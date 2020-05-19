@@ -301,7 +301,7 @@ function blockonomics_woocommerce_init()
                             <td><input type="checkbox" name="blockonomics_lite" value="1" <?php checked("1", get_option('blockonomics_lite')); ?> /></td>
                         </tr>
                         <tr valign="top">
-                            <th scope="row"><?php echo __('No Javascript checkout page (Enable this if you have majority customer that use tor browser that don\t allow javascript)', 'blockonomics-bitcoin-payments')?></th>
+                            <th scope="row"><?php echo __('No Javascript checkout page (Enable this if you have majority customer that use tor like browser that block javascript)', 'blockonomics-bitcoin-payments')?></th>
                             <td><input type="checkbox" name="blockonomics_nojs" value="1" <?php checked("1", get_option('blockonomics_nojs')); ?> /></td>
                         </tr>
 						<tr valign="top">
