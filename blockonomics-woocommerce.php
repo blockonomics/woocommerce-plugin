@@ -229,8 +229,8 @@ function blockonomics_woocommerce_init()
                         <td><?php echo get_callback_url(); ?></td>
                     </tr>
                     <tr valign="top">
-                        <th scope="row"><?php echo __('Accept Altcoin Payments (Using Flyp.me)', 'blockonomics-bitcoin-payments')?></th>
-                        <td><input type="checkbox" name="blockonomics_altcoins" value="1" <?php checked("1", get_option('blockonomics_altcoins')); ?>" /></td>
+                        <th scope="row"><?php echo __('BCH Enabled (Select if you want to accept Bitcoin Cash)')?></th>
+                        <td><input type="checkbox" name="blockonomics_bch" value="1" <?php checked("1", get_option('blockonomics_bch')); ?>" /></td>
                     </tr>
                     <tr valign="top">
                         <th scope="row">Destination BTC wallet for payments</th>
@@ -317,7 +317,7 @@ function blockonomics_woocommerce_init()
                 <p class="submit">
                     <input type="submit" class="button-primary" value="Save"/>
                     <input type="hidden" name="action" value="update" />
-                    <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated,blockonomics_underpayment_slack,blockonomics_lite,blockonomics_nojs,blockonomics_network_confirmation" />
+                    <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_bch,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated,blockonomics_underpayment_slack,blockonomics_lite,blockonomics_nojs,blockonomics_network_confirmation" />
                     <input onclick="checkForAPIKeyChange();" class="button-primary" name="test-setup-submit" value="Test Setup" style="max-width:85px;">
                 </p>
             </form>
@@ -502,7 +502,7 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_margin');
     delete_option('blockonomics_timeperiod');
     delete_option('blockonomics_api_updated');
-    delete_option('blockonomics_altcoins');
+    delete_option('blockonomics_bch');
     delete_option('blockonomics_underpayment_slack');
     delete_option('blockonomics_lite');
     delete_option('blockonomics_nojs');

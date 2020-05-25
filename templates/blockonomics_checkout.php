@@ -10,9 +10,31 @@ if($lite_version){
   get_header();
 }
 ?>
+
+<div id="bch_active" data-bch_active='<?php echo get_option('blockonomics_bch')?>'></div>
+
 <div ng-app="shopping-cart-demo">
   <div ng-controller="CheckoutController">
     <div class="bnomics-order-container">
+    <!-- Blockonomics Currency Selecter -->
+    <div class="bnomics-select-container" ng-show="currency_selecter" ng-cloak>
+          <h2>Pay With</h2>
+          <table width="100%">
+            <tr class="bnomics-select-options" ng-click="select_blockonomics_currency('BTC')">
+               <td align="left"><img src="<?php echo plugins_url('img/btc.png', dirname(__FILE__));?>" class="rotateimgbtc" alt="btc Logo"> <h3>Bitcoin</h3> <span class="bnomics-select-currency-button"><button type="button" class="btn btn-lg bnomics-select-currency-code">BTC</button></span></td>
+            </tr>
+            <tr class="bnomics-select-options" ng-click="select_blockonomics_currency('BCH')">
+            <td align="left"><img src="<?php echo plugins_url('img/bch.png', dirname(__FILE__));?>" class="rotateimgbch" alt="bch Logo"> <h3>Bitcoin Cash</h3> <span class="bnomics-select-currency-button"><button type="button" class="btn btn-lg bnomics-select-currency-code">BCH</button></span></td>
+            </tr>
+          </table>
+          <div class="bnomics-how-to-pay">
+				    <a href="https://blog.blockonomics.co/how-to-pay-a-bitcoin-invoice-abf4a04d041c" target="_blank">How to pay | Check reviews of this shop</a>
+          </div>
+          <div class="bnomics-powered-by">
+              <?=__('Powered by ', 'blockonomics-bitcoin-payments')?>Blockonomics
+            </div>
+      </div>
+    <div class="con" ng-hide="currency_selecter">
       <!-- Heading row -->
       <div class="bnomics-order-heading">
         <div class="bnomics-order-heading-wrapper">
@@ -53,12 +75,12 @@ if($lite_version){
               <div class="bnomics-bg">
                 <!-- Order Status -->
                 <div class="bnomics-order-status-wrapper">
-                  <span class="bnomics-order-status-title" ng-show="order.status == -1" ng-cloak ><?=__('To confirm your order, please send the exact amount of <strong>BTC</strong> to the given address', 'blockonomics-bitcoin-payments')?></span>
+                  <span class="bnomics-order-status-title" ng-show="order.status == -1" ng-cloak ><?=__('To confirm your order, please send the exact amount of <strong>{{currency}}</strong> to the given address', 'blockonomics-bitcoin-payments')?></span>
                   <span class="warning bnomics-status-warning" ng-show="order.status == -3" ng-cloak><?=__('<b>PAYMENT EXPIRED</b> <br /><br /><a href="javascript:history.back()">Click here</a> to try again.<br /><br /><div>If you already paid, your order will be processed automatically. <br />You can safely close this window.</div>', 'blockonomics-bitcoin-payments')?></span>
                   <span class="warning bnomics-status-warning" ng-show="order.status == -2" ng-cloak><?=__('Payment Error', 'blockonomics-bitcoin-payments')?></span>
                 </div>
                     <h4 class="bnomics-amount-title" for="invoice-amount" ng-hide="order.status == -3">
-                     {{order.satoshi/1.0e8}} BTC
+                     {{order.satoshi/1.0e8}} {{currency}}
                     </h4>
                     <div class="bnomics-amount-wrapper" ng-hide="order.status == -3">
                       <hr class="bnomics-amount-seperator"> ≈
@@ -95,26 +117,6 @@ if($lite_version){
             <h4><i class="material-icons bnomics-alt-icon">error</i></h4>
             <?= __('Unable to render correctly, Note to Administrator: Please enable lite mode in Blockonomics plugin.', 'blockonomics-bitcoin-payments') ?>
           </div>
-          <?php if (get_option('blockonomics_altcoins')) : ?>
-          <div class="bnomics-altcoin-pane" ng-style="{'border-left': (altcoin_waiting)?'none':''}" ng-hide="show_altcoin != 1">
-            <div class="bnomics-altcoin-bg">
-                <div class="bnomics-altcoin-bg-color" ng-hide="altcoin_waiting" ng-cloak>
-                 <div class="bnomics-altcoin-info-wrapper">
-                  <span class="bnomics-altcoin-info" ><?=__('Select your preferred <strong>Altcoin</strong> then click on the button below.', 'blockonomics-bitcoin-payments')?></span>
-                 </div>
-                 </br>
-                 <!-- Coin Select -->
-                 <div class="bnomics-address">
-                   <select ng-model="altcoinselect" ng-options="x for (x, y) in altcoins" ng-init="altcoinselect='Ethereum'"></select>
-                 </div>
-                 <div class="bnomics-altcoin-button-wrapper">
-                  <a ng-click="pay_altcoins()" href=""><button><i class="cf" ng-hide="altcoinselect!='Ethereum'" ng-class={'cf-eth':'{{altcoinselect}}'!=''} ></i><i class="cf" ng-hide="altcoinselect!='Litecoin'" ng-class={'cf-ltc':'{{altcoinselect}}'!=''} ></i> <?=__('Pay with', 'blockonomics-bitcoin-payments')?> {{altcoinselect}}</button></a>
-                 </div>
-                </div>
-            </div>
-          </div>
-          <?php endif ?>
-
         </div>
       </div>
     </div>
@@ -124,6 +126,7 @@ if($lite_version){
     <script>
     var get_uuid="<?php if(isset($_REQUEST['uuid'])){echo $_REQUEST['uuid'];} ?>";
     </script>
+    </div>
   </div>
 </div>
 <?php 
