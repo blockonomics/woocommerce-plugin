@@ -18,7 +18,7 @@ if($lite_version){
     <div class="bnomics-order-container">
     <!-- Blockonomics Currency Selecter -->
     <div class="bnomics-select-container" ng-show="currency_selecter" ng-cloak>
-          <h2>Pay With</h2>
+          <h2 id="paytitle">Pay With</h2>
           <table width="100%">
             <tr class="bnomics-select-options" ng-click="select_blockonomics_currency('BTC')">
                <td align="left"><img src="<?php echo plugins_url('img/btc.png', dirname(__FILE__));?>" class="rotateimgbtc" alt="btc Logo"> <h3>Bitcoin</h3> <span class="bnomics-select-currency-button"><button type="button" class="btn btn-lg bnomics-select-currency-code">BTC</button></span></td>

@@ -350,6 +350,7 @@ color:inherit;
   transform: rotate(15deg);
   float: left;
   margin-right: 10px;
+  padding-left: 5px;
 }
 
 .rotateimgbch {
@@ -360,6 +361,7 @@ color:inherit;
   transform: rotate(-15deg);
   float: left;
   margin-right: 10px;
+  padding-left: 5px;
 } 
 
 .bnomics-select-container {
@@ -374,22 +376,29 @@ color:inherit;
 
 .bnomics-select-options h3 {
   display:inline;
+  margin: 0;
 }
 
 .bnomics-select-container table{
-  border-collapse: separate;
   border-spacing: 0 1em;
 }
 .bnomics-select-container td {
   border: 1px solid lightgrey;
   padding:20px;
   border-radius:10px;
+  display: flex;
+  align-items: center;
 }
 
 .bnomics-select-currency-button{
-  float: right;
+  margin-left: auto;
+  padding-right: 5px;
 }
 
 .bnomics-select-currency-code {
   text-transform: uppercase;
+}
+
+#paytitle::before  {
+  background: transparent;
 }
