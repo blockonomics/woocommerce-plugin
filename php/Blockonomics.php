@@ -84,6 +84,37 @@ class Blockonomics
         return $responseObj;
     }
 
+    //Get list of crypto currencies supported by Blockonomics
+	public function getSupportedCurrencies() {
+        return array(
+              'btc' => array(
+                    'name' => 'Bitcoin',
+                    'uri' => 'bitcoin',
+                    'enabled' => true
+              ),
+              'bch' => array(
+                    'name' => 'Bitcoin Cash',
+                    'uri' => 'bitcoincash',
+                    'enabled' => ''
+              )
+          );
+    }
+
+	//Get list of active crypto currencies
+	public function getActiveCurrencies() {
+		// $active_currencies = array();
+        $active_currencies = $this->getSupportedCurrencies();
+		foreach ($active_currencies as $code => $currency) {
+            if($code != 'btc' && get_option('blockonomics_'.$code) == 1){
+                $active_currencies[$code]['enabled'] = true;
+            }else if ($code != 'btc'){
+                $active_currencies[$code]['enabled'] = false;
+            }
+        }
+
+		return $active_currencies;
+	}
+
     public function make_withdraw()
     {
         $api_key = $this->api_key;

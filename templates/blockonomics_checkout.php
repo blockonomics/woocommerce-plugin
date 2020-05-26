@@ -11,8 +11,6 @@ if($lite_version){
 }
 ?>
 
-<div id="bch_active" data-bch_active='<?php echo get_option('blockonomics_bch')?>'></div>
-
 <div ng-app="shopping-cart-demo">
   <div ng-controller="CheckoutController">
     <div class="bnomics-order-container">

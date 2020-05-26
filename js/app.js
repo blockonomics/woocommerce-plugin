@@ -73,14 +73,16 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         $scope.currency_selecter  = false;
     }
 
-    var active_currencies_div = document.getElementById("bch_active");
-    $scope.bch_active = active_currencies_div.dataset.bch_active;
-
-    if($scope.bch_active == 1){
-        $scope.currency_selecter  = true;
-    }else {
-        $scope.currency_selecter  = false;
-    }
+    Order.get({
+        "get_active_currencies": 'true'
+    }, function(data) {
+        if(data.bch.enabled == true){
+            $scope.currency_selecter  = true;
+        }else{
+            $scope.currency_selecter  = false;
+            $scope.currency = 'BTC'
+        }
+    });
 
     //Increment bitcoin timer 
     $scope.tick = function() {
