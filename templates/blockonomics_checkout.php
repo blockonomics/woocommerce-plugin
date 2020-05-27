@@ -11,6 +11,8 @@ if($lite_version){
 }
 ?>
 
+<div id="active_currencies" data-active_currencies='<?php echo json_encode(get_option('blockonomics_active_currency')); ?>'></div>
+
 <div ng-app="shopping-cart-demo">
   <div ng-controller="CheckoutController">
     <div class="bnomics-order-container">
