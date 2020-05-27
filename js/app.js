@@ -46,6 +46,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     $scope.address = getParameterByNameBlocko("show_order");
     var totalProgress = 100;
     $scope.copyshow = false;
+    $scope.amountcopyshow = false;
     //blockonomics_time_period is defined on JS file as global var
     var totalTime = blockonomics_time_period * 60;
     $scope.display_problems = true;
@@ -129,7 +130,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     }
 
     //Copy bitcoin address to clipboard
-    $scope.btc_address_click = function() {
+    $scope.crypto_address_click = function() {
         var copyText = document.getElementById("bnomics-address-input");
         copyText.select();
         document.execCommand("copy");
@@ -140,4 +141,15 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         //Close copy to clipboard message after 2 sec
     }, 2000);
     }
+
+            //Copy bitcoin amount to clipboard
+            $scope.crypto_amount_click = function() {
+                navigator.clipboard.writeText($scope.order.satoshi/1.0e8);
+                //Open copy clipboard message
+                $scope.amountcopyshow = true;
+                $timeout(function() {
+                    $scope.amountcopyshow = false;
+                //Close copy to clipboard message after 2 sec
+            }, 2000);
+            }
 });

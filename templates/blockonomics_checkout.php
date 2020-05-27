@@ -77,9 +77,10 @@ if($lite_version){
                   <span class="warning bnomics-status-warning" ng-show="order.status == -3" ng-cloak><?=__('<b>PAYMENT EXPIRED</b> <br /><br /><a href="javascript:history.back()">Click here</a> to try again.<br /><br /><div>If you already paid, your order will be processed automatically. <br />You can safely close this window.</div>', 'blockonomics-bitcoin-payments')?></span>
                   <span class="warning bnomics-status-warning" ng-show="order.status == -2" ng-cloak><?=__('Payment Error', 'blockonomics-bitcoin-payments')?></span>
                 </div>
-                    <h4 class="bnomics-amount-title" for="invoice-amount" ng-hide="order.status == -3">
+                    <h4 ng-click="crypto_amount_click()" class="bnomics-amount-title" for="invoice-amount" ng-hide="order.status == -3">
                      {{order.satoshi/1.0e8}} {{currency}}
                     </h4>
+                    <div class="bnomics-ammount-copy-text" ng-hide="order.status == -3 || amountcopyshow == false" ng-cloak>Copied to clipboard</div>
                     <div class="bnomics-amount-wrapper" ng-hide="order.status == -3">
                       <hr class="bnomics-amount-seperator"> ≈
                       <span ng-cloak>{{order.value}}</span>
@@ -87,8 +88,7 @@ if($lite_version){
                     </div>
               <!-- Bitcoin Address -->
                 <div class="bnomics-address" ng-hide="order.status == -3">
-                  <input ng-click="btc_address_click()" id="bnomics-address-input" class="bnomics-address-input" type="text" ng-value="order.address" readonly="readonly">
-                  <i ng-click="btc_address_click()" class="material-icons bnomics-copy-icon">file_copy</i>
+                  <input ng-click="crypto_address_click()" id="bnomics-address-input" class="bnomics-address-input" type="text" value="{{order.address}}" readonly="readonly">
                 </div>
                 <div class="bnomics-copy-text" ng-hide="order.status == -3 || copyshow == false" ng-cloak>Copied to clipboard</div>
             <!-- Countdown Timer -->

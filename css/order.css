@@ -402,3 +402,11 @@ color:inherit;
 #paytitle::before  {
   background: transparent;
 }
+
+.bnomics-amount-title {
+margin-bottom: 0;
+}
+
+.bnomics-ammount-copy-text{
+margin-bottom: 20px;
+}
