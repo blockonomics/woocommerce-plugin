@@ -341,3 +341,73 @@ color:inherit;
     transform: rotate(360deg);
   }
 }
+
+.rotateimgbtc {
+  -webkit-transform:rotate(15deg);
+  -moz-transform: rotate(15deg);
+  -ms-transform: rotate(15deg);
+  -o-transform: rotate(15deg);
+  transform: rotate(15deg);
+  float: left;
+  margin-right: 10px;
+  padding-left: 5px;
+}
+
+.rotateimgbch {
+  -webkit-transform:rotate(-15deg);
+  -moz-transform: rotate(-15deg);
+  -ms-transform: rotate(-15deg);
+  -o-transform: rotate(-15deg);
+  transform: rotate(-15deg);
+  float: left;
+  margin-right: 10px;
+  padding-left: 5px;
+} 
+
+.bnomics-select-container {
+  text-align:center;
+  max-width:450px;
+  margin:auto;
+}
+
+.bnomics-select-options {
+  cursor:pointer;
+}
+
+.bnomics-select-options h3 {
+  display:inline;
+  margin: 0;
+}
+
+.bnomics-select-container table{
+  border: 0;
+  border-spacing: 0 1em;
+}
+.bnomics-select-container td {
+  border: 1px solid lightgrey;
+  padding:20px;
+  border-radius:10px;
+  display: flex;
+  align-items: center;
+}
+
+.bnomics-select-currency-button{
+  margin-left: auto;
+  padding-right: 5px;
+}
+
+.bnomics-select-currency-code {
+  text-transform: uppercase;
+}
+
+#paytitle::before  {
+  background: transparent;
+}
+
+.bnomics-amount-title {
+margin-bottom: 0;
+}
+
+.bnomics-ammount-copy-text{
+margin-bottom: 20px;
+}
