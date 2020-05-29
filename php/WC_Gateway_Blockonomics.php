@@ -171,21 +171,22 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             exit();
         }
         $order_id = isset($_REQUEST['get_order']) ? $_REQUEST['get_order'] : "";
-        if ($order_id) {
+        $crypto= isset($_REQUEST['crypto']) ? $_REQUEST['crypto'] : "";
+        if ($order_id && $crypto) {
             include_once 'Blockonomics.php';
             $blockonomics = new Blockonomics;
             global $woocommerce;
             $order = $orders[$order_id];
             $wc_order = new WC_Order($order_id);
             if(get_woocommerce_currency() != 'BTC'){
-                $price = $blockonomics->get_price(get_woocommerce_currency(), 'BTC');
+                $price = $blockonomics->get_price(get_woocommerce_currency(), $crypto);
                 $price = $price * 100/(100+get_option('blockonomics_margin', 0));
             }else{
                 $price = 1;
             }
             $currentAddress = get_post_meta($order_id,"blockonomics_address");
-            if($currentAddress) {
-                $address = $currentAddress[0];
+            if($currentAddress[0]['address'] && $currentAddress[0]['crypto'] == $crypto) {
+                $address = $currentAddress[0]['address'];
             } else {
                 $responseObj = $blockonomics->new_address(get_option("blockonomics_callback_secret"), 'BTC');
                 if($responseObj->response_code != 200) {
@@ -197,10 +198,11 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 
             $order['address'] = $address;
             $order['satoshi'] = intval(round(1.0e8*$wc_order->get_total()/$price));
+            $order['crypto'] = $crypto;
 
             $orders[$order_id] = $order;
             update_option('blockonomics_orders', $orders);
-            update_post_meta($order_id, 'blockonomics_address', $address);
+            update_post_meta($order_id, 'blockonomics_address', array('crypto'=> $crypto, 'address' => $address));
 
             header("Content-Type: application/json");
             exit(json_encode($orders[$order_id]));

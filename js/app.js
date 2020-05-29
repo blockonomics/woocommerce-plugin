@@ -72,6 +72,36 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     $scope.select_blockonomics_currency = function(blockonomics_currency) {
         $scope.currency = blockonomics_currency;
         $scope.currency_selecter  = false;
+        //Check if the bitcoin address is present
+        if (typeof $scope.order_id != 'undefined') {
+            //Fetch the order using address
+            Order.get({
+                "get_order": $scope.order_id,
+                'crypto': blockonomics_currency
+            }, function(data) {
+                $scope.order = data;
+                //Check the status of the order
+                if ($scope.order.status == -1) {
+                  $scope.clock = $scope.order.timestamp + totalTime - Math.floor(Date.now() / 1000);
+                    //Mark order as expired if we ran out of time
+                    if ($scope.clock < 0) {
+                    $scope.order.status = -3;
+                    return;
+                }
+                $scope.tick_interval = $interval($scope.tick, 1000);
+                    //Connect and Listen on websocket for payment notification
+                    var ws = new ReconnectingWebSocket("wss://www.blockonomics.co/payment/" + $scope.order.address + "?timestamp=" + $scope.order.timestamp);
+                    ws.onmessage = function(evt) {
+                        ws.close();
+                        $timeout(function() {
+                            //Redirect to order received page if message from socket
+                            window.location = $scope.finish_order_url();
+                        //Wait for 2 seconds for order status to update on server
+                    }, 2000, 1);
+                    }
+                }
+            });
+        }
     }
 
     var active_currencies_div = document.getElementById("active_currencies");
@@ -97,36 +127,6 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         }
         $scope.progress = Math.floor($scope.clock * totalProgress / totalTime);
     };
-
-    //Check if the bitcoin address is present
-    if (typeof $scope.order_id != 'undefined') {
-        //Fetch the order using address
-        Order.get({
-            "get_order": $scope.order_id
-        }, function(data) {
-            $scope.order = data;
-            //Check the status of the order
-            if ($scope.order.status == -1) {
-                $scope.clock = $scope.order.timestamp + totalTime - Math.floor(Date.now() / 1000);
-                //Mark order as expired if we ran out of time
-                if ($scope.clock < 0) {
-                 $scope.order.status = -3;
-                 return;
-             }
-             $scope.tick_interval = $interval($scope.tick, 1000);
-                //Connect and Listen on websocket for payment notification
-                var ws = new ReconnectingWebSocket("wss://www.blockonomics.co/payment/" + $scope.order.address + "?timestamp=" + $scope.order.timestamp);
-                ws.onmessage = function(evt) {
-                    ws.close();
-                    $timeout(function() {
-                        //Redirect to order received page if message from socket
-                        window.location = $scope.finish_order_url();
-                    //Wait for 2 seconds for order status to update on server
-                }, 2000, 1);
-                }
-            }
-        });
-    }
 
     //Copy bitcoin address to clipboard
     $scope.crypto_address_click = function() {
