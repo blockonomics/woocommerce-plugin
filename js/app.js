@@ -72,6 +72,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     $scope.select_blockonomics_currency = function(blockonomics_currency) {
         $scope.currency = blockonomics_currency;
         $scope.currency_selecter  = false;
+        $scope.spinner = true;
         //Check if the bitcoin address is present
         if (typeof $scope.order_id != 'undefined') {
             //Fetch the order using address
@@ -100,6 +101,8 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
                     }, 2000, 1);
                     }
                 }
+                $scope.spinner = false;
+                $scope.payment = true;
             });
         }
     }

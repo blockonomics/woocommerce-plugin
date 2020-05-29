@@ -34,7 +34,9 @@ if($lite_version){
               <?=__('Powered by ', 'blockonomics-bitcoin-payments')?>Blockonomics
             </div>
       </div>
-    <div class="con" ng-hide="currency_selecter">
+     <!-- Spinner -->
+    <div class="bnomics-spinner" ng-show="spinner" ng-cloak><div class="bnomics-ring"><div></div><div></div><div></div><div></div></div></div>
+    <div ng-show="payment">
       <!-- Heading row -->
       <div class="bnomics-order-heading">
         <div class="bnomics-order-heading-wrapper">
