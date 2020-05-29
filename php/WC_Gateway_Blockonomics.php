@@ -168,9 +168,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 
     public function check_blockonomics_callback()
     {
-        include_once 'Blockonomics.php';
-        $blockonomics = new Blockonomics;
-
         if(isset($_REQUEST["payment_check"])){
             $this->redirect_to_template('payment_confirmed.php');
         }
@@ -199,11 +196,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         if ($address) {
             header("Content-Type: application/json");
             exit(json_encode($orders[$address]));
-        }
-        $address = isset($_REQUEST['get_active_currencies']) ? $_REQUEST['get_active_currencies'] : "";
-        if ($address) {
-            header("Content-Type: application/json");
-            exit(json_encode($blockonomics->getActiveCurrencies()));
         }
 
         $callback_secret = get_option("blockonomics_callback_secret");
