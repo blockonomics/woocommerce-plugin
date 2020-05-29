@@ -43,7 +43,7 @@ function getParameterByNameBlocko(name, url) {
 //CheckoutController
 app.controller('CheckoutController', function($scope, $interval, Order, $httpParamSerializer, $timeout, WpAjax) {
     //get order id from url
-    $scope.address = getParameterByNameBlocko("show_order");
+    $scope.order_id = getParameterByNameBlocko("show_order");
     var totalProgress = 100;
     $scope.copyshow = false;
     $scope.amountcopyshow = false;
@@ -99,14 +99,12 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     };
 
     //Check if the bitcoin address is present
-    if (typeof $scope.address != 'undefined') {
+    if (typeof $scope.order_id != 'undefined') {
         //Fetch the order using address
         Order.get({
-            "get_order": $scope.address
+            "get_order": $scope.order_id
         }, function(data) {
             $scope.order = data;
-            $scope.order.address = $scope.address;
-            $scope.order.altcoin = $scope.altcoin;
             //Check the status of the order
             if ($scope.order.status == -1) {
                 $scope.clock = $scope.order.timestamp + totalTime - Math.floor(Date.now() / 1000);

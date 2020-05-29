@@ -132,18 +132,18 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             'satoshi'            => intval(round(1.0e8*$order->get_total()/$price)),
             'currency'           => get_woocommerce_currency(),
             'order_id'           => $order_id,
-            'crypto'             => '',
-            'address'            => '',
+            'crypto'             => 'BTC',
+            'address'            => $address,
             'status'             => -1,
             'timestamp'          => time(),
             'txid'               => ''
         );
         //Using address as key, as orderid can be tried manually
         //by hit and trial
-        $blockonomics_orders[$address] = $order;
+        $blockonomics_orders[$order_id] = $order;
         update_option('blockonomics_orders', $blockonomics_orders);
         $order_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-        $order_url = add_query_arg('show_order', $address, $order_url);
+        $order_url = add_query_arg('show_order', $order_id, $order_url);
 
         update_post_meta($order_id, 'blockonomics_address', $address);
 
@@ -174,9 +174,9 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             $this->redirect_to_template('payment_confirmed.php');
         }
         $orders = get_option('blockonomics_orders');
-        $address = isset($_REQUEST["show_order"]) ? $_REQUEST["show_order"] : "";
+        $order_id = isset($_REQUEST["show_order"]) ? $_REQUEST["show_order"] : "";
         $uuid = isset($_REQUEST["uuid"]) ? $_REQUEST["uuid"] : "";
-        if ($address) {
+        if ($order_id) {
             $nojs_version = get_option('blockonomics_nojs');
             if($nojs_version){
               $this->redirect_to_template('blockonomics_nojs_checkout.php');
@@ -194,10 +194,10 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             wp_redirect($wc_order->get_checkout_order_received_url());
             exit();
         }
-        $address = isset($_REQUEST['get_order']) ? $_REQUEST['get_order'] : "";
-        if ($address) {
+        $order_id = isset($_REQUEST['get_order']) ? $_REQUEST['get_order'] : "";
+        if ($order_id) {
             header("Content-Type: application/json");
-            exit(json_encode($orders[$address]));
+            exit(json_encode($orders[$order_id]));
         }
 
         $callback_secret = get_option("blockonomics_callback_secret");
@@ -205,9 +205,10 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $network_confirmations=get_option("blockonomics_network_confirmation",2);
         if ($callback_secret  && $callback_secret == $secret) {
             $addr = isset($_REQUEST['addr']) ? $_REQUEST['addr'] : "";
-            if (array_key_exists($addr, $orders)){
-                $order = $orders[$addr];
-                $wc_order = new WC_Order($order['order_id']);
+            $order_id = array_search ($addr, $orders);
+            if ($order_id){
+                $order = $orders[$order_id];
+                $wc_order = new WC_Order($order_id);
                 $status = intval($_REQUEST['status']);
                 $existing_status = $order['status'];
                 $timestamp = $order['timestamp'];
