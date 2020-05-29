@@ -223,7 +223,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                 $time_period = get_option("blockonomics_timeperiod", 10) *60;
                 if ($status == 0 && time() > $timestamp + $time_period) {
                     $minutes = (time() - $timestamp)/60;
-                    $wc_order->add_order_note(__("Warning: Payment arrived after $minutes minutes. Received BTC may not match current bitcoin price", 'blockonomics-bitcoin-payments'));
+                    $wc_order->add_order_note(__("Warning: Payment arrived after $minutes minutes. Received". $order['crypto'] ."may not match current ". $order['crypto'] ." price", 'blockonomics-bitcoin-payments'));
                 }
                 elseif ($status >= $network_confirmations && !metadata_exists('post',$wc_order->get_id(),'paid_btc_amount') )  {
                     update_post_meta($wc_order->get_id(), 'paid_btc_amount', $_REQUEST['value']/1.0e8);
@@ -232,7 +232,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                         $underpayment_slack = get_option("blockonomics_underpayment_slack", 0)/100 * $order['satoshi'];
                         if ($order['satoshi'] - $underpayment_slack > $_REQUEST['value']) {
                             $status = -2; //Payment error , amount not matching
-                            $wc_order->update_status('failed', __('Paid BTC amount less than expected.', 'blockonomics-bitcoin-payments'));
+                            $wc_order->update_status('failed', __('Paid '. $order['crypto'] .' amount less than expected.', 'blockonomics-bitcoin-payments'));
                         }else{
                             $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
                             $wc_order->payment_complete($order['txid']);
@@ -240,7 +240,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                     }
                     else{
                         if ($order['satoshi'] < $_REQUEST['value']) {
-                            $wc_order->add_order_note(__('Overpayment of BTC amount', 'blockonomics-bitcoin-payments'));
+                            $wc_order->add_order_note(__('Overpayment of '. $order['crypto'] .' amount', 'blockonomics-bitcoin-payments'));
                         }
                         $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
                         $wc_order->payment_complete($order['txid']);
