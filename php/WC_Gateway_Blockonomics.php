@@ -132,6 +132,8 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             'satoshi'            => intval(round(1.0e8*$order->get_total()/$price)),
             'currency'           => get_woocommerce_currency(),
             'order_id'           => $order_id,
+            'crypto'             => '',
+            'address'            => '',
             'status'             => -1,
             'timestamp'          => time(),
             'txid'               => ''
