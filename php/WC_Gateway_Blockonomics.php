@@ -110,7 +110,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 
         $blockonomics = new Blockonomics;
         if(get_woocommerce_currency() != 'BTC'){
-            $price = $blockonomics->get_price(get_woocommerce_currency());
+            $price = $blockonomics->get_price(get_woocommerce_currency(), 'BTC');
             $price = $price * 100/(100+get_option('blockonomics_margin', 0));
         }else{
             $price = 1;
@@ -119,7 +119,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         if($currentAddress) {
             $address = $currentAddress[0];
         } else {
-            $responseObj = $blockonomics->new_address(get_option("blockonomics_callback_secret"));
+            $responseObj = $blockonomics->new_address(get_option("blockonomics_callback_secret"), 'BTC');
             if($responseObj->response_code != 200) {
                 $this->displayError($woocommerce);
                 return;
