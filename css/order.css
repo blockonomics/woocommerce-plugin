@@ -380,6 +380,7 @@ color:inherit;
 }
 
 .bnomics-select-container table{
+  border: 0;
   border-spacing: 0 1em;
 }
 .bnomics-select-container td {
