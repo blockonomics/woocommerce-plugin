@@ -94,8 +94,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
     
     public function process_payment($order_id)
     {
-        include_once 'Blockonomics.php';
-        global $woocommerce;
 
         $order = new WC_Order($order_id);
         $blockonomics_orders = get_option('blockonomics_orders');
@@ -108,28 +106,9 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $order_key = method_exists( $order, 'get_order_key' ) ? $order->get_order_key() : $order->order_key;
         $cancel_url = add_query_arg('order_key', $order_key, $cancel_url);
 
-        $blockonomics = new Blockonomics;
-        if(get_woocommerce_currency() != 'BTC'){
-            $price = $blockonomics->get_price(get_woocommerce_currency(), 'BTC');
-            $price = $price * 100/(100+get_option('blockonomics_margin', 0));
-        }else{
-            $price = 1;
-        }
-        $currentAddress = get_post_meta($order_id,"blockonomics_address");
-        if($currentAddress) {
-            $address = $currentAddress[0];
-        } else {
-            $responseObj = $blockonomics->new_address(get_option("blockonomics_callback_secret"), 'BTC');
-            if($responseObj->response_code != 200) {
-                $this->displayError($woocommerce);
-                return;
-            }
-            $address = $responseObj->address;
-        }
-
         $order = array(
             'value'              => $order->get_total(),
-            'satoshi'            => intval(round(1.0e8*$order->get_total()/$price)),
+            'satoshi'            => '',
             'currency'           => get_woocommerce_currency(),
             'order_id'           => $order_id,
             'crypto'             => 'BTC',
@@ -138,14 +117,11 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             'timestamp'          => time(),
             'txid'               => ''
         );
-        //Using address as key, as orderid can be tried manually
-        //by hit and trial
+        //Using order_id as key.
         $blockonomics_orders[$order_id] = $order;
         update_option('blockonomics_orders', $blockonomics_orders);
         $order_url = WC()->api_request_url('WC_Gateway_Blockonomics');
         $order_url = add_query_arg('show_order', $order_id, $order_url);
-
-        update_post_meta($order_id, 'blockonomics_address', $address);
 
         return array(
             'result'   => 'success',
@@ -196,6 +172,36 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         }
         $order_id = isset($_REQUEST['get_order']) ? $_REQUEST['get_order'] : "";
         if ($order_id) {
+            include_once 'Blockonomics.php';
+            $blockonomics = new Blockonomics;
+            global $woocommerce;
+            $order = $orders[$order_id];
+            $wc_order = new WC_Order($order_id);
+            if(get_woocommerce_currency() != 'BTC'){
+                $price = $blockonomics->get_price(get_woocommerce_currency(), 'BTC');
+                $price = $price * 100/(100+get_option('blockonomics_margin', 0));
+            }else{
+                $price = 1;
+            }
+            $currentAddress = get_post_meta($order_id,"blockonomics_address");
+            if($currentAddress) {
+                $address = $currentAddress[0];
+            } else {
+                $responseObj = $blockonomics->new_address(get_option("blockonomics_callback_secret"), 'BTC');
+                if($responseObj->response_code != 200) {
+                    $this->displayError($woocommerce);
+                    return;
+                }
+                $address = $responseObj->address;
+            }
+
+            $order['address'] = $address;
+            $order['satoshi'] = intval(round(1.0e8*$wc_order->get_total()/$price));
+
+            $orders[$order_id] = $order;
+            update_option('blockonomics_orders', $orders);
+            update_post_meta($order_id, 'blockonomics_address', $address);
+
             header("Content-Type: application/json");
             exit(json_encode($orders[$order_id]));
         }
