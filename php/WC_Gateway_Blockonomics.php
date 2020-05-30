@@ -162,10 +162,10 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         }else if ($uuid){
             $this->redirect_to_template('track.php');
         }
-        $address = isset($_REQUEST["finish_order"]) ? $_REQUEST["finish_order"] : "";
-        if ($address) {
-            $order = $orders[$address];
-            $wc_order = new WC_Order($order['order_id']);
+        $order_id = isset($_REQUEST["finish_order"]) ? $_REQUEST["finish_order"] : "";
+        if ($order_id) {
+            $order = $orders[$order_id];
+            $wc_order = new WC_Order($order_id);
             echo $order['order_id'];
             wp_redirect($wc_order->get_checkout_order_received_url());
             exit();
