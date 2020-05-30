@@ -112,7 +112,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             'currency'           => get_woocommerce_currency(),
             'order_id'           => $order_id,
             'crypto'             => 'BTC',
-            'address'            => $address,
+            'address'            => '',
             'status'             => -1,
             'timestamp'          => time(),
             'txid'               => ''
@@ -188,7 +188,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             if($currentAddress[0]['address'] && $currentAddress[0]['crypto'] == $crypto) {
                 $address = $currentAddress[0]['address'];
             } else {
-                $responseObj = $blockonomics->new_address(get_option("blockonomics_callback_secret"), 'BTC');
+                $responseObj = $blockonomics->new_address(get_option("blockonomics_callback_secret"), $crypto);
                 if($responseObj->response_code != 200) {
                     $this->displayError($woocommerce);
                     return;
