@@ -59,7 +59,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
             };
             else
                 params = {};
-            params.finish_order = $scope.address;
+            params.finish_order = $scope.order_id;
             url = window.location.pathname;
             var serializedParams = $httpParamSerializer(params);
             if (serializedParams.length > 0) {
@@ -91,7 +91,11 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
                 }
                 $scope.tick_interval = $interval($scope.tick, 1000);
                     //Connect and Listen on websocket for payment notification
-                    var ws = new ReconnectingWebSocket("wss://www.blockonomics.co/payment/" + $scope.order.address + "?timestamp=" + $scope.order.timestamp);
+                    if($scope.currency == 'BTC'){
+                        var ws = new ReconnectingWebSocket("wss://www.blockonomics.co/payment/" + $scope.order.address + "?timestamp=" + $scope.order.timestamp);
+                    }else{
+                        var ws = new ReconnectingWebSocket("wss://" + $scope.currency  + ".blockonomics.co/payment/" + $scope.order.address + "?timestamp=" + $scope.order.timestamp);
+                    }
                     ws.onmessage = function(evt) {
                         ws.close();
                         $timeout(function() {
