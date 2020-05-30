@@ -213,7 +213,13 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $network_confirmations=get_option("blockonomics_network_confirmation",2);
         if ($callback_secret  && $callback_secret == $secret) {
             $addr = isset($_REQUEST['addr']) ? $_REQUEST['addr'] : "";
-            $order_id = array_search ($addr, $orders);
+            $order_id = false;
+            foreach($orders as $key => $val){
+                if($val['address'] == $addr){
+                    $order_id = $key;
+                    break;
+                }
+            }
             if ($order_id){
                 $order = $orders[$order_id];
                 $wc_order = new WC_Order($order_id);
