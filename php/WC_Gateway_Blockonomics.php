@@ -225,8 +225,8 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                     $minutes = (time() - $timestamp)/60;
                     $wc_order->add_order_note(__("Warning: Payment arrived after $minutes minutes. Received". $order['crypto'] ."may not match current ". $order['crypto'] ." price", 'blockonomics-bitcoin-payments'));
                 }
-                elseif ($status >= $network_confirmations && !metadata_exists('post',$wc_order->get_id(),'paid_btc_amount') )  {
-                    update_post_meta($wc_order->get_id(), 'paid_btc_amount', $_REQUEST['value']/1.0e8);
+                elseif ($status >= $network_confirmations && !metadata_exists('post',$wc_order->get_id(),'paid_'. $order['crypto'] .'_amount') )  {
+                    update_post_meta($wc_order->get_id(), 'paid_'. $order['crypto'] .'_amount', $_REQUEST['value']/1.0e8);
                     if ($order['satoshi'] > $_REQUEST['value']) {
                         //Check underpayment slack
                         $underpayment_slack = get_option("blockonomics_underpayment_slack", 0)/100 * $order['satoshi'];
@@ -256,8 +256,8 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                 $order['status'] = $status;
                 $orders[$addr] = $order;
                 if ($existing_status == -1) {
-                    update_post_meta($wc_order->get_id(), 'blockonomics_txid', $order['txid']);
-                    update_post_meta($wc_order->get_id(), 'expected_btc_amount', $order['satoshi']/1.0e8);
+                    update_post_meta($wc_order->get_id(), 'blockonomics_'. $order['crypto'] .'_txid', $order['txid']);
+                    update_post_meta($wc_order->get_id(), 'expected_'. $order['crypto'] .'_amount', $order['satoshi']/1.0e8);
                 }
                 update_option('blockonomics_orders', $orders);
             }else{
