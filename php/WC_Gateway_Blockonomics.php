@@ -265,6 +265,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                 if ($existing_status == -1) {
                     update_post_meta($wc_order->get_id(), 'blockonomics_'. $order['crypto'] .'_txid', $order['txid']);
                     update_post_meta($wc_order->get_id(), 'expected_'. $order['crypto'] .'_amount', $order['satoshi']/1.0e8);
+                    update_post_meta($wc_order->get_id(), ''. $order['crypto'] .'_address', $order['address']);
                 }
                 update_option('blockonomics_orders', $orders);
             }else{
