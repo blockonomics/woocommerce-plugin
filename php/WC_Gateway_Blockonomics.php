@@ -199,6 +199,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             $order['address'] = $address;
             $order['satoshi'] = intval(round(1.0e8*$wc_order->get_total()/$price));
             $order['crypto'] = $crypto;
+            $order['timestamp'] = time();
 
             $orders[$order_id] = $order;
             update_option('blockonomics_orders', $orders);
