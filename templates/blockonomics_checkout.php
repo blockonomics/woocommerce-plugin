@@ -131,7 +131,7 @@ if($lite_version){
     <div class="bnomics-display-error" style="text-align: center;" ng-show="bchaddresserror">
             <h4>Address Generation Error</h4>
             <h4><i class="material-icons bnomics-alt-icon">error</i></h4>
-            <p>Note to webmaster: Please follow the instructions <a href="https://help.blockonomics.co/support/solutions/articles/33000251576-bch-setup-on-whmcs" target="_blank">here</a> to configure BCH payments.</p>
+            <p>Note to webmaster: Please follow the instructions <a href="https://help.blockonomics.co/support/solutions/articles/33000253348-bch-setup-on-woocommerce" target="_blank">here</a> to configure BCH payments.</p>
     </div>
     <script>
     var blockonomics_time_period=<?php echo get_option('blockonomics_timeperiod', 10); ?>;
