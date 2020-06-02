@@ -122,6 +122,11 @@ if($lite_version){
         </div>
       </div>
     </div>
+      <!-- Address Error -->
+      <div class="bnomics-display-error" style="text-align: center;" ng-show="btcaddresserror">
+        <h2>Could not generate new Bitcoin address.</h2>
+        <p>Note to webmaster: Please login to admin and go to Setup > Payments > Payment Gateways > Manage Existing Gateways and use the Test Setup button to diagnose the error.</p>
+      </div>
     <!-- BCH address Generation Error -->
     <div class="bnomics-display-error" style="text-align: center;" ng-show="bchaddresserror">
             <h4>Address Generation Error</h4>

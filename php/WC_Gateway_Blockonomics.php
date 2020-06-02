@@ -190,7 +190,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             } else {
                 $responseObj = $blockonomics->new_address(get_option("blockonomics_callback_secret"), $crypto);
                 if($responseObj->response_code != 200) {
-                    $this->displayError($woocommerce);
                     return;
                 }
                 $address = $responseObj->address;
@@ -271,20 +270,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             }else{
                 exit("Error: order not found");
             }
-        }
-    }
-
-    private function displayError($woocommerce) {
-        $unable_to_generate = __('<h1>Unable to generate bitcoin address.</h1><p> Note for site webmaster: ', 'blockonomics-bitcoin-payments');
-        
-        $error_msg = 'Please login to your admin panel, navigate to Settings > Blockonomics and click <i>Test Setup</i> to diagnose the issue';
-
-        $error_message = $unable_to_generate . $error_msg;
-
-        if (version_compare($woocommerce->version, '2.1', '>=')) {
-            wc_add_notice(__($error_message, 'blockonomics-bitcoin-payments'), 'error');
-        } else {
-            $woocommerce->add_error(__($error_message, 'blockonomics-bitcoin-payments'));
         }
     }
 }

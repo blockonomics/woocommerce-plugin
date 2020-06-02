@@ -108,9 +108,14 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
                 if($scope.order.address && $scope.order.satoshi){
                 $scope.spinner = false;
                 $scope.payment = true;
-                }else if(blockonomics_currency == 'BCH'){
-                $scope.spinner = false;
-                $scope.bchaddresserror = true;
+                }else{
+                    if(blockonomics_currency == 'BCH'){
+                        $scope.spinner = false;
+                        $scope.bchaddresserror = true;
+                    }else if(blockonomics_currency == 'BTC'){
+                        $scope.spinner = false;
+                        $scope.btcaddresserror = true;
+                    }
                 }
             });
         }
