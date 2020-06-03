@@ -184,9 +184,9 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             }else{
                 $price = 1;
             }
-            $currentAddress = get_post_meta($order_id,"blockonomics_address");
-            if($currentAddress[0]['address'] && $currentAddress[0]['crypto'] == $crypto) {
-                $address = $currentAddress[0]['address'];
+            $currentAddress = get_post_meta($order_id,$crypto .'_address');
+            if(isset($currentAddress[0])) {
+                $address = $currentAddress[0];
             } else {
                 $responseObj = $blockonomics->new_address(get_option("blockonomics_callback_secret"), $crypto);
                 if($responseObj->response_code != 200) {
@@ -202,7 +202,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 
             $orders[$order_id] = $order;
             update_option('blockonomics_orders', $orders);
-            update_post_meta($order_id, 'blockonomics_address', array('crypto'=> $crypto, 'address' => $address));
             update_post_meta($wc_order->get_id(), ''. $order['crypto'] .'_address', $order['address']);
 
             header("Content-Type: application/json");
