@@ -94,9 +94,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
     
     public function process_payment($order_id)
     {
-
         $order = new WC_Order($order_id);
-        $blockonomics_orders = get_option('blockonomics_orders');
         $success_url = add_query_arg('return_from_blockonomics', true, $this->get_return_url($order));
 
         // Blockonomics mangles the order param so we have to put it somewhere else and restore it on init
@@ -106,15 +104,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $order_key = method_exists( $order, 'get_order_key' ) ? $order->get_order_key() : $order->order_key;
         $cancel_url = add_query_arg('order_key', $order_key, $cancel_url);
 
-        $order = array(
-            'value'              => $order->get_total(),
-            'currency'           => get_woocommerce_currency(),
-            'order_id'           => $order_id,
-            'status'             => -1
-        );
-        //Using order_id as key.
-        $blockonomics_orders[$order_id] = $order;
-        update_option('blockonomics_orders', $blockonomics_orders);
         $order_url = WC()->api_request_url('WC_Gateway_Blockonomics');
         $order_url = add_query_arg('show_order', $order_id, $order_url);
 
@@ -190,10 +179,16 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                 $address = $responseObj->address;
             }
 
-            $order['address'] = $address;
-            $order['satoshi'] = intval(round(1.0e8*$wc_order->get_total()/$price));
-            $order['crypto'] = $crypto;
-            $order['timestamp'] = time();
+            $order = array(
+                'value'              => $wc_order->get_total(),
+                'currency'           => get_woocommerce_currency(),
+                'order_id'           => $order_id,
+                'status'             => -1,
+                'address'            => $address,
+                'satoshi'            => intval(round(1.0e8*$wc_order->get_total()/$price)),
+                'crypto'             => $crypto,
+                'timestamp'          => time()
+            );
 
             $orders[$order_id] = $order;
             update_option('blockonomics_orders', $orders);
