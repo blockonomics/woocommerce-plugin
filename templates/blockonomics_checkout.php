@@ -64,8 +64,8 @@ if($lite_version){
               <!-- QR and Amount -->
               <div class="bnomics-qr-code" ng-hide="order.status == -3">
                 <div class="bnomics-qr">
-                          <a href="bitcoin:{{order.address}}?amount={{order.satoshi/1.0e8}}">
-                            <qrcode data="bitcoin:{{order.address}}?amount={{order.satoshi/1.0e8}}" size="160" version="6">
+                          <a href="{{active_currencies[currency.toLowerCase()].uri}}:{{order.address}}?amount={{order.satoshi/1.0e8}}">
+                            <qrcode data="{{active_currencies[currency.toLowerCase()].uri}}:{{order.address}}?amount={{order.satoshi/1.0e8}}" size="160" version="6">
                               <canvas class="qrcode"></canvas>
                             </qrcode>
                           </a>
