@@ -15,11 +15,6 @@ service.factory('Order', function($resource) {
         return item;
     });
 
-service.factory('WpAjax', function($resource) {
-    var rsc = $resource(ajax_object.ajax_url);
-    return rsc;
-});
-
 app = angular.module("shopping-cart-demo", ["monospaced.qrcode", "shoppingcart.services"]);
 
 
@@ -41,7 +36,7 @@ function getParameterByNameBlocko(name, url) {
 }
 
 //CheckoutController
-app.controller('CheckoutController', function($scope, $interval, Order, $httpParamSerializer, $timeout, WpAjax) {
+app.controller('CheckoutController', function($scope, $interval, Order, $httpParamSerializer, $timeout) {
     //get order id from url
     $scope.order_id = getParameterByNameBlocko("show_order");
     var totalProgress = 100;

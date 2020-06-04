@@ -135,7 +135,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         }
         $orders = get_option('blockonomics_orders');
         $order_id = isset($_REQUEST["show_order"]) ? $_REQUEST["show_order"] : "";
-        $uuid = isset($_REQUEST["uuid"]) ? $_REQUEST["uuid"] : "";
         if ($order_id) {
             $nojs_version = get_option('blockonomics_nojs');
             if($nojs_version){
@@ -143,8 +142,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             }else{
               $this->redirect_to_template('blockonomics_checkout.php');
             }
-        }else if ($uuid){
-            $this->redirect_to_template('track.php');
         }
         $order_id = isset($_REQUEST["finish_order"]) ? $_REQUEST["finish_order"] : "";
         if ($order_id) {
