@@ -19,7 +19,7 @@ app = angular.module("shopping-cart-demo", ["monospaced.qrcode", "shoppingcart.s
 
 
 app.config(function($compileProvider) {
-    $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|data|chrome-extension|bitcoin|ethereum|litecoin):/);
+    $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|data|chrome-extension|bitcoin|bitcoincash):/);
     // Angular before v1.2 uses $compileProvider.urlSanitizationWhitelist(...)
 });
 
