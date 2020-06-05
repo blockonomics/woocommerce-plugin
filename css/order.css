@@ -75,25 +75,6 @@
   text-align: center;
 }
 
-.bnomics-address {
-  position:relative;
-  margin:auto !important;
-  width: 90% !important;
-}
-
-.bnomics-address input , .bnomics-address select {
-  font-weight: 600 !important;
-  margin-top: 5px !important;
-  margin-bottom: 10px !important;
-  width: 90% !important;
-  border: 1px solid #DDD; !important;
-  background-color: #fff !important;
-  box-shadow: none !important;
-  text-align: center;
-  padding:7px !important;
-  display:inline !important;
-}
-
 .bnomics-spinner {
   margin: auto;
   width: 60px;

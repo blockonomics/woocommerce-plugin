@@ -3,7 +3,6 @@ $lite_version = get_option('blockonomics_lite');
 if($lite_version){
 ?>
   <link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/order.css', dirname(__FILE__));?>">
-  <link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/cryptofont/cryptofont.min.css', dirname(__FILE__));?>">
   <link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/icons/icons.css', dirname(__FILE__));?>">
 <?php
 }else{
@@ -53,8 +52,6 @@ if($lite_version){
           </div>
         </div>
       </div>
-      <!-- Spinner -->
-      <div class="bnomics-spinner" ng-show="spinner" ng-cloak><div class="bnomics-ring"><div></div><div></div><div></div><div></div></div></div>
       <!-- Amount row -->
       <div class="bnomics-order-panel">
         <div class="bnomics-order-info">
