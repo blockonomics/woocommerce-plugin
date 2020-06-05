@@ -208,6 +208,7 @@ color:inherit;
 
 .bnomics-copy-text{
     padding-bottom: 15px !important;
+    color: grey;
 }
 
 .bnomics-status-flex {
@@ -391,4 +392,36 @@ margin-bottom: 0;
 
 .bnomics-ammount-copy-text{
 margin-bottom: 20px;
+color:grey;
+}
+
+.bnomics-amount-input, .bnomics-address-input {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 2px 4px;
+  font-weight: 600;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  width: 100%;
+  border: 1px solid #DDD;
+  background-color: #fff;
+  box-shadow: none;
+  text-align: center;
+  padding:7px;
+  cursor: pointer;
+  margin-left: 0;
+}
+
+.bnomics-amount-input li, .bnomics-address-input li {
+  display: inline-block;
+  list-style: none;
+  margin-left: 5px;
+}
+
+.bnomics-grey {
+  color:grey;
+}
+
+.bnomics-address, .bnomics-amount{
+  margin: 10px;
 }

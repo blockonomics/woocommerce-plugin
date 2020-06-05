@@ -152,15 +152,44 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         //Close copy to clipboard message after 2 sec
     }, 2000);
     }
+    //Copy bitcoin amount to clipboard
+    $scope.crypto_amount_click = function() {
+        var textarea = document.createElement('textarea');
+        textarea.id = 'temp_element';
+        textarea.style.height = 0;
+        document.body.appendChild(textarea);
+        textarea.value = document.getElementById("bnomics-amount-copy").innerText;
 
-            //Copy bitcoin amount to clipboard
-            $scope.crypto_amount_click = function() {
-                navigator.clipboard.writeText($scope.order.satoshi/1.0e8);
-                //Open copy clipboard message
-                $scope.amountcopyshow = true;
-                $timeout(function() {
-                    $scope.amountcopyshow = false;
-                //Close copy to clipboard message after 2 sec
-            }, 2000);
-            }
+        var selector = document.querySelector('#temp_element');
+        selector.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        select_text("bnomics-amount-copy");
+        // var copyText = document.getElementById("bnomics-amount-copy");
+        // copyText.select();
+        // document.execCommand("copy");
+        // navigator.clipboard.writeText($scope.order.satoshi/1.0e8);
+        //Open copy clipboard message
+        $scope.amountcopyshow = true;
+        $timeout(function() {
+            $scope.amountcopyshow = false;
+        //Close copy to clipboard message after 2 sec
+    }, 2000);
+    }
+
+
+    function select_text(divid)
+    {
+        selection = window.getSelection();
+        var div = document.createRange();
+
+        div.setStartBefore(document.getElementById(divid));
+        div.setEndAfter(document.getElementById(divid)) ;
+        selection.removeAllRanges();
+        selection.addRange(div);
+    }
+
+    $scope.try_again_click = function() {
+        location.reload();
+    }
 });

@@ -74,19 +74,25 @@ if($lite_version){
               <div class="bnomics-bg">
                 <!-- Order Status -->
                 <div class="bnomics-order-status-wrapper">
-                  <span class="bnomics-order-status-title" ng-show="order.status == -1" ng-cloak ><?=__('To confirm your order, please send the exact amount of <strong>{{currency}}</strong> to the given address', 'blockonomics-bitcoin-payments')?></span>
-                  <span class="warning bnomics-status-warning" ng-show="order.status == -3" ng-cloak><?=__('<b>PAYMENT EXPIRED</b> <br /><br /><a href="javascript:history.back()">Click here</a> to try again.<br /><br /><div>If you already paid, your order will be processed automatically. <br />You can safely close this window.</div>', 'blockonomics-bitcoin-payments')?></span>
+                  <span class="bnomics-order-status-title" ng-show="order.status == -1" ng-cloak ><?=__('To pay, send exactly this <strong>{{currency}}</strong> amount', 'blockonomics-bitcoin-payments')?></span>
+                  <span class="warning bnomics-status-warning" ng-show="order.status == -3" ng-cloak><?=__('<b>PAYMENT EXPIRED</b> <br /><br /><a href="#" ng-click="try_again_click()">Click here</a> to try again.<br /><br /><div>If you already paid, your order will be processed automatically. <br />You can safely close this window.</div>', 'blockonomics-bitcoin-payments')?></span>
                   <span class="warning bnomics-status-warning" ng-show="order.status == -2" ng-cloak><?=__('Payment Error', 'blockonomics-bitcoin-payments')?></span>
                 </div>
-                    <h4 ng-click="crypto_amount_click()" class="bnomics-amount-title" for="invoice-amount" ng-hide="order.status == -3">
-                     {{order.satoshi/1.0e8}} {{currency}}
-                    </h4>
-                    <div class="bnomics-ammount-copy-text" ng-hide="order.status == -3 || amountcopyshow == false" ng-cloak>Copied to clipboard</div>
-                    <div class="bnomics-amount-wrapper" ng-hide="order.status == -3">
-                      <hr class="bnomics-amount-seperator"> ≈
-                      <span ng-cloak>{{order.value}}</span>
-                      <small ng-cloak>{{order.currency}}</small>
-                    </div>
+                <!-- <input ng-click="crypto_address_click()" id="bnomics-amount-input" class="bnomics-amount-input" type="text" value="{{order.satoshi/1.0e8}} {{currency}} ≈ {{order.value}} {{order.currency}}" readonly="readonly"> -->
+                <div class="bnomics-amount" ng-hide="order.status == -3">
+                <ul ng-click="crypto_amount_click()" id="bnomics-amount-input" class="bnomics-amount-input">
+                        <li id="bnomics-amount-copy">{{order.satoshi/1.0e8}}</li>
+                        <li>{{currency| uppercase}}</li>
+                        <li class="bnomics-grey"> ≈ </li>
+                        <li class="bnomics-grey">{{order.value}}</li>
+                        <li class="bnomics-grey">{{order.currency}}</li>
+                    </ul>
+                </div>
+
+                <div class="bnomics-ammount-copy-text" ng-hide="order.status == -3 || amountcopyshow == false" ng-cloak>Copied to clipboard</div>
+                <div class="bnomics-order-status-wrapper">
+                  <span class="bnomics-order-status-title" ng-show="order.status == -1" ng-cloak ><?=__('To this {{active_currencies[currency.toLowerCase()].uri}} address', 'blockonomics-bitcoin-payments')?></span>
+                </div>
               <!-- Bitcoin Address -->
                 <div class="bnomics-address" ng-hide="order.status == -3">
                   <input ng-click="crypto_address_click()" id="bnomics-address-input" class="bnomics-address-input" type="text" value="{{order.address}}" readonly="readonly">
