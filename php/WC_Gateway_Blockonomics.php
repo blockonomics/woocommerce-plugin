@@ -94,11 +94,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
     
     public function process_payment($order_id)
     {
-        include_once 'Blockonomics.php';
-        global $woocommerce;
-
         $order = new WC_Order($order_id);
-        $blockonomics_orders = get_option('blockonomics_orders');
         $success_url = add_query_arg('return_from_blockonomics', true, $this->get_return_url($order));
 
         // Blockonomics mangles the order param so we have to put it somewhere else and restore it on init
@@ -108,42 +104,8 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $order_key = method_exists( $order, 'get_order_key' ) ? $order->get_order_key() : $order->order_key;
         $cancel_url = add_query_arg('order_key', $order_key, $cancel_url);
 
-        $blockonomics = new Blockonomics;
-        if(get_woocommerce_currency() != 'BTC'){
-            $price = $blockonomics->get_price(get_woocommerce_currency());
-            $price = $price * 100/(100+get_option('blockonomics_margin', 0));
-        }else{
-            $price = 1;
-        }
-        $currentAddress = get_post_meta($order_id,"blockonomics_address");
-        if($currentAddress) {
-            $address = $currentAddress[0];
-        } else {
-            $responseObj = $blockonomics->new_address(get_option("blockonomics_callback_secret"));
-            if($responseObj->response_code != 200) {
-                $this->displayError($woocommerce);
-                return;
-            }
-            $address = $responseObj->address;
-        }
-
-        $order = array(
-            'value'              => $order->get_total(),
-            'satoshi'            => intval(round(1.0e8*$order->get_total()/$price)),
-            'currency'           => get_woocommerce_currency(),
-            'order_id'           => $order_id,
-            'status'             => -1,
-            'timestamp'          => time(),
-            'txid'               => ''
-        );
-        //Using address as key, as orderid can be tried manually
-        //by hit and trial
-        $blockonomics_orders[$address] = $order;
-        update_option('blockonomics_orders', $blockonomics_orders);
         $order_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-        $order_url = add_query_arg('show_order', $address, $order_url);
-
-        update_post_meta($order_id, 'blockonomics_address', $address);
+        $order_url = add_query_arg('show_order', $order_id, $order_url);
 
         return array(
             'result'   => 'success',
@@ -172,30 +134,65 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             $this->redirect_to_template('payment_confirmed.php');
         }
         $orders = get_option('blockonomics_orders');
-        $address = isset($_REQUEST["show_order"]) ? $_REQUEST["show_order"] : "";
-        $uuid = isset($_REQUEST["uuid"]) ? $_REQUEST["uuid"] : "";
-        if ($address) {
+        $order_id = isset($_REQUEST["show_order"]) ? $_REQUEST["show_order"] : "";
+        if ($order_id) {
             $nojs_version = get_option('blockonomics_nojs');
             if($nojs_version){
               $this->redirect_to_template('blockonomics_nojs_checkout.php');
             }else{
               $this->redirect_to_template('blockonomics_checkout.php');
             }
-        }else if ($uuid){
-            $this->redirect_to_template('track.php');
         }
-        $address = isset($_REQUEST["finish_order"]) ? $_REQUEST["finish_order"] : "";
-        if ($address) {
-            $order = $orders[$address];
-            $wc_order = new WC_Order($order['order_id']);
+        $order_id = isset($_REQUEST["finish_order"]) ? $_REQUEST["finish_order"] : "";
+        if ($order_id) {
+            $order = $orders[$order_id];
+            $wc_order = new WC_Order($order_id);
             echo $order['order_id'];
             wp_redirect($wc_order->get_checkout_order_received_url());
             exit();
         }
-        $address = isset($_REQUEST['get_order']) ? $_REQUEST['get_order'] : "";
-        if ($address) {
+        $order_id = isset($_REQUEST['get_order']) ? $_REQUEST['get_order'] : "";
+        $crypto= isset($_REQUEST['crypto']) ? $_REQUEST['crypto'] : "";
+        if ($order_id && $crypto) {
+            include_once 'Blockonomics.php';
+            $blockonomics = new Blockonomics;
+            global $woocommerce;
+            $order = $orders[$order_id];
+            $wc_order = new WC_Order($order_id);
+            if(get_woocommerce_currency() != 'BTC'){
+                $price = $blockonomics->get_price(get_woocommerce_currency(), $crypto);
+                $price = $price * 100/(100+get_option('blockonomics_margin', 0));
+            }else{
+                $price = 1;
+            }
+            $currentAddress = get_post_meta($order_id,$crypto .'_address');
+            if(isset($currentAddress[0])) {
+                $address = $currentAddress[0];
+            } else {
+                $responseObj = $blockonomics->new_address(get_option("blockonomics_callback_secret"), $crypto);
+                if($responseObj->response_code != 200) {
+                    return;
+                }
+                $address = $responseObj->address;
+            }
+
+            $order = array(
+                'value'              => $wc_order->get_total(),
+                'currency'           => get_woocommerce_currency(),
+                'order_id'           => $order_id,
+                'status'             => -1,
+                'address'            => $address,
+                'satoshi'            => intval(round(1.0e8*$wc_order->get_total()/$price)),
+                'crypto'             => $crypto,
+                'timestamp'          => time()
+            );
+
+            $orders[$order_id] = $order;
+            update_option('blockonomics_orders', $orders);
+            update_post_meta($wc_order->get_id(), ''. $order['crypto'] .'_address', $order['address']);
+
             header("Content-Type: application/json");
-            exit(json_encode($orders[$address]));
+            exit(json_encode($orders[$order_id]));
         }
 
         $callback_secret = get_option("blockonomics_callback_secret");
@@ -203,25 +200,32 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $network_confirmations=get_option("blockonomics_network_confirmation",2);
         if ($callback_secret  && $callback_secret == $secret) {
             $addr = isset($_REQUEST['addr']) ? $_REQUEST['addr'] : "";
-            if (array_key_exists($addr, $orders)){
-                $order = $orders[$addr];
-                $wc_order = new WC_Order($order['order_id']);
+            $order_id = false;
+            foreach($orders as $key => $val){
+                if($val['address'] == $addr){
+                    $order_id = $key;
+                    break;
+                }
+            }
+            if ($order_id){
+                $order = $orders[$order_id];
+                $wc_order = new WC_Order($order_id);
                 $status = intval($_REQUEST['status']);
                 $existing_status = $order['status'];
                 $timestamp = $order['timestamp'];
                 $time_period = get_option("blockonomics_timeperiod", 10) *60;
                 if ($status == 0 && time() > $timestamp + $time_period) {
                     $minutes = (time() - $timestamp)/60;
-                    $wc_order->add_order_note(__("Warning: Payment arrived after $minutes minutes. Received BTC may not match current bitcoin price", 'blockonomics-bitcoin-payments'));
+                    $wc_order->add_order_note(__("Warning: Payment arrived after $minutes minutes. Received". $order['crypto'] ."may not match current ". $order['crypto'] ." price", 'blockonomics-bitcoin-payments'));
                 }
-                elseif ($status >= $network_confirmations && !metadata_exists('post',$wc_order->get_id(),'paid_btc_amount') )  {
-                    update_post_meta($wc_order->get_id(), 'paid_btc_amount', $_REQUEST['value']/1.0e8);
+                elseif ($status >= $network_confirmations && !metadata_exists('post',$wc_order->get_id(),'paid_'. $order['crypto'] .'_amount') )  {
+                    update_post_meta($wc_order->get_id(), 'paid_'. $order['crypto'] .'_amount', $_REQUEST['value']/1.0e8);
                     if ($order['satoshi'] > $_REQUEST['value']) {
                         //Check underpayment slack
                         $underpayment_slack = get_option("blockonomics_underpayment_slack", 0)/100 * $order['satoshi'];
                         if ($order['satoshi'] - $underpayment_slack > $_REQUEST['value']) {
                             $status = -2; //Payment error , amount not matching
-                            $wc_order->update_status('failed', __('Paid BTC amount less than expected.', 'blockonomics-bitcoin-payments'));
+                            $wc_order->update_status('failed', __('Paid '. $order['crypto'] .' amount less than expected.', 'blockonomics-bitcoin-payments'));
                         }else{
                             $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
                             $wc_order->payment_complete($order['txid']);
@@ -229,7 +233,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                     }
                     else{
                         if ($order['satoshi'] < $_REQUEST['value']) {
-                            $wc_order->add_order_note(__('Overpayment of BTC amount', 'blockonomics-bitcoin-payments'));
+                            $wc_order->add_order_note(__('Overpayment of '. $order['crypto'] .' amount', 'blockonomics-bitcoin-payments'));
                         }
                         $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
                         $wc_order->payment_complete($order['txid']);
@@ -245,27 +249,13 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                 $order['status'] = $status;
                 $orders[$addr] = $order;
                 if ($existing_status == -1) {
-                    update_post_meta($wc_order->get_id(), 'blockonomics_txid', $order['txid']);
-                    update_post_meta($wc_order->get_id(), 'expected_btc_amount', $order['satoshi']/1.0e8);
+                    update_post_meta($wc_order->get_id(), 'blockonomics_'. $order['crypto'] .'_txid', $order['txid']);
+                    update_post_meta($wc_order->get_id(), 'expected_'. $order['crypto'] .'_amount', $order['satoshi']/1.0e8);
                 }
                 update_option('blockonomics_orders', $orders);
             }else{
                 exit("Error: order not found");
             }
-        }
-    }
-
-    private function displayError($woocommerce) {
-        $unable_to_generate = __('<h1>Unable to generate bitcoin address.</h1><p> Note for site webmaster: ', 'blockonomics-bitcoin-payments');
-        
-        $error_msg = 'Please login to your admin panel, navigate to Settings > Blockonomics and click <i>Test Setup</i> to diagnose the issue';
-
-        $error_message = $unable_to_generate . $error_msg;
-
-        if (version_compare($woocommerce->version, '2.1', '>=')) {
-            wc_add_notice(__($error_message, 'blockonomics-bitcoin-payments'), 'error');
-        } else {
-            $woocommerce->add_error(__($error_message, 'blockonomics-bitcoin-payments'));
         }
     }
 }

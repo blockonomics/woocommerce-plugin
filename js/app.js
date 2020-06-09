@@ -15,16 +15,11 @@ service.factory('Order', function($resource) {
         return item;
     });
 
-service.factory('WpAjax', function($resource) {
-    var rsc = $resource(ajax_object.ajax_url);
-    return rsc;
-});
-
 app = angular.module("shopping-cart-demo", ["monospaced.qrcode", "shoppingcart.services"]);
 
 
 app.config(function($compileProvider) {
-    $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|data|chrome-extension|bitcoin|ethereum|litecoin):/);
+    $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|data|chrome-extension|bitcoin|bitcoincash):/);
     // Angular before v1.2 uses $compileProvider.urlSanitizationWhitelist(...)
 });
 
@@ -41,9 +36,9 @@ function getParameterByNameBlocko(name, url) {
 }
 
 //CheckoutController
-app.controller('CheckoutController', function($scope, $interval, Order, $httpParamSerializer, $timeout, WpAjax) {
+app.controller('CheckoutController', function($scope, $interval, Order, $httpParamSerializer, $timeout) {
     //get order id from url
-    $scope.address = getParameterByNameBlocko("show_order");
+    $scope.order_id = getParameterByNameBlocko("show_order");
     var totalProgress = 100;
     $scope.copyshow = false;
     $scope.amountcopyshow = false;
@@ -59,7 +54,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
             };
             else
                 params = {};
-            params.finish_order = $scope.address;
+            params.finish_order = $scope.order_id;
             url = window.location.pathname;
             var serializedParams = $httpParamSerializer(params);
             if (serializedParams.length > 0) {
@@ -72,6 +67,53 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     $scope.select_blockonomics_currency = function(blockonomics_currency) {
         $scope.currency = blockonomics_currency;
         $scope.currency_selecter  = false;
+        $scope.spinner = true;
+        //Check if the bitcoin address is present
+        if (typeof $scope.order_id != 'undefined') {
+            //Fetch the order using address
+            Order.get({
+                "get_order": $scope.order_id,
+                'crypto': blockonomics_currency
+            }, function(data) {
+                $scope.order = data;
+                //Check the status of the order
+                if ($scope.order.status == -1) {
+                  $scope.clock = $scope.order.timestamp + totalTime - Math.floor(Date.now() / 1000);
+                    //Mark order as expired if we ran out of time
+                    if ($scope.clock < 0) {
+                    $scope.order.status = -3;
+                    return;
+                }
+                $scope.tick_interval = $interval($scope.tick, 1000);
+                    //Connect and Listen on websocket for payment notification
+                    if($scope.currency == 'BTC'){
+                        var ws = new ReconnectingWebSocket("wss://www.blockonomics.co/payment/" + $scope.order.address + "?timestamp=" + $scope.order.timestamp);
+                    }else{
+                        var ws = new ReconnectingWebSocket("wss://" + $scope.currency  + ".blockonomics.co/payment/" + $scope.order.address + "?timestamp=" + $scope.order.timestamp);
+                    }
+                    ws.onmessage = function(evt) {
+                        ws.close();
+                        $timeout(function() {
+                            //Redirect to order received page if message from socket
+                            window.location = $scope.finish_order_url();
+                        //Wait for 2 seconds for order status to update on server
+                    }, 2000, 1);
+                    }
+                }
+                if($scope.order.address && $scope.order.satoshi){
+                $scope.spinner = false;
+                $scope.payment = true;
+                }else{
+                    if(blockonomics_currency == 'BCH'){
+                        $scope.spinner = false;
+                        $scope.bchaddresserror = true;
+                    }else if(blockonomics_currency == 'BTC'){
+                        $scope.spinner = false;
+                        $scope.btcaddresserror = true;
+                    }
+                }
+            });
+        }
     }
 
     var active_currencies_div = document.getElementById("active_currencies");
@@ -81,7 +123,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
             $scope.currency_selecter  = true;
     }else{
             $scope.currency_selecter  = false;
-            $scope.currency = 'BTC'
+            $scope.select_blockonomics_currency('BTC');
     }
 
 
@@ -98,38 +140,6 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         $scope.progress = Math.floor($scope.clock * totalProgress / totalTime);
     };
 
-    //Check if the bitcoin address is present
-    if (typeof $scope.address != 'undefined') {
-        //Fetch the order using address
-        Order.get({
-            "get_order": $scope.address
-        }, function(data) {
-            $scope.order = data;
-            $scope.order.address = $scope.address;
-            $scope.order.altcoin = $scope.altcoin;
-            //Check the status of the order
-            if ($scope.order.status == -1) {
-                $scope.clock = $scope.order.timestamp + totalTime - Math.floor(Date.now() / 1000);
-                //Mark order as expired if we ran out of time
-                if ($scope.clock < 0) {
-                 $scope.order.status = -3;
-                 return;
-             }
-             $scope.tick_interval = $interval($scope.tick, 1000);
-                //Connect and Listen on websocket for payment notification
-                var ws = new ReconnectingWebSocket("wss://www.blockonomics.co/payment/" + $scope.order.address + "?timestamp=" + $scope.order.timestamp);
-                ws.onmessage = function(evt) {
-                    ws.close();
-                    $timeout(function() {
-                        //Redirect to order received page if message from socket
-                        window.location = $scope.finish_order_url();
-                    //Wait for 2 seconds for order status to update on server
-                }, 2000, 1);
-                }
-            }
-        });
-    }
-
     //Copy bitcoin address to clipboard
     $scope.crypto_address_click = function() {
         var copyText = document.getElementById("bnomics-address-input");
@@ -142,15 +152,44 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         //Close copy to clipboard message after 2 sec
     }, 2000);
     }
+    //Copy bitcoin amount to clipboard
+    $scope.crypto_amount_click = function() {
+        var textarea = document.createElement('textarea');
+        textarea.id = 'temp_element';
+        textarea.style.height = 0;
+        document.body.appendChild(textarea);
+        textarea.value = document.getElementById("bnomics-amount-copy").innerText;
 
-            //Copy bitcoin amount to clipboard
-            $scope.crypto_amount_click = function() {
-                navigator.clipboard.writeText($scope.order.satoshi/1.0e8);
-                //Open copy clipboard message
-                $scope.amountcopyshow = true;
-                $timeout(function() {
-                    $scope.amountcopyshow = false;
-                //Close copy to clipboard message after 2 sec
-            }, 2000);
-            }
+        var selector = document.querySelector('#temp_element');
+        selector.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        select_text("bnomics-amount-copy");
+        // var copyText = document.getElementById("bnomics-amount-copy");
+        // copyText.select();
+        // document.execCommand("copy");
+        // navigator.clipboard.writeText($scope.order.satoshi/1.0e8);
+        //Open copy clipboard message
+        $scope.amountcopyshow = true;
+        $timeout(function() {
+            $scope.amountcopyshow = false;
+        //Close copy to clipboard message after 2 sec
+    }, 2000);
+    }
+
+
+    function select_text(divid)
+    {
+        selection = window.getSelection();
+        var div = document.createRange();
+
+        div.setStartBefore(document.getElementById(divid));
+        div.setEndAfter(document.getElementById(divid)) ;
+        selection.removeAllRanges();
+        selection.addRange(div);
+    }
+
+    $scope.try_again_click = function() {
+        location.reload();
+    }
 });

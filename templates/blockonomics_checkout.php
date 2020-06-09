@@ -3,7 +3,6 @@ $lite_version = get_option('blockonomics_lite');
 if($lite_version){
 ?>
   <link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/order.css', dirname(__FILE__));?>">
-  <link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/cryptofont/cryptofont.min.css', dirname(__FILE__));?>">
   <link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/icons/icons.css', dirname(__FILE__));?>">
 <?php
 }else{
@@ -34,7 +33,9 @@ if($lite_version){
               <?=__('Powered by ', 'blockonomics-bitcoin-payments')?>Blockonomics
             </div>
       </div>
-    <div class="con" ng-hide="currency_selecter">
+     <!-- Spinner -->
+    <div class="bnomics-spinner" ng-show="spinner" ng-cloak><div class="bnomics-ring"><div></div><div></div><div></div><div></div></div></div>
+    <div ng-show="payment">
       <!-- Heading row -->
       <div class="bnomics-order-heading">
         <div class="bnomics-order-heading-wrapper">
@@ -51,8 +52,6 @@ if($lite_version){
           </div>
         </div>
       </div>
-      <!-- Spinner -->
-      <div class="bnomics-spinner" ng-show="spinner" ng-cloak><div class="bnomics-ring"><div></div><div></div><div></div><div></div></div></div>
       <!-- Amount row -->
       <div class="bnomics-order-panel">
         <div class="bnomics-order-info">
@@ -62,8 +61,8 @@ if($lite_version){
               <!-- QR and Amount -->
               <div class="bnomics-qr-code" ng-hide="order.status == -3">
                 <div class="bnomics-qr">
-                          <a href="bitcoin:{{order.address}}?amount={{order.satoshi/1.0e8}}">
-                            <qrcode data="bitcoin:{{order.address}}?amount={{order.satoshi/1.0e8}}" size="160" version="6">
+                          <a href="{{active_currencies[currency.toLowerCase()].uri}}:{{order.address}}?amount={{order.satoshi/1.0e8}}">
+                            <qrcode data="{{active_currencies[currency.toLowerCase()].uri}}:{{order.address}}?amount={{order.satoshi/1.0e8}}" size="160" version="6">
                               <canvas class="qrcode"></canvas>
                             </qrcode>
                           </a>
@@ -75,19 +74,25 @@ if($lite_version){
               <div class="bnomics-bg">
                 <!-- Order Status -->
                 <div class="bnomics-order-status-wrapper">
-                  <span class="bnomics-order-status-title" ng-show="order.status == -1" ng-cloak ><?=__('To confirm your order, please send the exact amount of <strong>{{currency}}</strong> to the given address', 'blockonomics-bitcoin-payments')?></span>
-                  <span class="warning bnomics-status-warning" ng-show="order.status == -3" ng-cloak><?=__('<b>PAYMENT EXPIRED</b> <br /><br /><a href="javascript:history.back()">Click here</a> to try again.<br /><br /><div>If you already paid, your order will be processed automatically. <br />You can safely close this window.</div>', 'blockonomics-bitcoin-payments')?></span>
+                  <span class="bnomics-order-status-title" ng-show="order.status == -1" ng-cloak ><?=__('To pay, send exactly this <strong>{{currency}}</strong> amount', 'blockonomics-bitcoin-payments')?></span>
+                  <span class="warning bnomics-status-warning" ng-show="order.status == -3" ng-cloak><?=__('<b>PAYMENT EXPIRED</b> <br /><br /><a href="#" ng-click="try_again_click()">Click here</a> to try again.<br /><br /><div>If you already paid, your order will be processed automatically. <br />You can safely close this window.</div>', 'blockonomics-bitcoin-payments')?></span>
                   <span class="warning bnomics-status-warning" ng-show="order.status == -2" ng-cloak><?=__('Payment Error', 'blockonomics-bitcoin-payments')?></span>
                 </div>
-                    <h4 ng-click="crypto_amount_click()" class="bnomics-amount-title" for="invoice-amount" ng-hide="order.status == -3">
-                     {{order.satoshi/1.0e8}} {{currency}}
-                    </h4>
-                    <div class="bnomics-ammount-copy-text" ng-hide="order.status == -3 || amountcopyshow == false" ng-cloak>Copied to clipboard</div>
-                    <div class="bnomics-amount-wrapper" ng-hide="order.status == -3">
-                      <hr class="bnomics-amount-seperator"> ≈
-                      <span ng-cloak>{{order.value}}</span>
-                      <small ng-cloak>{{order.currency}}</small>
-                    </div>
+                <!-- <input ng-click="crypto_address_click()" id="bnomics-amount-input" class="bnomics-amount-input" type="text" value="{{order.satoshi/1.0e8}} {{currency}} ≈ {{order.value}} {{order.currency}}" readonly="readonly"> -->
+                <div class="bnomics-amount" ng-hide="order.status == -3">
+                <ul ng-click="crypto_amount_click()" id="bnomics-amount-input" class="bnomics-amount-input">
+                        <li id="bnomics-amount-copy">{{order.satoshi/1.0e8}}</li>
+                        <li>{{currency| uppercase}}</li>
+                        <li class="bnomics-grey"> ≈ </li>
+                        <li class="bnomics-grey">{{order.value}}</li>
+                        <li class="bnomics-grey">{{order.currency}}</li>
+                    </ul>
+                </div>
+
+                <div class="bnomics-ammount-copy-text" ng-hide="order.status == -3 || amountcopyshow == false" ng-cloak>Copied to clipboard</div>
+                <div class="bnomics-order-status-wrapper">
+                  <span class="bnomics-order-status-title" ng-show="order.status == -1" ng-cloak ><?=__('To this {{active_currencies[currency.toLowerCase()].uri}} address', 'blockonomics-bitcoin-payments')?></span>
+                </div>
               <!-- Bitcoin Address -->
                 <div class="bnomics-address" ng-hide="order.status == -3">
                   <input ng-click="crypto_address_click()" id="bnomics-address-input" class="bnomics-address-input" type="text" value="{{order.address}}" readonly="readonly">
@@ -119,6 +124,17 @@ if($lite_version){
           </div>
         </div>
       </div>
+    </div>
+      <!-- Address Error -->
+      <div class="bnomics-display-error" style="text-align: center;" ng-show="btcaddresserror">
+        <h2>Could not generate new Bitcoin address.</h2>
+        <p>Note to webmaster: Please login to admin and go to Setup > Payments > Payment Gateways > Manage Existing Gateways and use the Test Setup button to diagnose the error.</p>
+      </div>
+    <!-- BCH address Generation Error -->
+    <div class="bnomics-display-error" style="text-align: center;" ng-show="bchaddresserror">
+            <h4>Address Generation Error</h4>
+            <h4><i class="material-icons bnomics-alt-icon">error</i></h4>
+            <p>Note to webmaster: Please follow the instructions <a href="https://help.blockonomics.co/support/solutions/articles/33000253348-bch-setup-on-woocommerce" target="_blank">here</a> to configure BCH payments.</p>
     </div>
     <script>
     var blockonomics_time_period=<?php echo get_option('blockonomics_timeperiod', 10); ?>;

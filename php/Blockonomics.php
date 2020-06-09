@@ -13,6 +13,9 @@ class Blockonomics
     const TEMP_API_KEY_URL = 'https://www.blockonomics.co/api/temp_wallet';
     const TEMP_WITHDRAW_URL = 'https://www.blockonomics.co/api/temp_withdraw_request';
 
+    const BCH_NEW_ADDRESS_URL = 'https://bch.blockonomics.co/api/new_address';
+    const BCH_PRICE_URL = 'https://bch.blockonomics.co/api/price';
+
     public function __construct()
     {
         $this->api_key = $this->get_api_key();
@@ -29,7 +32,7 @@ class Blockonomics
     }
 
 
-    public function new_address($secret, $reset=false)
+    public function new_address($secret, $crypto,$reset=false)
     {
         if($reset)
         {
@@ -39,7 +42,11 @@ class Blockonomics
         {
             $get_params = "?match_callback=$secret";
         }
-        $url = Blockonomics::NEW_ADDRESS_URL.$get_params;
+        if($crypto == 'BTC'){
+            $url = Blockonomics::NEW_ADDRESS_URL.$get_params;
+        }else{
+            $url = Blockonomics::BCH_NEW_ADDRESS_URL.$get_params;
+        }
         $response = $this->post($url, $this->api_key, '', 8);
         if (!isset($responseObj)) $responseObj = new stdClass();
         $responseObj->{'response_code'} = wp_remote_retrieve_response_code($response);
@@ -52,9 +59,13 @@ class Blockonomics
         return $responseObj;
     }
 
-    public function get_price($currency)
+    public function get_price($currency, $crypto)
     {
-        $url = Blockonomics::PRICE_URL. "?currency=$currency";
+        if($crypto == 'BTC'){
+            $url = Blockonomics::PRICE_URL. "?currency=$currency";
+        }else{
+            $url = Blockonomics::BCH_PRICE_URL. "?currency=$currency";
+        }
         $response = $this->get($url);
         return json_decode(wp_remote_retrieve_body($response))->price;
     }
