@@ -113,7 +113,6 @@ class Blockonomics
 
 	//Get list of active crypto currencies
 	public function getActiveCurrencies() {
-		// $active_currencies = array();
         $active_currencies = $this->getSupportedCurrencies();
 		foreach ($active_currencies as $code => $currency) {
             if($code != 'btc' && get_option('blockonomics_'.$code) == 1){

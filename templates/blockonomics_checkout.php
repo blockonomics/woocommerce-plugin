@@ -39,14 +39,6 @@ if($lite_version){
       <!-- Heading row -->
       <div class="bnomics-order-heading">
         <div class="bnomics-order-heading-wrapper">
-          <?php if (get_option('blockonomics_altcoins')) : ?>
-          <div class="bnomics-payment-option" ng-hide="order.status == -3">
-            <span class="bnomics-paywith-label" ng-cloak> <?=__('Pay with', 'blockonomics-bitcoin-payments')?> </span>
-            <span>
-              <span class="bnomics-paywith-option bnomics-paywith-btc" ng-class={'bnomics-paywith-selected':show_altcoin=='0'} ng-click="show_altcoin=0">BTC</span><span class="bnomics-paywith-option bnomics-paywith-altcoin" ng-class={'bnomics-paywith-selected':show_altcoin=='1'} ng-click="show_altcoin=1">Altcoins</span>     
-            </span>
-          </div><br>
-          <?php endif;?>
           <div class="bnomics-order-id">
             <span class="bnomics-order-number" ng-cloak> <?=__('Order #', 'blockonomics-bitcoin-payments')?>{{order.order_id}}</span>
           </div>
