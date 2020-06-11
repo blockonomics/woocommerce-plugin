@@ -106,7 +106,7 @@ class Blockonomics
               'bch' => array(
                     'name' => 'Bitcoin Cash',
                     'uri' => 'bitcoincash',
-                    'enabled' => ''
+                    'enabled' => false
               )
           );
     }
@@ -115,10 +115,10 @@ class Blockonomics
 	public function getActiveCurrencies() {
         $active_currencies = $this->getSupportedCurrencies();
 		foreach ($active_currencies as $code => $currency) {
-            if($code != 'btc' && get_option('blockonomics_'.$code) == 1){
+            if ($code == 'btc'){
+                continue;
+            }else if(get_option('blockonomics_'.$code) == 1){
                 $active_currencies[$code]['enabled'] = true;
-            }else if ($code != 'btc'){
-                $active_currencies[$code]['enabled'] = false;
             }
         }
 
