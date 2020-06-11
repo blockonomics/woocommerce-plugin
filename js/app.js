@@ -104,10 +104,11 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
                 $scope.spinner = false;
                 $scope.payment = true;
                 }else{
-                    if(blockonomics_currency == 'BCH'){
+                    $scope.addresserror = true;
+                    if($scope.currency == 'BCH'){
                         $scope.spinner = false;
                         $scope.bchaddresserror = true;
-                    }else if(blockonomics_currency == 'BTC'){
+                    }else if($scope.currency == 'BTC'){
                         $scope.spinner = false;
                         $scope.btcaddresserror = true;
                     }
