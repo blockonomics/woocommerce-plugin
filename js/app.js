@@ -73,16 +73,16 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
             //Fetch the order using address
             Order.get({
                 "get_order": $scope.order_id,
-                'crypto': blockonomics_currency
+                'crypto': $scope.currency
             }, function(data) {
                 $scope.order = data;
                 //Check the status of the order
                 if ($scope.order.status == -1) {
-                  $scope.clock = $scope.order.timestamp + totalTime - Math.floor(Date.now() / 1000);
+                    $scope.clock = $scope.order.timestamp + totalTime - Math.floor(Date.now() / 1000);
                     //Mark order as expired if we ran out of time
                     if ($scope.clock < 0) {
-                    $scope.order.status = -3;
-                    return;
+                        $scope.order.status = -3;
+                        return;
                 }
                 $scope.tick_interval = $interval($scope.tick, 1000);
                     //Connect and Listen on websocket for payment notification
@@ -104,10 +104,11 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
                 $scope.spinner = false;
                 $scope.payment = true;
                 }else{
-                    if(blockonomics_currency == 'BCH'){
+                    $scope.addresserror = true;
+                    if($scope.currency == 'BCH'){
                         $scope.spinner = false;
                         $scope.bchaddresserror = true;
-                    }else if(blockonomics_currency == 'BTC'){
+                    }else if($scope.currency == 'BTC'){
                         $scope.spinner = false;
                         $scope.btcaddresserror = true;
                     }
@@ -165,10 +166,6 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         document.execCommand('copy');
         document.body.removeChild(textarea);
         select_text("bnomics-amount-copy");
-        // var copyText = document.getElementById("bnomics-amount-copy");
-        // copyText.select();
-        // document.execCommand("copy");
-        // navigator.clipboard.writeText($scope.order.satoshi/1.0e8);
         //Open copy clipboard message
         $scope.amountcopyshow = true;
         $timeout(function() {

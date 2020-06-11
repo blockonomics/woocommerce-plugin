@@ -117,16 +117,12 @@ if($lite_version){
         </div>
       </div>
     </div>
-      <!-- Address Error -->
-      <div class="bnomics-display-error" style="text-align: center;" ng-show="btcaddresserror">
-        <h2>Could not generate new Bitcoin address.</h2>
-        <p>Note to webmaster: Please login to admin and go to Setup > Payments > Payment Gateways > Manage Existing Gateways and use the Test Setup button to diagnose the error.</p>
-      </div>
-    <!-- BCH address Generation Error -->
-    <div class="bnomics-display-error" style="text-align: center;" ng-show="bchaddresserror">
+    <!-- address Generation Error -->
+    <div class="bnomics-display-error" style="text-align: center;" ng-show="addresserror">
             <h4>Address Generation Error</h4>
             <h4><i class="material-icons bnomics-alt-icon">error</i></h4>
-            <p>Note to webmaster: Please follow the instructions <a href="https://help.blockonomics.co/support/solutions/articles/33000253348-bch-setup-on-woocommerce" target="_blank">here</a> to configure BCH payments.</p>
+            <p ng-show="btcaddresserror">Note to webmaster: Please login to admin and go to Setup > Payments > Payment Gateways > Manage Existing Gateways and use the Test Setup button to diagnose the error.</p>
+            <p ng-show="bchaddresserror">Note to webmaster: Please follow the instructions <a href="https://help.blockonomics.co/support/solutions/articles/33000253348-bch-setup-on-woocommerce" target="_blank">here</a> to configure BCH payments.</p>
     </div>
     <script>
     var blockonomics_time_period=<?php echo get_option('blockonomics_timeperiod', 10); ?>;
