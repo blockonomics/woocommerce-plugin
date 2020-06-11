@@ -165,10 +165,6 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         document.execCommand('copy');
         document.body.removeChild(textarea);
         select_text("bnomics-amount-copy");
-        // var copyText = document.getElementById("bnomics-amount-copy");
-        // copyText.select();
-        // document.execCommand("copy");
-        // navigator.clipboard.writeText($scope.order.satoshi/1.0e8);
         //Open copy clipboard message
         $scope.amountcopyshow = true;
         $timeout(function() {
