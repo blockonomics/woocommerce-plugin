@@ -118,7 +118,7 @@ if($lite_version){
       </div>
     </div>
     <!-- address Generation Error -->
-    <div class="bnomics-display-error" style="text-align: center;" ng-show="addresserror">
+    <div style="text-align: center;" ng-show="addresserror">
             <h4>Address Generation Error</h4>
             <h4><i class="material-icons bnomics-alt-icon">error</i></h4>
             <p ng-show="btcaddresserror">Note to webmaster: Please login to admin and go to Setup > Payments > Payment Gateways > Manage Existing Gateways and use the Test Setup button to diagnose the error.</p>
