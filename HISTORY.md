@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 1.8.4  =
+* Added option for noJavascript checkout page
+
 = 1.8.3  =
 * Better handling callbacks errors
 
