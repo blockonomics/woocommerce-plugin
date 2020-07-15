@@ -97,7 +97,7 @@ function blockonomics_woocommerce_init()
     {
         include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
         $blockonomics = new Blockonomics;
-        update_option('blockonomics_active_currency',$blockonomics->getActiveCurrencies());
+        update_option('blockonomics_active_cryptos',$blockonomics->getActiveCurrencies());
 
         if (isset($_POST['generateSecret']))
         {
@@ -358,7 +358,6 @@ function blockonomics_woocommerce_init()
 
     function bnomics_enqueue_stylesheets(){
       wp_enqueue_style('bnomics-style', plugin_dir_url(__FILE__) . "css/order.css");
-      wp_enqueue_style( 'bnomics-icons', plugin_dir_url(__FILE__) . "css/icons/icons.css");
     }
 
     function bnomics_enqueue_scripts(){

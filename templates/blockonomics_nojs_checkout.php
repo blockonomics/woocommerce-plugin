@@ -1,17 +1,10 @@
 <?php
-$lite_version = get_option('blockonomics_lite');
-if($lite_version){
-?>
-  <link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/order.css', dirname(__FILE__));?>">
-  <link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/cryptofont/cryptofont.min.css', dirname(__FILE__));?>">
-  <link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/icons/icons.css', dirname(__FILE__));?>">
-<?php
-}else{
-  get_header();
-}
 $orders = get_option('blockonomics_orders');
-$address = $_REQUEST['show_order'];
-$order = $orders[$address];
+$order_id = $_REQUEST['show_order'];
+$crypto = $_REQUEST['crypto'];
+foreach ($orders[$order_id] as $addr => $order){
+  if ($order['crypto'] == $crypto) break;
+}
 ?>
 <div ng-app="shopping-cart-demo">
   <div ng-controller="CheckoutController">
@@ -35,7 +28,7 @@ $order = $orders[$address];
               <div class="bnomics-bg">
                 <!-- Order Status -->
                 <div class="bnomics-order-status-wrapper">
-                  <span class="bnomics-order-status-title"><?=__('To confirm your order, please send the exact amount of <strong>BTC</strong> to the given address', 'blockonomics-bitcoin-payments')?></span>
+                  <span class="bnomics-order-status-title">To confirm your order, please send the exact amount of <strong><?php echo strtoupper($order['crypto'])?></strong> to the given address</span>
                 </div>
                     <h4 class="bnomics-amount-title" for="invoice-amount">
                      <?php
@@ -44,7 +37,7 @@ $order = $orders[$address];
                      }else{
                        echo $order['satoshi']/1.0e8;
                      }
-                     ?> BTC
+                     ?> <?php echo strtoupper($order['crypto'])?>
                     </h4>
                     <div class="bnomics-amount-wrapper">
                       <hr class="bnomics-amount-seperator"> ≈
@@ -53,7 +46,7 @@ $order = $orders[$address];
                     </div>
               <!-- Bitcoin Address -->
                 <div class="bnomics-address">
-                  <input id="bnomics-address-input" class="bnomics-address-input" type="text" readonly="readonly" value="<?php echo $_GET['show_order'];?>">
+                  <input id="bnomics-address-input" class="bnomics-address-input" type="text" readonly="readonly" value="<?php echo $order['addr'] ?>">
                 </div>
               </div>
         <!-- Blockonomics Credit -->
@@ -62,7 +55,7 @@ $order = $orders[$address];
 			</div>
       <br>
       <div>
-        <a href="/?wc-api=WC_Gateway_Blockonomics&payment_check=<?php echo $address;?>">Please click here if already paid</a>
+        <a href="?payment_check=<?php echo $order['order_id'];?>&crypto=<?php echo $order['crypto'];?>">Please click here if already paid</a>
       </div>
             <div class="bnomics-powered-by">
               <?=__('Powered by ', 'blockonomics-bitcoin-payments')?>Blockonomics
@@ -75,8 +68,3 @@ $order = $orders[$address];
     </div>
   </div>
 </div>
-<?php
-if(!$lite_version){
-  get_footer();
-}
-?>

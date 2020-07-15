@@ -9,8 +9,8 @@
 }
 
 .bnomics-order-container {
-  margin: 12vh auto;
-  padding: 10px;
+  margin: 5vh auto;
+  padding: 8px;
   max-width: 700px;
 }
 
@@ -29,8 +29,7 @@
 .bnomics-progress-bar-container {
   position: relative;
   overflow: hidden;
-  width: 90%;
-  margin-left:5%;
+  width: 100%;
   height: 4px;
   background: #ddd;
 }
@@ -63,6 +62,7 @@
 
 .bnomics-btc-info .bnomics-qr-code {
   flex: 1;
+  padding-top: 1em;
 }
 
 .bnomics-btc-info .bnomics-amount {
@@ -73,6 +73,12 @@
   align-items: center;
   flex: 1;
   text-align: center;
+}
+
+.bnomics-spinner-wrapper {
+  width: 100%;
+  text-align: center;
+  padding: 20px;
 }
 
 .bnomics-spinner {
@@ -108,7 +114,6 @@ color:inherit;
 
 .bnomics-qr-code-hint {
   text-align: center;
-  margin-top: 1.6em;
   margin-bottom: 1em;
   font-size: 0.8em;
   padding: 0 20px;
@@ -284,45 +289,23 @@ color:inherit;
 
 /* ---- Spinner ---- */
 .bnomics-spinner {
-  padding: 20px;
-  text-align: center
-}
-.bnomics-ring {
   display: inline-block;
-  /*display: none;*/
-  position: relative;
-  width: 74px;
-  height: 74px;
-}
-.bnomics-ring div {
-  box-sizing: border-box;
-  display: block;
-  position: absolute;
-  width: 61px;
-  height: 61px;
-  margin: 6px;
-  border: 6px solid #B9B9B9;
+  width: 70px;
+  height: 70px;
+  border: 3px solid rgba(255,255,255,.3);
   border-radius: 50%;
-  animation: bnomics-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-  border-color: #B9B9B9 transparent transparent transparent;
+  border-top-color: #000;
+  animation: spin 1s ease-in-out infinite;
+  -webkit-animation: spin 1s ease-in-out infinite;
 }
-.bnomics-ring div:nth-child(1) {
-  animation-delay: -0.45s;
+
+@keyframes spin {
+  to { -webkit-transform: rotate(360deg); }
 }
-.bnomics-ring div:nth-child(2) {
-  animation-delay: -0.3s;
+@-webkit-keyframes spin {
+  to { -webkit-transform: rotate(360deg); }
 }
-.bnomics-ring div:nth-child(3) {
-  animation-delay: -0.15s;
-}
-@keyframes bnomics-ring {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
+
 
 .rotateimgbtc {
   -webkit-transform:rotate(15deg);
@@ -359,6 +342,7 @@ color:inherit;
 .bnomics-select-options h3 {
   display:inline;
   margin: 0;
+  word-break: break-word;
 }
 
 .bnomics-select-container table{
@@ -372,14 +356,23 @@ color:inherit;
   display: flex;
   align-items: center;
 }
+@media screen and (max-width: 350px) {
+  .bnomics-select-container td {
+    padding: 20px 5px;
+  }
+}
 
-.bnomics-select-currency-button{
+.bnomics-select-crypto-button{
   margin-left: auto;
   padding-right: 5px;
 }
 
-.bnomics-select-currency-code {
+.bnomics-select-crypto-code {
   text-transform: uppercase;
+}
+
+.bnomics-order-expired-wrapper, .bnomics-order-error-wrapper {
+  text-align: center;
 }
 
 #paytitle::before  {
@@ -416,6 +409,7 @@ color:grey;
   display: inline-block;
   list-style: none;
   margin-left: 5px;
+  word-break: break-all;
 }
 
 .bnomics-grey {
@@ -423,5 +417,9 @@ color:grey;
 }
 
 .bnomics-address, .bnomics-amount{
-  margin: 10px;
+  margin-top: 10px;
+}
+
+.bnomics-select-crypto-button{
+  float: right;
 }

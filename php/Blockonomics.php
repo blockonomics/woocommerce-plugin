@@ -32,7 +32,7 @@ class Blockonomics
     }
 
 
-    public function new_address($secret, $crypto,$reset=false)
+    public function new_address($secret, $crypto, $reset=false)
     {
         if($reset)
         {
@@ -42,7 +42,7 @@ class Blockonomics
         {
             $get_params = "?match_callback=$secret";
         }
-        if($crypto == 'BTC'){
+        if($crypto == 'btc'){
             $url = Blockonomics::NEW_ADDRESS_URL.$get_params;
         }else{
             $url = Blockonomics::BCH_NEW_ADDRESS_URL.$get_params;
@@ -61,13 +61,21 @@ class Blockonomics
 
     public function get_price($currency, $crypto)
     {
-        if($crypto == 'BTC'){
+        if($crypto == 'btc'){
             $url = Blockonomics::PRICE_URL. "?currency=$currency";
         }else{
             $url = Blockonomics::BCH_PRICE_URL. "?currency=$currency";
         }
         $response = $this->get($url);
-        return json_decode(wp_remote_retrieve_body($response))->price;
+        if (!isset($responseObj)) $responseObj = new stdClass();
+        $responseObj->{'response_code'} = wp_remote_retrieve_response_code($response);
+        if (wp_remote_retrieve_body($response))
+        {
+          $body = json_decode(wp_remote_retrieve_body($response));
+          $responseObj->{'response_message'} = isset($body->message) ? $body->message : '';
+          $responseObj->{'price'} = isset($body->price) ? $body->price : '';
+        }
+        return $responseObj;
     }
 
     public function update_callback($callback_url, $xpub)
@@ -95,35 +103,40 @@ class Blockonomics
         return $responseObj;
     }
 
-    //Get list of crypto currencies supported by Blockonomics
-	public function getSupportedCurrencies() {
+    /*
+     * Get list of crypto currencies supported by Blockonomics
+     */
+    public function getSupportedCurrencies() {
         return array(
               'btc' => array(
                     'name' => 'Bitcoin',
-                    'uri' => 'bitcoin',
-                    'enabled' => true
+                    'uri' => 'bitcoin'
               ),
               'bch' => array(
                     'name' => 'Bitcoin Cash',
-                    'uri' => 'bitcoincash',
-                    'enabled' => false
+                    'uri' => 'bitcoincash'
               )
           );
     }
 
-	//Get list of active crypto currencies
-	public function getActiveCurrencies() {
-        $active_currencies = $this->getSupportedCurrencies();
-		foreach ($active_currencies as $code => $currency) {
-            if ($code == 'btc'){
-                continue;
-            }else if(get_option('blockonomics_'.$code) == 1){
-                $active_currencies[$code]['enabled'] = true;
+    /*
+     * Get list of active crypto currencies
+     */
+    public function getActiveCurrencies() {
+        $active_currencies = array();
+        $blockonomics_currencies = $this->getSupportedCurrencies();
+        foreach ($blockonomics_currencies as $code => $currency) {
+            if($code == 'btc'){
+                $enabled = true;
+            }else{
+                $enabled = get_option('blockonomics_'.$code);
+            }
+            if($enabled){
+                $active_currencies[$code] = $currency;
             }
         }
-
-		return $active_currencies;
-	}
+        return $active_currencies;
+    }
 
     public function make_withdraw()
     {

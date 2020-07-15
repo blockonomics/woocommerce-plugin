@@ -35,16 +35,64 @@ function getParameterByNameBlocko(name, url) {
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
+//CryptoOptionsController
+app.controller('CryptoOptionsController', function($scope, $interval, Order, $httpParamSerializer, $timeout) {
+    var active_cryptos_div = document.getElementById("active_cryptos");
+    var active_cryptos = JSON.parse(active_cryptos_div.dataset.active_cryptos);
+    $scope.no_display_error = true;
+    $scope.active_cryptos = active_cryptos;
+    $scope.crypto_selecter  = true;
+    //fetch url params
+    $scope.order_id = getParameterByNameBlocko("select_crypto");
+
+    $scope.checkout_order_url = function() {
+        var params = getParameterByNameBlocko('wc-api');
+        if (params)
+            params = {
+                "wc-api": params
+            };
+        else
+            params = {};
+        params.show_order = $scope.order_id;
+        params.crypto = $scope.crypto.code;
+        url = window.location.pathname;
+        var serializedParams = $httpParamSerializer(params);
+        if (serializedParams.length > 0) {
+            url += ((url.indexOf('?') === -1) ? '?' : '&') + serializedParams;
+        }
+        return url;
+    }
+
+    //Select Blockonomics crypto
+    $scope.select_blockonomics_crypto = function(blockonomics_crypto) {
+        $scope.crypto_selecter  = false;
+        $scope.spinner = true;
+        $scope.crypto = $scope.active_cryptos[blockonomics_crypto];
+        $scope.crypto.code = blockonomics_crypto;
+        if (typeof $scope.order_id != 'undefined') {
+            window.location = $scope.checkout_order_url();
+        }
+    }
+});
+
 //CheckoutController
 app.controller('CheckoutController', function($scope, $interval, Order, $httpParamSerializer, $timeout) {
-    //get order id from url
-    $scope.order_id = getParameterByNameBlocko("show_order");
-    var totalProgress = 100;
-    $scope.copyshow = false;
-    $scope.amountcopyshow = false;
-    //blockonomics_time_period is defined on JS file as global var
+    var time_period_div = document.getElementById("time_period");
+    var blockonomics_time_period = time_period_div.dataset.time_period;
     var totalTime = blockonomics_time_period * 60;
-    $scope.display_problems = true;
+    var totalProgress = 100;
+    var active_cryptos_div = document.getElementById("active_cryptos");
+    var active_cryptos = JSON.parse(active_cryptos_div.dataset.active_cryptos);
+    $scope.no_display_error = true;
+    $scope.active_cryptos = active_cryptos;
+    $scope.copyshow = false;
+    //fetch url params
+    $scope.order_id = getParameterByNameBlocko("show_order");
+    var crypto = getParameterByNameBlocko("crypto");
+    $scope.crypto = $scope.active_cryptos[crypto];
+    $scope.crypto.code = crypto;
+
+    check_blockonomics_order();
     //Create url when the order is received 
     $scope.finish_order_url = function() {
         var params = getParameterByNameBlocko('wc-api');
@@ -52,82 +100,16 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
             params = {
                 "wc-api": params
             };
-            else
-                params = {};
-            params.finish_order = $scope.order_id;
-            url = window.location.pathname;
-            var serializedParams = $httpParamSerializer(params);
-            if (serializedParams.length > 0) {
-                url += ((url.indexOf('?') === -1) ? '?' : '&') + serializedParams;
-            }
-            return url;
+        else
+            params = {};
+        params.finish_order = $scope.order_id;
+        url = window.location.pathname;
+        var serializedParams = $httpParamSerializer(params);
+        if (serializedParams.length > 0) {
+            url += ((url.indexOf('?') === -1) ? '?' : '&') + serializedParams;
         }
-    
-    // Select Blockonomics currency
-    $scope.select_blockonomics_currency = function(blockonomics_currency) {
-        $scope.currency = blockonomics_currency;
-        $scope.currency_selecter  = false;
-        $scope.spinner = true;
-        //Check if the bitcoin address is present
-        if (typeof $scope.order_id != 'undefined') {
-            //Fetch the order using address
-            Order.get({
-                "get_order": $scope.order_id,
-                'crypto': $scope.currency
-            }, function(data) {
-                $scope.order = data;
-                //Check the status of the order
-                if ($scope.order.status == -1) {
-                    $scope.clock = $scope.order.timestamp + totalTime - Math.floor(Date.now() / 1000);
-                    //Mark order as expired if we ran out of time
-                    if ($scope.clock < 0) {
-                        $scope.order.status = -3;
-                        return;
-                }
-                $scope.tick_interval = $interval($scope.tick, 1000);
-                    //Connect and Listen on websocket for payment notification
-                    if($scope.currency == 'BTC'){
-                        var ws = new ReconnectingWebSocket("wss://www.blockonomics.co/payment/" + $scope.order.address + "?timestamp=" + $scope.order.timestamp);
-                    }else{
-                        var ws = new ReconnectingWebSocket("wss://" + $scope.currency  + ".blockonomics.co/payment/" + $scope.order.address + "?timestamp=" + $scope.order.timestamp);
-                    }
-                    ws.onmessage = function(evt) {
-                        ws.close();
-                        $timeout(function() {
-                            //Redirect to order received page if message from socket
-                            window.location = $scope.finish_order_url();
-                        //Wait for 2 seconds for order status to update on server
-                    }, 2000, 1);
-                    }
-                }
-                if($scope.order.address && $scope.order.satoshi){
-                $scope.spinner = false;
-                $scope.payment = true;
-                }else{
-                    $scope.addresserror = true;
-                    if($scope.currency == 'BCH'){
-                        $scope.spinner = false;
-                        $scope.bchaddresserror = true;
-                    }else if($scope.currency == 'BTC'){
-                        $scope.spinner = false;
-                        $scope.btcaddresserror = true;
-                    }
-                }
-            });
-        }
+        return url;
     }
-
-    var active_currencies_div = document.getElementById("active_currencies");
-    var active_currencies = JSON.parse(active_currencies_div.dataset.active_currencies);
-    $scope.active_currencies = active_currencies;
-    if($scope.active_currencies.bch.enabled == true){
-            $scope.currency_selecter  = true;
-    }else{
-            $scope.currency_selecter  = false;
-            $scope.select_blockonomics_currency('BTC');
-    }
-
-
 
     //Increment bitcoin timer 
     $scope.tick = function() {
@@ -141,39 +123,58 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         $scope.progress = Math.floor($scope.clock * totalProgress / totalTime);
     };
 
-    //Copy bitcoin address to clipboard
-    $scope.crypto_address_click = function() {
-        var copyText = document.getElementById("bnomics-address-input");
-        copyText.select();
-        document.execCommand("copy");
-        //Open copy clipboard message
-        $scope.copyshow = true;
-        $timeout(function() {
-            $scope.copyshow = false;
-        //Close copy to clipboard message after 2 sec
-    }, 2000);
+    //Proccess the order data
+    function proccess_order_data() {
+        if($scope.order.blockonomics_crypto === 'btc'){
+            var subdomain = 'www';
+        }else{
+            var subdomain = $scope.crypto.code;
+        }
+        //Check the status of the order
+        if ($scope.order.status === -1) {
+            $scope.clock = $scope.order.timestamp + totalTime - Math.floor(Date.now() / 1000);
+            //Mark order as expired if we ran out of time
+            if ($scope.clock < 0) {
+                $scope.order.status = -3;
+                return;
+            }
+            $scope.tick_interval = $interval($scope.tick, 1000);
+            //Connect and Listen on websocket for payment notification
+            var ws = new ReconnectingWebSocket("wss://" + subdomain + ".blockonomics.co/payment/" + $scope.order.addr + "?timestamp=" + $scope.order.timestamp);
+            ws.onmessage = function(evt) {
+                ws.close();
+                $interval(function() {
+                    //Redirect to order received page if message from socket
+                    window.location = $scope.finish_order_url();
+                //Wait for 2 seconds for order status to update on server
+                }, 2000, 1);
+            }
+        }
     }
-    //Copy bitcoin amount to clipboard
-    $scope.crypto_amount_click = function() {
-        var textarea = document.createElement('textarea');
-        textarea.id = 'temp_element';
-        textarea.style.height = 0;
-        document.body.appendChild(textarea);
-        textarea.value = document.getElementById("bnomics-amount-copy").innerText;
-
-        var selector = document.querySelector('#temp_element');
-        selector.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-        select_text("bnomics-amount-copy");
-        //Open copy clipboard message
-        $scope.amountcopyshow = true;
-        $timeout(function() {
-            $scope.amountcopyshow = false;
-        //Close copy to clipboard message after 2 sec
-    }, 2000);
+    
+    //Check if the blockonomics order is present
+    function check_blockonomics_order() {
+        $scope.spinner = true;
+        if (typeof $scope.order_id != 'undefined') {
+            //Fetch the order using order_id
+            Order.get({
+                "get_order": $scope.order_id,
+                "crypto": $scope.crypto.code
+            }, function(data) {
+                $scope.spinner = false;
+                if(data.addr !== undefined){
+                    $scope.order = data;
+                    // show the checkout page
+                    proccess_order_data();
+                    $scope.checkout_panel  = true;
+                }else if($scope.crypto.code === 'btc'){
+                    $scope.address_error_btc = true;
+                }else if($scope.crypto.code === 'bch'){
+                    $scope.address_error_bch = true;
+                }
+            });
+        }
     }
-
 
     function select_text(divid)
     {
@@ -186,7 +187,47 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         selection.addRange(div);
     }
 
+    function copy_to_clipboard(divid)
+    {
+        var textarea = document.createElement('textarea');
+        textarea.id = 'temp_element';
+        textarea.style.height = 0;
+        document.body.appendChild(textarea);
+        textarea.value = document.getElementById(divid).innerText;
+        var selector = document.querySelector('#temp_element');
+        selector.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+
+        select_text(divid);
+
+        if (divid == "bnomics-address-copy") {
+            $scope.address_copyshow = true;
+            $timeout(function() {
+                $scope.address_copyshow = false;
+                //Close copy to clipboard message after 2 sec
+            }, 2000);
+        }else{
+            $scope.amount_copyshow = true;
+            $timeout(function() {
+                $scope.amount_copyshow = false;
+                //Close copy to clipboard message after 2 sec
+            }, 2000);            
+        }
+    }
+
+    //Copy bitcoin address to clipboard
+    $scope.blockonomics_address_click = function() {
+        copy_to_clipboard("bnomics-address-copy");
+    }
+
+    //Copy bitcoin amount to clipboard
+    $scope.blockonomics_amount_click = function() {
+        copy_to_clipboard("bnomics-amount-copy");
+    }
+    //Copy bitcoin address to clipboard
     $scope.try_again_click = function() {
         location.reload();
     }
+
 });
