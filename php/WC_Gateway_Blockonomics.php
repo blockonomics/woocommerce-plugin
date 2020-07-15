@@ -108,7 +108,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
     private function create_order_url($order_id, $order_url){
         include_once 'Blockonomics.php';
         $blockonomics = new Blockonomics;
-        // check if more than one crypto is activated
+        // Check if more than one crypto is activated
         if (count($blockonomics->getActiveCurrencies()) > 1) {
             $order_url = add_query_arg('select_crypto', $order_id, $order_url);
         }else{
@@ -136,9 +136,17 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         if ($payment_check) {
             $this->load_payment_confirmed_template();
         }else if ($show_order && $crypto) {
-            $this->load_checkout_template($show_order, $crypto);
+            if ($this->is_payment_pending($show_order)) {
+                $this->redirect_finish_order($show_order);
+            }else {
+                $this->load_checkout_template($show_order, $crypto);
+            }
         }else if ($select_crypto) {
-            $this->load_crypto_options_template();
+            if ($this->is_payment_pending($select_crypto)) {
+                $this->redirect_finish_order($select_crypto);
+            }else {
+                $this->load_crypto_options_template();
+            }
         }else if ($finish_order) {
             $this->redirect_finish_order($finish_order);
         }else if ($get_order && $crypto) {
@@ -167,6 +175,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         }else{
           get_header();
         }
+
         // Load the selected template
         // Check if child theme or parent theme have overridden the template
         if ( $overridden_template = locate_template( $template ) ) {
@@ -174,6 +183,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         } else {
             load_template( plugin_dir_path(__FILE__)."../templates/" .$template );
         }
+
         // Apply lite-mode footer changes
         if($lite_version){
             // Apply nojs footer changes
@@ -198,6 +208,18 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
     // Load the the payment confirmed tempate in the page
     private function load_payment_confirmed_template(){
         $this->load_blockonomics_template('nojs_payment_confirmed');
+    }
+
+    // Check if any pending payments linked to the order
+    private function is_payment_pending($order_id){
+        $orders = get_option('blockonomics_orders');
+        $network_confirmations = get_option("blockonomics_network_confirmation",2);
+        foreach ($orders[$order_id] as $addr => $order){
+            if ($order['status'] >= 0 && $order['status'] < $network_confirmations){
+                return true;
+            };
+        };
+        return false;
     }
 
     // Load the the checkout tempate in the page
@@ -255,6 +277,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         if ( isset($order['timestamp']) && $order['timestamp'] >= time() - get_option("blockonomics_timeperiod") * 60 ) {
             $timestamp = $order['timestamp'];
             $satoshi = $order['satoshi'];
+            $status = $order['status'];
         }else{
             // Refresh the timestamp and expected satoshi
             $timestamp = time();
@@ -269,12 +292,13 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                 $price = 1;
             }
             $satoshi = intval(round(1.0e8*$wc_order->get_total()/$price));
+            $status = -1;
         }
         $order = array(
                 'value'              => $wc_order->get_total(),
                 'currency'           => get_woocommerce_currency(),
                 'order_id'           => $order_id,
-                'status'             => -1,
+                'status'             => $status,
                 'satoshi'            => $satoshi,
                 'crypto'             => $crypto,
                 'timestamp'          => $timestamp,
