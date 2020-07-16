@@ -3,7 +3,7 @@
 **Tags:** bitcoin, accept bitcoin, bitcoin woocommerce, bitcoin wordpress plugin, bitcoin payments 
 **Requires at least:** 3.0.1 
 **Tested up to:** 5.4
-**Stable tag:** 1.8.3
+**Stable tag:** 1.8.5
 **License:** MIT 
 **License URI:** http://opensource.org/licenses/MIT 
 
@@ -52,7 +52,7 @@ You can operate the plugin in two different modes:
 - In Wordpress Admin > Settings > Blockonomics, paste this API Key and Save Settings 
 - Click on **Test Setup** button to verify installation  
 
-For quick help, ping us on [Telegram Channel](https://t.me/BlockonomicsCo)
+For community support/discussion feel free [to post on our subreddit](https://www.reddit.com/r/blockonomics/)
 
 ## Frequently Asked Questions ## 
 
