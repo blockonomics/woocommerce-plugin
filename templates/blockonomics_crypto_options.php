@@ -1,6 +1,6 @@
 <div id="active_cryptos" data-active_cryptos='<?php echo json_encode(get_option('blockonomics_active_cryptos')); ?>'></div>
 
-<div ng-app="shopping-cart-demo">
+<div ng-app="BlockonomicsApp">
   <div ng-controller="CryptoOptionsController">
     <div class="bnomics-order-container">
       <!-- Spinner -->
