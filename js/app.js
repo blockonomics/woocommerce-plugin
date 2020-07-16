@@ -1,4 +1,7 @@
-service = angular.module("shoppingcart.services", ["ngResource"]);
+(function () {
+'use strict';
+
+var service = angular.module("shoppingcart.services", ["ngResource"]);
 
 service.factory('Order', function($resource) {
     //There are two styles of callback url in 
@@ -15,7 +18,7 @@ service.factory('Order', function($resource) {
         return item;
     });
 
-app = angular.module("shopping-cart-demo", ["monospaced.qrcode", "shoppingcart.services"]);
+var app = angular.module("shopping-cart-demo", ["monospaced.qrcode", "shoppingcart.services"]);
 
 
 app.config(function($compileProvider) {
@@ -55,7 +58,7 @@ app.controller('CryptoOptionsController', function($scope, $interval, Order, $ht
             params = {};
         params.show_order = $scope.order_id;
         params.crypto = $scope.crypto.code;
-        url = window.location.pathname;
+        var url = window.location.pathname;
         var serializedParams = $httpParamSerializer(params);
         if (serializedParams.length > 0) {
             url += ((url.indexOf('?') === -1) ? '?' : '&') + serializedParams;
@@ -103,7 +106,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
         else
             params = {};
         params.finish_order = $scope.order_id;
-        url = window.location.pathname;
+        var url = window.location.pathname;
         var serializedParams = $httpParamSerializer(params);
         if (serializedParams.length > 0) {
             url += ((url.indexOf('?') === -1) ? '?' : '&') + serializedParams;
@@ -178,7 +181,7 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
 
     function select_text(divid)
     {
-        selection = window.getSelection();
+        var selection = window.getSelection();
         var div = document.createRange();
 
         div.setStartBefore(document.getElementById(divid));
@@ -231,3 +234,5 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     }
 
 });
+
+})();
