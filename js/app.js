@@ -1,45 +1,19 @@
 (function () {
 'use strict';
 
-var service = angular.module("shoppingcart.services", ["ngResource"]);
+angular.module('BlockonomicsApp', ['ngResource', 'monospaced.qrcode'])
+.controller('CryptoOptionsController', CryptoOptionsController)
+.controller('CheckoutController', CheckoutController)
+.factory('Order', Order)
+.config(Config);
 
-service.factory('Order', function($resource) {
-    //There are two styles of callback url in 
-    //woocommerce, we have to support both
-    //https://docs.woocommerce.com/document/wc_api-the-woocommerce-api-callback/
-    var param = getParameterByNameBlocko('wc-api');
-    if (param)
-        param = {
-            "wc-api": param
-        };
-        else
-            param = {};
-        var item = $resource(window.location.pathname, param);
-        return item;
-    });
-
-var app = angular.module("shopping-cart-demo", ["monospaced.qrcode", "shoppingcart.services"]);
-
-
-app.config(function($compileProvider) {
-    $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|data|chrome-extension|bitcoin|bitcoincash):/);
-    // Angular before v1.2 uses $compileProvider.urlSanitizationWhitelist(...)
-});
-
-function getParameterByNameBlocko(name, url) {
-    if (!url) {
-        url = window.location.href;
-    }
-    name = name.replace(/[\[\]]/g, "\\$&");
-    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-    results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, " "));
+Config.$inject = ['$compileProvider'];
+function Config($compileProvider) {
+  $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|data|chrome-extension|bitcoin|bitcoincash):/);
 }
 
-//CryptoOptionsController
-app.controller('CryptoOptionsController', function($scope, $interval, Order, $httpParamSerializer, $timeout) {
+CryptoOptionsController.$inject = ['$scope', '$httpParamSerializer'];
+function CryptoOptionsController($scope, $httpParamSerializer) {
     var active_cryptos_div = document.getElementById("active_cryptos");
     var active_cryptos = JSON.parse(active_cryptos_div.dataset.active_cryptos);
     $scope.no_display_error = true;
@@ -76,10 +50,10 @@ app.controller('CryptoOptionsController', function($scope, $interval, Order, $ht
             window.location = $scope.checkout_order_url();
         }
     }
-});
+}
 
-//CheckoutController
-app.controller('CheckoutController', function($scope, $interval, Order, $httpParamSerializer, $timeout) {
+CheckoutController.$inject = ['$scope', '$interval', 'Order', '$httpParamSerializer', '$timeout'];
+function CheckoutController($scope, $interval, Order, $httpParamSerializer, $timeout) {
     var time_period_div = document.getElementById("time_period");
     var blockonomics_time_period = time_period_div.dataset.time_period;
     var totalTime = blockonomics_time_period * 60;
@@ -232,7 +206,34 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     $scope.try_again_click = function() {
         location.reload();
     }
+}
 
-});
+Order.$inject = ['$resource'];
+function Order($resource) {
+    //There are two styles of callback url in 
+    //woocommerce, we have to support both
+    //https://docs.woocommerce.com/document/wc_api-the-woocommerce-api-callback/
+    var param = getParameterByNameBlocko('wc-api');
+    if (param)
+        param = {
+            "wc-api": param
+        };
+    else
+        param = {};
+    var item = $resource(window.location.pathname, param);
+    return item;
+}
+
+function getParameterByNameBlocko(name, url) {
+    if (!url) {
+        url = window.location.href;
+    }
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+    results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
 
 })();
