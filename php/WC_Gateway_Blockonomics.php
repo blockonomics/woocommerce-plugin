@@ -86,15 +86,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
     public function process_payment($order_id)
     {
         $order = new WC_Order($order_id);
-        $success_url = add_query_arg('return_from_blockonomics', true, $this->get_return_url($order));
-
-        // Blockonomics mangles the order param so we have to put it somewhere else and restore it on init
-        $cancel_url = $order->get_cancel_order_url_raw();
-        $cancel_url = add_query_arg('return_from_blockonomics', true, $cancel_url);
-        $cancel_url = add_query_arg('cancelled', true, $cancel_url);
-        $order_key = method_exists( $order, 'get_order_key' ) ? $order->get_order_key() : $order->order_key;
-        $cancel_url = add_query_arg('order_key', $order_key, $cancel_url);
-
         $order_url = WC()->api_request_url('WC_Gateway_Blockonomics');
 
         include_once 'Blockonomics.php';
