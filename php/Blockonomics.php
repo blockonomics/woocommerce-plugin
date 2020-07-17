@@ -305,38 +305,47 @@ class Blockonomics
         return $order_url;
     }
 
-    // Adds the selected template to the blockonomics page
-    public function load_blockonomics_template($template_name){
-        add_action('wp_enqueue_scripts', 'bnomics_enqueue_stylesheets' );
-        // Apply nojs header changes + set nojs_checkout flag
+    // Check if a template is a nojs template
+    public function is_nojs_template($template_name){
         if (strpos($template_name, 'nojs') === 0) {
-            $nojs_checkout = true;
-        }else{
+            return true;
+        }
+        return false;
+    }
+
+    // Check if the nojs setting is activated
+    public function is_nojs_active(){
+        return get_option('blockonomics_nojs', false);
+    }
+
+    // Check if a lite mode setting is activated
+    public function is_lite_mode_active(){
+        return get_option('blockonomics_lite', false);
+    }
+
+    // Adds the header to the blockonomics page
+    public function load_blockonomics_header($template_name){
+        add_action('wp_enqueue_scripts', 'bnomics_enqueue_stylesheets' );
+        // Apply nojs header changes
+        if (!$this->is_nojs_template($template_name)) {
             add_action('wp_enqueue_scripts', 'bnomics_enqueue_scripts' );
         }
-        $template = 'blockonomics_'.$template_name.'.php';
         // Apply lite-mode header
-        $lite_version = get_option('blockonomics_lite');
-        if($lite_version){
+        if($this->is_lite_mode_active()){
         ?>
           <link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/order.css', dirname(__FILE__));?>">
         <?php
         }else{
           get_header();
         }
+    }
 
-        // Load the selected template
-        // Check if child theme or parent theme have overridden the template
-        if ( $overridden_template = locate_template( $template ) ) {
-            load_template( $overridden_template );
-        } else {
-            load_template( plugin_dir_path(__FILE__)."../templates/" .$template );
-        }
-
+    // Adds the footer to the blockonomics page
+    public function load_blockonomics_footer($template_name){
         // Apply lite-mode footer changes
-        if($lite_version){
+        if($this->is_lite_mode_active()){
             // Apply nojs footer changes
-            if (!$nojs_checkout) {
+            if (!$this->is_nojs_template($template_name)) {
                 ?>
                   <script>var ajax_object = {ajax_url:"<?php echo admin_url( 'admin-ajax.php' ); ?>", wc_url:"<?php echo WC()->api_request_url('WC_Gateway_Blockonomics'); ?>"};
                   </script>
@@ -351,6 +360,23 @@ class Blockonomics
         }else{
           get_footer();
         }
+    }
+
+    // Adds the selected template to the blockonomics page
+    public function load_blockonomics_template($template_name){
+        $this->load_blockonomics_header($template_name);
+
+        // Load the selected template
+        // Check if child theme or parent theme have overridden the template
+        $template = 'blockonomics_'.$template_name.'.php';
+        if ( $overridden_template = locate_template( $template ) ) {
+            load_template( $overridden_template );
+        } else {
+            load_template( plugin_dir_path(__FILE__)."../templates/" .$template );
+        }
+
+        $this->load_blockonomics_footer($template_name);
+
         exit();
     }
 
@@ -374,8 +400,7 @@ class Blockonomics
     // Load the the checkout template in the page
     public function load_checkout_template($order_id, $crypto){
         // Check to send the user to nojs page
-        $nojs_version = get_option('blockonomics_nojs', false);
-        if($nojs_version){
+        if($this->is_nojs_active()){
             // Create or update the order for the nojs template
             $this->process_order($order_id, $crypto);
             $this->load_blockonomics_template('nojs_checkout');
@@ -387,8 +412,7 @@ class Blockonomics
     // Load the the crypto options template in the page
     public function load_crypto_options_template(){
         // Check to send the user to nojs page
-        $nojs_version = get_option('blockonomics_nojs', false);
-        if($nojs_version){
+        if($this->is_nojs_active()){
             $this->load_blockonomics_template('nojs_crypto_options');
         }
         else{
