@@ -16,7 +16,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         load_plugin_textdomain('blockonomics-bitcoin-payments', false, dirname(plugin_basename(__FILE__)) . '/languages/');
 
         $this->id   = 'blockonomics';
-        $this->icon = WP_PLUGIN_URL . "/" . plugin_basename(dirname(__FILE__)) . '/bitcoin-icon.png';
+        $this->icon = plugins_url('img', dirname(__FILE__)).'/bitcoin-icon.png';
 
         $this->has_fields        = false;
         $this->order_button_text = __('Pay with bitcoin', 'blockonomics-bitcoin-payments');
