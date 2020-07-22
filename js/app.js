@@ -102,7 +102,7 @@ function CheckoutController($scope, $interval, Order, $httpParamSerializer, $tim
 
     //Proccess the order data
     function proccess_order_data() {
-        if($scope.order.blockonomics_crypto === 'btc'){
+        if($scope.crypto.code === 'btc'){
             var subdomain = 'www';
         }else{
             var subdomain = $scope.crypto.code;
