@@ -375,6 +375,10 @@ color:inherit;
   text-align: center;
 }
 
+.bnomics-try-again {
+  cursor: pointer;
+}
+
 #paytitle::before  {
   background: transparent;
 }

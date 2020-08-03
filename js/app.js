@@ -4,26 +4,29 @@
 angular.module('BlockonomicsApp', ['ngResource', 'monospaced.qrcode'])
 .controller('CryptoOptionsController', CryptoOptionsController)
 .controller('CheckoutController', CheckoutController)
+.service('Parameter', Parameter)
 .factory('Order', Order)
 .config(Config);
 
-Config.$inject = ['$compileProvider'];
-function Config($compileProvider) {
+Config.$inject = ['$compileProvider', '$locationProvider'];
+function Config($compileProvider, $locationProvider) {
   $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|data|chrome-extension|bitcoin|bitcoincash):/);
+  $locationProvider.html5Mode(true)
+  .hashPrefix('');
 }
 
-CryptoOptionsController.$inject = ['$scope', '$httpParamSerializer'];
-function CryptoOptionsController($scope, $httpParamSerializer) {
+CryptoOptionsController.$inject = ['$scope', '$httpParamSerializer', '$window', 'Parameter'];
+function CryptoOptionsController($scope, $httpParamSerializer, $window, Parameter) {
     var active_cryptos_div = document.getElementById("active_cryptos");
     var active_cryptos = JSON.parse(active_cryptos_div.dataset.active_cryptos);
     $scope.no_display_error = true;
     $scope.active_cryptos = active_cryptos;
     $scope.crypto_selecter  = true;
     //fetch url params
-    $scope.order_id = getParameterByNameBlocko("select_crypto");
+    $scope.order_id = Parameter.getByName("select_crypto");
 
     $scope.checkout_order_url = function() {
-        var params = getParameterByNameBlocko('wc-api');
+        var params = Parameter.getByName('wc-api');
         if (params)
             params = {
                 "wc-api": params
@@ -32,7 +35,7 @@ function CryptoOptionsController($scope, $httpParamSerializer) {
             params = {};
         params.show_order = $scope.order_id;
         params.crypto = $scope.crypto.code;
-        var url = window.location.pathname;
+        var url = $window.location.pathname;
         var serializedParams = $httpParamSerializer(params);
         if (serializedParams.length > 0) {
             url += ((url.indexOf('?') === -1) ? '?' : '&') + serializedParams;
@@ -47,13 +50,13 @@ function CryptoOptionsController($scope, $httpParamSerializer) {
         $scope.crypto = $scope.active_cryptos[blockonomics_crypto];
         $scope.crypto.code = blockonomics_crypto;
         if (typeof $scope.order_id != 'undefined') {
-            window.location = $scope.checkout_order_url();
+            $window.location.href = $scope.checkout_order_url();
         }
     }
 }
 
-CheckoutController.$inject = ['$scope', '$interval', 'Order', '$httpParamSerializer', '$timeout'];
-function CheckoutController($scope, $interval, Order, $httpParamSerializer, $timeout) {
+CheckoutController.$inject = ['$scope', '$interval', 'Order', '$httpParamSerializer', '$timeout', '$window', 'Parameter'];
+function CheckoutController($scope, $interval, Order, $httpParamSerializer, $timeout, $window, Parameter) {
     var time_period_div = document.getElementById("time_period");
     var blockonomics_time_period = time_period_div.dataset.time_period;
     var totalTime = blockonomics_time_period * 60;
@@ -64,15 +67,15 @@ function CheckoutController($scope, $interval, Order, $httpParamSerializer, $tim
     $scope.active_cryptos = active_cryptos;
     $scope.copyshow = false;
     //fetch url params
-    $scope.order_id = getParameterByNameBlocko("show_order");
-    var crypto = getParameterByNameBlocko("crypto");
+    $scope.order_id = Parameter.getByName("show_order");
+    var crypto = Parameter.getByName("crypto");
     $scope.crypto = $scope.active_cryptos[crypto];
     $scope.crypto.code = crypto;
 
     check_blockonomics_order();
     //Create url when the order is received 
     $scope.finish_order_url = function() {
-        var params = getParameterByNameBlocko('wc-api');
+        var params = Parameter.getByName('wc-api');
         if (params)
             params = {
                 "wc-api": params
@@ -80,7 +83,7 @@ function CheckoutController($scope, $interval, Order, $httpParamSerializer, $tim
         else
             params = {};
         params.finish_order = $scope.order_id;
-        var url = window.location.pathname;
+        var url = $window.location.pathname;
         var serializedParams = $httpParamSerializer(params);
         if (serializedParams.length > 0) {
             url += ((url.indexOf('?') === -1) ? '?' : '&') + serializedParams;
@@ -122,7 +125,7 @@ function CheckoutController($scope, $interval, Order, $httpParamSerializer, $tim
                 ws.close();
                 $interval(function() {
                     //Redirect to order received page if message from socket
-                    window.location = $scope.finish_order_url();
+                    $window.location.href = $scope.finish_order_url();
                 //Wait for 2 seconds for order status to update on server
                 }, 2000, 1);
             }
@@ -155,7 +158,7 @@ function CheckoutController($scope, $interval, Order, $httpParamSerializer, $tim
 
     function select_text(divid)
     {
-        var selection = window.getSelection();
+        var selection = $window.getSelection();
         var div = document.createRange();
 
         div.setStartBefore(document.getElementById(divid));
@@ -204,36 +207,40 @@ function CheckoutController($scope, $interval, Order, $httpParamSerializer, $tim
     }
     //Copy bitcoin address to clipboard
     $scope.try_again_click = function() {
-        location.reload();
+        $window.location.reload();
     }
 }
 
-Order.$inject = ['$resource'];
-function Order($resource) {
+Order.$inject = ['$resource', '$window', 'Parameter'];
+function Order($resource, $window, Parameter) {
     //There are two styles of callback url in 
     //woocommerce, we have to support both
     //https://docs.woocommerce.com/document/wc_api-the-woocommerce-api-callback/
-    var param = getParameterByNameBlocko('wc-api');
+    var param = Parameter.getByName('wc-api');
     if (param)
         param = {
             "wc-api": param
         };
     else
         param = {};
-    var item = $resource(window.location.pathname, param);
+    var item = $resource($window.location.pathname, param);
     return item;
 }
 
-function getParameterByNameBlocko(name, url) {
-    if (!url) {
-        url = window.location.href;
+Parameter.$inject = ['$window'];
+function Parameter($window) {
+    var parameter = this;
+
+    parameter.getByName = function(name, url) {
+        if (!url)
+            url = $window.location.href;
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
-    name = name.replace(/[\[\]]/g, "\\$&");
-    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-    results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
 })();
