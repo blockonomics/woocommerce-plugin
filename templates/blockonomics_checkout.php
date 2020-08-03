@@ -90,11 +90,19 @@ if($lite_version){
             </div>
           </div>
           <!-- Display Error -->
-          <div class="bnomics-display-error" style="text-align: center;" ng-hide="display_problems">
+          <div id="render-error" class="bnomics-display-error" style="text-align: center; display:none;" ng-hide="display_problems">
             <h4>Display Error</h4>
             <h4><i class="material-icons bnomics-alt-icon">error</i></h4>
             <?= __('Unable to render correctly, Note to Administrator: Please enable lite mode in Blockonomics plugin.', 'blockonomics-bitcoin-payments') ?>
           </div>
+          <!-- JS is disabled Error -->
+          <noscript>
+          <div class="bnomics-js-error" style="text-align: center;">
+            <h4>JavaScript is disabled</h4>
+            <h4><i class="material-icons bnomics-alt-icon">error</i></h4>
+            <?= __('This page requires javascript. Enable javascript or use a javascript enabled browser and try again', 'blockonomics-bitcoin-payments') ?>
+          </div>
+          </noscript>
           <?php if (get_option('blockonomics_altcoins')) : ?>
           <div class="bnomics-altcoin-pane" ng-style="{'border-left': (altcoin_waiting)?'none':''}" ng-hide="show_altcoin != 1">
             <div class="bnomics-altcoin-bg">
