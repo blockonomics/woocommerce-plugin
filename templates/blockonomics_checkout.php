@@ -127,9 +127,6 @@ if($lite_version){
       </div>
     </div>
     <script>
-    var blockonomics_time_period=<?php echo get_option('blockonomics_timeperiod', 10); ?>;
-    </script>
-    <script>
     var get_uuid="<?php if(isset($_REQUEST['uuid'])){echo $_REQUEST['uuid'];} ?>";
     </script>
   </div>

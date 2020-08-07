@@ -194,6 +194,10 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         }
         $address = isset($_REQUEST['get_order']) ? $_REQUEST['get_order'] : "";
         if ($address) {
+            $orders[$address]['time'] = array(
+                'remaining'           => $orders[$address]['timestamp'] + get_option("blockonomics_timeperiod", 10)*60 - time(),
+                'total'               => get_option("blockonomics_timeperiod", 10)*60
+            );
             header("Content-Type: application/json");
             exit(json_encode($orders[$address]));
         }

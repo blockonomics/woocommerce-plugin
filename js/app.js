@@ -81,8 +81,6 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
     $scope.address = getParameterByNameBlocko("show_order");
     var totalProgress = 100;
     $scope.copyshow = false;
-    //blockonomics_time_period is defined on JS file as global var
-    var totalTime = blockonomics_time_period * 60;
     document.getElementById('render-error').style.display='none';
     //Create url when the order is received 
     $scope.finish_order_url = function() {
@@ -119,18 +117,6 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
             }
             return url;
         }
-
-    //Increment bitcoin timer 
-    $scope.tick = function() {
-        $scope.clock = $scope.clock - 1;
-        $scope.progress = Math.floor($scope.clock * totalProgress / totalTime);
-        if ($scope.clock < 0) {
-            $scope.clock = 0;
-            //Order expired
-            $scope.order.status = -3;
-        }
-        $scope.progress = Math.floor($scope.clock * totalProgress / totalTime);
-    };
 
     //Pay with altcoin button clicked
     $scope.pay_altcoins = function() {
@@ -228,15 +214,27 @@ app.controller('CheckoutController', function($scope, $interval, Order, $httpPar
             $scope.order.altcoin = $scope.altcoin;
             //Check the status of the order
             if ($scope.order.status == -1) {
-                $scope.clock = $scope.order.timestamp + totalTime - Math.floor(Date.now() / 1000);
+                $scope.clock = $scope.order.time.remaining;
+                var totalTime = $scope.order.time.total;
                 //Mark order as expired if we ran out of time
                 if ($scope.clock < 0) {
                  $scope.order.status = -3;
                  return;
              }
+             //Increment bitcoin timer 
+             $scope.tick = function() {
+                $scope.clock = $scope.clock - 1;
+                $scope.progress = Math.floor($scope.clock * totalProgress / totalTime);
+                if ($scope.clock < 0) {
+                    $scope.clock = 0;
+                    //Order expired
+                    $scope.order.status = -3;
+                }
+                $scope.progress = Math.floor($scope.clock * totalProgress / totalTime);
+             };
              $scope.tick_interval = $interval($scope.tick, 1000);
                 //Connect and Listen on websocket for payment notification
-                var ws = new ReconnectingWebSocket("wss://www.blockonomics.co/payment/" + $scope.order.address + "?timestamp=" + $scope.order.timestamp);
+                var ws = new ReconnectingWebSocket("wss://www.blockonomics.co/payment/" + $scope.order.address);
                 ws.onmessage = function(evt) {
                     ws.close();
                     $timeout(function() {
