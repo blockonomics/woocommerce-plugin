@@ -1,7 +1,6 @@
 <div id="time_period" data-time_period="<?php echo get_option('blockonomics_timeperiod', 10); ?>"></div>
 <div id="active_cryptos" data-active_cryptos='<?php echo json_encode(get_option('blockonomics_active_cryptos')); ?>'></div>
 
-<base href="/" />
 <div ng-app="BlockonomicsApp">
   <div ng-controller="CheckoutController">
     <div class="bnomics-order-container">
@@ -35,7 +34,7 @@
       <!-- Payment Expired -->
       <div class="bnomics-order-expired-wrapper" ng-show="order.status == -3" ng-cloak>
         <h3 class="warning bnomics-status-warning">Payment Expired</h3><br>
-        <p><a class="bnomics-try-again" ng-click="try_again_click()">Click here to try again</a></p>
+        <p><a href="#" ng-click="try_again_click()">Click here to try again</a></p>
       </div>
       <!-- Payment Error -->
       <div class="bnomics-order-error-wrapper" ng-show="order.status == -2" ng-cloak>
