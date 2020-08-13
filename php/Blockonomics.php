@@ -389,9 +389,11 @@ class Blockonomics
     public function is_payment_pending($order_id){
         $orders = get_option('blockonomics_orders');
         $network_confirmations = get_option("blockonomics_network_confirmation",2);
-        foreach ($orders[$order_id] as $addr => $order){
-            if ($order['status'] >= 0 && $order['status'] < $network_confirmations){
-                return true;
+        if (in_array($order_id, $orders)){
+            foreach ($orders[$order_id] as $addr => $order){
+                if ($order['status'] >= 0 && $order['status'] < $network_confirmations){
+                    return true;
+                };
             };
         };
         return false;
