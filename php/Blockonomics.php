@@ -383,7 +383,7 @@ class Blockonomics
     }
 
     // Load the the payment confirmed template in the page
-    public function load_payment_confirmation_template(){
+    public function load_nojs_payment_confirmation_template(){
         $this->load_blockonomics_template('nojs_payment_confirmation');
     }
 

@@ -117,7 +117,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $blockonomics = new Blockonomics;
 
         if ($payment_check) {
-            $blockonomics->load_payment_confirmation_template();
+            $blockonomics->load_nojs_payment_confirmation_template();
         }else if ($show_order && $crypto) {
             if ($blockonomics->is_payment_pending($show_order)) {
                 $blockonomics->redirect_finish_order($show_order);
