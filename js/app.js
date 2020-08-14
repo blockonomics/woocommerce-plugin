@@ -160,7 +160,7 @@ function CheckoutController($scope, $interval, Order, $timeout, Url) {
     $scope.blockonomics_amount_click = function() {
         copy_to_clipboard("bnomics-amount-copy");
     }
-    //Copy bitcoin address to clipboard
+    //Reload the page if user clicks try again after the order expires
     $scope.try_again_click = function() {
         location.reload();
     }
