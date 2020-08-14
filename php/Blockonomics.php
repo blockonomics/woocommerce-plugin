@@ -328,7 +328,7 @@ class Blockonomics
     // Adds the header to the blockonomics page
     public function load_blockonomics_header($template_name){
         add_action('wp_enqueue_scripts', 'bnomics_enqueue_stylesheets' );
-        // Apply nojs header changes
+        // Don't load javascript files if no js is active
         if (!$this->is_nojs_template($template_name)) {
             add_action('wp_enqueue_scripts', 'bnomics_enqueue_scripts' );
         }
@@ -344,9 +344,9 @@ class Blockonomics
 
     // Adds the footer to the blockonomics page
     public function load_blockonomics_footer($template_name){
-        // Apply lite-mode footer changes
+        // Lite mode will render without wordpress theme footers
         if($this->is_lite_mode_active()){
-            // Apply nojs footer changes
+            // Only load the lite mode javascript if nojs is not active
             if (!$this->is_nojs_template($template_name)) {
                 ?>
                   <script>var ajax_object = {ajax_url:"<?php echo admin_url( 'admin-ajax.php' ); ?>", wc_url:"<?php echo WC()->api_request_url('WC_Gateway_Blockonomics'); ?>"};
