@@ -450,13 +450,14 @@ class Blockonomics
         }
         $wc_order = new WC_Order($order_id);
         $order = $orders[$order_id][$address];
-        // Check if order has not expired yet
+        // Check if new order and has not expired yet
         if ( isset($order['timestamp']) && $order['timestamp'] >= time() - get_option("blockonomics_timeperiod") * 60 ) {
             $timestamp = $order['timestamp'];
             $satoshi = $order['satoshi'];
             $status = $order['status'];
         }else{
-            // Refresh the timestamp and expected satoshi
+            // Get the timestamp and expected satoshi if new
+            // Refresh the timestamp and expected satoshi if expired
             $timestamp = time();
             if(get_woocommerce_currency() != 'BTC'){
                 $responseObj = $blockonomics->get_price(get_woocommerce_currency(), $crypto);
