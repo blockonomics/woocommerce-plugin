@@ -168,17 +168,7 @@ function CheckoutController($scope, $interval, Order, $timeout, Url) {
 
 Order.$inject = ['$resource', 'Url'];
 function Order($resource, Url) {
-    //There are two styles of callback url in 
-    //woocommerce, we have to support both
-    //https://docs.woocommerce.com/document/wc_api-the-woocommerce-api-callback/
-    var param = Url.get_parameter_by_name('wc-api');
-    if (param)
-        param = {
-            "wc-api": param
-        };
-    else
-        param = {};
-    var item = $resource(window.location.pathname, param);
+    var item = $resource(Url.get_wc_endpoint());
     return item;
 }
 
@@ -198,8 +188,10 @@ function Url($httpParamSerializer) {
         return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
 
-
-    service.get_wc_endpoint = function(param, order_id, crypto_code = '') {
+    //There are two styles of callback url in 
+    //woocommerce, we have to support both
+    //https://docs.woocommerce.com/document/wc_api-the-woocommerce-api-callback/
+    service.get_wc_endpoint = function(new_param = '', order_id = '', crypto_code = '') {
         var params = service.get_parameter_by_name('wc-api');
         if (params)
             params = {
@@ -207,7 +199,9 @@ function Url($httpParamSerializer) {
             };
         else
             params = {};
-        params[param] = order_id;
+        if (new_param) {
+            params[new_param] = order_id;
+        }
         if (crypto_code) {
             params.crypto = crypto_code;
         }
