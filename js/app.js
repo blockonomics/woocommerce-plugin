@@ -27,9 +27,8 @@ function CryptoOptionsController($scope, Url) {
     $scope.select_blockonomics_crypto = function(blockonomics_crypto) {
         $scope.crypto_selecter  = false;
         $scope.spinner = true;
-        $scope.crypto = $scope.active_cryptos[blockonomics_crypto];
         if (typeof $scope.order_id != 'undefined') {
-            window.location = Url.get_wc_endpoint('show_order', $scope.order_id, $scope.crypto.code);
+            window.location = Url.get_wc_endpoint('show_order', $scope.order_id, blockonomics_crypto);
         }
     }
 }
