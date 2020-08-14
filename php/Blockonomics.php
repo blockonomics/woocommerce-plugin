@@ -332,7 +332,7 @@ class Blockonomics
         if (!$this->is_nojs_template($template_name)) {
             add_action('wp_enqueue_scripts', 'bnomics_enqueue_scripts' );
         }
-        // Apply lite-mode header
+        // Lite mode will render without wordpress theme headers
         if($this->is_lite_mode_active()){
         ?>
           <link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/order.css', dirname(__FILE__));?>">
