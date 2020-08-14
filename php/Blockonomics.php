@@ -109,10 +109,12 @@ class Blockonomics
     public function getSupportedCurrencies() {
         return array(
               'btc' => array(
+                    'code' => 'btc',
                     'name' => 'Bitcoin',
                     'uri' => 'bitcoin'
               ),
               'bch' => array(
+                    'code' => 'btc',
                     'name' => 'Bitcoin Cash',
                     'uri' => 'bitcoincash'
               )
@@ -484,6 +486,9 @@ class Blockonomics
         $orders[$order_id][$address] = $order;
         update_option('blockonomics_orders', $orders);
         update_post_meta($order_id, $crypto .'_address', $address);
+
+        $order['crypto'] = $blockonomics->getActiveCurrencies()[$crypto];
+        
         return $order;
     }
 

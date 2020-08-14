@@ -58,16 +58,10 @@ function CheckoutController($scope, $interval, Order, $httpParamSerializer, $tim
     var blockonomics_time_period = time_period_div.dataset.time_period;
     var totalTime = blockonomics_time_period * 60;
     var totalProgress = 100;
-    var active_cryptos_div = document.getElementById("active_cryptos");
-    var active_cryptos = JSON.parse(active_cryptos_div.dataset.active_cryptos);
     $scope.no_display_error = true;
-    $scope.active_cryptos = active_cryptos;
     $scope.copyshow = false;
     //fetch url params
     $scope.order_id = getParameterByNameBlocko("show_order");
-    var crypto = getParameterByNameBlocko("crypto");
-    $scope.crypto = $scope.active_cryptos[crypto];
-    $scope.crypto.code = crypto;
 
     check_blockonomics_order();
     //Create url when the order is received 
@@ -102,10 +96,10 @@ function CheckoutController($scope, $interval, Order, $httpParamSerializer, $tim
 
     //Proccess the order data
     function proccess_order_data() {
-        if($scope.crypto.code === 'btc'){
+        if($scope.order.crypto.code === 'btc'){
             var subdomain = 'www';
         }else{
-            var subdomain = $scope.crypto.code;
+            var subdomain = $scope.order.crypto.code;
         }
         //Check the status of the order
         if ($scope.order.status === -1) {
@@ -136,7 +130,7 @@ function CheckoutController($scope, $interval, Order, $httpParamSerializer, $tim
             //Fetch the order using order_id
             Order.get({
                 "get_order": $scope.order_id,
-                "crypto": $scope.crypto.code
+                "crypto": getParameterByNameBlocko("crypto")
             }, function(data) {
                 $scope.spinner = false;
                 if(data.addr !== undefined){

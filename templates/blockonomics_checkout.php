@@ -1,5 +1,4 @@
 <div id="time_period" data-time_period="<?php echo get_option('blockonomics_timeperiod', 10); ?>"></div>
-<div id="active_cryptos" data-active_cryptos='<?php echo json_encode(get_option('blockonomics_active_cryptos')); ?>'></div>
 
 <div ng-app="BlockonomicsApp">
   <div ng-controller="CheckoutController">
@@ -49,24 +48,24 @@
               <!-- QR and Open in wallet -->
               <div class="bnomics-qr-code">
                 <div class="bnomics-qr">
-                  <a href="{{crypto.uri}}:{{order.addr}}?amount={{order.satoshi/1.0e8}}" target="_blank">
-                    <qrcode data="{{crypto.uri}}:{{order.addr}}?amount={{order.satoshi/1.0e8}}" size="160" version="6">
+                  <a href="{{order.crypto.uri}}:{{order.addr}}?amount={{order.satoshi/1.0e8}}" target="_blank">
+                    <qrcode data="{{order.crypto.uri}}:{{order.addr}}?amount={{order.satoshi/1.0e8}}" size="160" version="6">
                       <canvas class="qrcode"></canvas>
                     </qrcode>
                   </a>
                 </div>
-                <div class="bnomics-qr-code-hint"><a href="{{crypto.uri}}:{{order.addr}}?amount={{order.satoshi/1.0e8}}" target="_blank">Open in wallet</a></div>
+                <div class="bnomics-qr-code-hint"><a href="{{order.crypto.uri}}:{{order.addr}}?amount={{order.satoshi/1.0e8}}" target="_blank">Open in wallet</a></div>
               </div>
               <!-- Right Side -->
               <div class="bnomics-amount">
                 <div class="bnomics-bg">
                   <!-- Order Amounts -->
                   <div class="bnomics-amount">
-                    <div class="bnomics-amount-text" ng-hide="amount_copyshow" ng-cloak>To pay, send exactly this {{crypto.code | uppercase}} amount</div>
+                    <div class="bnomics-amount-text" ng-hide="amount_copyshow" ng-cloak>To pay, send exactly this {{order.crypto.code | uppercase}} amount</div>
                     <div class="bnomics-copy-amount-text" ng-show="amount_copyshow" ng-cloak>Copied to clipboard</div>
                     <ul ng-click="blockonomics_amount_click()" id="bnomics-amount-input" class="bnomics-amount-input">
                         <li id="bnomics-amount-copy">{{order.satoshi/1.0e8}}</li>
-                        <li>{{order.crypto | uppercase}}</li>
+                        <li>{{order.crypto.code | uppercase}}</li>
                         <li class="bnomics-grey"> ≈ </li>
                         <li class="bnomics-grey">{{order.value}}</li>
                         <li class="bnomics-grey">{{order.currency}}</li>
@@ -74,7 +73,7 @@
                   </div>
                   <!-- Order Address -->
                   <div class="bnomics-address">
-                    <div class="bnomics-address-text" ng-hide="address_copyshow" ng-cloak>To this {{crypto.name | lowercase}} address</div>
+                    <div class="bnomics-address-text" ng-hide="address_copyshow" ng-cloak>To this {{order.crypto.name | lowercase}} address</div>
                     <div class="bnomics-copy-address-text" ng-show="address_copyshow" ng-cloak>Copied to clipboard</div>
                     <ul ng-click="blockonomics_address_click()" id="bnomics-address-input" class="bnomics-address-input">
                           <li id="bnomics-address-copy">{{order.addr}}</li>
