@@ -5,6 +5,7 @@ angular.module('BlockonomicsApp', ['ngResource', 'monospaced.qrcode'])
 .controller('CryptoOptionsController', CryptoOptionsController)
 .controller('CheckoutController', CheckoutController)
 .factory('Order', Order)
+.service('Url', Url)
 .config(Config);
 
 Config.$inject = ['$compileProvider'];
@@ -12,48 +13,29 @@ function Config($compileProvider) {
   $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|data|chrome-extension|bitcoin|bitcoincash):/);
 }
 
-CryptoOptionsController.$inject = ['$scope', '$httpParamSerializer'];
-function CryptoOptionsController($scope, $httpParamSerializer) {
+CryptoOptionsController.$inject = ['$scope', 'Url'];
+function CryptoOptionsController($scope, Url) {
     var active_cryptos_div = document.getElementById("active_cryptos");
     var active_cryptos = JSON.parse(active_cryptos_div.dataset.active_cryptos);
     $scope.no_display_error = true;
     $scope.active_cryptos = active_cryptos;
     $scope.crypto_selecter  = true;
     //fetch url params
-    $scope.order_id = getParameterByNameBlocko("select_crypto");
-
-    $scope.checkout_order_url = function() {
-        var params = getParameterByNameBlocko('wc-api');
-        if (params)
-            params = {
-                "wc-api": params
-            };
-        else
-            params = {};
-        params.show_order = $scope.order_id;
-        params.crypto = $scope.crypto.code;
-        var url = window.location.pathname;
-        var serializedParams = $httpParamSerializer(params);
-        if (serializedParams.length > 0) {
-            url += ((url.indexOf('?') === -1) ? '?' : '&') + serializedParams;
-        }
-        return url;
-    }
+    $scope.order_id = Url.get_parameter_by_name("select_crypto");
 
     //Select Blockonomics crypto
     $scope.select_blockonomics_crypto = function(blockonomics_crypto) {
         $scope.crypto_selecter  = false;
         $scope.spinner = true;
         $scope.crypto = $scope.active_cryptos[blockonomics_crypto];
-        $scope.crypto.code = blockonomics_crypto;
         if (typeof $scope.order_id != 'undefined') {
-            window.location = $scope.checkout_order_url();
+            window.location = Url.get_wc_endpoint('show_order', $scope.order_id, $scope.crypto.code);
         }
     }
 }
 
-CheckoutController.$inject = ['$scope', '$interval', 'Order', '$httpParamSerializer', '$timeout'];
-function CheckoutController($scope, $interval, Order, $httpParamSerializer, $timeout) {
+CheckoutController.$inject = ['$scope', '$interval', 'Order', '$timeout', 'Url'];
+function CheckoutController($scope, $interval, Order, $timeout, Url) {
     var time_period_div = document.getElementById("time_period");
     var blockonomics_time_period = time_period_div.dataset.time_period;
     var totalTime = blockonomics_time_period * 60;
@@ -61,26 +43,9 @@ function CheckoutController($scope, $interval, Order, $httpParamSerializer, $tim
     $scope.no_display_error = true;
     $scope.copyshow = false;
     //fetch url params
-    $scope.order_id = getParameterByNameBlocko("show_order");
+    $scope.order_id = Url.get_parameter_by_name("show_order");
 
     check_blockonomics_order();
-    //Create url when the order is received 
-    $scope.finish_order_url = function() {
-        var params = getParameterByNameBlocko('wc-api');
-        if (params)
-            params = {
-                "wc-api": params
-            };
-        else
-            params = {};
-        params.finish_order = $scope.order_id;
-        var url = window.location.pathname;
-        var serializedParams = $httpParamSerializer(params);
-        if (serializedParams.length > 0) {
-            url += ((url.indexOf('?') === -1) ? '?' : '&') + serializedParams;
-        }
-        return url;
-    }
 
     //Increment bitcoin timer 
     $scope.tick = function() {
@@ -116,7 +81,7 @@ function CheckoutController($scope, $interval, Order, $httpParamSerializer, $tim
                 ws.close();
                 $interval(function() {
                     //Redirect to order received page if message from socket
-                    window.location = $scope.finish_order_url();
+                    window.location = Url.get_wc_endpoint('finish_order', $scope.order_id);
                 //Wait for 2 seconds for order status to update on server
                 }, 2000, 1);
             }
@@ -130,7 +95,7 @@ function CheckoutController($scope, $interval, Order, $httpParamSerializer, $tim
             //Fetch the order using order_id
             Order.get({
                 "get_order": $scope.order_id,
-                "crypto": getParameterByNameBlocko("crypto")
+                "crypto": Url.get_parameter_by_name("crypto")
             }, function(data) {
                 $scope.spinner = false;
                 if(data.addr !== undefined){
@@ -202,12 +167,12 @@ function CheckoutController($scope, $interval, Order, $httpParamSerializer, $tim
     }
 }
 
-Order.$inject = ['$resource'];
-function Order($resource) {
+Order.$inject = ['$resource', 'Url'];
+function Order($resource, Url) {
     //There are two styles of callback url in 
     //woocommerce, we have to support both
     //https://docs.woocommerce.com/document/wc_api-the-woocommerce-api-callback/
-    var param = getParameterByNameBlocko('wc-api');
+    var param = Url.get_parameter_by_name('wc-api');
     if (param)
         param = {
             "wc-api": param
@@ -218,16 +183,42 @@ function Order($resource) {
     return item;
 }
 
-function getParameterByNameBlocko(name, url) {
-    if (!url) {
-        url = window.location.href;
+Url.$inject = ['$httpParamSerializer'];
+function Url($httpParamSerializer) {
+    var service = this;
+
+    service.get_parameter_by_name = function(name, url) {
+        if (!url) {
+            url = window.location.href;
+        }
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
-    name = name.replace(/[\[\]]/g, "\\$&");
-    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-    results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, " "));
+
+
+    service.get_wc_endpoint = function(param, order_id, crypto_code = '') {
+        var params = service.get_parameter_by_name('wc-api');
+        if (params)
+            params = {
+                "wc-api": params
+            };
+        else
+            params = {};
+        params[param] = order_id;
+        if (crypto_code) {
+            params.crypto = crypto_code;
+        }
+        var url = window.location.pathname;
+        var serializedParams = $httpParamSerializer(params);
+        if (serializedParams.length > 0) {
+            url += ((url.indexOf('?') === -1) ? '?' : '&') + serializedParams;
+        }
+        return url;
+    }
 }
 
 })();
