@@ -119,17 +119,9 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         if ($payment_check) {
             $blockonomics->load_nojs_payment_confirmation_template();
         }else if ($show_order && $crypto) {
-            if ($blockonomics->is_payment_pending($show_order)) {
-                $blockonomics->redirect_finish_order($show_order);
-            }else {
-                $blockonomics->load_checkout_template($show_order, $crypto);
-            }
+            $blockonomics->load_checkout_template($show_order, $crypto);
         }else if ($select_crypto) {
-            if ($blockonomics->is_payment_pending($select_crypto)) {
-                $blockonomics->redirect_finish_order($select_crypto);
-            }else {
-                $blockonomics->load_crypto_options_template();
-            }
+            $blockonomics->load_crypto_options_template();
         }else if ($finish_order) {
             $blockonomics->redirect_finish_order($finish_order);
         }else if ($get_order && $crypto) {

@@ -75,7 +75,7 @@ function CheckoutController($scope, $interval, Order, $timeout, Url) {
             }
             $scope.tick_interval = $interval($scope.tick, 1000);
             //Connect and Listen on websocket for payment notification
-            var ws = new ReconnectingWebSocket("wss://" + subdomain + ".blockonomics.co/payment/" + $scope.order.addr + "?timestamp=" + $scope.order.timestamp);
+            var ws = new ReconnectingWebSocket("wss://" + subdomain + ".blockonomics.co/payment/" + $scope.order.address + "?timestamp=" + $scope.order.timestamp);
             ws.onmessage = function(evt) {
                 ws.close();
                 $interval(function() {
@@ -97,14 +97,14 @@ function CheckoutController($scope, $interval, Order, $timeout, Url) {
                 "crypto": Url.get_parameter_by_name("crypto")
             }, function(data) {
                 $scope.spinner = false;
-                if(data.addr !== undefined){
+                if(data.address !== undefined){
                     $scope.order = data;
                     // show the checkout page
                     proccess_order_data();
                     $scope.checkout_panel  = true;
-                }else if($scope.crypto.code === 'btc'){
+                }else if(data.crypto.code === 'btc'){
                     $scope.address_error_btc = true;
-                }else if($scope.crypto.code === 'bch'){
+                }else if(data.crypto.code === 'bch'){
                     $scope.address_error_bch = true;
                 }
             });

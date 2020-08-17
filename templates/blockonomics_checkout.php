@@ -48,13 +48,13 @@
               <!-- QR and Open in wallet -->
               <div class="bnomics-qr-code">
                 <div class="bnomics-qr">
-                  <a href="{{order.crypto.uri}}:{{order.addr}}?amount={{order.satoshi/1.0e8}}" target="_blank">
-                    <qrcode data="{{order.crypto.uri}}:{{order.addr}}?amount={{order.satoshi/1.0e8}}" size="160" version="6">
+                  <a href="{{order.crypto.uri}}:{{order.address}}?amount={{order.satoshi/1.0e8}}" target="_blank">
+                    <qrcode data="{{order.crypto.uri}}:{{order.address}}?amount={{order.satoshi/1.0e8}}" size="160" version="6">
                       <canvas class="qrcode"></canvas>
                     </qrcode>
                   </a>
                 </div>
-                <div class="bnomics-qr-code-hint"><a href="{{order.crypto.uri}}:{{order.addr}}?amount={{order.satoshi/1.0e8}}" target="_blank">Open in wallet</a></div>
+                <div class="bnomics-qr-code-hint"><a href="{{order.crypto.uri}}:{{order.address}}?amount={{order.satoshi/1.0e8}}" target="_blank">Open in wallet</a></div>
               </div>
               <!-- Right Side -->
               <div class="bnomics-amount">
@@ -76,7 +76,7 @@
                     <div class="bnomics-address-text" ng-hide="address_copyshow" ng-cloak>To this {{order.crypto.name | lowercase}} address</div>
                     <div class="bnomics-copy-address-text" ng-show="address_copyshow" ng-cloak>Copied to clipboard</div>
                     <ul ng-click="blockonomics_address_click()" id="bnomics-address-input" class="bnomics-address-input">
-                          <li id="bnomics-address-copy">{{order.addr}}</li>
+                          <li id="bnomics-address-copy">{{order.address}}</li>
                     </ul>
                   </div>
                   <!-- Order Countdown Timer -->
