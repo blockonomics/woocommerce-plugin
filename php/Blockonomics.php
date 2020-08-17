@@ -547,9 +547,9 @@ class Blockonomics
 
     // Save the received payment info to the WooCommerce order
     public function record_payment($value, $order, $wc_order){
-        update_post_meta($wc_order->get_id(), 'paid_'. $order['crypto'] .'_amount', $value/1.0e8);
+        update_post_meta($wc_order->get_id(), 'paid_'. $order['crypto'], $value/1.0e8);
         update_post_meta($wc_order->get_id(), 'blockonomics_'. $order['crypto'] .'_txid', $order['txid']);
-        update_post_meta($wc_order->get_id(), 'expected_'. $order['crypto'] .'_amount', $order['satoshi']/1.0e8);
+        update_post_meta($wc_order->get_id(), 'expected_'. $order['crypto'], $order['satoshi']/1.0e8);
     }
 
     public function check_for_late_payment($status, $order, $wc_order){
@@ -564,7 +564,7 @@ class Blockonomics
 
     public function is_payment_recorded($status, $order, $wc_order){
         $network_confirmations = get_option("blockonomics_network_confirmation",2);
-        if ($status >= $network_confirmations && !metadata_exists('post',$wc_order->get_id(),'paid_'. $order['crypto'] .'_amount') )  {
+        if ($status >= $network_confirmations && !metadata_exists('post',$wc_order->get_id(),'paid_'. $order['crypto']) )  {
             return false;
         }
         return true;
