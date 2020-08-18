@@ -28,7 +28,8 @@ function CryptoOptionsController($scope, Url) {
         $scope.crypto_selecter  = false;
         $scope.spinner = true;
         if (typeof $scope.order_id != 'undefined') {
-            window.location = Url.get_wc_endpoint('show_order', $scope.order_id, blockonomics_crypto);
+            window.location = Url.get_wc_endpoint({'show_order': $scope.order_id,
+                                                   'crypto': blockonomics_crypto});
         }
     }
 }
@@ -38,7 +39,7 @@ function CheckoutController($scope, $interval, Order, $timeout, Url) {
     var active_cryptos_div = document.getElementById("active_cryptos"); 
     var active_cryptos = JSON.parse(active_cryptos_div.dataset.active_cryptos);
     var crypto_code = Url.get_parameter_by_name("crypto");    
-    $scope.crypto = $scope.active_cryptos[crypto];
+    $scope.crypto = active_cryptos[crypto_code];
 
     var time_period_div = document.getElementById("time_period");
     var blockonomics_time_period = time_period_div.dataset.time_period;
@@ -85,7 +86,7 @@ function CheckoutController($scope, $interval, Order, $timeout, Url) {
                 ws.close();
                 $interval(function() {
                     //Redirect to order received page if message from socket
-                    window.location = Url.get_wc_endpoint('finish_order', $scope.order_id);
+                    window.location = Url.get_wc_endpoint({'finish_order' : $scope.order_id});
                 //Wait for 2 seconds for order status to update on server
                 }, 2000, 1);
             }
@@ -196,7 +197,7 @@ function Url($httpParamSerializer) {
     //There are two styles of callback url in 
     //woocommerce, we have to support both
     //https://docs.woocommerce.com/document/wc_api-the-woocommerce-api-callback/
-    service.get_wc_endpoint = function(new_param = '', order_id = '', crypto_code = '') {
+    service.get_wc_endpoint = function(new_params = {}) {
         var params = service.get_parameter_by_name('wc-api');
         if (params)
             params = {
@@ -204,11 +205,8 @@ function Url($httpParamSerializer) {
             };
         else
             params = {};
-        if (new_param) {
-            params[new_param] = order_id;
-        }
-        if (crypto_code) {
-            params.crypto = crypto_code;
+        for (var key in new_params) {
+            params[key] = new_params[key];
         }
         var url = window.location.pathname;
         var serializedParams = $httpParamSerializer(params);
