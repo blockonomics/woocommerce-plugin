@@ -35,6 +35,11 @@ function CryptoOptionsController($scope, Url) {
 
 CheckoutController.$inject = ['$scope', '$interval', 'Order', '$timeout', 'Url'];
 function CheckoutController($scope, $interval, Order, $timeout, Url) {
+    var active_cryptos_div = document.getElementById("active_cryptos"); 
+    var active_cryptos = JSON.parse(active_cryptos_div.dataset.active_cryptos);
+    var crypto_code = Url.get_parameter_by_name("crypto");    
+    $scope.crypto = $scope.active_cryptos[crypto];
+
     var time_period_div = document.getElementById("time_period");
     var blockonomics_time_period = time_period_div.dataset.time_period;
     var totalTime = blockonomics_time_period * 60;
@@ -60,10 +65,10 @@ function CheckoutController($scope, $interval, Order, $timeout, Url) {
 
     //Proccess the order data
     function proccess_order_data() {
-        if($scope.order.crypto.code === 'btc'){
+        if($scope.crypto.code === 'btc'){
             var subdomain = 'www';
         }else{
-            var subdomain = $scope.order.crypto.code;
+            var subdomain = $scope.crypto.code;
         }
         //Check the status of the order
         if ($scope.order.status === -1) {
@@ -94,7 +99,7 @@ function CheckoutController($scope, $interval, Order, $timeout, Url) {
             //Fetch the order using order_id
             Order.get({
                 "get_order": $scope.order_id,
-                "crypto": Url.get_parameter_by_name("crypto")
+                "crypto": $scope.crypto.code
             }, function(data) {
                 $scope.spinner = false;
                 if(data.address !== undefined){
@@ -102,9 +107,9 @@ function CheckoutController($scope, $interval, Order, $timeout, Url) {
                     // show the checkout page
                     proccess_order_data();
                     $scope.checkout_panel  = true;
-                }else if(data.crypto.code === 'btc'){
+                }else if($scope.crypto.code === 'btc'){
                     $scope.address_error_btc = true;
-                }else if(data.crypto.code === 'bch'){
+                }else if($scope.crypto.code === 'bch'){
                     $scope.address_error_bch = true;
                 }
             });
