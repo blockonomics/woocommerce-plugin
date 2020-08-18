@@ -459,7 +459,6 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_lite');
     delete_option('blockonomics_nojs');
 	delete_option('blockonomics_network_confirmation');
-	delete_option('blockonomics_active_cryptos');
 }
 
 
