@@ -398,36 +398,25 @@ class Blockonomics
     }
 
     public function calculate_order_params($order){
-        $wc_order = new WC_Order($order['order_id']);
-        $order['value'] = $wc_order->get_total();
-        $order['currency'] = get_woocommerce_currency();
-        if(get_woocommerce_currency() != 'BTC'){
-            $responseObj = $this->get_price($order['currency'], $order['crypto']);
-            if($responseObj->response_code != 200) {
-                exit();
-            }
-            $price = $responseObj->price;
-            $price = $price * 100/(100+get_option('blockonomics_margin', 0));
-        }else{
-            $price = 1;
-        }
-        $order['satoshi'] = intval(round(1.0e8*$wc_order->get_total()/$price));
-        $order['timestamp'] = time();
-        return $order;
-    }
-
-    // Get any existing unpaid order for the crypto
-    public function get_waiting_order($orders, $order_id, $crypto){
-        foreach ($orders as $address => $order) {
-            if($order['crypto'] && $crypto) {
-                // Check if order and has expired
-                if ( $order['timestamp'] <= time() - get_option("blockonomics_timeperiod") * 60 ) {
-                    $order = $this->calculate_order_params($order);
+        // Check if order is unused, new or expired
+        if ( $order['status'] == -1 && (!isset($order['timestamp']) || $order['timestamp'] <= time() - get_option("blockonomics_timeperiod") * 60) ) {
+            $wc_order = new WC_Order($order['order_id']);
+            $order['value'] = $wc_order->get_total();
+            $order['currency'] = get_woocommerce_currency();
+            if(get_woocommerce_currency() != 'BTC'){
+                $responseObj = $this->get_price($order['currency'], $order['crypto']);
+                if($responseObj->response_code != 200) {
+                    exit();
                 }
-                return $order;
+                $price = $responseObj->price;
+                $price = $price * 100/(100+get_option('blockonomics_margin', 0));
+            }else{
+                $price = 1;
             }
+            $order['satoshi'] = intval(round(1.0e8*$wc_order->get_total()/$price));
+            $order['timestamp'] = time();
         }
-        return false;
+        return $order;
     }
 
     // Save the new address to the WooCommerce order
@@ -484,10 +473,15 @@ class Blockonomics
         exit();
     }
 
-    // Fetch all the crypto orders linked to the order id
-    public function get_all_orders_by_id($orders, $order_id){
+    // Fetch the correct crypto order linked to the order id
+    public function get_order_by_id_and_crypto($orders, $order_id, $crypto){
         if(isset($orders[$order_id])){
-            return $orders[$order_id];
+            foreach($orders[$order_id] as $addr => $order){
+                if($order['crypto'] == $crypto){
+                    return $order;
+                }
+            }
+            return false;
         }
         return false;
     }
@@ -496,16 +490,9 @@ class Blockonomics
     public function process_order($order_id, $crypto){
         $orders = get_option('blockonomics_orders');
 
-        $orders_by_id = $this->get_all_orders_by_id($orders, $order_id);
-        if ($orders_by_id) {
-            $this->check_for_pending_payment($orders_by_id, $order_id);
-
-            $waiting_order = $this->get_waiting_order($orders_by_id, $order_id, $crypto);
-            if ($waiting_order) {
-                $order = $waiting_order;
-            }else {
-                $order = $this->create_new_order($order_id, $crypto);
-            }
+        $order = $this->get_order_by_id_and_crypto($orders, $order_id, $crypto);
+        if ($order) {
+            $order = $this->calculate_order_params($order);
         }else {
             $order = $this->create_new_order($order_id, $crypto);
         }
