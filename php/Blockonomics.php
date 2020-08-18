@@ -552,16 +552,6 @@ class Blockonomics
         update_post_meta($wc_order->get_id(), 'expected_'. $order['crypto'], $order['satoshi']/1.0e8);
     }
 
-    public function check_for_late_payment($status, $order, $wc_order){
-        if($status == 0){
-            $time_period = get_option("blockonomics_timeperiod", 10) * 60;
-            if (time() > $order['timestamp'] + $time_period) {
-                $minutes = (time() - $order['timestamp']) / 60;
-                $wc_order->add_order_note(__("Warning: Payment arrived after $minutes minutes. Received". $order['crypto'] ."may not match current ". $order['crypto'] ." price", 'blockonomics-bitcoin-payments'));
-            }
-        }
-    }
-
     public function is_payment_recorded($status, $order, $wc_order){
         $network_confirmations = get_option("blockonomics_network_confirmation",2);
         if ($status >= $network_confirmations && !metadata_exists('post',$wc_order->get_id(),'paid_'. $order['crypto']) )  {
@@ -608,8 +598,6 @@ class Blockonomics
         
         $order = $this->get_order_by_address($address);
         $wc_order = new WC_Order($order['order_id']);
-
-        $this->check_for_late_payment($status, $order, $wc_order);
 
         if ( !$this->is_payment_recorded($status, $order, $wc_order) )  {
             $this->record_payment($value, $order, $wc_order);
