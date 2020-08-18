@@ -397,7 +397,7 @@ class Blockonomics
         };
     }
 
-    public function update_waiting_order($order){
+    public function calculate_order_params($order){
         $wc_order = new WC_Order($order['order_id']);
         $order['value'] = $wc_order->get_total();
         $order['currency'] = get_woocommerce_currency();
@@ -422,7 +422,7 @@ class Blockonomics
             if($order['crypto'] && $crypto) {
                 // Check if order and has expired
                 if ( $order['timestamp'] <= time() - get_option("blockonomics_timeperiod") * 60 ) {
-                    $order = $this->update_waiting_order($order);
+                    $order = $this->calculate_order_params($order);
                 }
                 return $order;
             }
@@ -448,7 +448,7 @@ class Blockonomics
                 'crypto'             => $crypto,
                 'address'            => $address
         );
-        $order = $this->update_waiting_order($order);
+        $order = $this->calculate_order_params($order);
 
         $this->record_address($order_id, $crypto, $address);
         return $order;
