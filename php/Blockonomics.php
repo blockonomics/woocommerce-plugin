@@ -387,15 +387,6 @@ class Blockonomics
         $this->load_blockonomics_template('nojs_payment_confirmation');
     }
 
-    // Check if any pending payments linked to the order
-    public function check_for_pending_payment($orders, $order_id){
-        $network_confirmations = get_option("blockonomics_network_confirmation",2);
-        foreach ($orders as $address => $order){
-            if ($order['status'] >= 0 && $order['status'] < $network_confirmations){
-                $this->redirect_finish_order($show_order);
-            };
-        };
-    }
 
     public function calculate_order_params($order){
         // Check if order is unused, new or expired
