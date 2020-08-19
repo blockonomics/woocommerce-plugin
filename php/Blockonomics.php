@@ -500,7 +500,6 @@ class Blockonomics
         $orders[$order_id][$order['address']] = $order;
         update_option('blockonomics_orders', $orders);
 
-        $order['crypto'] = $this->getActiveCurrencies()[$crypto];
         return $order;
     }
 
