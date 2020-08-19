@@ -13,6 +13,9 @@ class Blockonomics
     const TEMP_API_KEY_URL = 'https://www.blockonomics.co/api/temp_wallet';
     const TEMP_WITHDRAW_URL = 'https://www.blockonomics.co/api/temp_withdraw_request';
 
+    const BCH_NEW_ADDRESS_URL = 'https://bch.blockonomics.co/api/new_address';
+    const BCH_PRICE_URL = 'https://bch.blockonomics.co/api/price';
+
     public function __construct()
     {
         $this->api_key = $this->get_api_key();
@@ -29,7 +32,7 @@ class Blockonomics
     }
 
 
-    public function new_address($secret, $reset=false)
+    public function new_address($secret, $crypto, $reset=false)
     {
         if($reset)
         {
@@ -39,7 +42,11 @@ class Blockonomics
         {
             $get_params = "?match_callback=$secret";
         }
-        $url = Blockonomics::NEW_ADDRESS_URL.$get_params;
+        if($crypto == 'btc'){
+            $url = Blockonomics::NEW_ADDRESS_URL.$get_params;
+        }else{
+            $url = Blockonomics::BCH_NEW_ADDRESS_URL.$get_params;
+        }
         $response = $this->post($url, $this->api_key, '', 8);
         if (!isset($responseObj)) $responseObj = new stdClass();
         $responseObj->{'response_code'} = wp_remote_retrieve_response_code($response);
@@ -52,11 +59,23 @@ class Blockonomics
         return $responseObj;
     }
 
-    public function get_price($currency)
+    public function get_price($currency, $crypto)
     {
-        $url = Blockonomics::PRICE_URL. "?currency=$currency";
+        if($crypto == 'btc'){
+            $url = Blockonomics::PRICE_URL. "?currency=$currency";
+        }else{
+            $url = Blockonomics::BCH_PRICE_URL. "?currency=$currency";
+        }
         $response = $this->get($url);
-        return json_decode(wp_remote_retrieve_body($response))->price;
+        if (!isset($responseObj)) $responseObj = new stdClass();
+        $responseObj->{'response_code'} = wp_remote_retrieve_response_code($response);
+        if (wp_remote_retrieve_body($response))
+        {
+          $body = json_decode(wp_remote_retrieve_body($response));
+          $responseObj->{'response_message'} = isset($body->message) ? $body->message : '';
+          $responseObj->{'price'} = isset($body->price) ? $body->price : '';
+        }
+        return $responseObj;
     }
 
     public function update_callback($callback_url, $xpub)
@@ -82,6 +101,43 @@ class Blockonomics
         $responseObj = json_decode(wp_remote_retrieve_body($response));
         $responseObj->{'response_code'} = wp_remote_retrieve_response_code($response);
         return $responseObj;
+    }
+
+    /*
+     * Get list of crypto currencies supported by Blockonomics
+     */
+    public function getSupportedCurrencies() {
+        return array(
+              'btc' => array(
+                    'code' => 'btc',
+                    'name' => 'Bitcoin',
+                    'uri' => 'bitcoin'
+              ),
+              'bch' => array(
+                    'code' => 'bch',
+                    'name' => 'Bitcoin Cash',
+                    'uri' => 'bitcoincash'
+              )
+          );
+    }
+
+    /*
+     * Get list of active crypto currencies
+     */
+    public function getActiveCurrencies() {
+        $active_currencies = array();
+        $blockonomics_currencies = $this->getSupportedCurrencies();
+        foreach ($blockonomics_currencies as $code => $currency) {
+            if($code == 'btc'){
+                $enabled = true;
+            }else{
+                $enabled = get_option('blockonomics_'.$code);
+            }
+            if($enabled){
+                $active_currencies[$code] = $currency;
+            }
+        }
+        return $active_currencies;
     }
 
     public function make_withdraw()
@@ -226,7 +282,7 @@ class Blockonomics
         if (!$error_str)
         {
             //Everything OK ! Test address generation
-            $response= $this->new_address($callback_secret, true);
+            $response= $this->new_address($callback_secret, 'BTC', true);
             if ($response->response_code!=200){
               $error_str = $response->response_message;
             }
@@ -237,5 +293,300 @@ class Blockonomics
         }
         // No errors
         return false;
+    }
+
+    // Create the order url to redirect the user to during checkout
+    public function create_order_url($order_id, $order_url){
+        // Check if more than one crypto is activated
+        if (count($this->getActiveCurrencies()) > 1) {
+            $order_url = add_query_arg('select_crypto', $order_id, $order_url);
+        }else{
+            $order_url = add_query_arg('show_order', $order_id, $order_url);
+            $order_url = add_query_arg('crypto', 'btc', $order_url);
+        }
+        return $order_url;
+    }
+
+    // Check if a template is a nojs template
+    public function is_nojs_template($template_name){
+        if (strpos($template_name, 'nojs') === 0) {
+            return true;
+        }
+        return false;
+    }
+
+    // Check if the nojs setting is activated
+    public function is_nojs_active(){
+        return get_option('blockonomics_nojs', false);
+    }
+
+    // Check if a lite mode setting is activated
+    public function is_lite_mode_active(){
+        return get_option('blockonomics_lite', false);
+    }
+
+    // Adds the header to the blockonomics page
+    public function load_blockonomics_header($template_name){
+        add_action('wp_enqueue_scripts', 'bnomics_enqueue_stylesheets' );
+        // Don't load javascript files if no js is active
+        if (!$this->is_nojs_template($template_name)) {
+            add_action('wp_enqueue_scripts', 'bnomics_enqueue_scripts' );
+        }
+        // Lite mode will render without wordpress theme headers
+        if($this->is_lite_mode_active()){
+        ?>
+          <link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/order.css', dirname(__FILE__));?>">
+        <?php
+        }else{
+          get_header();
+        }
+    }
+
+    // Adds the footer to the blockonomics page
+    public function load_blockonomics_footer($template_name){
+        // Lite mode will render without wordpress theme footers
+        if($this->is_lite_mode_active()){
+            // Only load the lite mode javascript if nojs is not active
+            if (!$this->is_nojs_template($template_name)) {
+                ?>
+                  <script>var ajax_object = {ajax_url:"<?php echo admin_url( 'admin-ajax.php' ); ?>", wc_url:"<?php echo WC()->api_request_url('WC_Gateway_Blockonomics'); ?>"};
+                  </script>
+                  <script src="<?php echo plugins_url('js/angular.min.js', dirname(__FILE__));?>"></script>
+                  <script src="<?php echo plugins_url('js/angular-resource.min.js', dirname(__FILE__));?>"></script>
+                  <script src="<?php echo plugins_url('js/app.js', dirname(__FILE__));?>"></script>
+                  <script src="<?php echo plugins_url('js/angular-qrcode.js', dirname(__FILE__));?>"></script>
+                  <script src="<?php echo plugins_url('js/vendors.min.js', dirname(__FILE__));?>"></script>
+                  <script src="<?php echo plugins_url('js/reconnecting-websocket.min.js', dirname(__FILE__));?>"></script>
+                <?php
+            }
+        }else{
+          get_footer();
+        }
+    }
+
+    // Adds the selected template to the blockonomics page
+    public function load_blockonomics_template($template_name){
+        $this->load_blockonomics_header($template_name);
+
+        // Load the selected template
+        // Check if child theme or parent theme have overridden the template
+        $template = 'blockonomics_'.$template_name.'.php';
+        if ( $overridden_template = locate_template( $template ) ) {
+            load_template( $overridden_template );
+        } else {
+            load_template( plugin_dir_path(__FILE__)."../templates/" .$template );
+        }
+
+        $this->load_blockonomics_footer($template_name);
+
+        exit();
+    }
+
+    // Load the the payment confirmed template in the page
+    public function load_nojs_payment_confirmation_template(){
+        $this->load_blockonomics_template('nojs_payment_confirmation');
+    }
+
+
+    public function calculate_order_params($order){
+        // Check if order is unused, new or expired
+        if ( $order['status'] == -1 && (!isset($order['timestamp']) || $order['timestamp'] <= time() - get_option("blockonomics_timeperiod") * 60) ) {
+            $wc_order = new WC_Order($order['order_id']);
+            $order['value'] = $wc_order->get_total();
+            $order['currency'] = get_woocommerce_currency();
+            if(get_woocommerce_currency() != 'BTC'){
+                $responseObj = $this->get_price($order['currency'], $order['crypto']);
+                if($responseObj->response_code != 200) {
+                    exit();
+                }
+                $price = $responseObj->price;
+                $price = $price * 100/(100+get_option('blockonomics_margin', 0));
+            }else{
+                $price = 1;
+            }
+            $order['satoshi'] = intval(round(1.0e8*$wc_order->get_total()/$price));
+            $order['timestamp'] = time();
+        }
+        return $order;
+    }
+
+    // Save the new address to the WooCommerce order
+    public function record_address($order_id, $crypto, $address){
+        update_post_meta($order_id, $crypto .'_address', $address);
+    }
+
+    public function create_new_order($order_id, $crypto){
+        $responseObj = $this->new_address(get_option("blockonomics_callback_secret"), $crypto);
+        if($responseObj->response_code != 200) {
+            exit(json_encode(array("error"=>"failed creating new crypto address")));
+        }
+        $address = $responseObj->address;
+
+        $order = array(
+                'order_id'           => $order_id,
+                'status'             => -1,
+                'crypto'             => $crypto,
+                'address'            => $address
+        );
+        $order = $this->calculate_order_params($order);
+
+        $this->record_address($order_id, $crypto, $address);
+        return $order;
+    }
+
+    // Load the the checkout template in the page
+    public function load_checkout_template($order_id, $crypto){
+        // Check to send the user to nojs page
+        if($this->is_nojs_active()){
+            // Create or update the order for the nojs template
+            $this->process_order($order_id, $crypto);
+            $this->load_blockonomics_template('nojs_checkout');
+        }else{
+            $this->load_blockonomics_template('checkout');
+        }
+    }
+
+    // Load the the crypto options template in the page
+    public function load_crypto_options_template(){
+        // Check to send the user to nojs page
+        if($this->is_nojs_active()){
+            $this->load_blockonomics_template('nojs_crypto_options');
+        }
+        else{
+            $this->load_blockonomics_template('crypto_options');
+        }
+    }
+
+    // Redirect the user to the woocommerce finish order page
+    public function redirect_finish_order($order_id){
+        $wc_order = new WC_Order($order_id);
+        wp_redirect($wc_order->get_checkout_order_received_url());
+        exit();
+    }
+
+    // Fetch the correct crypto order linked to the order id
+    public function get_order_by_id_and_crypto($orders, $order_id, $crypto){
+        if(isset($orders[$order_id])){
+            foreach($orders[$order_id] as $addr => $order){
+                if($order['crypto'] == $crypto){
+                    return $order;
+                }
+            }
+            return false;
+        }
+        return false;
+    }
+
+    // Check and update the crypto order or create a new order
+    public function process_order($order_id, $crypto){
+        $orders = get_option('blockonomics_orders');
+
+        $order = $this->get_order_by_id_and_crypto($orders, $order_id, $crypto);
+        if ($order) {
+            $order = $this->calculate_order_params($order);
+        }else {
+            $order = $this->create_new_order($order_id, $crypto);
+        }
+        
+        $orders[$order_id][$order['address']] = $order;
+        update_option('blockonomics_orders', $orders);
+
+        return $order;
+    }
+
+    // Get the order info by id and crypto
+    public function get_order_info($order_id, $crypto){
+        $order = $this->process_order($order_id, $crypto);
+        header("Content-Type: application/json");
+        exit(json_encode($order));
+    }
+
+    // Get the order info by crypto address
+    public function get_order_by_address($address){
+        $orders = get_option('blockonomics_orders');
+        foreach($orders as $id => $order){
+            if(isset($order[$address])){
+                $order_id = $id;
+                return $order[$address];
+            }
+        }
+        exit("Error: order not found");
+    }
+
+    // Check if the callback secret in the request matches
+    public function check_callback_secret($secret){
+        $callback_secret = get_option("blockonomics_callback_secret");
+        if ($callback_secret  && $callback_secret == $secret) {
+            return true;
+        }
+        exit("Error: secret does not match");
+    }
+
+    // Save the received payment info to the WooCommerce order
+    public function record_payment($value, $order, $wc_order){
+        update_post_meta($wc_order->get_id(), 'paid_'. $order['crypto'], $value/1.0e8);
+        update_post_meta($wc_order->get_id(), 'blockonomics_'. $order['crypto'] .'_txid', $order['txid']);
+        update_post_meta($wc_order->get_id(), 'expected_'. $order['crypto'], $order['satoshi']/1.0e8);
+    }
+
+    public function is_payment_recorded($status, $order, $wc_order){
+        $network_confirmations = get_option("blockonomics_network_confirmation",2);
+        if ($status >= $network_confirmations && !metadata_exists('post',$wc_order->get_id(),'paid_'. $order['crypto']) )  {
+            return false;
+        }
+        return true;
+    }
+
+    // Check for underpayment, overpayment or correct amount
+    public function check_paid_amount($status, $value, $order, $wc_order){
+        if ($order['satoshi'] > $value) {
+            //Check underpayment slack
+            $underpayment_slack = get_option("blockonomics_underpayment_slack", 0)/100 * $order['satoshi'];
+            if ($order['satoshi'] - $underpayment_slack > $value) {
+                $status = -2; //Payment error , amount not matching
+                $wc_order->update_status('failed', __('Paid '. $order['crypto'] .' amount less than expected.', 'blockonomics-bitcoin-payments'));
+            }else{
+                $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
+                $wc_order->payment_complete($order['txid']);
+            }
+        }
+        else{
+            if ($order['satoshi'] < $value) {
+                $wc_order->add_order_note(__('Overpayment of '. $order['crypto'] .' amount', 'blockonomics-bitcoin-payments'));
+            }
+            $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
+            $wc_order->payment_complete($order['txid']);
+        }
+        return $status;
+    }
+
+    // Keep track of funds in temp wallet
+    public function update_temp_draw_amount($value){
+        if(get_option('blockonomics_temp_api_key') && !get_option("blockonomics_api_key")) {
+            $current_temp_amount = get_option('blockonomics_temp_withdraw_amount');
+            $new_temp_amount = $current_temp_amount + $value;
+            update_option('blockonomics_temp_withdraw_amount', $new_temp_amount);
+        }
+    }
+
+    // Process the blockonomics callback
+    public function process_callback($secret, $address, $status, $value, $txid){
+        $this->check_callback_secret($secret);
+        
+        $order = $this->get_order_by_address($address);
+        $wc_order = new WC_Order($order['order_id']);
+
+        if ( !$this->is_payment_recorded($status, $order, $wc_order) )  {
+            $this->record_payment($value, $order, $wc_order);
+            $status = $this->check_paid_amount($status, $value, $order, $wc_order);
+
+            $this->update_temp_draw_amount($value);
+        }
+
+        $order['txid'] = $txid;
+        $order['status'] = $status;
+        $orders[$order_id][$address] = $order;
+
+        update_option('blockonomics_orders', $orders);
     }
 }

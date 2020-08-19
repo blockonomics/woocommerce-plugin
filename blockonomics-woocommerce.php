@@ -229,8 +229,8 @@ function blockonomics_woocommerce_init()
                         <td><?php echo get_callback_url(); ?></td>
                     </tr>
                     <tr valign="top">
-                        <th scope="row"><?php echo __('Accept Altcoin Payments (Using Flyp.me)', 'blockonomics-bitcoin-payments')?></th>
-                        <td><input type="checkbox" name="blockonomics_altcoins" value="1" <?php checked("1", get_option('blockonomics_altcoins')); ?>" /></td>
+                        <th scope="row"><?php echo __('BCH Enabled (Select if you want to accept Bitcoin Cash)')?></th>
+                        <td><input type="checkbox" name="blockonomics_bch" value="1" <?php checked("1", get_option('blockonomics_bch')); ?>" /></td>
                     </tr>
                     <tr valign="top">
                         <th scope="row">Destination BTC wallet for payments</th>
@@ -317,7 +317,7 @@ function blockonomics_woocommerce_init()
                 <p class="submit">
                     <input type="submit" class="button-primary" value="Save"/>
                     <input type="hidden" name="action" value="update" />
-                    <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_altcoins,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated,blockonomics_underpayment_slack,blockonomics_lite,blockonomics_nojs,blockonomics_network_confirmation" />
+                    <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_bch,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated,blockonomics_underpayment_slack,blockonomics_lite,blockonomics_nojs,blockonomics_network_confirmation" />
                     <input onclick="checkForAPIKeyChange();" class="button-primary" name="test-setup-submit" value="Test Setup" style="max-width:85px;">
                 </p>
             </form>
@@ -357,16 +357,12 @@ function blockonomics_woocommerce_init()
 
     function bnomics_enqueue_stylesheets(){
       wp_enqueue_style('bnomics-style', plugin_dir_url(__FILE__) . "css/order.css");
-      wp_enqueue_style( 'bnomics-altcoins', plugin_dir_url(__FILE__) . "css/cryptofont/cryptofont.min.css");
-      wp_enqueue_style( 'bnomics-icons', plugin_dir_url(__FILE__) . "css/icons/icons.css");
     }
 
     function bnomics_enqueue_scripts(){
       wp_enqueue_script( 'angular', plugins_url('js/angular.min.js#deferload', __FILE__) );
       wp_enqueue_script( 'angular-resource', plugins_url('js/angular-resource.min.js#deferload', __FILE__) );
       wp_enqueue_script( 'app', plugins_url('js/app.js#deferload', __FILE__) );
-                        wp_localize_script( 'app', 'ajax_object',
-                            array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
       wp_enqueue_script( 'angular-qrcode', plugins_url('js/angular-qrcode.js#deferload', __FILE__) );
       wp_enqueue_script( 'vendors', plugins_url('js/vendors.min.js#deferload', __FILE__) );
       wp_enqueue_script( 'reconnecting-websocket', plugins_url('js/reconnecting-websocket.min.js#deferload', __FILE__) );
@@ -381,50 +377,6 @@ function blockonomics_woocommerce_init()
             return str_replace( '#deferload', '', $url );
         else
         return str_replace( '#deferload', '', $url )."' defer='defer"; 
-    }
-
-    //Ajax for user checkouts through Woocommerce
-    add_action( 'wp_ajax_save_uuid', 'bnomics_alt_save_uuid' );
-    add_action( 'wp_ajax_send_email', 'bnomics_alt_refund_email' );
-
-    //Ajax for guest checkouts through Woocommerce
-    add_action( 'wp_ajax_nopriv_save_uuid', 'bnomics_alt_save_uuid' );
-    add_action( 'wp_ajax_nopriv_send_email', 'bnomics_alt_refund_email' );
-
-    function bnomics_alt_save_uuid(){
-        $orders = get_option('blockonomics_orders');
-        $address = $_REQUEST['address'];
-        $uuid = $_REQUEST['uuid'];
-        $order = $orders[$address];
-        $wc_order = new WC_Order($order['order_id']);
-        update_post_meta($wc_order->get_id(), 'flyp_uuid', $uuid);
-        wp_die();
-    }
-
-    function bnomics_alt_refund_email(){
-        $order_id = $_REQUEST['order_id'];
-        $uuid = $_REQUEST['order_uuid'];
-        $order_coin = $_REQUEST['order_coin'];
-        $refund_address = $_REQUEST['refund_address'];
-        $order = new WC_Order($order_id);
-        $billing_email = $order->billing_email;
-        $email = $billing_email;
-        $subject = $order_coin . ' ' . __('Refund', 'blockonomics-bitcoin-payments');
-        $heading = $order_coin . ' ' . __('Refund', 'blockonomics-bitcoin-payments');
-        $message = __("Your refund details have been submitted. The refund will be automatically sent to", 'blockonomics-bitcoin-payments')."<br><b>".$refund_address."</b><br>".__("If you don&#39;t get refunded in a few hours, contact <a href='mailto:support@flyp.me'>support@flyp.me</a> with the following uuid", 'blockonomics-bitcoin-payments').":<br><b>".$uuid."</b>";
-        bnomics_email_woocommerce_style($email, $subject, $heading, $message);
-        wp_die();
-    }
-
-    function bnomics_email_woocommerce_style($email, $subject, $heading, $message) {
-      $mailer = WC()->mailer();
-      $wrapped_message = $mailer->wrap_message($heading, $message);
-      $wc_email = new WC_Email;
-      $html_message = $wc_email->style_inline($wrapped_message);
-      // Send the email using wordpress mail function
-      //wp_mail( $email, $subject, $html_message, HTML_EMAIL_HEADERS );
-      // Send the email using woocommerce mailer send
-      $mailer->send( $email, $subject, $html_message, array('Content-Type: text/html; charset=UTF-8') );
     }
 }
 
@@ -502,7 +454,7 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_margin');
     delete_option('blockonomics_timeperiod');
     delete_option('blockonomics_api_updated');
-    delete_option('blockonomics_altcoins');
+    delete_option('blockonomics_bch');
     delete_option('blockonomics_underpayment_slack');
     delete_option('blockonomics_lite');
     delete_option('blockonomics_nojs');
