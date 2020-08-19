@@ -114,7 +114,7 @@ class Blockonomics
                     'uri' => 'bitcoin'
               ),
               'bch' => array(
-                    'code' => 'btc',
+                    'code' => 'bch',
                     'name' => 'Bitcoin Cash',
                     'uri' => 'bitcoincash'
               )
