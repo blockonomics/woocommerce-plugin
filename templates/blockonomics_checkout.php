@@ -1,5 +1,4 @@
 <?php
-include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
 $blockonomics = new Blockonomics;
 ?>
 <div id="active_cryptos" data-active_cryptos='<?php echo json_encode($blockonomics->getActiveCurrencies()); ?>'></div>
