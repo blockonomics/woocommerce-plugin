@@ -43,7 +43,6 @@ function CheckoutController($scope, $interval, Order, $timeout, Url) {
 
     var time_period_div = document.getElementById("time_period");
     var blockonomics_time_period = time_period_div.dataset.time_period;
-    var totalTime = blockonomics_time_period * 60;
     var totalProgress = 100;
     $scope.no_display_error = true;
     $scope.copyshow = false;
@@ -55,13 +54,13 @@ function CheckoutController($scope, $interval, Order, $timeout, Url) {
     //Increment bitcoin timer 
     $scope.tick = function() {
         $scope.clock = $scope.clock - 1;
-        $scope.progress = Math.floor($scope.clock * totalProgress / totalTime);
+        $scope.progress = Math.floor($scope.clock * totalProgress / $scope.order.time.total);
         if ($scope.clock < 0) {
             $scope.clock = 0;
             //Order expired
             $scope.order.status = -3;
         }
-        $scope.progress = Math.floor($scope.clock * totalProgress / totalTime);
+        $scope.progress = Math.floor($scope.clock * totalProgress / $scope.order.time.total);
     };
 
     //Proccess the order data
@@ -73,7 +72,7 @@ function CheckoutController($scope, $interval, Order, $timeout, Url) {
         }
         //Check the status of the order
         if ($scope.order.status === -1) {
-            $scope.clock = $scope.order.timestamp + totalTime - Math.floor(Date.now() / 1000);
+            $scope.clock = $scope.order.time.remaining;
             //Mark order as expired if we ran out of time
             if ($scope.clock < 0) {
                 $scope.order.status = -3;

@@ -477,6 +477,14 @@ class Blockonomics
         return false;
     }
 
+    public function calculate_time_remaining($order){
+        $order['time'] = array(
+            'remaining' => $order['timestamp'] + get_option("blockonomics_timeperiod", 10)*60 - time(),
+            'total'     => get_option("blockonomics_timeperiod", 10)*60
+        );
+        return $order;
+    }
+
     // Check and update the crypto order or create a new order
     public function process_order($order_id, $crypto){
         $orders = get_option('blockonomics_orders');
@@ -491,6 +499,7 @@ class Blockonomics
         $orders[$order_id][$order['address']] = $order;
         update_option('blockonomics_orders', $orders);
 
+        $order = $this->calculate_time_remaining($order);
         return $order;
     }
 
