@@ -56,6 +56,7 @@ function blockonomics_woocommerce_init()
 
     add_action('admin_menu', 'add_page');
     add_action('init', 'woocommerce_handle_blockonomics_return');
+    add_action('init', 'load_plugin_translations');
     add_action('woocommerce_order_details_after_order_table', 'nolo_custom_field_display_cust_order_meta', 10, 1);
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
@@ -68,6 +69,11 @@ function blockonomics_woocommerce_init()
     {
         $methods[] = 'WC_Gateway_Blockonomics';
         return $methods;
+    }
+
+    function load_plugin_translations()
+    {
+        load_plugin_textdomain('blockonomics-bitcoin-payments', false, dirname(plugin_basename(__FILE__)) . '/languages/');
     }
 
     function woocommerce_handle_blockonomics_return()
@@ -181,7 +187,6 @@ function blockonomics_woocommerce_init()
 
     function show_options()
     {
-        load_plugin_textdomain('blockonomics-bitcoin-payments', false, dirname(plugin_basename(__FILE__)) . '/languages/');
         ?>
 
         <script type="text/javascript">
@@ -342,7 +347,7 @@ function blockonomics_woocommerce_init()
         $address = get_post_meta($order->get_id(), 'blockonomics_address', true);
         include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
         if ($txid && $address) {
-            echo '<h2>Payment Details</h2><p><strong>'.__('Transaction').':</strong>  <a href =\''. Blockonomics::BASE_URL ."/api/tx?txid=$txid&addr=$address'>".substr($txid, 0, 10). '</a></p><p>Your order will be processed on confirmation of above transaction by the bitcoin network.</p>';
+            echo '<h2>'.__('Payment Details', 'blockonomics-bitcoin-payments').'</h2><p><strong>'.__('Transaction', 'blockonomics-bitcoin-payments').':</strong>  <a href =\''. Blockonomics::BASE_URL ."/api/tx?txid=$txid&addr=$address'>".substr($txid, 0, 10). '</a></p><p>'.__('Your order will be processed on confirmation of above transaction by the bitcoin network.', 'blockonomics-bitcoin-payments').'</p>';
         }
     }
     function nolo_bnomics_woocommerce_email_customer_details($order)
