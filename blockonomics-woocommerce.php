@@ -416,30 +416,6 @@ function blockonomics_plugin_activation() {
     echo $html;        
     delete_transient( 'fx-admin-notice-example' );
   }
-  if ( isset( $_GET['review_later'] ) ){
-    update_option('blockonomics_review_notice_dismissed_timestamp', time());
-  } 
-  if ( isset( $_GET['already_reviewed'] ) ){
-    update_option('blockonomics_review_notice_dismissed_timestamp', 1);
-  } 
-  $admin_page = get_current_screen();
-  if (in_array($admin_page->base, array('dashboard', 'settings_page_blockonomics_options', 'plugins'))){
-    //Show review notice only on three pages
-    $blockonomics_orders = get_option('blockonomics_orders', array());
-    if (count($blockonomics_orders)>10){
-      $dismiss_timestamp = get_option('blockonomics_review_notice_dismissed_timestamp', 0);
-      if ($dismiss_timestamp!=1 && time()-$dismiss_timestamp>1209600){
-        //Prompt user to review the plugin after every 2 weeks 
-        //if he has more than 10 orders, until he clicks on I already reviewed
-        $class = 'notice notice-info';
-        $message = __( 'Hey, I noticed you have been using blockonomics for accepting bitcoins - Awesome!</br> Could you please do me a BIG favor and rate it in on Wordpress?', 'blockonomics-bitcoin-payments' );
-        $m1 = __('Ok, I will review it', 'blockonomics-bitcoin-payments');
-        $m2=  __('I already did', 'blockonomics-bitcoin-payments');
-        $m3=  __('Maybe Later', 'blockonomics-bitcoin-payments');
-        printf( '<div class="%1$s"><h4>%2$s</h4><ul><li><a target="_blank" href="https://wordpress.org/support/plugin/blockonomics-bitcoin-payments/reviews/#new-post">%3$s</a></li><li><a href="?already_reviewed">%4$s</a></li><li><a href="?review_later">%5$s</a></li></ul></div>', esc_attr( $class ),  $message, $m1, $m2, $m3); 
-      }
-    }
-  }
 }
 
 // On uninstallation, clear every option the plugin has set
@@ -450,7 +426,6 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_temp_api_key');
     delete_option('blockonomics_temp_withdraw_amount');
     delete_option('blockonomics_orders');
-    delete_option('blockonomics_review_notice_dismissed_timestamp');
     delete_option('blockonomics_margin');
     delete_option('blockonomics_timeperiod');
     delete_option('blockonomics_api_updated');
