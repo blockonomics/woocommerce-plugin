@@ -491,6 +491,7 @@ class Blockonomics
         $orders[$order_id][$order['address']] = $order;
         update_option('blockonomics_orders', $orders);
 
+        $order['time_remaining'] = $order['timestamp'] + get_option("blockonomics_timeperiod", 10)*60 - time();
         return $order;
     }
 
