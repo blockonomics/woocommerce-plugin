@@ -179,7 +179,7 @@ class Blockonomics
 
         if(is_wp_error( $response )){
            $error_message = $response->get_error_message();
-           echo "Something went wrong: $error_message";
+           echo __('Something went wrong', 'blockonomics-bitcoin-payments').': '.$error_message;
         }else{
             return $response;
         }
@@ -201,7 +201,7 @@ class Blockonomics
         $response = wp_remote_post( $url, $data );
         if(is_wp_error( $response )){
            $error_message = $response->get_error_message();
-           echo "Something went wrong: $error_message";
+           echo __('Something went wrong', 'blockonomics-bitcoin-payments').': '.$error_message;
         }else{
             return $response;
         }
@@ -288,7 +288,7 @@ class Blockonomics
             }
         }
         if($error_str) {
-            $error_str = $error_str . __('<p>For more information, please consult <a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank">this troubleshooting article</a></p>', 'blockonomics-bitcoin-payments');
+            $error_str = $error_str . '<p>' . __('For more information, please consult <a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank">this troubleshooting article</a>', 'blockonomics-bitcoin-payments'). '</p>';
             return $error_str;
         }
         // No errors
@@ -418,7 +418,7 @@ class Blockonomics
     public function create_new_order($order_id, $crypto){
         $responseObj = $this->new_address(get_option("blockonomics_callback_secret"), $crypto);
         if($responseObj->response_code != 200) {
-            exit(json_encode(array("error"=>"failed creating new crypto address")));
+            exit(json_encode(array("error"=>__("Error: failed creating new crypto address", 'blockonomics-bitcoin-payments'))));
         }
         $address = $responseObj->address;
 
@@ -519,7 +519,7 @@ class Blockonomics
                 return $order[$address];
             }
         }
-        exit("Error: order not found");
+        exit(__("Error: order not found", 'blockonomics-bitcoin-payments'));
     }
 
     // Check if the callback secret in the request matches
@@ -528,7 +528,7 @@ class Blockonomics
         if ($callback_secret  && $callback_secret == $secret) {
             return true;
         }
-        exit("Error: secret does not match");
+        exit(__("Error: secret does not match", 'blockonomics-bitcoin-payments'));
     }
 
     // Save the received payment info to the WooCommerce order
@@ -553,7 +553,7 @@ class Blockonomics
             $underpayment_slack = get_option("blockonomics_underpayment_slack", 0)/100 * $order['satoshi'];
             if ($order['satoshi'] - $underpayment_slack > $value) {
                 $status = -2; //Payment error , amount not matching
-                $wc_order->update_status('failed', __('Paid '. $order['crypto'] .' amount less than expected.', 'blockonomics-bitcoin-payments'));
+                $wc_order->update_status('failed', __('Paid amount less than expected.', 'blockonomics-bitcoin-payments'));
             }else{
                 $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
                 $wc_order->payment_complete($order['txid']);
@@ -561,7 +561,7 @@ class Blockonomics
         }
         else{
             if ($order['satoshi'] < $value) {
-                $wc_order->add_order_note(__('Overpayment of '. $order['crypto'] .' amount', 'blockonomics-bitcoin-payments'));
+                $wc_order->add_order_note(__( 'Paid amount more than expected.', 'blockonomics-bitcoin-payments' ));
             }
             $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
             $wc_order->payment_complete($order['txid']);
