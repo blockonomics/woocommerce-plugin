@@ -20,10 +20,18 @@ $blockonomics = new Blockonomics;
       
       <!-- Blockonomics Currency Select -->
       <div class="bnomics-select-container" ng-show="crypto_selecter" ng-cloak>
-        <h2><?=__('Pay With', 'blockonomics-bitcoin-payments')?></h2>
         <table width="100%">
-          <tr class="bnomics-select-options" ng-repeat="(active_code, active_crypto) in active_cryptos" ng-click="select_blockonomics_crypto(active_code)">
-              <td align="left"><img ng-src="<?php echo plugins_url('img', dirname(__FILE__));?>/{{active_code}}.png" class="rotateimg{{active_code}}" alt="{{active_crypto.name}} Logo"> <h3>{{active_crypto.name}}</h3> <span class="bnomics-select-crypto-button"><button type="button" class="btn btn-lg bnomics-select-crypto-code">{{active_code}}</button></span></td>
+          <tr>
+              <td class="bnomics-select-options" ng-repeat="(active_code, active_crypto) in active_cryptos" ng-click="select_blockonomics_crypto(active_code)">
+                <p style="text-transform: uppercase;">
+                  <?=__('Pay With', 'blockonomics-bitcoin-payments')?>
+                </p>
+                <span class="icon-{{active_code}} rotateimg{{active_code}}"></span>
+                <p>
+                  {{active_crypto.name | uppercase}}<br>
+                  <b>{{active_code | uppercase}}</b>
+                </p>
+              </td>
           </tr>
         </table>
       </div>
