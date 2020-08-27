@@ -23,13 +23,13 @@ $blockonomics = new Blockonomics;
         <table width="100%">
           <tr>
               <td class="bnomics-select-options" ng-repeat="(active_code, active_crypto) in active_cryptos" ng-click="select_blockonomics_crypto(active_code)">
-                <p style="text-transform: uppercase;">
+                <p>
                   <?=__('Pay With', 'blockonomics-bitcoin-payments')?>
                 </p>
                 <span class="icon-{{active_code}} rotateimg{{active_code}}"></span>
                 <p>
-                  {{active_crypto.name | uppercase}}<br>
-                  <b>{{active_code | uppercase}}</b>
+                  {{active_crypto.name}}<br>
+                  <b>{{active_code}}</b>
                 </p>
               </td>
           </tr>

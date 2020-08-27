@@ -374,6 +374,7 @@ color:inherit;
   border-radius:5px;
   text-align: center !important;
   word-break: break-word;
+  text-transform: uppercase;
 }
 
 .bnomics-select-options:hover {
