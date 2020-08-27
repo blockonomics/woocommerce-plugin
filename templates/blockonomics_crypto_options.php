@@ -13,7 +13,7 @@ $blockonomics = new Blockonomics;
       </div>
 
       <!-- Display Error -->
-      <div id="display-error" ng-hide="no_display_error">
+      <div id="display-error" class="bnomics-display-error" ng-hide="no_display_error">
         <h2><?=__('Display Error', 'blockonomics-bitcoin-payments')?></h2>
         <p><?=__('Unable to render correctly, Note to Administrator: Please enable lite mode in the Blockonomics plugin.', 'blockonomics-bitcoin-payments')?></p>
       </div>
