@@ -390,7 +390,7 @@ class Blockonomics
 
     public function calculate_order_params($order){
         // Check if order is unused, new or expired
-        if ( $order['status'] == -1 && (!isset($order['timestamp']) || $order['timestamp'] <= time() - get_option("blockonomics_timeperiod") * 60) ) {
+        if ( $order['status'] == -1 && (!isset($order['timestamp']) || $order['timestamp'] <= time() - get_option("blockonomics_timeperiod", 10) * 60) ) {
             $wc_order = new WC_Order($order['order_id']);
             $order['value'] = $wc_order->get_total();
             $order['currency'] = get_woocommerce_currency();
