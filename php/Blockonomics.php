@@ -407,6 +407,7 @@ class Blockonomics
             $order['satoshi'] = intval(round(1.0e8*$wc_order->get_total()/$price));
             $order['timestamp'] = time();
         }
+        $order['time_remaining'] = $order['timestamp'] + get_option("blockonomics_timeperiod", 10)*60 - time();
         return $order;
     }
 
