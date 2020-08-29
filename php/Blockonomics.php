@@ -575,9 +575,10 @@ class Blockonomics
 
         if ( !$this->is_payment_recorded($status, $order, $wc_order) )  {
             $this->record_payment($value, $order, $wc_order);
-            $order['status'] = $this->check_paid_amount($status, $value, $order, $wc_order);
+            $status = $this->check_paid_amount($status, $value, $order, $wc_order);
             $this->update_temp_draw_amount($value);
         }
+        $order['status'] = $status;
         $orders[$order['order_id']][$address] = $order;
         update_option('blockonomics_orders', $orders);
     }
