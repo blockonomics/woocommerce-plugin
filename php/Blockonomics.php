@@ -540,25 +540,18 @@ class Blockonomics
 
     // Check for underpayment, overpayment or correct amount
     public function check_paid_amount($status, $value, $order, $wc_order){
-        if ($order['satoshi'] > $value) {
-            //Check underpayment slack
-            $underpayment_slack = get_option("blockonomics_underpayment_slack", 0)/100 * $order['satoshi'];
-            if ($order['satoshi'] - $underpayment_slack > $value) {
-                $status = -2; //Payment error , amount not matching
-                $wc_order->update_status('failed', __('Paid amount less than expected.', 'blockonomics-bitcoin-payments'));
-            }else{
-                $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
-                $wc_order->payment_complete($order['txid']);
-            }
-        }
-        else{
-            if ($order['satoshi'] < $value) {
-                $wc_order->add_order_note(__( 'Paid amount more than expected.', 'blockonomics-bitcoin-payments' ));
-            }
-            $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
-            $wc_order->payment_complete($order['txid']);
-        }
-        return $status;
+      $underpayment_slack = get_option("blockonomics_underpayment_slack", 0)/100 * $order['satoshi'];
+      if ($order['satoshi'] - $underpayment_slack > $value) {
+        $status = -2; //Payment error , amount less than expected 
+        $wc_order->update_status('failed', __('Paid amount less than expected.', 'blockonomics-bitcoin-payments'));
+      }else{
+        $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
+        $wc_order->payment_complete($order['txid']);
+      }
+      if ($order['satoshi'] < $value) {
+        $wc_order->add_order_note(__( 'Paid amount more than expected.', 'blockonomics-bitcoin-payments' ));
+      }
+      return $status;
     }
 
     // Keep track of funds in temp wallet
@@ -576,18 +569,17 @@ class Blockonomics
         
         $order = $this->get_order_by_address($address);
         $wc_order = new WC_Order($order['order_id']);
+        
+        $order['txid'] = $txid;
+
 
         if ( !$this->is_payment_recorded($status, $order, $wc_order) )  {
             $this->record_payment($value, $order, $wc_order);
             $status = $this->check_paid_amount($status, $value, $order, $wc_order);
-
             $this->update_temp_draw_amount($value);
         }
-
-        $order['txid'] = $txid;
         $order['status'] = $status;
-        $orders[$order_id][$address] = $order;
-
+        $orders[$order['order_id']][$address] = $order;
         update_option('blockonomics_orders', $orders);
     }
 }

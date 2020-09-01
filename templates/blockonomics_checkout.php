@@ -41,7 +41,7 @@ $blockonomics = new Blockonomics;
       </div>
       <!-- Payment Error -->
       <div class="bnomics-order-error-wrapper" ng-show="order.status == -2" ng-cloak>
-        <h3 class="warning bnomics-status-warning"><?=__('Payment Error', 'blockonomics-bitcoin-payments')?></h3>
+        <h3 class="warning bnomics-status-warning"><?=__('Paid order BTC amount is less than expected. Contact merchant', 'blockonomics-bitcoin-payments')?></h3>
       </div>
       <!-- Blockonomics Checkout Panel -->
       <div class="bnomics-order-panel" ng-show="order.status == -1" ng-cloak>

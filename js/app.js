@@ -81,17 +81,23 @@ function CheckoutController($scope, $interval, Order, $timeout, Url) {
             }
             $scope.tick_interval = $interval($scope.tick, 1000);
             //Connect and Listen on websocket for payment notification
-            var ws = new ReconnectingWebSocket("wss://" + subdomain + ".blockonomics.co/payment/" + $scope.order.address + "?timestamp=" + $scope.order.timestamp);
+            var ws = new ReconnectingWebSocket("wss://" + subdomain + ".blockonomics.co/payment/" + $scope.order.address);
             ws.onmessage = function(evt) {
                 ws.close();
                 $interval(function() {
-                    //Redirect to order received page if message from socket
+                    //Redirect to order confirmation page if message from socket
                     window.location = Url.get_wc_endpoint({'finish_order' : $scope.order_id});
                 //Wait for 2 seconds for order status to update on server
                 }, 2000, 1);
             }
         }
+        else if ($scope.order.status >= 0){
+          //Goto order confirmation as payment is already in process or done
+          window.location = Url.get_wc_endpoint({'finish_order' : $scope.order_id});
+        }
+
     }
+
     
     //Check if the blockonomics order is present
     function check_blockonomics_order() {
