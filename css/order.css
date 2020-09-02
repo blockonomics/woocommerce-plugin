@@ -167,7 +167,7 @@
   font-display: block;
 }
 
-[class^="icon-"], [class*=" icon-"] {
+[class^="bnomics-icon-"], [class*=" bnomics-icon-"] {
   font-family: 'cryptos' !important;
   speak: never;
   font-style: normal;
@@ -181,14 +181,14 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-bch:before {
+.bnomics-icon-bch:before {
   content: "\e900";
 }
-.icon-btc:before {
+.bnomics-icon-btc:before {
   content: "\e901";
 }
 
-.rotateimgbtc {
+.bnomics-rotate-btc {
   -webkit-transform:rotate(15deg);
   -moz-transform: rotate(15deg);
   -ms-transform: rotate(15deg);
@@ -198,7 +198,7 @@
   margin-right: auto;
 }
 
-.rotateimgbch {
+.bnomics-rotate-bch {
   -webkit-transform:rotate(-15deg);
   -moz-transform: rotate(-15deg);
   -ms-transform: rotate(-15deg);
