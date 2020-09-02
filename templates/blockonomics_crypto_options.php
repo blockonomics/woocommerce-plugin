@@ -25,7 +25,7 @@ $blockonomics = new Blockonomics;
                 <p>
                   <?=__('Pay With', 'blockonomics-bitcoin-payments')?>
                 </p>
-                <span class="icon-{{active_code}} rotateimg{{active_code}}"></span>
+                <span class="bnomics-icon-{{active_code}} bnomics-rotate-{{active_code}}"></span>
                 <p>
                   {{active_crypto.name}}<br>
                   <b>{{active_code}}</b>
