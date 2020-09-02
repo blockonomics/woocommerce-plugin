@@ -282,7 +282,7 @@ class Blockonomics
         if (!$error_str)
         {
             //Everything OK ! Test address generation
-            $response= $this->new_address($callback_secret, 'BTC', true);
+            $response= $this->new_address($callback_secret, 'btc', true);
             if ($response->response_code!=200){
               $error_str = $response->response_message;
             }
