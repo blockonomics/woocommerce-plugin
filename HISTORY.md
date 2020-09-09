@@ -1,5 +1,10 @@
 == Changelog ==
 
+= 2.0  =
+* Added BCH support
+* Fixed payment expiry issues
+* New UI of payment page and code refactor
+
 = 1.8.5  =
 * Added option for noJavascript checkout page
 
