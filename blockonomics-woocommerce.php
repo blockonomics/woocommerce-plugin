@@ -343,20 +343,30 @@ function blockonomics_woocommerce_init()
     }
     function nolo_custom_field_display_cust_order_meta($order)
     {
-        $txid = get_post_meta($order->get_id(), 'blockonomics_txid', true);
-        $address = get_post_meta($order->get_id(), 'blockonomics_address', true);
+        $btc_txid = get_post_meta($order->get_id(), 'blockonomics_btc_txid', true);
+        $btc_address = get_post_meta($order->get_id(), 'btc_address', true);
         include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
-        if ($txid && $address) {
-            echo '<h2>'.__('Payment Details', 'blockonomics-bitcoin-payments').'</h2><p><strong>'.__('Transaction', 'blockonomics-bitcoin-payments').':</strong>  <a href =\''. Blockonomics::BASE_URL ."/api/tx?txid=$txid&addr=$address'>".substr($txid, 0, 10). '</a></p><p>'.__('Your order will be processed on confirmation of above transaction by the bitcoin network.', 'blockonomics-bitcoin-payments').'</p>';
+        if ($btc_txid && $btc_address) {
+            echo '<h2>'.__('Payment Details', 'blockonomics-bitcoin-payments').'</h2><p><strong>'.__('Transaction', 'blockonomics-bitcoin-payments').':</strong>  <a href =\''. Blockonomics::BASE_URL ."/api/tx?txid=$btc_txid&addr=$btc_address'>".substr($btc_txid, 0, 10). '</a></p><p>'.__('Your order will be processed on confirmation of above transaction by the bitcoin network.', 'blockonomics-bitcoin-payments').'</p>';
+        }
+        $bch_txid = get_post_meta($order->get_id(), 'blockonomics_bch_txid', true);
+        $bch_address = get_post_meta($order->get_id(), 'bch_address', true);
+        if ($bch_txid && $bch_address) {
+            echo '<h2>'.__('Payment Details', 'blockonomics-bitcoin-payments').'</h2><p><strong>'.__('Transaction', 'blockonomics-bitcoin-payments').':</strong>  <a href =\''. Blockonomics::BCH_BASE_URL ."/api/tx?txid=$bch_txid&addr=$bch_address'>".substr($bch_txid, 0, 10). '</a></p><p>'.__('Your order will be processed on confirmation of above transaction by the bitcoin network.', 'blockonomics-bitcoin-payments').'</p>';
         }
     }
     function nolo_bnomics_woocommerce_email_customer_details($order)
     {
-        $txid = get_post_meta($order->get_id(), 'blockonomics_txid', true);
-        $address = get_post_meta($order->get_id(), 'blockonomics_address', true);
-        if ($txid && $address) {
-          include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
-          echo '<h2>Payment Details</h2><p><strong>'.__('Transaction').':</strong>  <a href =\''. Blockonomics::BASE_URL ."/api/tx?txid=$txid&addr=$address'>".substr($txid, 0, 10). '</a></p>';
+        $btc_txid = get_post_meta($order->get_id(), 'blockonomics_btc_txid', true);
+        $btc_address = get_post_meta($order->get_id(), 'btc_address', true);
+        include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
+        if ($btc_txid && $btc_address) {
+          echo '<h2>Payment Details</h2><p><strong>'.__('Transaction').':</strong>  <a href =\''. Blockonomics::BASE_URL ."/api/tx?txid=$btc_txid&addr=$btc_address'>".substr($btc_txid, 0, 10). '</a></p>';
+        }
+        $bch_txid = get_post_meta($order->get_id(), 'blockonomics_bch_txid', true);
+        $bch_address = get_post_meta($order->get_id(), 'bch_address', true);
+        if ($bch_txid && $bch_address) {
+          echo '<h2>Payment Details</h2><p><strong>'.__('Transaction').':</strong>  <a href =\''. Blockonomics::BCH_BASE_URL ."/api/tx?txid=$bch_txid&addr=$bch_address'>".substr($bch_txid, 0, 10). '</a></p>';
         }
     }
 

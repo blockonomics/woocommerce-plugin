@@ -13,6 +13,7 @@ class Blockonomics
     const TEMP_API_KEY_URL = 'https://www.blockonomics.co/api/temp_wallet';
     const TEMP_WITHDRAW_URL = 'https://www.blockonomics.co/api/temp_withdraw_request';
 
+    const BCH_BASE_URL = 'https://bch.blockonomics.co';
     const BCH_NEW_ADDRESS_URL = 'https://bch.blockonomics.co/api/new_address';
     const BCH_PRICE_URL = 'https://bch.blockonomics.co/api/price';
 
