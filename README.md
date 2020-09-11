@@ -11,7 +11,7 @@ Accept bitcoin payments and altcoins on your WooCommerce website. Bitcoin paymen
 
 ## Description ## 
 
-The fastest and easiest way to start accepting Bitcoin payments on your Woocommerce online store. Since 2015, [Blockonomics](https://www.blockonomics.co/merchants?utm_source=wordpress) has helped thousands of ecommerce sites increase sales by including Bitcoin, Ethereum and Litecoin as payment option for their customers. 
+The fastest and easiest way to start accepting Bitcoin payments on your Woocommerce online store. Since 2015, [Blockonomics](https://www.blockonomics.co/merchants?utm_source=wordpress) has helped thousands of ecommerce sites increase sales by including Bitcoin and Bitcoin Cash as payment options for their customers. 
 
 ### A truly decentralized bitcoin payment processor for Wordpress ### 
 
@@ -27,7 +27,7 @@ Blockonomics is the only Bitcoin payment gateway that enables full decentralizat
 - **World-class** customer support team 
 
 ### Built for bitcoin merchants ### 
-- Accept BTC and other major cryptocurrencies on your website like ETH and LTC using our built-in Flyp.me integration. 
+- Accept Bitcoin (BTC) and Bitcoin Cash (BCH)
 - **Segwit compatibility** enables the lowest transaction fees possible 
 - All major HD wallets, such as Trezor, Ledger Nano S, Blockchain.info and Mycelium are supported 
 - Supports **all major fiat currencies** 
