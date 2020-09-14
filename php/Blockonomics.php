@@ -525,8 +525,7 @@ class Blockonomics
     }
 
     // Save the received payment info to the WooCommerce order
-    public function record_payment($value, $order, $wc_order){
-        update_post_meta($wc_order->get_id(), 'paid_'. $order['crypto'], $value/1.0e8);
+    public function record_transaction($value, $order, $wc_order){
         update_post_meta($wc_order->get_id(), 'blockonomics_'. $order['crypto'] .'_txid', $order['txid']);
         update_post_meta($wc_order->get_id(), 'expected_'. $order['crypto'], $order['satoshi']/1.0e8);
     }
@@ -537,6 +536,19 @@ class Blockonomics
             return false;
         }
         return true;
+    }
+
+    public function is_transaction_recorded($status, $order, $wc_order){
+        if (!metadata_exists('post',$wc_order->get_id(),'blockonomics_'. $order['crypto'] .'_txid', $order['txid']) )  {
+            return false;
+        }
+        return true;
+    }
+
+    public function record_payment($status, $value, $order, $wc_order){
+      update_post_meta($wc_order->get_id(), 'paid_'. $order['crypto'], $value/1.0e8);
+      $status = $this->check_paid_amount($status, $value, $order, $wc_order);
+      return $status;
     }
 
     // Check for underpayment, overpayment or correct amount
@@ -574,11 +586,15 @@ class Blockonomics
         $order['txid'] = $txid;
 
 
-        if ( !$this->is_payment_recorded($status, $order, $wc_order) )  {
-            $this->record_payment($value, $order, $wc_order);
-            $status = $this->check_paid_amount($status, $value, $order, $wc_order);
+        if ( !$this->is_transaction_recorded($status, $order, $wc_order) )  {
+            $this->record_transaction($value, $order, $wc_order);
+        }
+
+        if (!$this->is_payment_recorded($status, $order, $wc_order)) {
+            $status = $this->record_payment($status, $value, $order, $wc_order);
             $this->update_temp_draw_amount($value);
         }
+
         $order['status'] = $status;
         $orders[$order['order_id']][$address] = $order;
         update_option('blockonomics_orders', $orders);
