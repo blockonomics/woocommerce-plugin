@@ -13,6 +13,7 @@ class Blockonomics
     const TEMP_API_KEY_URL = 'https://www.blockonomics.co/api/temp_wallet';
     const TEMP_WITHDRAW_URL = 'https://www.blockonomics.co/api/temp_withdraw_request';
 
+    const BCH_BASE_URL = 'https://bch.blockonomics.co';
     const BCH_NEW_ADDRESS_URL = 'https://bch.blockonomics.co/api/new_address';
     const BCH_PRICE_URL = 'https://bch.blockonomics.co/api/price';
 
@@ -523,19 +524,22 @@ class Blockonomics
         exit(__("Error: secret does not match", 'blockonomics-bitcoin-payments'));
     }
 
-    // Save the received payment info to the WooCommerce order
-    public function record_payment($value, $order, $wc_order){
-        update_post_meta($wc_order->get_id(), 'paid_'. $order['crypto'], $value/1.0e8);
-        update_post_meta($wc_order->get_id(), 'blockonomics_'. $order['crypto'] .'_txid', $order['txid']);
-        update_post_meta($wc_order->get_id(), 'expected_'. $order['crypto'], $order['satoshi']/1.0e8);
+    public function save_transaction($value, $order, $wc_order){
+        if (!metadata_exists('post',$wc_order->get_id(),'blockonomics_'. $order['crypto'] .'_txid', $order['txid']) )  {
+            update_post_meta($wc_order->get_id(), 'blockonomics_'. $order['crypto'] .'_txid', $order['txid']);
+            update_post_meta($wc_order->get_id(), 'expected_'. $order['crypto'], $order['satoshi']/1.0e8);
+        }
     }
 
-    public function is_payment_recorded($status, $order, $wc_order){
+    public function update_paid_amount($status, $value, $order, $wc_order){
         $network_confirmations = get_option("blockonomics_network_confirmation",2);
         if ($status >= $network_confirmations && !metadata_exists('post',$wc_order->get_id(),'paid_'. $order['crypto']) )  {
-            return false;
+          update_post_meta($wc_order->get_id(), 'paid_'. $order['crypto'], $value/1.0e8);
+          $status = $this->check_paid_amount($status, $value, $order, $wc_order);
+          $this->update_temp_draw_amount($value);
+          return $status;
         }
-        return true;
+        return $status;
     }
 
     // Check for underpayment, overpayment or correct amount
@@ -573,11 +577,9 @@ class Blockonomics
         $order['txid'] = $txid;
 
 
-        if ( !$this->is_payment_recorded($status, $order, $wc_order) )  {
-            $this->record_payment($value, $order, $wc_order);
-            $status = $this->check_paid_amount($status, $value, $order, $wc_order);
-            $this->update_temp_draw_amount($value);
-        }
+        $this->save_transaction($value, $order, $wc_order);
+        $status = $this->update_paid_amount($status, $value, $order, $wc_order);
+
         $order['status'] = $status;
         $orders[$order['order_id']][$address] = $order;
         update_option('blockonomics_orders', $orders);
