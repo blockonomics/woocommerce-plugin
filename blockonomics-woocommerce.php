@@ -53,7 +53,8 @@ function blockonomics_woocommerce_init()
     }
 
     require_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'WC_Gateway_Blockonomics.php';
-
+    include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
+    
     add_action('admin_menu', 'add_page');
     add_action('init', 'woocommerce_handle_blockonomics_return');
     add_action('init', 'load_plugin_translations');
@@ -101,7 +102,6 @@ function blockonomics_woocommerce_init()
     // Add entry in the settings menu
     function add_page()
     {
-        include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
         $blockonomics = new Blockonomics;
 
         if (isset($_POST['generateSecret']))
@@ -343,7 +343,6 @@ function blockonomics_woocommerce_init()
     }
     function bnomics_display_tx_info($order, $email=false)
     {
-        include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
         $blockonomics = new Blockonomics();
         $active_cryptos = $blockonomics->getActiveCurrencies();
         foreach ($active_cryptos as $crypto) {
