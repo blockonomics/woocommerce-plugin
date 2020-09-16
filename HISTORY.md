@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 2.1  =
+* Fixed txid not showing order details
+* Fixed issue with caching files
+
 = 2.0  =
 * Added BCH support
 * Fixed payment expiry issues
