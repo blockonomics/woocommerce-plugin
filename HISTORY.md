@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 2.2  =
+* Fixed issues with callbacks
+
 = 2.1  =
 * Fixed txid not showing order details
 * Fixed issue with caching files

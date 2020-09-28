@@ -246,7 +246,7 @@ class Blockonomics
             $error_str = $response->data;
         elseif (!isset($response_body) || count($response_body) == 0)
         {
-            $error_str = __('You have not entered an xpub', 'blockonomics-bitcoin-payments');
+            $error_str = __('You have not entered an xPub', 'blockonomics-bitcoin-payments');
         }
         elseif (count($response_body) == 1)
         {

@@ -3,7 +3,7 @@
 **Tags:** bitcoin, accept bitcoin, bitcoin woocommerce, bitcoin wordpress plugin, bitcoin payments 
 **Requires at least:** 3.0.1 
 **Tested up to:** 5.5.1
-**Stable tag:** 2.1
+**Stable tag:** 2.2
 **License:** MIT 
 **License URI:** http://opensource.org/licenses/MIT 
 
@@ -11,9 +11,9 @@ Accept bitcoin payments and altcoins on your WooCommerce website. Bitcoin paymen
 
 ## Description ## 
 
-The fastest and easiest way to start accepting Bitcoin payments on your Woocommerce online store. Since 2015, [Blockonomics](https://www.blockonomics.co/merchants?utm_source=wordpress) has helped thousands of ecommerce sites increase sales by including Bitcoin and Bitcoin Cash as payment options for their customers. 
+The fastest and easiest way to start accepting Bitcoin payments on your WooCommerce online store. Since 2015, [Blockonomics](https://www.blockonomics.co/merchants?utm_source=wordpress) has helped thousands of ecommerce sites increase sales by including Bitcoin and Bitcoin Cash as payment options for their customers. 
 
-### A truly decentralized bitcoin payment processor for Wordpress ### 
+### A truly decentralized bitcoin payment processor for WordPress ### 
 
 Blockonomics is the only Bitcoin payment gateway that enables full decentralization in the e-commerce industry. Purchases made to your website are instantly sent to your wallet, rather than to a payment gateway wallet. This not only saves you fees when taking your coins out, but it allows you to take ownership of your revenue without the need for a middle man. Never lose revenue from payment gateway wallet hacks - **be your own bank**! 
 
@@ -49,24 +49,24 @@ You can operate the plugin in two different modes:
  
 - Click on **Get Started For Free** on [Blockonomics > Merchants](https://www.blockonomics.co/merchants) and proceed to complete merchant wizard. 
 - Your API key should be now shown on the [merchants page](https://www.blockonomics.co/merchants)   
-- In Wordpress Admin > Settings > Blockonomics, paste this API Key and Save Settings 
+- In WordPress Admin > Settings > Blockonomics, paste this API Key and Save Settings 
 - Click on **Test Setup** button to verify installation  
 
 For community support/discussion feel free [to post on our subreddit](https://www.reddit.com/r/blockonomics/)
 
 ## Frequently Asked Questions ## 
 
-### Getting error on checkout: Could not generate new bitcoin address , what to do ? ### 
+### Getting error on checkout: Could not generate new bitcoin address, what to do? ### 
 Please use Settings > Blockonomics **Test Setup** to diagnose and get more
 details about the issue
 
 ### Order is still on pending payment status even after two confirmations  ### 
-Your webhost is blocking incoming callbacks from bots, our you have a DDOS protection in place that is causing this. Blockonomics server does payment callbacks to update trasnsaction status and cannot emulate a browser accessing your website. Please consult [this article](http://help.blockonomics.co/solution/articles/33000219539-order-status-not-changing-ddos-protection) on how debug and fix this
+Your webhost is blocking incoming callbacks from bots, or you have a DDOS protection in place that is causing this. Blockonomics server does payment callbacks to update transaction status and cannot emulate a browser accessing your website. Please consult [this article](http://help.blockonomics.co/solution/articles/33000219539-order-status-not-changing-ddos-protection) on how debug and fix this
 
 ### I have multiple websites, how do I set this up? ### 
 You can use single blockonomics account to integrate multiple website. Please consult [this article](http://help.blockonomics.co/solution/articles/33000209399-merchants-integrating-multiple-websites)
 
-### Can I remove Powered by Blockonomics text or customize the checkout page ? ### 
+### Can I remove Powered by Blockonomics text or customize the checkout page? ### 
 You are free to customize the checkout page according to your needs. Feel free to consult [this article](http://help.blockonomics.co/support/solutions/articles/33000243991-how-to-customize-the-checkout-page-)
 
 ## Screenshots ## 

@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin Name: Wordpress Bitcoin Payments - Blockonomics
+ * Plugin Name: WordPress Bitcoin Payments - Blockonomics
  * Plugin URI: https://github.com/blockonomics/woocommerce-plugin
  * Description: Accept Bitcoin Payments on your WooCommerce-powered website with Blockonomics
- * Version: 2.1
+ * Version: 2.2
  * Author: Blockonomics
  * Author URI: https://www.blockonomics.co
  * License: MIT
@@ -306,7 +306,7 @@ function blockonomics_woocommerce_init()
                             <td><input type="checkbox" name="blockonomics_lite" value="1" <?php checked("1", get_option('blockonomics_lite')); ?> /></td>
                         </tr>
                         <tr valign="top">
-                            <th scope="row"><?php echo __('No Javascript checkout page (Enable this if you have majority customer that use tor like browser that block javascript)', 'blockonomics-bitcoin-payments')?></th>
+                            <th scope="row"><?php echo __('No Javascript checkout page (Enable this if you have majority customer that use tor like browser that block Javascript)', 'blockonomics-bitcoin-payments')?></th>
                             <td><input type="checkbox" name="blockonomics_nojs" value="1" <?php checked("1", get_option('blockonomics_nojs')); ?> /></td>
                         </tr>
 						<tr valign="top">
@@ -404,7 +404,7 @@ add_action('admin_notices', 'blockonomics_plugin_activation');
 function blockonomics_activation_hook() {
     if(!is_plugin_active('woocommerce/woocommerce.php'))
     {
-        trigger_error(__( 'Wordpress Bitcoin Payments - Blockonomics requires WooCommere plugin to be installed and active.', 'blockonomics-bitcoin-payments' ).'<br>', E_USER_ERROR);
+        trigger_error(__( 'Wordpress Bitcoin Payments - Blockonomics requires WooCommerce plugin to be installed and active.', 'blockonomics-bitcoin-payments' ).'<br>', E_USER_ERROR);
     }
     set_transient( 'blockonomics_activation_hook_transient', true, 5);
 }
@@ -415,7 +415,7 @@ function blockonomics_plugin_activation() {
   {
       $html = '<div class="error">';
       $html .= '<p>';
-      $html .= __( 'Wordpress Bitcoin Payments - Blockonomics failed to load. Please activate WooCommere plugin.', 'blockonomics-bitcoin-payments' );
+      $html .= __( 'Wordpress Bitcoin Payments - Blockonomics failed to load. Please activate WooCommerce plugin.', 'blockonomics-bitcoin-payments' );
       $html .= '</p>';
       $html .= '</div>';
       echo $html;
