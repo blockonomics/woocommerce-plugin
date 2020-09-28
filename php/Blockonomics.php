@@ -504,8 +504,7 @@ class Blockonomics
     }
 
     // Get the order info by crypto address
-    public function get_order_by_address($address){
-        $orders = get_option('blockonomics_orders');
+    public function get_order_by_address($orders, $address){
         foreach($orders as $id => $order){
             if(isset($order[$address])){
                 $order_id = $id;
@@ -570,8 +569,9 @@ class Blockonomics
     // Process the blockonomics callback
     public function process_callback($secret, $address, $status, $value, $txid){
         $this->check_callback_secret($secret);
-        
-        $order = $this->get_order_by_address($address);
+
+        $orders = get_option('blockonomics_orders');
+        $order = $this->get_order_by_address($orders, $address);
         $wc_order = new WC_Order($order['order_id']);
         
         $order['txid'] = $txid;
