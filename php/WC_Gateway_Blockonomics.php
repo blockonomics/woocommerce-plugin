@@ -85,12 +85,9 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
     // Woocommerce process payment, runs during the checkout
     public function process_payment($order_id)
     {
-        $order = new WC_Order($order_id);
-        $order_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-
         include_once 'Blockonomics.php';
         $blockonomics = new Blockonomics;
-        $order_url = $blockonomics->create_order_url($order_id, $order_url);
+        $order_url = $blockonomics->create_order_url($order_id);
 
         return array(
             'result'   => 'success',
@@ -101,7 +98,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
     // Handles requests to the blockonomics page
     public function handle_requests()
     {
-        $payment_check = isset($_REQUEST["payment_check"]) ? $_REQUEST["payment_check"] : "";
         $show_order = isset($_REQUEST["show_order"]) ? $_REQUEST["show_order"] : "";
         $crypto = isset($_REQUEST["crypto"]) ? $_REQUEST["crypto"] : "";
         $select_crypto = isset($_REQUEST["select_crypto"]) ? $_REQUEST["select_crypto"] : "";
@@ -116,9 +112,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         include_once 'Blockonomics.php';
         $blockonomics = new Blockonomics;
 
-        if ($payment_check) {
-            $blockonomics->load_nojs_payment_confirmation_template();
-        }else if ($show_order && $crypto) {
+        if ($show_order && $crypto) {
             $blockonomics->load_checkout_template($show_order, $crypto);
         }else if ($select_crypto) {
             $blockonomics->load_crypto_options_template();

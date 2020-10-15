@@ -297,11 +297,19 @@ class Blockonomics
     }
 
     // Create the order url to redirect the user to during checkout
-    public function create_order_url($order_id, $order_url){
+    public function create_order_url($order_id, $select=false){
+        $order = new WC_Order($order_id);
+        $order_url = WC()->api_request_url('WC_Gateway_Blockonomics');
+        // Get the order url without crypto
+        if ($select){
+            $order_url = add_query_arg('show_order', $order_id, $order_url);
+        }
         // Check if more than one crypto is activated
-        if (count($this->getActiveCurrencies()) > 1) {
+        else if (count($this->getActiveCurrencies()) > 1) {
             $order_url = add_query_arg('select_crypto', $order_id, $order_url);
-        }else{
+        }
+        // Default to btc if only bitcoin is active
+        else{
             $order_url = add_query_arg('show_order', $order_id, $order_url);
             $order_url = add_query_arg('crypto', 'btc', $order_url);
         }
@@ -383,12 +391,6 @@ class Blockonomics
         exit();
     }
 
-    // Load the the payment confirmed template in the page
-    public function load_nojs_payment_confirmation_template(){
-        $this->load_blockonomics_template('nojs_payment_confirmation');
-    }
-
-
     public function calculate_order_params($order){
         // Check if order is unused, new or expired
         if ( $order['status'] == -1 && (!isset($order['timestamp']) || $order['timestamp'] <= time() - get_option("blockonomics_timeperiod", 10) * 60) ) {
@@ -450,13 +452,7 @@ class Blockonomics
 
     // Load the the crypto options template in the page
     public function load_crypto_options_template(){
-        // Check to send the user to nojs page
-        if($this->is_nojs_active()){
-            $this->load_blockonomics_template('nojs_crypto_options');
-        }
-        else{
-            $this->load_blockonomics_template('crypto_options');
-        }
+        $this->load_blockonomics_template('crypto_options');
     }
 
     // Redirect the user to the woocommerce finish order page
@@ -584,4 +580,13 @@ class Blockonomics
         $orders[$order['order_id']][$address] = $order;
         update_option('blockonomics_orders', $orders);
     }
+
+    public function generate_qrcode($data) {
+        include plugin_dir_path(__FILE__) . 'phpqrcode.php';
+        ob_start("callback");
+        $codeText = sanitize_text_field($data);
+        $debugLog = ob_get_contents();
+        ob_end_clean();
+        QRcode::png($codeText);
+    } 
 }

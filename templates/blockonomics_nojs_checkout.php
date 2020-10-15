@@ -1,70 +1,89 @@
 <?php
+$blockonomics = new Blockonomics;
 $orders = get_option('blockonomics_orders');
-$order_id = $_REQUEST['show_order'];
-$crypto = $_REQUEST['crypto'];
-foreach ($orders[$order_id] as $addr => $order){
-  if ($order['crypto'] == $crypto) break;
-}
-?>
-<div ng-app="shopping-cart-demo">
-  <div ng-controller="CheckoutController">
+$crypto = isset($_REQUEST["crypto"]) ? $_REQUEST["crypto"] : "";
+$order_id = isset($_REQUEST["show_order"]) ? $_REQUEST["show_order"] : "";
+$qrcode = isset($_REQUEST['qrcode']) ? $_REQUEST['qrcode'] : "";
+
+if ($qrcode) {
+  $blockonomics->generate_qrcode($qrcode);
+}else if ($order_id) {
+  $order = $blockonomics->get_order_by_id_and_crypto($orders, $order_id, $crypto);
+  $order_url = $blockonomics->create_order_url($order_id, true);
+  if ($order['status'] >= 0){
+    $finish_order_url = add_query_arg('finish_order', $order['order_id'], $order_url);
+    wp_redirect($finish_order_url);
+  }else {
+    if($order['satoshi'] < 10000){
+      $order_amount = rtrim(number_format($order['satoshi']/1.0e8, 8),0);
+    }else{
+      $order_amount = $order['satoshi']/1.0e8;
+    }
+    $check_payment_url = add_query_arg('crypto', $order['crypto'], $order_url);
+    $qrcode_url = add_query_arg('qrcode', 'bitcoin:'.$order['address'].'?amount='.$order_amount, $order_url);
+    $qrcode_url = add_query_arg('crypto', $order['crypto'], $qrcode_url);
+    ?>
     <div class="bnomics-order-container">
       <!-- Heading row -->
       <div class="bnomics-order-heading">
         <div class="bnomics-order-heading-wrapper">
           <div class="bnomics-order-id">
-            <span class="bnomics-order-number"><?php echo 'ORDER #' . $order['order_id']?></span>
+            <span class="bnomics-order-number"><?=__('Order #', 'blockonomics-bitcoin-payments')?><?php echo $order['order_id']?></span>
           </div>
         </div>
       </div>
-      <!-- Amount row -->
+      <!-- Blockonomics Checkout Panel -->
       <div class="bnomics-order-panel">
         <div class="bnomics-order-info">
-
           <div class="bnomics-bitcoin-pane">
             <div class="bnomics-btc-info">
-              <!-- BTC Amount -->
-              <div class="bnomics-amount">
-              <div class="bnomics-bg">
-                <!-- Order Status -->
-                <div class="bnomics-order-status-wrapper">
-                  <span class="bnomics-order-status-title">To confirm your order, please send the exact amount of <strong><?php echo strtoupper($order['crypto'])?></strong> to the given address</span>
+              <!-- Left Side -->
+              <!-- QR and Open in wallet -->
+              <div class="bnomics-qr-code">
+                <div class="bnomics-qr" style="width: 100%">
+                  <a href="bitcoin:<?php echo $order['address'] ?>?amount=<?php echo $order_amount ?>" target="_blank">
+                    <img style="margin: auto;width: 180px;" src="<?php echo $qrcode_url ?>" />
+                  </a>
                 </div>
-                    <h4 class="bnomics-amount-title" for="invoice-amount">
-                     <?php
-                     if($order['satoshi'] < 10000){
-                       echo rtrim(number_format($order['satoshi']/1.0e8, 8),0);
-                     }else{
-                       echo $order['satoshi']/1.0e8;
-                     }
-                     ?> <?php echo strtoupper($order['crypto'])?>
-                    </h4>
-                    <div class="bnomics-amount-wrapper">
-                      <hr class="bnomics-amount-seperator"> ≈
-                      <span><?php echo $order['value']?></span>
-                      <small><?php echo $order['currency']?></small>
-                    </div>
-              <!-- Bitcoin Address -->
-                <div class="bnomics-address">
-                  <input id="bnomics-address-input" class="bnomics-address-input" type="text" readonly="readonly" value="<?php echo $order['addr'] ?>">
-                </div>
+                <div class="bnomics-qr-code-hint"><a href="bitcoin:<?php echo $order['address'] ?>?amount=<?php echo $order_amount ?>" target="_blank"><?=__('Open in wallet', 'blockonomics-bitcoin-payments')?></a></div>
               </div>
-        <!-- Blockonomics Credit -->
-			<div class="bnomics-how-to-pay">
-				<a href="https://blog.blockonomics.co/how-to-pay-a-bitcoin-invoice-abf4a04d041c" target="_blank">How to pay | Check reviews of this shop</a>
-			</div>
-      <br>
-      <div>
-        <a href="?payment_check=<?php echo $order['order_id'];?>&crypto=<?php echo $order['crypto'];?>">Please click here if already paid</a>
-      </div>
-            <div class="bnomics-powered-by">
-              <?=__('Powered by ', 'blockonomics-bitcoin-payments')?>Blockonomics
-            </div>
+              <!-- Right Side -->
+              <div class="bnomics-amount">
+                <div class="bnomics-bg">
+                  <!-- Order Amounts -->
+                  <div class="bnomics-amount">
+                    <div class="bnomics-amount-text">To pay, send exactly this <?php echo strtoupper($order['crypto'])?> amount</div>
+                    <ul id="bnomics-amount-input" class="bnomics-amount-input">
+                        <li id="bnomics-amount-copy"><?php echo $order_amount ?></li>
+                        <li><?php echo strtoupper($order['crypto'])?></li>
+                        <li class="bnomics-grey"> ≈ </li>
+                        <li class="bnomics-grey"><?php echo $order['value']; ?></li>
+                        <li class="bnomics-grey"><?php echo $order['currency']; ?></li>
+                    </ul>
+                  </div>
+                  <!-- Order Address -->
+                  <div class="bnomics-address">
+                    <div class="bnomics-address-text">To this <?php echo strtolower('bitcoin')?> address</div>
+                    <ul id="bnomics-address-input" class="bnomics-address-input">
+                          <li id="bnomics-address-copy"><?php echo $order['address']; ?></li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <a href="<?php echo $check_payment_url;?>">Click here if already paid</a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <!-- Blockonomics How to pay + Credit -->
+      <div class="bnomics-powered-by">
+        <a href="https://blog.blockonomics.co/how-to-pay-a-bitcoin-invoice-abf4a04d041c" target="_blank"><?=__('How do I pay? | Check reviews of this shop', 'blockonomics-bitcoin-payments')?></a><br>
+        <div class="bnomics-powered-by-text bnomics-grey"><?=__('Powered by Blockonomics', 'blockonomics-bitcoin-payments')?></div>
+      </div>
     </div>
-  </div>
-</div>
+  <?php
+  }
+}
