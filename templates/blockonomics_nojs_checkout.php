@@ -53,20 +53,12 @@ if ($qrcode) {
                   <!-- Order Amounts -->
                   <div class="bnomics-amount">
                     <div class="bnomics-amount-text">To pay, send exactly this <?php echo strtoupper($order['crypto'])?> amount</div>
-                    <ul id="bnomics-amount-input" class="bnomics-amount-input">
-                        <li id="bnomics-amount-copy"><?php echo $order_amount ?></li>
-                        <li><?php echo strtoupper($order['crypto'])?></li>
-                        <li class="bnomics-grey"> ≈ </li>
-                        <li class="bnomics-grey"><?php echo $order['value']; ?></li>
-                        <li class="bnomics-grey"><?php echo $order['currency']; ?></li>
-                    </ul>
+                    <input type="text" id="bnomics-amount-input" class="bnomics-amount-input" value="<?php echo $order_amount ?> <?php echo strtoupper($order['crypto'])?> ≈ <?php echo $order['value']; ?> <?php echo $order['currency']; ?>" readonly>
                   </div>
                   <!-- Order Address -->
                   <div class="bnomics-address">
                     <div class="bnomics-address-text">To this <?php echo strtolower('bitcoin')?> address</div>
-                    <ul id="bnomics-address-input" class="bnomics-address-input">
-                          <li id="bnomics-address-copy"><?php echo $order['address']; ?></li>
-                    </ul>
+                    <input type="text" id="bnomics-address-input" class="bnomics-address-input" value="<?php echo $order['address']; ?>" readonly>
                   </div>
 
                   <div>
