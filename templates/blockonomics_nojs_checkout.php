@@ -6,7 +6,7 @@ $order_id = isset($_REQUEST["show_order"]) ? $_REQUEST["show_order"] : "";
 
 $order = $blockonomics->get_order_by_id_and_crypto($orders, $order_id, $crypto);
 if ($order['status'] >= 0){
-    $finish_order_url = add_query_arg('finish_order', $order['order_id'], $order_url);
+  $blockonomics->redirect_finish_order($order_id);
 }else {
   if($order['satoshi'] < 10000){
     $order_amount = rtrim(number_format($order['satoshi']/1.0e8, 8),0);
