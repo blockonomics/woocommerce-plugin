@@ -87,7 +87,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
     {
         include_once 'Blockonomics.php';
         $blockonomics = new Blockonomics;
-        $order_url = $blockonomics->create_order_url($order_id);
+        $order_url = $blockonomics->get_crypto_checkout_url($order_id);
 
         return array(
             'result'   => 'success',

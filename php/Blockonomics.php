@@ -296,8 +296,8 @@ class Blockonomics
         return false;
     }
 
-    // Create the order url to redirect the user to during checkout
-    public function create_order_url($order_id, $select=false){
+    // Returns order url for checkout using a given cryptocurrency 
+    public function get_crypto_checkout_url($order_id, $select=false){
         $order = new WC_Order($order_id);
         $order_url = WC()->api_request_url('WC_Gateway_Blockonomics');
         // Get the order url without crypto

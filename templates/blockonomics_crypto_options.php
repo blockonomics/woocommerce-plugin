@@ -2,7 +2,7 @@
 $blockonomics = new Blockonomics;
 $cryptos = $blockonomics->getActiveCurrencies();
 $order_id = $_REQUEST['select_crypto'];
-$order_url = $blockonomics->create_order_url($order_id, true);
+$order_url = $blockonomics->get_crypto_checkout_url($order_id, true);
 ?>
 <div class="bnomics-order-container">
   <div class="bnomics-select-container">
