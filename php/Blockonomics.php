@@ -450,11 +450,6 @@ class Blockonomics
         }
     }
 
-    // Load the the crypto options template in the page
-    public function load_crypto_options_template(){
-        $this->load_blockonomics_template('crypto_options');
-    }
-
     // Redirect the user to the woocommerce finish order page
     public function redirect_finish_order($order_id){
         $wc_order = new WC_Order($order_id);

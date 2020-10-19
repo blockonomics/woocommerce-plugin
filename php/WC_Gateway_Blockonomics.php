@@ -115,7 +115,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         if ($show_order && $crypto) {
             $blockonomics->load_checkout_template($show_order, $crypto);
         }else if ($select_crypto) {
-            $blockonomics->load_crypto_options_template();
+            $blockonomics->load_blockonomics_template('crypto_options');
         }else if ($finish_order) {
             $blockonomics->redirect_finish_order($finish_order);
         }else if ($get_order && $crypto) {
