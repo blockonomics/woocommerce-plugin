@@ -296,19 +296,13 @@ class Blockonomics
         return false;
     }
 
-    // Returns WC base endpoint url of an order
-    public function get_wc_base_url($order_id){
-        $order = new WC_Order($order_id);
+    // Returns WC endpoint of order adding the given extra parameters
+    public function get_parameterized_wc_url($params = array()){
         $order_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-        return $order_url;
-    }
-
-    // Returns WC endpoint of order adding the given extra parameter
-    public function get_order_wc_url($order_id, $param_name='', $param_value=''){
-        $order_url = $this->get_wc_base_url($order_id);
-        $order_url = add_query_arg('show_order', $order_id, $order_url);
-        if ($param_name) {
-            $order_url = add_query_arg($param_name, $param_value, $order_url);
+        if(is_array($params) && count($params)>0){
+            foreach ($params as $param_name => $param_value) {
+                $order_url = add_query_arg($param_name, $param_value, $order_url);
+            }
         }
         return $order_url;
     }
@@ -317,12 +311,11 @@ class Blockonomics
     public function get_order_checkout_url($order_id){
         // Check if more than one crypto is activated
         if (count($this->getActiveCurrencies()) > 1) {
-            $order_url = $this->get_wc_base_url($order_id);
-            $order_url = add_query_arg('select_crypto', $order_id, $order_url);
+            $order_url = $this->get_parameterized_wc_url(array('select_crypto'=>$order_id));
         }
         // Default to btc if only bitcoin is active
         else{
-            $order_url = $this->get_order_wc_url($order_id, 'crypto', 'btc');
+            $order_url = $this->get_parameterized_wc_url(array('show_order'=>$order_id, 'crypto'=>'btc'));
         }
         return $order_url;
     }
