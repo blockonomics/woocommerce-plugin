@@ -296,22 +296,33 @@ class Blockonomics
         return false;
     }
 
-    // Returns order url for checkout using a given cryptocurrency 
-    public function get_crypto_checkout_url($order_id, $select=false){
+    // Returns WC base endpoint url of an order
+    public function get_wc_base_url($order_id){
         $order = new WC_Order($order_id);
         $order_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-        // Get the order url without crypto
-        if ($select){
-            $order_url = add_query_arg('show_order', $order_id, $order_url);
+        return $order_url;
+    }
+
+    // Returns WC endpoint of order adding the given extra parameter
+    public function get_order_wc_url($order_id, $param_name='', $param_value=''){
+        $order_url = $this->get_wc_base_url($order_id);
+        $order_url = add_query_arg('show_order', $order_id, $order_url);
+        if ($param_name) {
+            $order_url = add_query_arg($param_name, $param_value, $order_url);
         }
+        return $order_url;
+    }
+
+    // Returns url to redirect the user to during checkout
+    public function get_order_checkout_url($order_id){
         // Check if more than one crypto is activated
-        else if (count($this->getActiveCurrencies()) > 1) {
+        if (count($this->getActiveCurrencies()) > 1) {
+            $order_url = $this->get_wc_base_url($order_id);
             $order_url = add_query_arg('select_crypto', $order_id, $order_url);
         }
         // Default to btc if only bitcoin is active
         else{
-            $order_url = add_query_arg('show_order', $order_id, $order_url);
-            $order_url = add_query_arg('crypto', 'btc', $order_url);
+            $order_url = $this->get_order_wc_url($order_id, 'crypto', 'btc');
         }
         return $order_url;
     }
