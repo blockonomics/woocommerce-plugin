@@ -13,7 +13,7 @@ if ($order['status'] >= 0){
   }else{
     $order_amount = $order['satoshi']/1.0e8;
   }
-  $check_payment_url = $blockonomics->get_parameterized_wc_url(array('show_order'=>$order_id, 'crypto'=>'btc'));
+  $check_payment_url = $blockonomics->get_parameterized_wc_url(array('show_order'=>$order_id, 'crypto'=>$crypto));
   $cryptos = $blockonomics->getActiveCurrencies();
   $qrcode_url = $blockonomics->get_parameterized_wc_url(array('qrcode'=>$cryptos[$crypto]['uri'] . ':' .$order['address'].'?amount='.$order_amount));
   ?>
