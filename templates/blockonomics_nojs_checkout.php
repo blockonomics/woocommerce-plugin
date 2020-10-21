@@ -47,7 +47,7 @@ if ($order['status'] >= 0){
                 <!-- Order Amounts -->
                 <div class="bnomics-amount">
                   <div class="bnomics-amount-text">To pay, send exactly this <?php echo strtoupper($order['crypto'])?> amount</div>
-                  <input type="text" id="bnomics-amount-input" class="bnomics-amount-input" value="<?php echo $order_amount ?> <?php echo strtoupper($order['crypto'])?> ≈ <?php echo $order['value']; ?> <?php echo $order['currency']; ?>" readonly>
+                  <input type="text" id="bnomics-amount-input" class="bnomics-amount-input" value="<?php echo $order_amount ?>" readonly>
                 </div>
                 <!-- Order Address -->
                 <div class="bnomics-address">
