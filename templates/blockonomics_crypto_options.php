@@ -1,40 +1,33 @@
 <?php
 $blockonomics = new Blockonomics;
+$cryptos = $blockonomics->getActiveCurrencies();
+$order_id = $_REQUEST['select_crypto'];
+$order_url = $blockonomics->get_parameterized_wc_url(array('show_order'=>$order_id))
 ?>
-<div id="active_cryptos" data-active_cryptos='<?php echo json_encode($blockonomics->getActiveCurrencies()); ?>'></div>
-
-<div ng-app="BlockonomicsApp">
-  <div ng-controller="CryptoOptionsController">
-    <div class="bnomics-order-container">
-      <!-- Spinner -->
-      <div class="bnomics-spinner-wrapper" ng-show="spinner" ng-cloak>
-        <div class="bnomics-spinner"></div>
-      </div>
-
-      <!-- Display Error -->
-      <div id="display-error" class="bnomics-display-error" ng-hide="no_display_error">
-        <h2><?=__('Display Error', 'blockonomics-bitcoin-payments')?></h2>
-        <p><?=__('Unable to render correctly, Note to Administrator: Please enable lite mode in the Blockonomics plugin.', 'blockonomics-bitcoin-payments')?></p>
-      </div>
-      
-      <!-- Blockonomics Currency Select -->
-      <div class="bnomics-select-container" ng-show="crypto_selecter" ng-cloak>
-        <table width="100%">
-          <tr>
-              <td class="bnomics-select-options" ng-repeat="(active_code, active_crypto) in active_cryptos" ng-click="select_blockonomics_crypto(active_code)">
-                <p>
-                  <?=__('Pay With', 'blockonomics-bitcoin-payments')?>
-                </p>
-                <span class="bnomics-icon-{{active_code}} bnomics-rotate-{{active_code}}"></span>
-                <p>
-                  {{active_crypto.name}}<br>
-                  <b>{{active_code}}</b>
-                </p>
-              </td>
-          </tr>
-        </table>
-      </div>
-
-    </div>
+<div class="bnomics-order-container">
+  <div class="bnomics-select-container">
+    <table width="100%">
+      <tr>
+        <?php
+        foreach ($cryptos as $code => $crypto) {
+          $order_url = add_query_arg('crypto', $code, $order_url);
+        ?>
+          <td class="bnomics-select-options">
+            <a href="<?php echo $order_url;?>" style="color: inherit; text-decoration: inherit;">
+              <p>
+                <?=__('Pay With', 'blockonomics-bitcoin-payments')?>
+              </p>
+              <span class="bnomics-icon-<?php echo $code;?> bnomics-rotate-<?php echo $code;?>"></span>
+              <p>
+                <?php echo $crypto['name'];?><br>
+                <b><?php echo $code;?></b>
+              </p>
+            </a>
+          </td>
+        <?php 
+        }
+        ?>
+      </tr>
+    </table>
   </div>
 </div>

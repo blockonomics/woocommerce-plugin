@@ -2,7 +2,6 @@
 'use strict';
 
 angular.module('BlockonomicsApp', ['ngResource', 'monospaced.qrcode'])
-.controller('CryptoOptionsController', CryptoOptionsController)
 .controller('CheckoutController', CheckoutController)
 .factory('Order', Order)
 .service('Url', Url)
@@ -11,27 +10,6 @@ angular.module('BlockonomicsApp', ['ngResource', 'monospaced.qrcode'])
 Config.$inject = ['$compileProvider'];
 function Config($compileProvider) {
   $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|data|chrome-extension|bitcoin|bitcoincash):/);
-}
-
-CryptoOptionsController.$inject = ['$scope', 'Url'];
-function CryptoOptionsController($scope, Url) {
-    var active_cryptos_div = document.getElementById("active_cryptos");
-    var active_cryptos = JSON.parse(active_cryptos_div.dataset.active_cryptos);
-    $scope.no_display_error = true;
-    $scope.active_cryptos = active_cryptos;
-    $scope.crypto_selecter  = true;
-    //fetch url params
-    $scope.order_id = Url.get_parameter_by_name("select_crypto");
-
-    //Select Blockonomics crypto
-    $scope.select_blockonomics_crypto = function(blockonomics_crypto) {
-        $scope.crypto_selecter  = false;
-        $scope.spinner = true;
-        if (typeof $scope.order_id != 'undefined') {
-            window.location = Url.get_wc_endpoint({'show_order': $scope.order_id,
-                                                   'crypto': blockonomics_crypto});
-        }
-    }
 }
 
 CheckoutController.$inject = ['$scope', '$interval', 'Order', '$timeout', 'Url'];
