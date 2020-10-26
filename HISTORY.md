@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 2.3  =
+* Added noJS payment screen support
+
 = 2.2  =
 * Fixed issues with callbacks
 
