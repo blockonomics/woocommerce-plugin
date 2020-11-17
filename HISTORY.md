@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 2.4  =
+* Zero confirm RBF payment are unsafe and are ignored
+
 = 2.3  =
 * Added noJS payment screen support
 
