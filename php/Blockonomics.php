@@ -562,7 +562,7 @@ class Blockonomics
     }
 
     // Process the blockonomics callback
-    public function process_callback($secret, $address, $status, $value, $txid){
+    public function process_callback($secret, $address, $status, $value, $txid, $rbf){
         $this->check_callback_secret($secret);
 
         $orders = get_option('blockonomics_orders');
@@ -571,9 +571,12 @@ class Blockonomics
         
         $order['txid'] = $txid;
 
-
-        $this->save_transaction($value, $order, $wc_order);
-        $status = $this->update_paid_amount($status, $value, $order, $wc_order);
+        if (!$rbf){
+          // Unconfirmed RBF payments are easily cancelled should be ignored
+          // https://blog.blockonomics.co/bitcoin-payments-can-now-easily-cancelled-a-step-forward-or-two-back-bdef08276382  
+          $this->save_transaction($value, $order, $wc_order);
+          $status = $this->update_paid_amount($status, $value, $order, $wc_order);
+        }
 
         $order['status'] = $status;
         $orders[$order['order_id']][$address] = $order;

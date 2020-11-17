@@ -108,6 +108,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $status = isset($_REQUEST['status']) ? $_REQUEST['status'] : "";
         $value = isset($_REQUEST['value']) ? $_REQUEST['value'] : "";
         $txid = isset($_REQUEST['txid']) ? $_REQUEST['txid'] : "";
+        $rbf = isset($_REQUEST['rbf']) ? $_REQUEST['rbf'] : "";
         $qrcode = isset($_REQUEST['qrcode']) ? $_REQUEST['qrcode'] : "";
         
         include_once 'Blockonomics.php';
@@ -122,7 +123,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         }else if ($get_order && $crypto) {
             $blockonomics->get_order_info($get_order, $crypto);
         }else if ($secret && $addr && isset($status) && $value && $txid) {
-            $blockonomics->process_callback($secret, $addr, intval($status), $value, $txid);
+            $blockonomics->process_callback($secret, $addr, intval($status), $value, $txid, $rbf);
         }else if ($qrcode) {
           $blockonomics->generate_qrcode($qrcode);
         }
