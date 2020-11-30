@@ -474,6 +474,14 @@ class Blockonomics
         return false;
     }
 
+    // Updates an order in blockonomics_orders
+    // Always fetches latest orders first to ensure data integrity
+    public function update_order($order){
+        $orders = get_option('blockonomics_orders');
+        $orders[$order['order_id']][$order['address']] = $order;
+        update_option('blockonomics_orders', $orders);
+    }
+
     // Check and update the crypto order or create a new order
     public function process_order($order_id, $crypto){
         $orders = get_option('blockonomics_orders');
@@ -485,8 +493,7 @@ class Blockonomics
             $order = $this->create_new_order($order_id, $crypto);
         }
         
-        $orders[$order_id][$order['address']] = $order;
-        update_option('blockonomics_orders', $orders);
+        $this->update_order($order);
 
         return $order;
     }
@@ -579,8 +586,7 @@ class Blockonomics
         }
 
         $order['status'] = $status;
-        $orders[$order['order_id']][$address] = $order;
-        update_option('blockonomics_orders', $orders);
+        $this->update_order($order);
     }
 
     public function generate_qrcode($data) {
