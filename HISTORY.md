@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 2.4.1  =
+* Fixes update issues with merchant having large volumes
+
 = 2.4  =
 * Zero confirm RBF payment are unsafe and are ignored
 
