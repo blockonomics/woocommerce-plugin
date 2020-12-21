@@ -423,6 +423,8 @@ function blockonomics_activation_hook() {
         satoshi int,
         currency varchar(3),
         value decimal(10, 2),
+        txid text,
+        UNIQUE (address),
         PRIMARY KEY  (address)
     ) $charset_collate;";
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
