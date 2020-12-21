@@ -462,37 +462,34 @@ class Blockonomics
     }
 
     // Fetch the correct crypto order linked to the order id
-    public function get_order_by_id_and_crypto($orders, $order_id, $crypto){
-        if(isset($orders[$order_id])){
-            foreach($orders[$order_id] as $addr => $order){
-                if($order['crypto'] == $crypto){
-                    return $order;
-                }
-            }
-            return false;
+    public function get_order_by_id_and_crypto($order_id, $crypto){
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'blockonomics_orders';
+        $order = $wpdb->get_row("SELECT * FROM ".$table_name." WHERE order_id = '".$order_id."' AND crypto = '".$crypto."'", ARRAY_A);
+        if($order){
+            return $order;
         }
         return false;
     }
 
-    // Updates an order in blockonomics_orders
-    // Always fetches latest orders first to ensure data integrity
+    // Updates an order in blockonomics_orders table
     public function update_order($order){
-        $orders = get_option('blockonomics_orders');
-        $orders[$order['order_id']][$order['address']] = $order;
-        update_option('blockonomics_orders', $orders);
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'blockonomics_orders';
+        $wpdb->replace( 
+            $table_name, 
+            $order 
+        );
     }
 
     // Check and update the crypto order or create a new order
     public function process_order($order_id, $crypto){
-        $orders = get_option('blockonomics_orders');
-
-        $order = $this->get_order_by_id_and_crypto($orders, $order_id, $crypto);
+        $order = $this->get_order_by_id_and_crypto($order_id, $crypto);
         if ($order) {
             $order = $this->calculate_order_params($order);
         }else {
             $order = $this->create_new_order($order_id, $crypto);
         }
-        
         $this->update_order($order);
 
         return $order;

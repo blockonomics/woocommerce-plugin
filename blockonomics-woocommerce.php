@@ -406,6 +406,29 @@ function blockonomics_activation_hook() {
     {
         trigger_error(__( 'Wordpress Bitcoin Payments - Blockonomics requires WooCommerce plugin to be installed and active.', 'blockonomics-bitcoin-payments' ).'<br>', E_USER_ERROR);
     }
+
+    // Create blockonomics_orders table
+    // https://codex.wordpress.org/Creating_Tables_with_Plugins
+    global $wpdb;
+    global $blocko_db_version;
+    $table_name = $wpdb->prefix . 'blockonomics_orders';
+    $charset_collate = $wpdb->get_charset_collate();
+    $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+        order_id int NOT NULL,
+        status int NOT NULL,
+        crypto varchar(3) NOT NULL,
+        address varchar(55) NOT NULL,
+        timestamp varchar(55),
+        time_remaining varchar(55),
+        satoshi int,
+        currency varchar(3),
+        value decimal(10, 2),
+        PRIMARY KEY  (address)
+    ) $charset_collate;";
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    dbDelta( $sql );
+    add_option( 'blocko_db_version', $blocko_db_version );
+
     set_transient( 'blockonomics_activation_hook_transient', true, 5);
 }
 
