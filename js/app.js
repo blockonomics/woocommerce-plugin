@@ -81,6 +81,22 @@ function CheckoutController($scope, $interval, Order, $timeout, Url) {
     function check_blockonomics_order() {
         $scope.spinner = true;
         if (typeof $scope.order_id != 'undefined') {
+            Order.get({
+                "get_order": 63, // Replace with another woocommerce order id
+                "crypto": $scope.crypto.code
+            }, function(data) {
+                $scope.spinner = false;
+                if(data.address !== undefined){
+                    $scope.order = data;
+                    // show the checkout page
+                    proccess_order_data();
+                    $scope.checkout_panel  = true;
+                }else if($scope.crypto.code === 'btc'){
+                    $scope.address_error_btc = true;
+                }else if($scope.crypto.code === 'bch'){
+                    $scope.address_error_bch = true;
+                }
+            });
             //Fetch the order using order_id
             Order.get({
                 "get_order": $scope.order_id,
