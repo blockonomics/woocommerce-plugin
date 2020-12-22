@@ -480,7 +480,7 @@ class Blockonomics
         $orders = get_option('blockonomics_orders');
         $orders[$order['order_id']][$order['address']] = $order;
         update_option('blockonomics_orders', $orders);
-        update_option('blockonomics_order_'.$order['order_id'], 'updated');
+        update_option('blockonomics_order_'.$order['order_id'], time());
     }
 
     // Check and update the crypto order or create a new order
