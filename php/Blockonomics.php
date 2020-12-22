@@ -477,11 +477,11 @@ class Blockonomics
     // Updates an order in blockonomics_orders
     // Always fetches latest orders first to ensure data integrity
     public function update_order($order){
-        update_option('blockonomics_order_'.$order['order_id'].'_started', time());
+        error_log('blockonomics_order_'.$order['order_id'].'_started');
         $orders = get_option('blockonomics_orders');
         $orders[$order['order_id']][$order['address']] = $order;
         update_option('blockonomics_orders', $orders);
-        update_option('blockonomics_order_'.$order['order_id'].'_ended', time());
+        error_log('blockonomics_order_'.$order['order_id'].'_ended');
     }
 
     // Check and update the crypto order or create a new order
