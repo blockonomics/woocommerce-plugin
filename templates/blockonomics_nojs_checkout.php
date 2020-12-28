@@ -4,7 +4,7 @@ $orders = get_option('blockonomics_orders');
 $crypto = isset($_REQUEST["crypto"]) ? $_REQUEST["crypto"] : "";
 $order_id = isset($_REQUEST["show_order"]) ? $_REQUEST["show_order"] : "";
 
-$order = $blockonomics->get_order_by_id_and_crypto($orders, $order_id, $crypto);
+$order = $blockonomics->get_order_by_id_and_crypto($order_id, $crypto);
 if ($order['status'] >= 0){
   $blockonomics->redirect_finish_order($order_id);
 }else {
