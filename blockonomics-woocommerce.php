@@ -401,6 +401,9 @@ add_action('plugins_loaded', 'blockonomics_woocommerce_init', 0);
 register_activation_hook( __FILE__, 'blockonomics_activation_hook' );
 add_action('admin_notices', 'blockonomics_plugin_activation');
 
+global $blockonomics_db_version;
+$blockonomics_db_version = '1.0';
+
 function blockonomics_activation_hook() {
     if(!is_plugin_active('woocommerce/woocommerce.php'))
     {
@@ -410,29 +413,49 @@ function blockonomics_activation_hook() {
     // Create blockonomics_orders table
     // https://codex.wordpress.org/Creating_Tables_with_Plugins
     global $wpdb;
-    global $blocko_db_version;
-    $table_name = $wpdb->prefix . 'blockonomics_orders';
-    $charset_collate = $wpdb->get_charset_collate();
-    $sql = "CREATE TABLE IF NOT EXISTS $table_name (
-        order_id int NOT NULL,
-        status int NOT NULL,
-        crypto varchar(3) NOT NULL,
-        address varchar(55) NOT NULL,
-        timestamp varchar(55),
-        time_remaining varchar(55),
-        satoshi int,
-        currency varchar(3),
-        value decimal(10, 2),
-        txid text,
-        UNIQUE (address),
-        PRIMARY KEY  (address)
-    ) $charset_collate;";
-    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-    dbDelta( $sql );
-    add_option( 'blocko_db_version', $blocko_db_version );
+    global $blockonomics_db_version;
+
+    $installed_ver = get_option( "blockonomics_db_version" );
+
+    if ( $installed_ver != $blockonomics_db_version ) {
+        $table_name = $wpdb->prefix . 'blockonomics_orders';
+        $charset_collate = $wpdb->get_charset_collate();
+        $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+            order_id int NOT NULL,
+            status int NOT NULL,
+            crypto varchar(3) NOT NULL,
+            address varchar(191) NOT NULL,
+            timestamp int,
+            time_remaining int,
+            satoshi int,
+            currency varchar(3),
+            value longtext,
+            txid text,
+            UNIQUE (address),
+            PRIMARY KEY  (address)
+        ) $charset_collate;";
+        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+        dbDelta( $sql );
+
+        // Example function to demonstrate table changes between upgrade versions
+        // if ($installed_ver < 1.0) {
+        //     $wpdb->query("ALTER TABLE $table_name DROP transaction;");
+        // }
+
+        update_option( 'blockonomics_db_version', $blockonomics_db_version );
+    }
 
     set_transient( 'blockonomics_activation_hook_transient', true, 5);
 }
+
+// Since WP 3.1 the activation function registered with register_activation_hook() is not called when a plugin is updated.
+function blockonomics_update_db_check() {
+    global $blockonomics_db_version;
+    if ( get_site_option( 'blockonomics_db_version' ) != $blockonomics_db_version ) {
+        blockonomics_activation_hook();
+    }
+}
+add_action( 'plugins_loaded', 'blockonomics_update_db_check' );
 
 //Show message when plugin is activated
 function blockonomics_plugin_activation() {
