@@ -36,13 +36,11 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
-
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
-
 /**
  * Initialize hooks needed for the payment gateway
  */
@@ -400,6 +398,44 @@ add_action('plugins_loaded', 'blockonomics_woocommerce_init', 0);
 
 register_activation_hook( __FILE__, 'blockonomics_activation_hook' );
 add_action('admin_notices', 'blockonomics_plugin_activation');
+
+// Add blockonomics sidemenu
+add_action('add_admin_menu', 'bitcoin_address_finder', 0);
+
+function bitcoin_address_finder(){
+    add_menu_page( 'Bitcoin Address Finder', 'Bitcoin Address Finder', 'manage_options', 'bitcoin-address-finder', 'find_woocommerce_order' );
+}
+
+function find_woocommerce_order(){
+    ?>
+    <h1>Find a Woocoomerce order based on bitcoin address</h1>
+    <form method='post' action=''>
+    Bitcoin address:<input type='name' name='address'>
+    <input type='submit' name='SubmitButton'>
+    </form>
+    <?php
+    $orders = get_option('blockonomics_orders');
+    if (isset($orders)) {
+        if(isset($_POST['SubmitButton'])){
+            $matches = 0;
+            $address = $_POST['address']; 
+            foreach ($orders as $order) {
+                // echo $order['address'];
+                foreach ($order as $details) {
+                    if ($details['address'] == $address){
+                        $matches = 1;
+                        echo "<a href='post.php?post=".$details['order_id']."&action=edit'>Order#: ".$details['order_id']."</a><br>";
+                    }
+                }
+            }
+            if ($matches == 0){
+                echo 'No orders matched';
+            }
+        } 
+    } else {
+        echo 'Could not get any orders';
+    }
+}
 
 function blockonomics_activation_hook() {
     if(!is_plugin_active('woocommerce/woocommerce.php'))
