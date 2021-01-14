@@ -423,7 +423,6 @@ function find_woocommerce_order(){
             foreach ($orders as $order) {
                 $iteration += 1;
                 foreach ($order as $details) {
-                    echo "The address of Order#".$details['order_id'].": ".$details['address']."<br>";
                     if ($details['address'] == $address){
                         $matches = 1;
                         echo "<a href='post.php?post=".$details['order_id']."&action=edit'>Order#: ".$details['order_id']."</a><br>";
