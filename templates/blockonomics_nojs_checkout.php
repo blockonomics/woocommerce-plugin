@@ -1,6 +1,5 @@
 <?php
 $blockonomics = new Blockonomics;
-$orders = get_option('blockonomics_orders');
 $crypto = isset($_REQUEST["crypto"]) ? $_REQUEST["crypto"] : "";
 $order_id = isset($_REQUEST["show_order"]) ? $_REQUEST["show_order"] : "";
 

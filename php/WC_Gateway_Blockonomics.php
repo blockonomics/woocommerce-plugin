@@ -27,7 +27,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $this->title       = $this->get_option('title');
         $this->description = $this->get_option('description');
 
-        add_option('blockonomics_orders', array());
         // Actions
         add_action(
             'woocommerce_update_options_payment_gateways_' . $this->id, array(
