@@ -48,7 +48,7 @@ class Blockonomics
         }else{
             $url = Blockonomics::BCH_NEW_ADDRESS_URL.$get_params;
         }
-        $response = $this->post($url, $this->api_key, '', 8);
+        $response = $this->post($url, $this->api_key, '', 30);
         if (!isset($responseObj)) $responseObj = new stdClass();
         $responseObj->{'response_code'} = wp_remote_retrieve_response_code($response);
         if (wp_remote_retrieve_body($response))
