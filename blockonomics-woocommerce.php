@@ -414,13 +414,16 @@ function find_woocommerce_order(){
     </form>
     <?php
     $orders = get_option('blockonomics_orders');
+    $iteration = 0;
     if (isset($orders)) {
         if(isset($_POST['SubmitButton'])){
+            $address = trim($_POST['address']); 
+            echo 'You searched for an order on the address: '.$address.'<br>';
             $matches = 0;
-            $address = $_POST['address']; 
             foreach ($orders as $order) {
-                // echo $order['address'];
+                $iteration += 1;
                 foreach ($order as $details) {
+                    echo "The address of Order#".$details['order_id'].": ".$details['address']."<br>";
                     if ($details['address'] == $address){
                         $matches = 1;
                         echo "<a href='post.php?post=".$details['order_id']."&action=edit'>Order#: ".$details['order_id']."</a><br>";
