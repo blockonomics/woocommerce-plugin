@@ -437,11 +437,6 @@ function blockonomics_activation_hook() {
         require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
         dbDelta( $sql );
 
-        // Example function to demonstrate table changes between upgrade versions
-        // if ($installed_ver < 1.0) {
-        //     $wpdb->query("ALTER TABLE $table_name DROP transaction;");
-        // }
-
         update_option( 'blockonomics_db_version', $blockonomics_db_version );
     }
 
@@ -451,8 +446,16 @@ function blockonomics_activation_hook() {
 // Since WP 3.1 the activation function registered with register_activation_hook() is not called when a plugin is updated.
 function blockonomics_update_db_check() {
     global $blockonomics_db_version;
-    if ( get_site_option( 'blockonomics_db_version' ) != $blockonomics_db_version ) {
-        blockonomics_activation_hook();
+
+    $installed_ver = get_site_option( 'blockonomics_db_version' );
+    if ( $installed_ver != $blockonomics_db_version ) {
+    	
+        // Example function to demonstrate table changes between upgrade versions
+        // if ($installed_ver < 1.0) {
+        //     $wpdb->query("ALTER TABLE $table_name DROP transaction;");
+        // }
+
+        update_option( 'blockonomics_db_version', $blockonomics_db_version );
     }
 }
 add_action( 'plugins_loaded', 'blockonomics_update_db_check' );
