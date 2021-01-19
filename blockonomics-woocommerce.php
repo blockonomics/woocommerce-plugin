@@ -195,13 +195,39 @@ function blockonomics_woocommerce_init()
             function value_changed() {
                 document.getElementById('blockonomics_api_updated').value = 'true';
             }
+
             function checkForAPIKeyChange() {
+                let apiKey = "<?php echo get_option("blockonomics_api_key")?>";
+                //Settings have changed, click on Save first
                 if (document.getElementById('blockonomics_api_updated').value == 'true') {
                     alert('Settings have changed, click on Save first');
+                } else if (apiKey && apiKey.length === 43){
+                    RunTests_APIKey_Set();
+                } else {
+                    RunTests_APIKey_Not_Set();
+                }
+            }
+
+            //If BCH enabled run test setup for BCH --- Otherwise, run test Setup for BTC
+            function RunTests_APIKey_Set() {
+                let BCH_Enabled = "<?php echo get_option("blockonomics_bch")?>";
+                if(BCH_Enabled === "1"){
+                    alert("Run test setup for BCH");
                 } else {
                     document.testSetupForm.submit();
                 }
             }
+
+            //If BCH enabled give error --- Otherwise, run test Setup for BTC
+            function RunTests_APIKey_Not_Set() {
+                let BCH_Enabled = "<?php echo get_option("blockonomics_bch")?>";
+                if(BCH_Enabled === "1"){
+                    alert("Set API Key or disable BCH");
+                } else {
+                    document.testSetupForm.submit();
+                }
+            }
+
             function validateBlockonomicsForm() {
                 newApiKey = document.getElementById("blockonomics_api_key").value;
                 apiKeyChanged = newApiKey != "<?php echo get_option("blockonomics_api_key")?>";
@@ -322,7 +348,7 @@ function blockonomics_woocommerce_init()
                     <input type="submit" class="button-primary" value="Save"/>
                     <input type="hidden" name="action" value="update" />
                     <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_bch,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated,blockonomics_underpayment_slack,blockonomics_lite,blockonomics_nojs,blockonomics_network_confirmation" />
-                    <input onclick="checkForAPIKeyChange();" class="button-primary" name="test-setup-submit" value="Test Setup" style="max-width:85px;">
+                    <input type="button" onclick="checkForAPIKeyChange();" class="button-primary" name="test-setup-submit" value="Test Setup" style="max-width:85px;">
                 </p>
             </form>
             <form method="POST" name="testSetupForm">
