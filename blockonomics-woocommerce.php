@@ -431,8 +431,8 @@ function blockonomics_activation_hook() {
             currency varchar(3),
             value longtext,
             txid text,
-            PRIMARY KEY (address),
-            INDEX order (order_id, crypto)
+            PRIMARY KEY  (address),
+            KEY orderkey (order_id,crypto)
         ) $charset_collate;";
         require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
         dbDelta( $sql );
@@ -445,6 +445,7 @@ function blockonomics_activation_hook() {
 
 // Since WP 3.1 the activation function registered with register_activation_hook() is not called when a plugin is updated.
 function blockonomics_update_db_check() {
+    global $wpdb;
     global $blockonomics_db_version;
 
     $installed_ver = get_site_option( 'blockonomics_db_version' );
