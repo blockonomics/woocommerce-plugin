@@ -404,41 +404,41 @@ add_action('admin_notices', 'blockonomics_plugin_activation');
 global $blockonomics_db_version;
 $blockonomics_db_version = '1.0';
 
+function blockonomics_create_table() {
+    // Create blockonomics_orders table
+    // https://codex.wordpress.org/Creating_Tables_with_Plugins
+    global $wpdb;
+    global $blockonomics_db_version;
+
+    $table_name = $wpdb->prefix . 'blockonomics_orders';
+    $charset_collate = $wpdb->get_charset_collate();
+    $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+        order_id int NOT NULL,
+        status int NOT NULL,
+        crypto varchar(3) NOT NULL,
+        address varchar(191) NOT NULL,
+        timestamp int,
+        time_remaining int,
+        satoshi int,
+        currency varchar(3),
+        value longtext,
+        txid text,
+        PRIMARY KEY  (address),
+        KEY orderkey (order_id,crypto)
+    ) $charset_collate;";
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    dbDelta( $sql );
+
+    update_option( 'blockonomics_db_version', $blockonomics_db_version );
+}
+
 function blockonomics_activation_hook() {
     if(!is_plugin_active('woocommerce/woocommerce.php'))
     {
         trigger_error(__( 'Wordpress Bitcoin Payments - Blockonomics requires WooCommerce plugin to be installed and active.', 'blockonomics-bitcoin-payments' ).'<br>', E_USER_ERROR);
     }
 
-    // Create blockonomics_orders table
-    // https://codex.wordpress.org/Creating_Tables_with_Plugins
-    global $wpdb;
-    global $blockonomics_db_version;
-
-    $installed_ver = get_option( "blockonomics_db_version" );
-
-    if ( $installed_ver != $blockonomics_db_version ) {
-        $table_name = $wpdb->prefix . 'blockonomics_orders';
-        $charset_collate = $wpdb->get_charset_collate();
-        $sql = "CREATE TABLE IF NOT EXISTS $table_name (
-            order_id int NOT NULL,
-            status int NOT NULL,
-            crypto varchar(3) NOT NULL,
-            address varchar(191) NOT NULL,
-            timestamp int,
-            time_remaining int,
-            satoshi int,
-            currency varchar(3),
-            value longtext,
-            txid text,
-            PRIMARY KEY  (address),
-            KEY orderkey (order_id,crypto)
-        ) $charset_collate;";
-        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-        dbDelta( $sql );
-
-        update_option( 'blockonomics_db_version', $blockonomics_db_version );
-    }
+    blockonomics_create_table();
 
     set_transient( 'blockonomics_activation_hook_transient', true, 5);
 }
@@ -449,7 +449,9 @@ function blockonomics_update_db_check() {
     global $blockonomics_db_version;
 
     $installed_ver = get_site_option( 'blockonomics_db_version' );
-    if ( $installed_ver != $blockonomics_db_version ) {
+    if (!$installed_ver) {
+        blockonomics_create_table();
+    }else if ( $installed_ver != $blockonomics_db_version ) {
 
         // Example function to demonstrate table changes between upgrade versions
         // if ($installed_ver < 1.0) {
