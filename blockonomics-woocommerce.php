@@ -431,8 +431,8 @@ function blockonomics_activation_hook() {
             currency varchar(3),
             value longtext,
             txid text,
-            UNIQUE (address),
-            PRIMARY KEY  (address)
+            PRIMARY KEY (address),
+            INDEX order (order_id, crypto)
         ) $charset_collate;";
         require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
         dbDelta( $sql );
