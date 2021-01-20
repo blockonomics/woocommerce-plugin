@@ -93,7 +93,10 @@ function CheckoutController($scope, $interval, Order, $timeout, Url) {
                     proccess_order_data();
                     $scope.checkout_panel  = true;
                 }else if($scope.crypto.code === 'btc'){
-                    $scope.address_error_btc = true;
+                    if (data.error && data.error.includes('Gap'))
+                      $scope.btc_gaplimit_error = data.error;
+                    else
+                      $scope.address_error_btc = true;
                 }else if($scope.crypto.code === 'bch'){
                     $scope.address_error_bch = true;
                 }

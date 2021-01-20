@@ -426,7 +426,7 @@ class Blockonomics
     public function create_new_order($order_id, $crypto){
         $responseObj = $this->new_address(get_option("blockonomics_callback_secret"), $crypto);
         if($responseObj->response_code != 200) {
-            exit(json_encode(array("error"=>__("Error: failed creating new crypto address", 'blockonomics-bitcoin-payments'))));
+            exit(json_encode(array("error"=>$responseObj->response_message)));
         }
         $address = $responseObj->address;
 
