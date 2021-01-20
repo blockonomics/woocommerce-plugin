@@ -438,7 +438,7 @@ function blockonomics_activation_hook() {
         trigger_error(__( 'Wordpress Bitcoin Payments - Blockonomics requires WooCommerce plugin to be installed and active.', 'blockonomics-bitcoin-payments' ).'<br>', E_USER_ERROR);
     }
 
-    blockonomics_create_table();
+    blockonomics_update_db_check();
 
     set_transient( 'blockonomics_activation_hook_transient', true, 5);
 }
