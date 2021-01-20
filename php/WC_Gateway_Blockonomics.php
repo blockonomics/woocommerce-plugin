@@ -27,7 +27,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $this->title       = $this->get_option('title');
         $this->description = $this->get_option('description');
 
-        add_option('blockonomics_orders', array());
         // Actions
         add_action(
             'woocommerce_update_options_payment_gateways_' . $this->id, array(
@@ -96,21 +95,22 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
     }
 
     // Handles requests to the blockonomics page
+    // Sanitizes all request/input data
     public function handle_requests()
     {
-        $show_order = isset($_REQUEST["show_order"]) ? $_REQUEST["show_order"] : "";
-        $crypto = isset($_REQUEST["crypto"]) ? $_REQUEST["crypto"] : "";
-        $select_crypto = isset($_REQUEST["select_crypto"]) ? $_REQUEST["select_crypto"] : "";
-        $finish_order = isset($_REQUEST["finish_order"]) ? $_REQUEST["finish_order"] : "";
-        $get_order = isset($_REQUEST['get_order']) ? $_REQUEST['get_order'] : "";
-        $secret = isset($_REQUEST['secret']) ? $_REQUEST['secret'] : "";
-        $addr = isset($_REQUEST['addr']) ? $_REQUEST['addr'] : "";
-        $status = isset($_REQUEST['status']) ? $_REQUEST['status'] : "";
-        $value = isset($_REQUEST['value']) ? $_REQUEST['value'] : "";
-        $txid = isset($_REQUEST['txid']) ? $_REQUEST['txid'] : "";
-        $rbf = isset($_REQUEST['rbf']) ? $_REQUEST['rbf'] : "";
-        $qrcode = isset($_REQUEST['qrcode']) ? $_REQUEST['qrcode'] : "";
-        
+        $show_order = isset($_GET["show_order"]) ? sanitize_text_field($_GET['show_order']) : "";
+        $crypto = isset($_GET["crypto"]) ? sanitize_key($_GET['crypto']) : "";
+        $select_crypto = isset($_GET["select_crypto"]) ? sanitize_text_field($_GET['select_crypto']) : "";
+        $finish_order = isset($_GET["finish_order"]) ? sanitize_text_field($_GET['finish_order']) : "";
+        $get_order = isset($_GET['get_order']) ? sanitize_text_field($_GET['get_order']) : "";
+        $secret = isset($_GET['secret']) ? sanitize_text_field($_GET['secret']) : "";
+        $addr = isset($_GET['addr']) ? sanitize_text_field($_GET['addr']) : "";
+        $status = isset($_GET['status']) ? intval($_GET['status']) : "";
+        $value = isset($_GET['value']) ? absint($_GET['value']) : "";
+        $txid = isset($_GET['txid']) ? sanitize_text_field($_GET['txid']) : "";
+        $rbf = isset($_GET['rbf']) ? wp_validate_boolean($_GET['rbf']) : "";
+        $qrcode = isset($_GET['qrcode']) ? esc_url_raw( $_GET['qrcode'], array('bitcoin', 'bitcoincash') ) : "";
+
         include_once 'Blockonomics.php';
         $blockonomics = new Blockonomics;
 
@@ -123,7 +123,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         }else if ($get_order && $crypto) {
             $blockonomics->get_order_info($get_order, $crypto);
         }else if ($secret && $addr && isset($status) && $value && $txid) {
-            $blockonomics->process_callback($secret, $addr, intval($status), $value, $txid, $rbf);
+            $blockonomics->process_callback($secret, $addr, $status, $value, $txid, $rbf);
         }else if ($qrcode) {
           $blockonomics->generate_qrcode($qrcode);
         }
