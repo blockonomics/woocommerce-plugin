@@ -317,10 +317,6 @@ class Blockonomics
         return false;
     }
     
-
-
-
-
     // Returns WC endpoint of order adding the given extra parameters
     public function get_parameterized_wc_url($params = array()){
         $order_url = WC()->api_request_url('WC_Gateway_Blockonomics');
