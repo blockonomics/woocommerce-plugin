@@ -223,19 +223,9 @@ function blockonomics_woocommerce_init()
                 if (document.getElementById('blockonomics_api_updated').value == 'true') {
                     alert('Settings have changed, click on Save first');
                 } else if (apiKey && apiKey.length === 43){
-                    RunTests_APIKey_Set();
+                    document.testSetupForm.submit();
                 } else {
                     RunTests_APIKey_Not_Set();
-                }
-            }
-
-            //If BCH enabled run test setup for BCH --- Otherwise, run test Setup for BTC
-            function RunTests_APIKey_Set() {
-                let BCH_Enabled = "<?php echo get_option("blockonomics_bch")?>";
-                if(BCH_Enabled === "1"){
-                    alert("Run test setup for BCH");
-                } else {
-                    document.testSetupForm.submit();
                 }
             }
 
@@ -243,7 +233,7 @@ function blockonomics_woocommerce_init()
             function RunTests_APIKey_Not_Set() {
                 let BCH_Enabled = "<?php echo get_option("blockonomics_bch")?>";
                 if(BCH_Enabled === "1"){
-                    alert("Set API Key or disable BCH");
+                    alert("Set the API Key or disable BCH");
                 } else {
                     document.testSetupForm.submit();
                 }
