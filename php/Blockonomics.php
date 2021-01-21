@@ -93,7 +93,12 @@ class Blockonomics
 
     public function get_callbacks()
     {
-        $url = Blockonomics::GET_CALLBACKS_URL;
+        $BCH_Enabled = get_option('blockonomics_bch');
+        if ($BCH_Enabled == "1"){
+            $url = Blockonomics::BCH_GET_CALLBACKS_URL;
+        }else{
+            $url = Blockonomics::GET_CALLBACKS_URL;
+        }
         $response = $this->get($url, $this->api_key);
         return $response;
     }
