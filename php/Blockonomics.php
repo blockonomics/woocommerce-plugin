@@ -46,7 +46,6 @@ class Blockonomics
         return $api_key;
     }
 
-
     public function new_address($secret, $crypto, $reset=false)
     {
         if($reset)
