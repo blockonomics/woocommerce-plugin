@@ -34,6 +34,7 @@ class Blockonomics
         return $api_key;
     }
 
+
     public function new_address($secret, $crypto, $reset=false)
     {
         if($reset)
@@ -44,7 +45,7 @@ class Blockonomics
         {
             $get_params = "?match_callback=$secret";
         }
-        if ($crypto == "btc"){
+        if($crypto == 'btc'){
             $url = Blockonomics::NEW_ADDRESS_URL.$get_params;
         }else{
             $url = Blockonomics::BCH_NEW_ADDRESS_URL.$get_params;
@@ -55,7 +56,6 @@ class Blockonomics
         if (wp_remote_retrieve_body($response))
         {
           $body = json_decode(wp_remote_retrieve_body($response));
-
           $responseObj->{'response_message'} = isset($body->message) ? $body->message : '';
           $responseObj->{'address'} = isset($body->address) ? $body->address : '';
         }
@@ -83,7 +83,7 @@ class Blockonomics
 
     public function update_callback($callback_url, $crypto, $xpub)
     {
-        if ($crypto == "btc"){
+        if ($crypto == 'btc'){
             $url = Blockonomics::SET_CALLBACK_URL;
         }else{
             $url = Blockonomics::BCH_SET_CALLBACK_URL;
@@ -95,7 +95,7 @@ class Blockonomics
 
     public function get_callbacks($crypto)
     {
-        if ($crypto == "btc"){
+        if ($crypto == 'btc'){
             $url = Blockonomics::GET_CALLBACKS_URL;
         }else{
             $url = Blockonomics::BCH_GET_CALLBACKS_URL;
@@ -231,7 +231,7 @@ class Blockonomics
     public function testSetup()
     {
         $BCH_Enabled = get_option('blockonomics_bch');
-        if ($BCH_Enabled == "1"){
+        if ($BCH_Enabled == '1'){
             $crypto = 'bch';
         }else{
             $crypto = 'btc';
