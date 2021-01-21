@@ -16,20 +16,8 @@ class Blockonomics
     const BCH_BASE_URL = 'https://bch.blockonomics.co';
     const BCH_NEW_ADDRESS_URL = 'https://bch.blockonomics.co/api/new_address';
     const BCH_PRICE_URL = 'https://bch.blockonomics.co/api/price';
-    // const BCH_SET_CALLBACK_URL = 'https://bch.blockonomics.co/api/update_callback';
-    // const BCH_GET_CALLBACKS_URL = 'https://bch.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
-    // const BCH_TEMP_API_KEY_URL = 'https://bch.blockonomics.co/api/temp_wallet';
-    // const BCH_TEMP_WITHDRAW_URL = 'https://bch.blockonomics.co/api/temp_withdraw_request';
-
-    // code that I want to put in new_address();
-    // $BCH_Enabled = get_option('blockonomics_bch');
-    // if ($BCH_Enabled == "1"){
-    //     $url = Blockonomics::BCH_NEW_ADDRESS_URL.$get_params;
-    // }else{
-    //     $url = Blockonomics::NEW_ADDRESS_URL.$get_params;
-    // }
-    // $message = __($this->api_key, 'blockonomics-bitcoin-payments');
-    // display_admin_message('Callback:'.$message, 'updated');
+    const BCH_SET_CALLBACK_URL = 'https://bch.blockonomics.co/api/update_callback';
+    const BCH_GET_CALLBACKS_URL = 'https://bch.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
 
     public function __construct()
     {
@@ -56,8 +44,11 @@ class Blockonomics
         {
             $get_params = "?match_callback=$secret";
         }
-
-        $url = Blockonomics::NEW_ADDRESS_URL.$get_params;
+        if ($crypto == "btc"){
+            $url = Blockonomics::NEW_ADDRESS_URL.$get_params;
+        }else{
+            $url = Blockonomics::BCH_NEW_ADDRESS_URL.$get_params;
+        }
         $response = $this->post($url, $this->api_key, '', 8);
         if (!isset($responseObj)) $responseObj = new stdClass();
         $responseObj->{'response_code'} = wp_remote_retrieve_response_code($response);
@@ -90,17 +81,25 @@ class Blockonomics
         return $responseObj;
     }
 
-    public function update_callback($callback_url, $xpub)
+    public function update_callback($callback_url, $crypto, $xpub)
     {
-        $url = Blockonomics::SET_CALLBACK_URL;
+        if ($crypto == "btc"){
+            $url = Blockonomics::SET_CALLBACK_URL;
+        }else{
+            $url = Blockonomics::BCH_SET_CALLBACK_URL;
+        }
         $body = json_encode(array('callback' => $callback_url, 'xpub' => $xpub));
         $response = $this->post($url, $this->api_key, $body);
         return json_decode(wp_remote_retrieve_body($response));
     }
 
-    public function get_callbacks()
+    public function get_callbacks($crypto)
     {
-        $url = Blockonomics::GET_CALLBACKS_URL;
+        if ($crypto == "btc"){
+            $url = Blockonomics::GET_CALLBACKS_URL;
+        }else{
+            $url = Blockonomics::BCH_GET_CALLBACKS_URL;
+        }
         $response = $this->get($url, $this->api_key);
         return $response;
     }
@@ -233,13 +232,11 @@ class Blockonomics
     {
         $BCH_Enabled = get_option('blockonomics_bch');
         if ($BCH_Enabled == "1"){
-            $message = __('Testing BCH', 'blockonomics-bitcoin-payments');
-            display_admin_message($message, 'updated');
+            $crypto = 'bch';
         }else{
-            $message = __('Testing BTC', 'blockonomics-bitcoin-payments');
-            display_admin_message($message, 'updated');
+            $crypto = 'btc';
         }
-        $response = $this->get_callbacks();
+        $response = $this->get_callbacks($crypto);
         $error_str = '';
         $response_body = json_decode(wp_remote_retrieve_body($response));
         if(isset($response_body[0])){
@@ -273,7 +270,7 @@ class Blockonomics
             if(!$response_callback || $response_callback == null)
             {
                 //No callback URL set, set one 
-                $this->update_callback($callback_url, $response_address);   
+                $this->update_callback($callback_url, $crypto, $response_address);   
             }
             elseif($response_callback_without_schema != $callback_url_without_schema)
             {
@@ -284,7 +281,7 @@ class Blockonomics
                 {
                 //Looks like the user regenrated callback by mistake
                 //Just force Update_callback on server
-                $this->update_callback($callback_url, $response_address);  
+                $this->update_callback($callback_url, $crypto, $response_address);  
                 }
                 else
                 {
@@ -303,7 +300,7 @@ class Blockonomics
         if (!$error_str)
         {
             //Everything OK ! Test address generation
-            $response= $this->new_address($callback_secret, 'btc', true);
+            $response= $this->new_address($callback_secret, $crypto, true);
             if ($response->response_code!=200){
                 $error_str = $response->response_message;
             }
