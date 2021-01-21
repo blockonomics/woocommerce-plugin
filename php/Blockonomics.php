@@ -16,10 +16,20 @@ class Blockonomics
     const BCH_BASE_URL = 'https://bch.blockonomics.co';
     const BCH_NEW_ADDRESS_URL = 'https://bch.blockonomics.co/api/new_address';
     const BCH_PRICE_URL = 'https://bch.blockonomics.co/api/price';
-    const BCH_SET_CALLBACK_URL = 'https://bch.blockonomics.co/api/update_callback';
-    const BCH_GET_CALLBACKS_URL = 'https://bch.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
-    const BCH_TEMP_API_KEY_URL = 'https://bch.blockonomics.co/api/temp_wallet';
-    const BCH_TEMP_WITHDRAW_URL = 'https://bch.blockonomics.co/api/temp_withdraw_request';
+    // const BCH_SET_CALLBACK_URL = 'https://bch.blockonomics.co/api/update_callback';
+    // const BCH_GET_CALLBACKS_URL = 'https://bch.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
+    // const BCH_TEMP_API_KEY_URL = 'https://bch.blockonomics.co/api/temp_wallet';
+    // const BCH_TEMP_WITHDRAW_URL = 'https://bch.blockonomics.co/api/temp_withdraw_request';
+
+    // code that I want to put in new_address();
+    // $BCH_Enabled = get_option('blockonomics_bch');
+    // if ($BCH_Enabled == "1"){
+    //     $url = Blockonomics::BCH_NEW_ADDRESS_URL.$get_params;
+    // }else{
+    //     $url = Blockonomics::NEW_ADDRESS_URL.$get_params;
+    // }
+    // $message = __($this->api_key, 'blockonomics-bitcoin-payments');
+    // display_admin_message('Callback:'.$message, 'updated');
 
     public function __construct()
     {
@@ -47,17 +57,15 @@ class Blockonomics
         {
             $get_params = "?match_callback=$secret";
         }
-        if($crypto == 'btc'){
-            $url = Blockonomics::NEW_ADDRESS_URL.$get_params;
-        }else{
-            $url = Blockonomics::BCH_NEW_ADDRESS_URL.$get_params;
-        }
+
+        $url = Blockonomics::NEW_ADDRESS_URL.$get_params;
         $response = $this->post($url, $this->api_key, '', 8);
         if (!isset($responseObj)) $responseObj = new stdClass();
         $responseObj->{'response_code'} = wp_remote_retrieve_response_code($response);
         if (wp_remote_retrieve_body($response))
         {
           $body = json_decode(wp_remote_retrieve_body($response));
+
           $responseObj->{'response_message'} = isset($body->message) ? $body->message : '';
           $responseObj->{'address'} = isset($body->address) ? $body->address : '';
         }
@@ -85,12 +93,7 @@ class Blockonomics
 
     public function update_callback($callback_url, $xpub)
     {
-        $BCH_Enabled = get_option('blockonomics_bch');
-        if ($BCH_Enabled == "1"){
-            $url = Blockonomics::BCH_SET_CALLBACK_URL;
-        }else{
-            $url = Blockonomics::SET_CALLBACK_URL;
-        }
+        $url = Blockonomics::SET_CALLBACK_URL;
         $body = json_encode(array('callback' => $callback_url, 'xpub' => $xpub));
         $response = $this->post($url, $this->api_key, $body);
         return json_decode(wp_remote_retrieve_body($response));
@@ -98,12 +101,7 @@ class Blockonomics
 
     public function get_callbacks()
     {
-        $BCH_Enabled = get_option('blockonomics_bch');
-        if ($BCH_Enabled == "1"){
-            $url = Blockonomics::BCH_GET_CALLBACKS_URL;
-        }else{
-            $url = Blockonomics::GET_CALLBACKS_URL;
-        }
+        $url = Blockonomics::GET_CALLBACKS_URL;
         $response = $this->get($url, $this->api_key);
         return $response;
     }
@@ -236,17 +234,12 @@ class Blockonomics
     {
         $BCH_Enabled = get_option('blockonomics_bch');
         if ($BCH_Enabled == "1"){
-            $message = __('Testing Bitcoin Cash', 'blockonomics-bitcoin-payments');
+            $message = __('Testing BCH', 'blockonomics-bitcoin-payments');
             display_admin_message($message, 'updated');
-            $this->BCH_testSetup();
-        } else {
-            $message = __('Testing Regular Bitcoins', 'blockonomics-bitcoin-payments');
+        }else{
+            $message = __('Testing BTC', 'blockonomics-bitcoin-payments');
             display_admin_message($message, 'updated');
-            $this->BTC_testSetup();
         }
-    }
-
-    public function BCH_testSetup(){
         $response = $this->get_callbacks();
         $error_str = '';
         $response_body = json_decode(wp_remote_retrieve_body($response));
@@ -280,24 +273,24 @@ class Blockonomics
         {
             if(!$response_callback || $response_callback == null)
             {
-              //No callback URL set, set one 
-              $this->update_callback($callback_url, $response_address);   
+                //No callback URL set, set one 
+                $this->update_callback($callback_url, $response_address);   
             }
             elseif($response_callback_without_schema != $callback_url_without_schema)
             {
-              $base_url = get_bloginfo('wpurl');
-              $base_url = preg_replace('/https?:\/\//', '', $base_url);
-              // Check if only secret differs
-              if(strpos($response_callback, $base_url) !== false)
-              {
+                $base_url = get_bloginfo('wpurl');
+                $base_url = preg_replace('/https?:\/\//', '', $base_url);
+                // Check if only secret differs
+                if(strpos($response_callback, $base_url) !== false)
+                {
                 //Looks like the user regenrated callback by mistake
                 //Just force Update_callback on server
                 $this->update_callback($callback_url, $response_address);  
-              }
-              else
-              {
+                }
+                else
+                {
                 $error_str = __("You have an existing callback URL. Refer instructions on integrating multiple websites", 'blockonomics-bitcoin-payments');
-              }
+                }
             }
         }
         else 
@@ -305,7 +298,7 @@ class Blockonomics
             $error_str = __("You have an existing callback URL. Refer instructions on integrating multiple websites", 'blockonomics-bitcoin-payments');
             // Check if callback url is set
             foreach ($response_body as $res_obj)
-             if(preg_replace('/https?:\/\//', '', $res_obj->callback) == $callback_url_without_schema)
+                if(preg_replace('/https?:\/\//', '', $res_obj->callback) == $callback_url_without_schema)
                 $error_str = "";
         }  
         if (!$error_str)
@@ -313,85 +306,7 @@ class Blockonomics
             //Everything OK ! Test address generation
             $response= $this->new_address($callback_secret, 'btc', true);
             if ($response->response_code!=200){
-              $error_str = $response->response_message;
-            }
-        }
-        if($error_str) {
-            $error_str = $error_str . '<p>' . __('For more information, please consult <a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank">this troubleshooting article</a>', 'blockonomics-bitcoin-payments'). '</p>';
-            return $error_str;
-        }
-        // No errors
-        return false;
-    }
-
-    public function BTC_testSetup(){
-        $response = $this->get_callbacks();
-        $error_str = '';
-        $response_body = json_decode(wp_remote_retrieve_body($response));
-        if(isset($response_body[0])){
-            $response_callback = isset($response_body[0]->callback) ? $response_body[0]->callback : '';
-            $response_address = isset($response_body[0]->address) ? $response_body[0]->address : '';
-        }else{
-            $response_callback = '';
-            $response_address = '';
-        }
-        $callback_secret = get_option('blockonomics_callback_secret');
-        $api_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-        $callback_url = add_query_arg('secret', $callback_secret, $api_url);
-        // Remove http:// or https:// from urls
-        $api_url_without_schema = preg_replace('/https?:\/\//', '', $api_url);
-        $callback_url_without_schema = preg_replace('/https?:\/\//', '', $callback_url);
-        $response_callback_without_schema = preg_replace('/https?:\/\//', '', $response_callback);
-        //TODO: Check This: WE should actually check code for timeout
-        if (!wp_remote_retrieve_response_code($response)) {
-            $error_str = __('Your server is blocking outgoing HTTPS calls', 'blockonomics-bitcoin-payments');
-        }
-        elseif (wp_remote_retrieve_response_code($response)==401)
-            $error_str = __('API Key is incorrect', 'blockonomics-bitcoin-payments');
-        elseif (wp_remote_retrieve_response_code($response)!=200)  
-            $error_str = $response->data;
-        elseif (!isset($response_body) || count($response_body) == 0)
-        {
-            $error_str = __('You have not entered an xPub', 'blockonomics-bitcoin-payments');
-        }
-        elseif (count($response_body) == 1)
-        {
-            if(!$response_callback || $response_callback == null)
-            {
-              //No callback URL set, set one 
-              $this->update_callback($callback_url, $response_address);   
-            }
-            elseif($response_callback_without_schema != $callback_url_without_schema)
-            {
-              $base_url = get_bloginfo('wpurl');
-              $base_url = preg_replace('/https?:\/\//', '', $base_url);
-              // Check if only secret differs
-              if(strpos($response_callback, $base_url) !== false)
-              {
-                //Looks like the user regenrated callback by mistake
-                //Just force Update_callback on server
-                $this->update_callback($callback_url, $response_address);  
-              }
-              else
-              {
-                $error_str = __("You have an existing callback URL. Refer instructions on integrating multiple websites", 'blockonomics-bitcoin-payments');
-              }
-            }
-        }
-        else 
-        {
-            $error_str = __("You have an existing callback URL. Refer instructions on integrating multiple websites", 'blockonomics-bitcoin-payments');
-            // Check if callback url is set
-            foreach ($response_body as $res_obj)
-             if(preg_replace('/https?:\/\//', '', $res_obj->callback) == $callback_url_without_schema)
-                $error_str = "";
-        }  
-        if (!$error_str)
-        {
-            //Everything OK ! Test address generation
-            $response= $this->new_address($callback_secret, 'btc', true);
-            if ($response->response_code!=200){
-              $error_str = $response->response_message;
+                $error_str = $response->response_message;
             }
         }
         if($error_str) {
