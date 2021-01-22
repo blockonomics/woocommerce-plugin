@@ -429,6 +429,7 @@ add_action('plugins_loaded', 'blockonomics_woocommerce_init', 0);
 register_activation_hook( __FILE__, 'blockonomics_activation_hook' );
 add_action('admin_notices', 'blockonomics_plugin_activation');
 
+<<<<<<< HEAD
 global $blockonomics_db_version;
 $blockonomics_db_version = '1.0';
 
@@ -512,6 +513,8 @@ function blockonomics_plugin_activation() {
     delete_transient( 'fx-admin-notice-example' );
   }
 }
+=======
+>>>>>>> e131ef1... resolve conflicts in merge
 
 // On uninstallation, clear every option the plugin has set
 register_uninstall_hook( __FILE__, 'blockonomics_uninstall_hook' );
