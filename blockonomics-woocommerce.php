@@ -3,7 +3,7 @@
  * Plugin Name: WordPress Bitcoin Payments - Blockonomics
  * Plugin URI: https://github.com/blockonomics/woocommerce-plugin
  * Description: Accept Bitcoin Payments on your WooCommerce-powered website with Blockonomics
- * Version: 2.4.1
+ * Version: 3.0
  * Author: Blockonomics
  * Author URI: https://www.blockonomics.co
  * License: MIT
@@ -416,7 +416,6 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_api_key');
     delete_option('blockonomics_temp_api_key');
     delete_option('blockonomics_temp_withdraw_amount');
-    delete_option('blockonomics_orders');
     delete_option('blockonomics_margin');
     delete_option('blockonomics_timeperiod');
     delete_option('blockonomics_api_updated');
@@ -424,7 +423,13 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_underpayment_slack');
     delete_option('blockonomics_lite');
     delete_option('blockonomics_nojs');
-	delete_option('blockonomics_network_confirmation');
+    delete_option('blockonomics_network_confirmation');
+
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'blockonomics_orders';
+    $sql = "DROP TABLE IF EXISTS $table_name";
+    $wpdb->query($sql);
+    delete_option("blockonomics_db_version");
 }
 
 

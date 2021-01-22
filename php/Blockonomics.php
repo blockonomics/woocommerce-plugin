@@ -443,7 +443,7 @@ class Blockonomics
     public function create_new_order($order_id, $crypto){
         $responseObj = $this->new_address(get_option("blockonomics_callback_secret"), $crypto);
         if($responseObj->response_code != 200) {
-            exit(json_encode(array("error"=>__("Error: failed creating new crypto address", 'blockonomics-bitcoin-payments'))));
+            exit(json_encode(array("error"=>$responseObj->response_message)));
         }
         $address = $responseObj->address;
 
@@ -479,37 +479,36 @@ class Blockonomics
     }
 
     // Fetch the correct crypto order linked to the order id
-    public function get_order_by_id_and_crypto($orders, $order_id, $crypto){
-        if(isset($orders[$order_id])){
-            foreach($orders[$order_id] as $addr => $order){
-                if($order['crypto'] == $crypto){
-                    return $order;
-                }
-            }
-            return false;
+    public function get_order_by_id_and_crypto($order_id, $crypto){
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'blockonomics_orders';
+        $order = $wpdb->get_row(
+            $wpdb->prepare("SELECT * FROM $table_name WHERE order_id = %s AND crypto = %s", array($order_id, $crypto)
+        ), ARRAY_A);
+        if($order){
+            return $order;
         }
         return false;
     }
 
-    // Updates an order in blockonomics_orders
-    // Always fetches latest orders first to ensure data integrity
+    // Updates an order in blockonomics_orders table
     public function update_order($order){
-        $orders = get_option('blockonomics_orders');
-        $orders[$order['order_id']][$order['address']] = $order;
-        update_option('blockonomics_orders', $orders);
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'blockonomics_orders';
+        $wpdb->replace( 
+            $table_name, 
+            $order 
+        );
     }
 
     // Check and update the crypto order or create a new order
     public function process_order($order_id, $crypto){
-        $orders = get_option('blockonomics_orders');
-
-        $order = $this->get_order_by_id_and_crypto($orders, $order_id, $crypto);
+        $order = $this->get_order_by_id_and_crypto($order_id, $crypto);
         if ($order) {
             $order = $this->calculate_order_params($order);
         }else {
             $order = $this->create_new_order($order_id, $crypto);
         }
-        
         $this->update_order($order);
 
         return $order;
@@ -523,12 +522,14 @@ class Blockonomics
     }
 
     // Get the order info by crypto address
-    public function get_order_by_address($orders, $address){
-        foreach($orders as $id => $order){
-            if(isset($order[$address])){
-                $order_id = $id;
-                return $order[$address];
-            }
+    public function get_order_by_address($address){
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'blockonomics_orders';
+        $order = $wpdb->get_row(
+            $wpdb->prepare("SELECT * FROM $table_name WHERE address = %s", array($address)
+        ), ARRAY_A);
+        if($order){
+            return $order;
         }
         exit(__("Error: order not found", 'blockonomics-bitcoin-payments'));
     }
@@ -589,8 +590,7 @@ class Blockonomics
     public function process_callback($secret, $address, $status, $value, $txid, $rbf){
         $this->check_callback_secret($secret);
 
-        $orders = get_option('blockonomics_orders');
-        $order = $this->get_order_by_address($orders, $address);
+        $order = $this->get_order_by_address($address);
         $wc_order = new WC_Order($order['order_id']);
         
         $order['txid'] = $txid;
