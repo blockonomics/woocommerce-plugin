@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 3.0  =
+* Using DB table to store orders
+
 = 2.4.1  =
 * Fixes update issues with merchant having large volumes
 
