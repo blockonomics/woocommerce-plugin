@@ -29,10 +29,10 @@ $blockonomics = new Blockonomics;
         <h2><?=__('Could not generate new Bitcoin address', 'blockonomics-bitcoin-payments')?></h2>
         <p><?=__('Note to webmaster: Please login to your admin panel, navigate to Settings > Blockonomics and click <i>Test Setup</i> to diagnose the issue.', 'blockonomics-bitcoin-payments')?></p>
       </div>
-      <!-- Address Error -->
+      <!-- Gap limit Error -->
       <div id="address-error-btc-gaplimit" ng-show="btc_gaplimit_error" ng-cloak>
         <h2><?=__('Could not generate new Bitcoin address', 'blockonomics-bitcoin-payments')?></h2>
-       <p>Note to webmaster</br>{{btc_gaplimit_error}}</p>
+       <p><?=__('Note to webmaster:', 'blockonomics-bitcoin-payments')?> {{btc_gaplimit_error}}.</p>
       </div>
       <!-- BCH Address Error -->
       <div id="address-error-bch" ng-show="address_error_bch" ng-cloak>
