@@ -230,7 +230,12 @@ class Blockonomics
 
     public function testSetup()
     {
+        $api_key = get_option("blockonomics_api_key");
         $BCH_Enabled = get_option('blockonomics_bch');
+        if ((!isset($api_key) || strlen($api_key) != 43) && isset($BCH_Enabled)){
+            $error_str = __('Set the API Key or disable BCH', 'blockonomics-bitcoin-payments');
+            return $error_str;
+        }
         if ($BCH_Enabled == '1'){
             $crypto = 'bch';
         }else{
