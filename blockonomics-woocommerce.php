@@ -3,7 +3,7 @@
  * Plugin Name: WordPress Bitcoin Payments - Blockonomics
  * Plugin URI: https://github.com/blockonomics/woocommerce-plugin
  * Description: Accept Bitcoin Payments on your WooCommerce-powered website with Blockonomics
- * Version: 2.4.1
+ * Version: 3.0
  * Author: Blockonomics
  * Author URI: https://www.blockonomics.co
  * License: MIT
@@ -13,9 +13,7 @@
  */
 
 /*  Copyright 2017 Blockonomics Inc.
-
 MIT License
-
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
 "Software"), to deal in the Software without restriction, including
@@ -23,10 +21,8 @@ without limitation the rights to use, copy, modify, merge, publish,
 distribute, sublicense, and/or sell copies of the Software, and to
 permit persons to whom the Software is furnished to do so, subject to
 the following conditions:
-
 The above copyright notice and this permission notice shall be
 included in all copies or substantial portions of the Software.
-
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -34,7 +30,6 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
 */
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -58,7 +53,6 @@ function blockonomics_woocommerce_init()
     add_action('init', 'load_plugin_translations');
     add_action('woocommerce_order_details_after_order_table', 'nolo_custom_field_display_cust_order_meta', 10, 1);
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
-    add_action('admin_menu', 'find_bitcoin_order');
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_filter('clean_url', 'bnomics_async_scripts', 11, 1 );
 
@@ -196,21 +190,8 @@ function blockonomics_woocommerce_init()
                 document.getElementById('blockonomics_api_updated').value = 'true';
             }
             function checkForAPIKeyChange() {
-                let apiKey = "<?php echo get_option("blockonomics_api_key")?>";
-                //Settings have changed, click on Save first
                 if (document.getElementById('blockonomics_api_updated').value == 'true') {
                     alert('Settings have changed, click on Save first');
-                } else if (apiKey && apiKey.length === 43){
-                    document.testSetupForm.submit();
-                } else {
-                    RunTests_APIKey_Not_Set();
-                }
-            }
-            //If BCH enabled give error --- Otherwise, run test Setup for BTC
-            function RunTests_APIKey_Not_Set() {
-                let BCH_Enabled = "<?php echo get_option("blockonomics_bch")?>";
-                if(BCH_Enabled === "1"){
-                    alert("Set the API Key or disable BCH");
                 } else {
                     document.testSetupForm.submit();
                 }
@@ -218,10 +199,10 @@ function blockonomics_woocommerce_init()
             function validateBlockonomicsForm() {
                 newApiKey = document.getElementById("blockonomics_api_key").value;
                 apiKeyChanged = newApiKey != "<?php echo get_option("blockonomics_api_key")?>";
-                if (apiKeyChanged && newApiKey.length != 43) {
-                    alert("ERROR: Invalid APIKey");
-                    return false
-                }
+                // if (apiKeyChanged && newApiKey.length != 43) {
+                //     alert("ERROR: Invalid APIKey");
+                //     return false
+                // }
                 return true;
             }
             function show_advanced() {
@@ -412,45 +393,6 @@ add_action('plugins_loaded', 'blockonomics_woocommerce_init', 0);
 
 register_activation_hook( __FILE__, 'blockonomics_activation_hook' );
 add_action('admin_notices', 'blockonomics_plugin_activation');
-
-
-function find_bitcoin_order(){
-    add_menu_page( 'Find Order based on Address', 'Find Bitcoin Order', 'manage_options', 'bitcoin-order-finder', 'find_woocommerce_order' );
-}
-
-function find_woocommerce_order(){
-    ?>
-    <h1>Find a Woocoomerce order based on bitcoin address</h1>
-    <form method='post' action=''>
-    Bitcoin address:<input type='name' name='address'>
-    <input type='submit' name='SubmitButton'>
-    </form>
-    <?php
-    $orders = get_option('blockonomics_orders');
-    $iteration = 0;
-    if (isset($orders)) {
-        if(isset($_POST['SubmitButton'])){
-            $address = trim($_POST['address']); 
-            echo 'You searched for an order on the address: '.$address.'<br>';
-            $matches = 0;
-            foreach ($orders as $order) {
-                $iteration += 1;
-                foreach ($order as $details) {
-                    if ($details['address'] == $address){
-                        $matches = 1;
-                        echo "<a href='post.php?post=".$details['order_id']."&action=edit'>Order#: ".$details['order_id']."</a><br>";
-                    }
-                }
-            }
-            if ($matches == 0){
-                echo 'No orders matched';
-            }
-        } 
-    } else {
-        echo 'Could not get any orders';
-    }
-}
-
 function blockonomics_activation_hook() {
     if(!is_plugin_active('woocommerce/woocommerce.php'))
     {
@@ -492,13 +434,13 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_temp_withdraw_amount');
     delete_option('blockonomics_orders');
     delete_option('blockonomics_margin');
-    delete_option('blockonomics_timeperiod');
+    delete_option('blockonomics_timeperiod');    
     delete_option('blockonomics_api_updated');
     delete_option('blockonomics_bch');
     delete_option('blockonomics_underpayment_slack');
     delete_option('blockonomics_lite');
     delete_option('blockonomics_nojs');
-	delete_option('blockonomics_network_confirmation');
+    delete_option('blockonomics_network_confirmation');
 }
 
 
