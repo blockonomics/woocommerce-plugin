@@ -13,7 +13,9 @@
  */
 
 /*  Copyright 2017 Blockonomics Inc.
+
 MIT License
+
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
 "Software"), to deal in the Software without restriction, including
@@ -21,8 +23,10 @@ without limitation the rights to use, copy, modify, merge, publish,
 distribute, sublicense, and/or sell copies of the Software, and to
 permit persons to whom the Software is furnished to do so, subject to
 the following conditions:
+
 The above copyright notice and this permission notice shall be
 included in all copies or substantial portions of the Software.
+
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -30,6 +34,7 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 */
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -199,10 +204,10 @@ function blockonomics_woocommerce_init()
             function validateBlockonomicsForm() {
                 newApiKey = document.getElementById("blockonomics_api_key").value;
                 apiKeyChanged = newApiKey != "<?php echo get_option("blockonomics_api_key")?>";
-                // if (apiKeyChanged && newApiKey.length != 43) {
-                //     alert("ERROR: Invalid APIKey");
-                //     return false
-                // }
+                if (apiKeyChanged && newApiKey.length != 43) {
+                    alert("ERROR: Invalid APIKey");
+                    return false
+                }
                 return true;
             }
             function show_advanced() {
@@ -316,7 +321,7 @@ function blockonomics_woocommerce_init()
                     <input type="submit" class="button-primary" value="Save"/>
                     <input type="hidden" name="action" value="update" />
                     <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_bch,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated,blockonomics_underpayment_slack,blockonomics_lite,blockonomics_nojs,blockonomics_network_confirmation" />
-                    <input type="button" onclick="checkForAPIKeyChange();" class="button-primary" name="test-setup-submit" value="Test Setup" style="max-width:85px;">
+                    <input onclick="checkForAPIKeyChange();" class="button-primary" name="test-setup-submit" value="Test Setup" style="max-width:85px;">
                 </p>
             </form>
             <form method="POST" name="testSetupForm">
@@ -392,15 +397,67 @@ function blockonomics_woocommerce_init()
 add_action('plugins_loaded', 'blockonomics_woocommerce_init', 0);
 
 register_activation_hook( __FILE__, 'blockonomics_activation_hook' );
-
 add_action('admin_notices', 'blockonomics_plugin_activation');
+
+global $blockonomics_db_version;
+$blockonomics_db_version = '1.0';
+
+function blockonomics_create_table() {
+    // Create blockonomics_orders table
+    // https://codex.wordpress.org/Creating_Tables_with_Plugins
+    global $wpdb;
+    global $blockonomics_db_version;
+
+    $table_name = $wpdb->prefix . 'blockonomics_orders';
+    $charset_collate = $wpdb->get_charset_collate();
+    $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+        order_id int NOT NULL,
+        status int NOT NULL,
+        crypto varchar(3) NOT NULL,
+        address varchar(191) NOT NULL,
+        timestamp int,
+        time_remaining int,
+        satoshi int,
+        currency varchar(3),
+        value longtext,
+        txid text,
+        PRIMARY KEY  (address),
+        KEY orderkey (order_id,crypto)
+    ) $charset_collate;";
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+    dbDelta( $sql );
+
+    update_option( 'blockonomics_db_version', $blockonomics_db_version );
+}
+
 function blockonomics_activation_hook() {
     if(!is_plugin_active('woocommerce/woocommerce.php'))
     {
         trigger_error(__( 'Wordpress Bitcoin Payments - Blockonomics requires WooCommerce plugin to be installed and active.', 'blockonomics-bitcoin-payments' ).'<br>', E_USER_ERROR);
     }
+
     set_transient( 'blockonomics_activation_hook_transient', true, 5);
 }
+
+// Since WP 3.1 the activation function registered with register_activation_hook() is not called when a plugin is updated.
+function blockonomics_update_db_check() {
+    global $wpdb;
+    global $blockonomics_db_version;
+
+    $installed_ver = get_site_option( 'blockonomics_db_version' );
+    if (!$installed_ver) {
+        blockonomics_create_table();
+    }else if ( $installed_ver != $blockonomics_db_version ) {
+
+        // Example function to demonstrate table changes between upgrade versions
+        // if ($installed_ver < 1.0) {
+        //     $wpdb->query("ALTER TABLE $table_name DROP transaction;");
+        // }
+
+        update_option( 'blockonomics_db_version', $blockonomics_db_version );
+    }
+}
+add_action( 'plugins_loaded', 'blockonomics_update_db_check' );
 
 //Show message when plugin is activated
 function blockonomics_plugin_activation() {
@@ -426,7 +483,6 @@ function blockonomics_plugin_activation() {
   }
 }
 
-
 // On uninstallation, clear every option the plugin has set
 register_uninstall_hook( __FILE__, 'blockonomics_uninstall_hook' );
 function blockonomics_uninstall_hook() {
@@ -435,13 +491,19 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_temp_api_key');
     delete_option('blockonomics_temp_withdraw_amount');
     delete_option('blockonomics_margin');
-    delete_option('blockonomics_timeperiod');    
+    delete_option('blockonomics_timeperiod');
     delete_option('blockonomics_api_updated');
     delete_option('blockonomics_bch');
     delete_option('blockonomics_underpayment_slack');
     delete_option('blockonomics_lite');
     delete_option('blockonomics_nojs');
     delete_option('blockonomics_network_confirmation');
+
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'blockonomics_orders';
+    $sql = "DROP TABLE IF EXISTS $table_name";
+    $wpdb->query($sql);
+    delete_option("blockonomics_db_version");
 }
 
 
