@@ -393,6 +393,40 @@ add_action('plugins_loaded', 'blockonomics_woocommerce_init', 0);
 
 register_activation_hook( __FILE__, 'blockonomics_activation_hook' );
 
+add_action('admin_notices', 'blockonomics_plugin_activation');
+function blockonomics_activation_hook() {
+    if(!is_plugin_active('woocommerce/woocommerce.php'))
+    {
+        trigger_error(__( 'Wordpress Bitcoin Payments - Blockonomics requires WooCommerce plugin to be installed and active.', 'blockonomics-bitcoin-payments' ).'<br>', E_USER_ERROR);
+    }
+    set_transient( 'blockonomics_activation_hook_transient', true, 5);
+}
+
+//Show message when plugin is activated
+function blockonomics_plugin_activation() {
+  if(!is_plugin_active('woocommerce/woocommerce.php'))
+  {
+      $html = '<div class="error">';
+      $html .= '<p>';
+      $html .= __( 'Wordpress Bitcoin Payments - Blockonomics failed to load. Please activate WooCommerce plugin.', 'blockonomics-bitcoin-payments' );
+      $html .= '</p>';
+      $html .= '</div>';
+      echo $html;
+  }
+  if( get_transient( 'blockonomics_activation_hook_transient' ) ){
+
+    $html = '<div class="updated">';
+    $html .= '<p>';
+    $html .= __( 'Congrats, you are now accepting BTC payments! You can configure Blockonomics <a href="options-general.php?page=blockonomics_options">on this page</a>.', 'blockonomics-bitcoin-payments' );
+    $html .= '</p>';
+    $html .= '</div>';
+
+    echo $html;        
+    delete_transient( 'fx-admin-notice-example' );
+  }
+}
+
+
 // On uninstallation, clear every option the plugin has set
 register_uninstall_hook( __FILE__, 'blockonomics_uninstall_hook' );
 function blockonomics_uninstall_hook() {
@@ -401,19 +435,13 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_temp_api_key');
     delete_option('blockonomics_temp_withdraw_amount');
     delete_option('blockonomics_margin');
-    delete_option('blockonomics_timeperiod');
+    delete_option('blockonomics_timeperiod');    
     delete_option('blockonomics_api_updated');
     delete_option('blockonomics_bch');
     delete_option('blockonomics_underpayment_slack');
     delete_option('blockonomics_lite');
     delete_option('blockonomics_nojs');
     delete_option('blockonomics_network_confirmation');
-
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'blockonomics_orders';
-    $sql = "DROP TABLE IF EXISTS $table_name";
-    $wpdb->query($sql);
-    delete_option("blockonomics_db_version");
 }
 
 
