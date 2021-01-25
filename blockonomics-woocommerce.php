@@ -215,21 +215,8 @@ function blockonomics_woocommerce_init()
                 document.getElementById('blockonomics_api_updated').value = 'true';
             }
             function checkForAPIKeyChange() {
-                let apiKey = "<?php echo get_option("blockonomics_api_key")?>";
-                //Settings have changed, click on Save first
                 if (document.getElementById('blockonomics_api_updated').value == 'true') {
                     alert('Settings have changed, click on Save first');
-                } else if (apiKey && apiKey.length === 43){
-                    document.testSetupForm.submit();
-                } else {
-                    RunTests_APIKey_Not_Set();
-                }
-            }
-            //If BCH enabled give error --- Otherwise, run test Setup for BTC
-            function RunTests_APIKey_Not_Set() {
-                let BCH_Enabled = "<?php echo get_option("blockonomics_bch")?>";
-                if(BCH_Enabled === "1"){
-                    alert("Set the API Key or disable BCH");
                 } else {
                     document.testSetupForm.submit();
                 }
@@ -237,10 +224,10 @@ function blockonomics_woocommerce_init()
             function validateBlockonomicsForm() {
                 newApiKey = document.getElementById("blockonomics_api_key").value;
                 apiKeyChanged = newApiKey != "<?php echo get_option("blockonomics_api_key")?>";
-                if (apiKeyChanged && newApiKey.length != 43) {
-                    alert("ERROR: Invalid APIKey");
-                    return false
-                }
+                // if (apiKeyChanged && newApiKey.length != 43) {
+                //     alert("ERROR: Invalid APIKey");
+                //     return false
+                // }
                 return true;
             }
             function show_advanced() {
