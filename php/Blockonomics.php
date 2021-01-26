@@ -235,7 +235,7 @@ class Blockonomics
     {
         $api_key = get_option("blockonomics_api_key");
         $bch_enabled  = get_option('blockonomics_bch');
-        if ((!isset($api_key) || strlen($api_key) != 43) && isset($bch_enabled )){
+        if (!$api_key && $bch_enabled){
             $error_str = __('Set the API Key or disable BCH', 'blockonomics-bitcoin-payments');
             return $error_str;
         }
