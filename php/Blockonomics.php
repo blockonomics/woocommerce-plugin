@@ -48,7 +48,7 @@ class Blockonomics
         if($crypto == 'btc'){
             $url = Blockonomics::NEW_ADDRESS_URL.$get_params;
         }else{
-            $url = Blockonomics::NEW_ADDRESS_URL.$get_params;
+            $url = Blockonomics::BCH_NEW_ADDRESS_URL.$get_params;            
         }
         $response = $this->post($url, $this->api_key, '', 8);
         if (!isset($responseObj)) $responseObj = new stdClass();
