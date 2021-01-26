@@ -48,10 +48,7 @@ class Blockonomics
         if($crypto == 'btc'){
             $url = Blockonomics::NEW_ADDRESS_URL.$get_params;
         }else{
-            //Bitcoin payments break if using BCH_NEW_ADDRESS_URL
-            // $url = Blockonomics::BCH_NEW_ADDRESS_URL.$get_params;
             $url = Blockonomics::NEW_ADDRESS_URL.$get_params;
-            
         }
         $response = $this->post($url, $this->api_key, '', 8);
         if (!isset($responseObj)) $responseObj = new stdClass();
