@@ -48,7 +48,10 @@ class Blockonomics
         if($crypto == 'btc'){
             $url = Blockonomics::NEW_ADDRESS_URL.$get_params;
         }else{
-            $url = Blockonomics::BCH_NEW_ADDRESS_URL.$get_params;
+            //Bitcoin payments break if using BCH_NEW_ADDRESS_URL
+            // $url = Blockonomics::BCH_NEW_ADDRESS_URL.$get_params;
+            $url = Blockonomics::NEW_ADDRESS_URL.$get_params;
+            
         }
         $response = $this->post($url, $this->api_key, '', 8);
         if (!isset($responseObj)) $responseObj = new stdClass();
@@ -231,12 +234,12 @@ class Blockonomics
     public function testSetup()
     {
         $api_key = get_option("blockonomics_api_key");
-        $BCH_Enabled = get_option('blockonomics_bch');
-        if ((!isset($api_key) || strlen($api_key) != 43) && isset($BCH_Enabled)){
+        $bch_enabled  = get_option('blockonomics_bch');
+        if ((!isset($api_key) || strlen($api_key) != 43) && isset($bch_enabled )){
             $error_str = __('Set the API Key or disable BCH', 'blockonomics-bitcoin-payments');
             return $error_str;
         }
-        if ($BCH_Enabled == '1'){
+        if ($bch_enabled  == '1'){
             $crypto = 'bch';
         }else{
             $crypto = 'btc';
