@@ -112,7 +112,7 @@ class Blockonomics
         }
         elseif (wp_remote_retrieve_response_code($response)==401)
             $error_str = __('API Key is incorrect', 'blockonomics-bitcoin-payments');
-        elseif (wp_remote_retrieve_response_code($response)!=200)  
+        elseif (wp_remote_retrieve_response_code($response)!=200)
             $error_str = $response->data;
         elseif (!isset($response_body) || count($response_body) == 0)
         {
@@ -121,8 +121,8 @@ class Blockonomics
         return $error_str;
     }
 
-    
-    public function set_callback_if_needed ($response_body, $crypto){
+    public function set_callback ($response_body, $crypto){
+        $error_str = '';
         if (count($response_body) == 1)
         {
             $response_callback = '';
@@ -144,7 +144,6 @@ class Blockonomics
             {
                 //No callback URL set, set one 
                 $this->update_callback($callback_url, $crypto, $response_address);
-                return true;
             }
 
             elseif($response_callback_without_schema != $callback_url_without_schema)
@@ -157,33 +156,25 @@ class Blockonomics
                     //Looks like the user regenrated callback by mistake
                     //Just force Update_callback on server
                     $this->update_callback($callback_url, $crypto, $response_address);
-                    return true;
                 }
                 else
                 {
                     $error_str = __("You have an existing callback URL. Refer instructions on integrating multiple websites", 'blockonomics-bitcoin-payments');
                 }
             }
-        } else {
-            //return true to show that other checks don't need to be done
-            return true;
         }
-        
+        return $error_str;
     }
 
     public function check_callback_urls_or_set_one($crypto) 
     {
         $response = $this->get_callbacks($crypto);
         $response_body = json_decode(wp_remote_retrieve_body($response));
-        $error_str = '';
-
         $error_str = $this->check_callback_response($response, $response_body);
-        if (!$error_str) 
-        {
-            $new_callbackset = $this->set_callback_if_needed($response_body, $crypto);
-            return $new_callbackset;
+        if(!$error_str){
+            $error_str = $this->set_callback($response_body, $crypto);
         }
-        if(!$new_callbackset) 
+        else 
         {
             $error_str = __("You have an existing callback URL. Refer instructions on integrating multiple websites", 'blockonomics-bitcoin-payments');
             // Check if callback url is set
