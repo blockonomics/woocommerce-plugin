@@ -103,30 +103,9 @@ class Blockonomics
         $response = $this->get($url, $this->api_key);
         return $response;
     }
-
-    public function check_callback_urls_or_set_one($crypto) 
-    {
-        $response = $this->get_callbacks($crypto);
-        $response_body = json_decode(wp_remote_retrieve_body($response));
-
+    
+    public function check_callback_response($response, $response_body){
         $error_str = '';
-        $response_callback = '';
-        $response_address = '';
-        
-        if(isset($response_body[0])){
-            $response_callback = isset($response_body[0]->callback) ? $response_body[0]->callback : '';
-            $response_address = isset($response_body[0]->address) ? $response_body[0]->address : '';
-        }
-
-        $callback_secret = get_option('blockonomics_callback_secret');
-        $api_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-        $callback_url = add_query_arg('secret', $callback_secret, $api_url);
-
-        // Remove http:// or https:// from urls
-        $api_url_without_schema = preg_replace('/https?:\/\//', '', $api_url);
-        $callback_url_without_schema = preg_replace('/https?:\/\//', '', $callback_url);
-        $response_callback_without_schema = preg_replace('/https?:\/\//', '', $response_callback);
-
         //TODO: Check This: WE should actually check code for timeout
         if (!wp_remote_retrieve_response_code($response)) {
             $error_str = __('Your server is blocking outgoing HTTPS calls', 'blockonomics-bitcoin-payments');
@@ -139,13 +118,35 @@ class Blockonomics
         {
             $error_str = __('You have not entered an xPub', 'blockonomics-bitcoin-payments');
         }
-        elseif (count($response_body) == 1)
+        return $error_str;
+    }
+
+    
+    public function set_callback_if_needed ($response_body, $crypto){
+        if (count($response_body) == 1)
         {
+            $response_callback = '';
+            $response_address = '';
+            if(isset($response_body[0])){
+                $response_callback = isset($response_body[0]->callback) ? $response_body[0]->callback : '';
+                $response_address = isset($response_body[0]->address) ? $response_body[0]->address : '';
+            }
+            $callback_secret = get_option('blockonomics_callback_secret');
+            $api_url = WC()->api_request_url('WC_Gateway_Blockonomics');
+            $callback_url = add_query_arg('secret', $callback_secret, $api_url);
+
+            // Remove http:// or https:// from urls
+            $api_url_without_schema = preg_replace('/https?:\/\//', '', $api_url);
+            $callback_url_without_schema = preg_replace('/https?:\/\//', '', $callback_url);
+            $response_callback_without_schema = preg_replace('/https?:\/\//', '', $response_callback);
+
             if(!$response_callback || $response_callback == null)
             {
                 //No callback URL set, set one 
-                $this->update_callback($callback_url, $crypto, $response_address);   
+                $this->update_callback($callback_url, $crypto, $response_address);
+                return true;
             }
+
             elseif($response_callback_without_schema != $callback_url_without_schema)
             {
                 $base_url = get_bloginfo('wpurl');
@@ -153,25 +154,46 @@ class Blockonomics
                 // Check if only secret differs
                 if(strpos($response_callback, $base_url) !== false)
                 {
-                //Looks like the user regenrated callback by mistake
-                //Just force Update_callback on server
-                $this->update_callback($callback_url, $crypto, $response_address);  
+                    //Looks like the user regenrated callback by mistake
+                    //Just force Update_callback on server
+                    $this->update_callback($callback_url, $crypto, $response_address);
+                    return true;
                 }
                 else
                 {
-                $error_str = __("You have an existing callback URL. Refer instructions on integrating multiple websites", 'blockonomics-bitcoin-payments');
+                    $error_str = __("You have an existing callback URL. Refer instructions on integrating multiple websites", 'blockonomics-bitcoin-payments');
                 }
             }
+        } else {
+            //return true to show that other checks don't need to be done
+            return true;
         }
-        else 
+        
+    }
+
+    public function check_callback_urls_or_set_one($crypto) 
+    {
+        $response = $this->get_callbacks($crypto);
+        $response_body = json_decode(wp_remote_retrieve_body($response));
+        $error_str = '';
+
+        $error_str = $this->check_callback_response($response, $response_body);
+        if (!$error_str) 
+        {
+            $new_callbackset = $this->set_callback_if_needed($response_body, $crypto);
+            return $new_callbackset;
+        }
+        if(!$new_callbackset) 
         {
             $error_str = __("You have an existing callback URL. Refer instructions on integrating multiple websites", 'blockonomics-bitcoin-payments');
             // Check if callback url is set
             foreach ($response_body as $res_obj)
                 if(preg_replace('/https?:\/\//', '', $res_obj->callback) == $callback_url_without_schema)
                 $error_str = "";
-        } 
+        }
+        return $error_str;
     }
+
 
     public function get_temp_api_key($callback_url)
     {
@@ -311,12 +333,12 @@ class Blockonomics
     {
         // Fetch the crypto to test based on the plugin settings
         $crypto = $this->get_test_setup_crypto();
-
         $api_key = get_option("blockonomics_api_key");
 
         //If BCH enabled and API Key is not set: give error
         if (!$api_key && $crypto === 'bch'){
             $error_str = __('Set the API Key or disable BCH', 'blockonomics-bitcoin-payments');
+            return $error_str;
         }
 
         $error_str = $this->check_callback_urls_or_set_one($crypto);
