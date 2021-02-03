@@ -104,7 +104,7 @@ class Blockonomics
         return $response;
     }
     
-    public function check_callback_response($response, $response_body, $crypto){
+    public function check_get_callbacks_response($response, $response_body, $crypto){
         $error_str = '';
         $error_crypto = strtoupper($crypto).' error: ';
         //TODO: Check This: WE should actually check code for timeout
@@ -171,6 +171,12 @@ class Blockonomics
 
     public function check_callback_urls_or_set_one($crypto) 
     {
+        $api_key = get_option("blockonomics_api_key");
+        //If BCH enabled and API Key is not set: give error
+        if (!$api_key && $crypto === 'bch'){
+            $error_str = __('Set the API Key or disable BCH', 'blockonomics-bitcoin-payments');
+            return $error_str;
+        }
         $response = $this->get_callbacks($crypto);
         $response_body = json_decode(wp_remote_retrieve_body($response));
         //chek the current callback and detect any potential errors
@@ -321,13 +327,6 @@ class Blockonomics
     {
         // Fetch the crypto to test based on the plugin settings
         $crypto = $this->get_test_setup_crypto();
-        $api_key = get_option("blockonomics_api_key");
-
-        //If BCH enabled and API Key is not set: give error
-        if (!$api_key && $crypto === 'bch'){
-            $error_str = __('Set the API Key or disable BCH', 'blockonomics-bitcoin-payments');
-            return $error_str;
-        }
 
         $error_str = $this->check_callback_urls_or_set_one($crypto);
         if (!$error_str)
