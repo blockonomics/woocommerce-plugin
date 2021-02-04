@@ -133,6 +133,12 @@ class Blockonomics
         $error_str = '';
         $error_crypto = strtoupper($crypto).' error: ';
         $response_body = json_decode(wp_remote_retrieve_body($response));
+
+        $callback_secret = get_option('blockonomics_callback_secret');
+        $api_url = WC()->api_request_url('WC_Gateway_Blockonomics');
+        $callback_url = add_query_arg('secret', $callback_secret, $api_url);
+        $callback_url_without_schema = preg_replace('/https?:\/\//', '', $callback_url);
+
         if (!isset($response_body) || count($response_body) == 0)
         {
             $error_str = __($error_crypto.'You have not entered an xPub', 'blockonomics-bitcoin-payments');
@@ -141,20 +147,11 @@ class Blockonomics
         {
             $response_callback = '';
             $response_address = '';
-
             if(isset($response_body[0])){
                 $response_callback = isset($response_body[0]->callback) ? $response_body[0]->callback : '';
                 $response_address = isset($response_body[0]->address) ? $response_body[0]->address : '';
             }
-            $callback_secret = get_option('blockonomics_callback_secret');
-            $api_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-            $callback_url = add_query_arg('secret', $callback_secret, $api_url);
-
-            // Remove http:// or https:// from urls
-            $api_url_without_schema = preg_replace('/https?:\/\//', '', $api_url);
-            $callback_url_without_schema = preg_replace('/https?:\/\//', '', $callback_url);
             $response_callback_without_schema = preg_replace('/https?:\/\//', '', $response_callback);
-
             if(!$response_callback || $response_callback == null)
             {
                 //No callback URL set, set one 
