@@ -131,6 +131,7 @@ class Blockonomics
 
     public function check_get_callbacks_response_body ($response, $crypto){
         $error_str = '';
+        $error_crypto = strtoupper($crypto).' error: ';
         $response_body = json_decode(wp_remote_retrieve_body($response));
         if (!isset($response_body) || count($response_body) == 0)
         {
@@ -138,7 +139,6 @@ class Blockonomics
         }
         elseif (count($response_body) == 1)
         {
-            $error_crypto = strtoupper($crypto).' error: ';
             $response_callback = '';
             $response_address = '';
 
