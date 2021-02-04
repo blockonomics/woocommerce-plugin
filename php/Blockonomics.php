@@ -34,34 +34,15 @@ class Blockonomics
         return $api_key;
     }
 
-    public function test_new_address_gen($crypto, $reset=false)
+    public function test_new_address_gen($crypto)
     {
-        $secret = get_option('blockonomics_callback_secret');
-        if($reset)
-        {
-            $get_params = "?match_callback=$secret&reset=1";
-        } 
-        else
-        {
-            $get_params = "?match_callback=$secret";
+        $error_str = '';
+        $callback_secret = get_option('blockonomics_callback_secret');
+        $error_str = $this->new_address($callback_secret, $crypto, true);
+        if ($response->response_code!=200){	
+             $error_str = $response->response_message;
         }
-        if($crypto == 'btc'){
-            $url = Blockonomics::NEW_ADDRESS_URL.$get_params;
-        }else{
-            $url = Blockonomics::BCH_NEW_ADDRESS_URL.$get_params;            
-        }
-        $response = $this->post($url, $this->api_key, '', 8);
-        if (!isset($responseObj)) $responseObj = new stdClass();
-        $responseObj->{'response_code'} = wp_remote_retrieve_response_code($response);
-        if (wp_remote_retrieve_body($response))
-        {
-          $body = json_decode(wp_remote_retrieve_body($response));
-          $responseObj->{'response_message'} = isset($body->message) ? $body->message : '';
-          $responseObj->{'address'} = isset($body->address) ? $body->address : '';
-        }
-        if ($responseObj->response_code!=200){
-            return $error_str = $responseObj->response_message;
-        }
+        return $error_str;
     }
 
 
