@@ -178,6 +178,14 @@ class Blockonomics
                 
             }
         }
+        else 
+        {
+            $error_str = __("You have an existing callback URL. Refer instructions on integrating multiple websites", 'blockonomics-bitcoin-payments');
+            // Check if callback url is set
+            foreach ($response_body as $res_obj)
+             if(preg_replace('/https?:\/\//', '', $res_obj->callback) == $callback_url_without_schema)
+                $error_str = "";
+        }  
         return $error_str;
     }
 
