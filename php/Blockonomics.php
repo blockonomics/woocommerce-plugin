@@ -115,7 +115,7 @@ class Blockonomics
         return $response;
     }
     
-    public function check_get_callbacks_response($response, $response_body, $crypto){
+    public function check_get_callbacks_response_code($response, $crypto){
         $error_str = '';
         $error_crypto = strtoupper($crypto).' error: ';
         //TODO: Check This: WE should actually check code for timeout
@@ -126,18 +126,19 @@ class Blockonomics
             $error_str = __($error_crypto.'API Key is incorrect', 'blockonomics-bitcoin-payments');
         elseif (wp_remote_retrieve_response_code($response)!=200)
             $error_str = $error_crypto.$response->data;
-        elseif (!isset($response_body) || count($response_body) == 0)
-        {
-            $error_str = __($error_crypto.'You have not entered an xPub', 'blockonomics-bitcoin-payments');
-        }
         return $error_str;
     }
 
-    public function set_callback ($response_body, $crypto){
-        if (count($response_body) == 1)
+    public function check_get_callbacks_response_body ($response, $crypto){
+        $error_str = '';
+        $response_body = json_decode(wp_remote_retrieve_body($response));
+        if (!isset($response_body) || count($response_body) == 0)
+        {
+            $error_str = __($error_crypto.'You have not entered an xPub', 'blockonomics-bitcoin-payments');
+        }
+        elseif (count($response_body) == 1)
         {
             $error_crypto = strtoupper($crypto).' error: ';
-            $error_str = '';
             $response_callback = '';
             $response_address = '';
 
@@ -159,7 +160,6 @@ class Blockonomics
                 //No callback URL set, set one 
                 $this->update_callback($callback_url, $crypto, $response_address);
             }
-
             elseif($response_callback_without_schema != $callback_url_without_schema)
             {
                 $base_url = get_bloginfo('wpurl');
@@ -175,6 +175,7 @@ class Blockonomics
                 {
                     $error_str = __($error_crypto."You have an existing callback URL. Refer instructions on integrating multiple websites", 'blockonomics-bitcoin-payments');
                 }
+                
             }
         }
         return $error_str;
@@ -189,12 +190,11 @@ class Blockonomics
             return $error_str;
         }
         $response = $this->get_callbacks($crypto);
-        $response_body = json_decode(wp_remote_retrieve_body($response));
         //chek the current callback and detect any potential errors
-        $error_str = $this->check_get_callbacks_response($response, $response_body, $crypto);
+        $error_str = $this->check_get_callbacks_response_code($response, $crypto);
         if(!$error_str){
             //if needed, set the callback.
-            $error_str = $this->set_callback($response_body, $crypto);
+            $error_str = $this->check_get_callbacks_response_body($response, $crypto);
         }
         return $error_str;
     }
