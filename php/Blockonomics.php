@@ -34,7 +34,7 @@ class Blockonomics
         return $api_key;
     }
 
-    public function test_new_address_gen($crypto)
+    public function test_new_address_gen($crypto, $response)
     {
         $error_str = '';
         $callback_secret = get_option('blockonomics_callback_secret');
@@ -186,7 +186,7 @@ class Blockonomics
         return $error_str;
     }
 
-    public function check_callback_urls_or_set_one($crypto) 
+    public function check_callback_urls_or_set_one($crypto, $response) 
     {
         $api_key = get_option("blockonomics_api_key");
         //If BCH enabled and API Key is not set: give error
@@ -194,7 +194,6 @@ class Blockonomics
             $error_str = __('Set the API Key or disable BCH', 'blockonomics-bitcoin-payments');
             return $error_str;
         }
-        $response = $this->get_callbacks($crypto);
         //chek the current callback and detect any potential errors
         $error_str = $this->check_get_callbacks_response_code($response, $crypto);
         if(!$error_str){
@@ -343,12 +342,12 @@ class Blockonomics
     {
         // Fetch the crypto to test based on the plugin settings
         $crypto = $this->get_test_setup_crypto();
-
-        $error_str = $this->check_callback_urls_or_set_one($crypto);
+        $response = $this->get_callbacks($crypto);
+        $error_str = $this->check_callback_urls_or_set_one($crypto, $response);
         if (!$error_str)
         {
             //Everything OK ! Test address generation
-            $error_str = $this->test_new_address_gen($crypto);
+            $error_str = $this->test_new_address_gen($crypto, $response);
         }
         if($error_str) {
             // Append troubleshooting article to all errors
