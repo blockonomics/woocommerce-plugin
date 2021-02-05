@@ -246,7 +246,71 @@ function blockonomics_woocommerce_init()
         </script>
         <div class="wrap">
             <h2>Blockonomics</h2>
-            <form method="post" id="myform" onsubmit="return validateBlockonomicsForm()" action="options.php">
+            <?php
+            if( isset( $_GET[ 'tab' ] ) ) {
+                $active_tab = $_GET[ 'tab' ] ? $_GET[ 'tab' ] : 'settings';
+            }
+            ?>
+            <h2 class="nav-tab-wrapper">
+                <a href="options-general.php?page=blockonomics_options&tab=settings"    class="nav-tab <?php echo $active_tab == 'settings' ? 'nav-tab-active' : ''; ?>">Settings</a>
+                <a href="options-general.php?page=blockonomics_options&tab=currencies"  class="nav-tab <?php echo $active_tab == 'currencies' ? 'nav-tab-active' : ''; ?>">Currencies</a>
+                <a href="options-general.php?page=blockonomics_options&tab=locate_order"class="nav-tab <?php echo $active_tab == 'locate_order' ? 'nav-tab-active' : ''; ?>">Locate Order</a>
+            </h2>
+            <form method="post" action="options.php">
+            <?php 
+            if( $active_tab == 'settings' ) {
+                settings_fields( 'blockonomics_settings' );
+                do_settings_sections( 'blockonomics_settings' );
+            } elseif( $active_tab == 'currencies' )  {
+                settings_fields( 'blockonomics_currencies' );
+                do_settings_sections( 'blockonomics_currencies' );
+            } else {
+                settings_fields( 'blockonomics_currencies' );
+                do_settings_sections( 'blockonomics_currencies' );
+            }
+            // submit_button();
+            echo '<table class="form-table">';
+            switch ( $active_tab ){
+            case 'settings' :
+            ?>
+                <tr>
+                <th>Tags with CSS classes:</th>
+                <td>
+                <input id="ilc_tag_class" name="ilc_tag_class" type="checkbox" <?php if ( $settings["ilc_tag_class"] ) echo 'checked="checked"'; ?> value="true" />
+                <label for="ilc_tag_class">Checking this will output each post tag with a specific CSS class based on its slug.</label>
+                </td>
+            </tr>
+                        <?php
+                    break;
+                    case 'currencies' :
+                        ?>
+                        <tr>
+                            <th><label for="ilc_ga">Insert tracking code:</label></th>
+                            <td>
+                            Enter your Google Analytics tracking code:
+                            <textarea id="ilc_ga" name="ilc_ga" cols="60" rows="5"><?php echo esc_html( stripslashes( $settings["ilc_ga"] ) ); ?></textarea><br />
+
+                            </td>
+                        </tr>
+                        <?php
+                    break;
+                    case 'locate_order' :
+                        ?>
+                        <tr>
+                            <th><label for="ilc_intro">Introduction</label></th>
+                            <td>
+                            Enter the introductory text for the home page:
+                            <textarea id="ilc_intro" name="ilc_intro" cols="60" rows="5" ><?php echo esc_html( stripslashes( $settings["ilc_intro"] ) ); ?></textarea>
+                            </td>
+                        </tr>
+                        <?php
+                    break;
+                }
+                echo '</table>';
+                
+                ?>
+            </form>
+            <!-- <form method="post" id="myform" onsubmit="return validateBlockonomicsForm()" action="options.php">
                 <?php wp_nonce_field('update-options') ?>
                 <input type="hidden" name="blockonomics_api_updated" id="blockonomics_api_updated" value="false">
                 <table class="form-table">
@@ -359,7 +423,7 @@ function blockonomics_woocommerce_init()
                 <p class="submit">
                     <input type="hidden" name="generateSecret" value="true">
                 </p>
-            </form>
+            </form> -->
     </div>
 
     <?php
@@ -506,7 +570,7 @@ function blockonomics_plugin_activation() {
 
     $html = '<div class="updated">';
     $html .= '<p>';
-    $html .= __( 'Congrats, you are now accepting BTC payments! You can configure Blockonomics <a href="options-general.php?page=blockonomics_options">on this page</a>.', 'blockonomics-bitcoin-payments' );
+    $html .= __( 'Congrats, you are now accepting BTC payments! You can configure Blockonomics <a href="page=options-general.php?blockonomics_options">on this page</a>.', 'blockonomics-bitcoin-payments' );
     $html .= '</p>';
     $html .= '</div>';
 
