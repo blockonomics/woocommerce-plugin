@@ -13,7 +13,9 @@
  */
 
 /*  Copyright 2017 Blockonomics Inc.
+
 MIT License
+
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
 "Software"), to deal in the Software without restriction, including
@@ -21,8 +23,10 @@ without limitation the rights to use, copy, modify, merge, publish,
 distribute, sublicense, and/or sell copies of the Software, and to
 permit persons to whom the Software is furnished to do so, subject to
 the following conditions:
+
 The above copyright notice and this permission notice shall be
 included in all copies or substantial portions of the Software.
+
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -30,12 +34,15 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 */
+
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
 /**
  * Initialize hooks needed for the payment gateway
  */
@@ -199,10 +206,10 @@ function blockonomics_woocommerce_init()
             function validateBlockonomicsForm() {
                 newApiKey = document.getElementById("blockonomics_api_key").value;
                 apiKeyChanged = newApiKey != "<?php echo get_option("blockonomics_api_key")?>";
-                // if (apiKeyChanged && newApiKey.length != 43) {
-                //     alert("ERROR: Invalid APIKey");
-                //     return false
-                // }
+                if (apiKeyChanged && newApiKey.length != 43) {
+                    alert("ERROR: Invalid APIKey");
+                    return false
+                }
                 return true;
             }
             function show_advanced() {
@@ -316,7 +323,7 @@ function blockonomics_woocommerce_init()
                     <input type="submit" class="button-primary" value="Save"/>
                     <input type="hidden" name="action" value="update" />
                     <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_bch,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated,blockonomics_underpayment_slack,blockonomics_lite,blockonomics_nojs,blockonomics_network_confirmation" />
-                    <input type="button" onclick="checkForAPIKeyChange();" class="button-primary" name="test-setup-submit" value="Test Setup" style="max-width:85px;">
+                    <input onclick="checkForAPIKeyChange();" class="button-primary" name="test-setup-submit" value="Test Setup" style="max-width:85px;">
                 </p>
             </form>
             <form method="POST" name="testSetupForm">
@@ -486,7 +493,7 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_temp_api_key');
     delete_option('blockonomics_temp_withdraw_amount');
     delete_option('blockonomics_margin');
-    delete_option('blockonomics_timeperiod');    
+    delete_option('blockonomics_timeperiod');
     delete_option('blockonomics_api_updated');
     delete_option('blockonomics_bch');
     delete_option('blockonomics_underpayment_slack');
