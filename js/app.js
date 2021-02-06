@@ -50,7 +50,7 @@ function CheckoutController($scope, $interval, Order, $timeout, Url) {
             var subdomain = $scope.crypto.code;
         }
         //Check the status of the order
-        if ($scope.order.status === -1) {
+        if ($scope.order.status == -1) {
             $scope.clock = $scope.order.time_remaining;
             //Mark order as expired if we ran out of time
             if ($scope.clock < 0) {
@@ -93,7 +93,10 @@ function CheckoutController($scope, $interval, Order, $timeout, Url) {
                     proccess_order_data();
                     $scope.checkout_panel  = true;
                 }else if($scope.crypto.code === 'btc'){
-                    $scope.address_error_btc = true;
+                    if (data.error && data.error.toLowerCase().indexOf("gap limit") !== -1)
+                      $scope.btc_gaplimit_error = data.error;
+                    else
+                      $scope.address_error_btc = true;
                 }else if($scope.crypto.code === 'bch'){
                     $scope.address_error_bch = true;
                 }
