@@ -223,84 +223,104 @@ function blockonomics_woocommerce_init()
             <h2>Blockonomics</h2>
             <?php
             if( isset( $_GET[ 'tab' ] ) ) {
-                $active_tab = $_GET[ 'tab' ] ? $_GET[ 'tab' ] : 'settings';
+                $active_tab = $_GET[ 'tab' ];
+            } else {
+                $active_tab = 'settings';
             }
             ?>
             <h2 class="nav-tab-wrapper">
                 <a href="options-general.php?page=blockonomics_options&tab=settings"    class="nav-tab <?php echo $active_tab == 'settings' ? 'nav-tab-active' : ''; ?>">Settings</a>
                 <a href="options-general.php?page=blockonomics_options&tab=currencies"  class="nav-tab <?php echo $active_tab == 'currencies' ? 'nav-tab-active' : ''; ?>">Currencies</a>
-                <a href="options-general.php?page=blockonomics_options&tab=locate_order"class="nav-tab <?php echo $active_tab == 'locate_order' ? 'nav-tab-active' : ''; ?>">Locate Order</a>
             </h2>
-            <form method="post" action="options.php">
+            <!-- <form method="post" action="options.php"> -->
             <?php 
             if( $active_tab == 'settings' ) {
                 settings_fields( 'blockonomics_settings' );
                 do_settings_sections( 'blockonomics_settings' );
-            } elseif( $active_tab == 'currencies' )  {
-                settings_fields( 'blockonomics_currencies' );
-                do_settings_sections( 'blockonomics_currencies' );
             } else {
                 settings_fields( 'blockonomics_currencies' );
                 do_settings_sections( 'blockonomics_currencies' );
-            }
-            // submit_button();
-            echo '<table class="form-table">';
+            } 
             switch ( $active_tab ){
             case 'settings' :
-            ?>
-                <tr>
-                <th>Tags with CSS classes:</th>
-                <td>
-                <input id="ilc_tag_class" name="ilc_tag_class" type="checkbox" <?php if ( $settings["ilc_tag_class"] ) echo 'checked="checked"'; ?> value="true" />
-                <label for="ilc_tag_class">Checking this will output each post tag with a specific CSS class based on its slug.</label>
-                </td>
-            </tr>
-                        <?php
-                    break;
-                    case 'currencies' :
-                        ?>
-                        <tr>
-                            <th><label for="ilc_ga">Insert tracking code:</label></th>
-                            <td>
-                            Enter your Google Analytics tracking code:
-                            <textarea id="ilc_ga" name="ilc_ga" cols="60" rows="5"><?php echo esc_html( stripslashes( $settings["ilc_ga"] ) ); ?></textarea><br />
-
-                            </td>
-                        </tr>
-                        <?php
-                    break;
-                    case 'locate_order' :
-                        ?>
-                        <tr>
-                            <th><label for="ilc_intro">Introduction</label></th>
-                            <td>
-                            Enter the introductory text for the home page:
-                            <textarea id="ilc_intro" name="ilc_intro" cols="60" rows="5" ><?php echo esc_html( stripslashes( $settings["ilc_intro"] ) ); ?></textarea>
-                            </td>
-                        </tr>
-                        <?php
-                    break;
-                }
-                echo '</table>';
-                
                 ?>
-            </form>
-            <!-- <form method="post" id="myform" onsubmit="return validateBlockonomicsForm()" action="options.php">
-                <?php wp_nonce_field('update-options') ?>
-                <input type="hidden" name="blockonomics_api_updated" id="blockonomics_api_updated" value="false">
+                <h1>API Key</h1>
+                <input onchange="value_changed()" size="130" type="text" id="blockonomics_api_key" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" />
+                <p>To get your API Key, click <b> Get Started for Free </b> on</p>
+                <a href="https://blockonomics.co.merchants">https://blockonomics.co.merchants</a>
+                
+                <h1>Callback URL
+                    <a href="javascript:gen_secret()" id="generate-callback" style="font:400 30px/1 dashicons;margin-left: 5px;top: 6px;position:relative;text-decoration: none;" title="Generate New Callback URL">&#xf463;</a>
+                </h1>
+                <input size="130" type="text" value="<?php echo get_callback_url();?>" disabled/>
+                <form method="post" id="myform" onsubmit="return validateBlockonomicsForm()" action="options.php">
+                    <?php wp_nonce_field('update-options') ?>
+                    <input type="hidden" name="blockonomics_api_updated" id="blockonomics_api_updated" value="false">
+
+                    <p id="advanced_title" style="font-weight:bold"><a href="javascript:show_advanced()">Advanced Settings &#9660;</a></p>
+                    <div id="advanced_window" style="display:none">
+                        <p style="font-weight:bold"><a href="javascript:show_basic()">Advanced Settings &#9650;</a></p>
+                        <table class="form-table">
+                            <tr valign="top"><th scope="row"><?php echo __('Time period of countdown timer on payment page (in minutes)', 'blockonomics-bitcoin-payments')?></th>
+                                <td>
+                                    <select name="blockonomics_timeperiod" />
+                                        <option value="10" <?php selected(get_option('blockonomics_timeperiod'), 10); ?>>10</option>
+                                        <option value="15" <?php selected(get_option('blockonomics_timeperiod'), 15); ?>>15</option>
+                                        <option value="20" <?php selected(get_option('blockonomics_timeperiod'), 20); ?>>20</option>
+                                        <option value="25" <?php selected(get_option('blockonomics_timeperiod'), 25); ?>>25</option>
+                                        <option value="30" <?php selected(get_option('blockonomics_timeperiod'), 30); ?>>30</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr valign="top">
+                                <th scope="row"><?php echo __('Extra Currency Rate Margin % (Increase live fiat to BTC rate by small percent)', 'blockonomics-bitcoin-payments')?></th>
+                                <td><input type="number" min="0" max="4" step="0.01" name="blockonomics_margin" value="<?php echo esc_attr( get_option('blockonomics_margin', 0) ); ?>" /></td>
+                            </tr>
+                            <tr valign="top">
+                                <th scope="row"><?php echo __('Underpayment Slack % (Allow payments that are off by a small percentage)', 'blockonomics-bitcoin-payments')?></th>
+                                <td><input type="number" min="0" max="10" step="0.01" name="blockonomics_underpayment_slack" value="<?php echo esc_attr( get_option('blockonomics_underpayment_slack', 0) ); ?>" /></td>
+                            </tr>
+                            <tr valign="top">
+                                <th scope="row"><?php echo __('Display Payment Page in Lite Mode (Enable this if you are having problems in rendering checkout page)', 'blockonomics-bitcoin-payments')?></th>
+                                <td><input type="checkbox" name="blockonomics_lite" value="1" <?php checked("1", get_option('blockonomics_lite')); ?> /></td>
+                            </tr>
+                            <tr valign="top">
+                                <th scope="row"><?php echo __('No Javascript checkout page (Enable this if you have majority customer that use tor like browser that block Javascript)', 'blockonomics-bitcoin-payments')?></th>
+                                <td><input type="checkbox" name="blockonomics_nojs" value="1" <?php checked("1", get_option('blockonomics_nojs')); ?> /></td>
+                            </tr>
+                            <tr valign="top">
+                                <th scope="row"><?php echo __('Network Confirmations required for payment to complete)', 'blockonomics-bitcoin-payments')?></th>
+                                <td><select name="blockonomics_network_confirmation" />
+                                        <option value="2" <?php selected(get_option('blockonomics_network_confirmation'), 2); ?>>2 (Recommended)</option>
+                                        <option value="1" <?php selected(get_option('blockonomics_network_confirmation'), 1); ?>>1</option>
+                                        <option value="0" <?php selected(get_option('blockonomics_network_confirmation'), 0); ?>>0</option>
+                                    </select></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <p class="submit">
+                        <input type="submit" class="button-primary" value="Save"/>
+                        <input type="hidden" name="action" value="update" />
+                        <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_bch,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated,blockonomics_underpayment_slack,blockonomics_lite,blockonomics_nojs,blockonomics_network_confirmation" />
+                    </p>
+                </form>
+                <!-- <form method="POST" name="generateSecretForm">
+                <p class="submit">
+                    <input type="hidden" name="generateSecret" value="true">
+                </p>
+                </form> -->
+                <?php
+                break;
+            case 'currencies' :
+                ?>
+                <h1>
+                    <input type="checkbox" name="blockonomics_btc" value="1" <?php checked("1", get_option('blockonomics_btc')); ?>" />
+                    Bitcoin (BTC)
+                </h1>
+                <p>To configure, click <b> Get Started for Free </b> on</p>
+                <a href="https://blockonomics.co.merchants">https://blockonomics.co.merchants</a>
                 <table class="form-table">
-                    <tr valign="top">
-                        <th scope="row">CALLBACK URL 
-                            <a href="javascript:gen_secret()" id="generate-callback" style="font:400 20px/1 dashicons;margin-left: 5px;top: 4px;position:relative;text-decoration: none;" title="Generate New Callback URL">&#xf463;</a>
-                        </th>
-                        <td><?php echo get_callback_url(); ?></td>
-                    </tr>
-                    <tr valign="top">
-                        <th scope="row"><?php echo __('BCH Enabled (Select if you want to accept Bitcoin Cash)')?></th>
-                        <td><input type="checkbox" name="blockonomics_bch" value="1" <?php checked("1", get_option('blockonomics_bch')); ?>" /></td>
-                    </tr>
-                    <tr valign="top">
-                        <th scope="row">Destination BTC wallet for payments</th>
+                <th scope="row">Destination BTC wallet for payments</th>
                         <td>
                             <?php
                             $total_received = get_option('blockonomics_temp_withdraw_amount') / 1.0e8;
@@ -332,75 +352,63 @@ function blockonomics_woocommerce_init()
                             <p><b>ERROR:</b> No wallet set up</p>
 
                             <?php endif; ?>
-
-                        </td>
-                    </tr>
-                    <tr valign="top">
-                        <th scope="row">APIKey</th>
-                        <td><input onchange="value_changed()" type="text" id="blockonomics_api_key" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" /></td>
+                            </td>
                     </tr>
                 </table>
-                <p id="advanced_title" style="font-weight:bold"><a href="javascript:show_advanced()">Advanced Settings &#9660;</a></p>
-                <div id="advanced_window" style="display:none">
-                    <p style="font-weight:bold"><a href="javascript:show_basic()">Advanced Settings &#9650;</a></p>
-                    <table class="form-table">
-                        <tr valign="top"><th scope="row"><?php echo __('Time period of countdown timer on payment page (in minutes)', 'blockonomics-bitcoin-payments')?></th>
-                            <td>
-                                <select name="blockonomics_timeperiod" />
-                                    <option value="10" <?php selected(get_option('blockonomics_timeperiod'), 10); ?>>10</option>
-                                    <option value="15" <?php selected(get_option('blockonomics_timeperiod'), 15); ?>>15</option>
-                                    <option value="20" <?php selected(get_option('blockonomics_timeperiod'), 20); ?>>20</option>
-                                    <option value="25" <?php selected(get_option('blockonomics_timeperiod'), 25); ?>>25</option>
-                                    <option value="30" <?php selected(get_option('blockonomics_timeperiod'), 30); ?>>30</option>
-                                </select>
+                <h1>
+                    <input type="checkbox" name="blockonomics_btc" value="1" <?php checked("1", get_option('blockonomics_btc')); ?>" />
+                    Bitcoin Cash (BCH)
+                </h1>
+                <p>To configure, click <b> Get Started for Free </b> on</p>
+                <a href="https://bch.blockonomics.co.merchants">https://bch.blockonomics.co.merchants</a>
+                <table class="form-table">
+                <th scope="row">Destination BTC wallet for payments</th>
+                        <td>
+                            <?php
+                            $total_received = get_option('blockonomics_temp_withdraw_amount') / 1.0e8;
+                            $api_key = get_option("blockonomics_api_key");
+                            $temp_api_key = get_option("blockonomics_temp_api_key");
+                            if ($temp_api_key && !$api_key && !($total_received > 0)): ?>
+
+                            <p><b>Blockonomics Wallet</b> (Balance: 0 BTC)</p>
+                            <p>We are using a temporary wallet on Blockonomics to receive your payments.</p>
+                            <p>To receive payments directly to your wallet (recommended) -> Follow Wizard by clicking on <i>Get Started for Free</i> on <a href="https://www.blockonomics.co/merchants" target="_blank">Merchants</a> and enter the APIKey below [<a href="https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62">Blog Instructions</a>]</p>
+
+                            <?php elseif ($temp_api_key && $total_received > 0): ?>
+
+                            <p><b>Blockonomics Wallet</b> (Balance: <?php echo "$total_received"; ?> BTC)</p>
+                            <?php if (!$api_key): ?>
+                            <p> To withdraw, follow wizard by clicking on <i>Get Started for Free</i> on <a href="https://www.blockonomics.co/merchants" target="_blank">Merchants</a>, then enter the APIKey below [<a href="https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62">Blog Instructions</a>]
+                            </p>
+                            <?php else: ?>
+                            <p> To withdraw, Click on <b>Test Setup</b></p>
+                            <?php endif; ?>
+
+                            <?php elseif ($api_key): ?>
+
+                            <p><b>Your wallet</b></p>
+                            <p>Payments will go directly to the wallet which your setup on <a href="https://www.blockonomics.co/merchants" target="_blank">Blockonomics</a>. There is no need for withdraw</p>
+
+                            <?php else: ?>
+
+                            <p><b>ERROR:</b> No wallet set up</p>
+
+                            <?php endif; ?>
                             </td>
-                        </tr>
-                        <tr valign="top">
-                            <th scope="row"><?php echo __('Extra Currency Rate Margin % (Increase live fiat to BTC rate by small percent)', 'blockonomics-bitcoin-payments')?></th>
-                            <td><input type="number" min="0" max="4" step="0.01" name="blockonomics_margin" value="<?php echo esc_attr( get_option('blockonomics_margin', 0) ); ?>" /></td>
-                        </tr>
-                        <tr valign="top">
-                            <th scope="row"><?php echo __('Underpayment Slack % (Allow payments that are off by a small percentage)', 'blockonomics-bitcoin-payments')?></th>
-                            <td><input type="number" min="0" max="10" step="0.01" name="blockonomics_underpayment_slack" value="<?php echo esc_attr( get_option('blockonomics_underpayment_slack', 0) ); ?>" /></td>
-                        </tr>
-                        <tr valign="top">
-                            <th scope="row"><?php echo __('Display Payment Page in Lite Mode (Enable this if you are having problems in rendering checkout page)', 'blockonomics-bitcoin-payments')?></th>
-                            <td><input type="checkbox" name="blockonomics_lite" value="1" <?php checked("1", get_option('blockonomics_lite')); ?> /></td>
-                        </tr>
-                        <tr valign="top">
-                            <th scope="row"><?php echo __('No Javascript checkout page (Enable this if you have majority customer that use tor like browser that block Javascript)', 'blockonomics-bitcoin-payments')?></th>
-                            <td><input type="checkbox" name="blockonomics_nojs" value="1" <?php checked("1", get_option('blockonomics_nojs')); ?> /></td>
-                        </tr>
-						<tr valign="top">
-                            <th scope="row"><?php echo __('Network Confirmations required for payment to complete)', 'blockonomics-bitcoin-payments')?></th>
-                            <td><select name="blockonomics_network_confirmation" />
-                                    <option value="2" <?php selected(get_option('blockonomics_network_confirmation'), 2); ?>>2 (Recommended)</option>
-                                    <option value="1" <?php selected(get_option('blockonomics_network_confirmation'), 1); ?>>1</option>
-                                    <option value="0" <?php selected(get_option('blockonomics_network_confirmation'), 0); ?>>0</option>
-                                </select></td>
-                        </tr>
-                    </table>
-                </div>
-                <p class="submit">
-                    <input type="submit" class="button-primary" value="Save"/>
-                    <input type="hidden" name="action" value="update" />
-                    <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_bch,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated,blockonomics_underpayment_slack,blockonomics_lite,blockonomics_nojs,blockonomics_network_confirmation" />
-                    <input type="button" onclick="checkForAPIKeyChange();" class="button-primary" name="test-setup-submit" value="Test Setup" style="max-width:85px;">
-                </p>
-            </form>
-            <form method="POST" name="testSetupForm">
+                    </tr>
+                </table>
+                <input type="button" onclick="checkForAPIKeyChange();" class="button-primary" name="test-setup-submit" value="Test Setup" style="max-width:85px;">
+                <!-- <form method="POST" name="testSetupForm">
                 <p class="submit">
                     <input type="hidden" name="page" value="blockonomics_options">
                     <input type="hidden" name="runTest" value="true">
                 </p>
-            </form>
-            <form method="POST" name="generateSecretForm">
-                <p class="submit">
-                    <input type="hidden" name="generateSecret" value="true">
-                </p>
-            </form> -->
+                </form> -->
+                <?php
+                break;
+            }
+        ?>
     </div>
-
     <?php
     }
     function bnomics_display_tx_info($order, $email=false)
