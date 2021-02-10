@@ -389,10 +389,10 @@ function blockonomics_woocommerce_init()
                             </tr>
                         </table>
                         <p class="submit">
-                            <input class="button-primary" value="Save"/>
+                            <input type="submit" class="button-primary" value="Save"/>
                             <input type="hidden" name="action" value="update" />
                             <input type="hidden" name="page_options" value="blockonomics_bch,blockonomics_btc" />
-                            <input type="submit" onclick="submitForm();" class="button-primary" name="test-setup-submit" value="Test Setup" style="max-width:85px;">
+                            <input type="button" onclick="submitForm();" class="button-primary" name="test-setup-submit" value="Test Setup" style="max-width:85px;">
                         </p>
                         </form>
                         <form method="POST" name="testSetupForm">
