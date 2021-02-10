@@ -38,7 +38,7 @@ class Blockonomics
     {
         $error_str = '';
         $callback_secret = get_option('blockonomics_callback_secret');
-        $error_str = $this->new_address($callback_secret, $crypto, true);
+        $response = $this->new_address($callback_secret, $crypto, true);
         if ($response->response_code!=200){	
              $error_str = $response->response_message;
         }
