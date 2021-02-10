@@ -143,7 +143,6 @@ function blockonomics_woocommerce_init()
         if (isset($_POST['runTest']))
         {
             $setup_errors = $blockonomics->testSetup();
-
             if($setup_errors)
             {
                 display_admin_message($setup_errors, 'error');
@@ -194,7 +193,7 @@ function blockonomics_woocommerce_init()
             function value_changed() {
                 document.getElementById('blockonomics_api_updated').value = 'true';
             }
-            function submitForm() {
+            function submit_form_and_run_test() {
                 document.testSetupForm.submit();
             }
             function validateBlockonomicsForm() {
@@ -301,7 +300,7 @@ function blockonomics_woocommerce_init()
                     break;
                 case 'currencies' :
                     ?>
-                    <form method="post" action="options.php"> 
+
                     <h1>
                         <input type="checkbox" name="blockonomics_btc" value="1" <?php checked("1", get_option('blockonomics_btc')); ?>" />
                         Bitcoin (BTC)
@@ -389,18 +388,11 @@ function blockonomics_woocommerce_init()
                             </tr>
                         </table>
                         <p class="submit">
-                            <input type="submit" class="button-primary" value="Save"/>
-                            <input type="hidden" name="action" value="update" />
+                            <input type="submit" class="button-primary" value="Test Setup" onclick="return submit_form_and_run_test();"/>
                             <input type="hidden" name="page_options" value="blockonomics_bch,blockonomics_btc" />
-                            <input type="button" onclick="submitForm();" class="button-primary" name="test-setup-submit" value="Test Setup" style="max-width:85px;">
+                            <input type="hidden" name="action" value="update" />
+                            <input type="hidden" name="runTest" value="true">
                         </p>
-                        </form>
-                        <form method="POST" name="testSetupForm">
-                            <p class="submit">
-                                <input type="hidden" name="page" value="blockonomics_options">
-                                <input type="hidden" name="runTest" value="true">
-                            </p>
-                        </form>
                         <?php
                         break;
                 }
@@ -526,6 +518,7 @@ function blockonomics_update_db_check() {
 
         update_option( 'blockonomics_db_version', $blockonomics_db_version );
     }
+    
 }
 add_action( 'plugins_loaded', 'blockonomics_update_db_check' );
 
