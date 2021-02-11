@@ -167,7 +167,7 @@ function blockonomics_woocommerce_init()
 
 
         // if (isset($_POST['runTest']))
-        if (isset($_GET['settings-updated']) ? $_GET['settings-updated'] : '' == 'true')
+        if ($_GET['tab'] == "currencies" && isset($_GET['settings-updated']) ? $_GET['settings-updated'] : '' == 'true')
         {
             $setup_errors = $blockonomics->testSetup();
             if($setup_errors)
