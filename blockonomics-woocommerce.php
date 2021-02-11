@@ -165,7 +165,9 @@ function blockonomics_woocommerce_init()
             display_admin_message($message, 'updated');
         }
 
-        if (isset($_POST['runTest']))
+
+        // if (isset($_POST['runTest']))
+        if (isset($_GET['settings-updated']) ? $_GET['settings-updated'] : '' == 'true')
         {
             $setup_errors = $blockonomics->testSetup();
             if($setup_errors)
@@ -217,9 +219,6 @@ function blockonomics_woocommerce_init()
             }
             function value_changed() {
                 document.getElementById('blockonomics_api_updated').value = 'true';
-            }
-            function submit_form_and_run_test() {
-                document.testSetupForm.submit();
             }
             function validateBlockonomicsForm() {
                 newApiKey = document.getElementById("blockonomics_api_key").value;
@@ -325,9 +324,8 @@ function blockonomics_woocommerce_init()
                     break;
                 case 'currencies' :
                     ?>
-
                     <h1>
-                        <input type="checkbox" name="blockonomics_btc" value="1" <?php checked("1", get_option('blockonomics_btc')); ?>" />
+                        <input type="checkbox" name="blockonomics_btc" value="1"<?php checked("1", get_option('blockonomics_btc')); ?>" />
                         Bitcoin (BTC)
                     </h1>
                     <p>To configure, click <b> Get Started for Free </b> on
@@ -370,7 +368,7 @@ function blockonomics_woocommerce_init()
                         </tr>
                     </table>
                     <h1>
-                        <input type="checkbox" name="blockonomics_bch" value="1" <?php checked("1", get_option('blockonomics_bch')); ?>" />
+                        <input type="checkbox" name="blockonomics_bch" value="1"<?php checked("1", get_option('blockonomics_bch')); ?>" />
                         Bitcoin Cash (BCH)
                     </h1>
                     <p>To configure, click <b> Get Started for Free </b> on
@@ -412,17 +410,17 @@ function blockonomics_woocommerce_init()
                                     </td>
                             </tr>
                         </table>
-                        <p class="submit">
-                            <input type="submit" class="button-primary" value="Test Setup" onclick="return submit_form_and_run_test();"/>
+                        <form>
+                            <input type="submit" class="button-primary" value="Save" />
                             <input type="hidden" name="page_options" value="blockonomics_bch,blockonomics_btc" />
                             <input type="hidden" name="action" value="update" />
+                            <input type="hidden" name="page" value="blockonomics_options">
                             <input type="hidden" name="runTest" value="true">
-                        </p>
+                        </form>
                         <?php
                         break;
                 }
             ?>
-            </form>
         </div>
     <?php
     }
@@ -596,6 +594,7 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_timeperiod');
     delete_option('blockonomics_api_updated');
     delete_option('blockonomics_bch');
+    delete_option('blockonomics_btc');
     delete_option('blockonomics_underpayment_slack');
     delete_option('blockonomics_lite');
     delete_option('blockonomics_nojs');
