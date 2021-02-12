@@ -170,6 +170,7 @@ function blockonomics_woocommerce_init()
         if (isset($_GET['tab']) && $_GET['tab'] == "currencies" && isset($_GET['settings-updated']) ? $_GET['settings-updated'] : '' == 'true')
         {
             $setup_errors = $blockonomics->testSetup();
+            update_option("setup_errors", $setup_errors);
             if($setup_errors['bch'])
             {
                 display_admin_message($setup_errors['bch'], 'error');
@@ -267,7 +268,6 @@ function blockonomics_woocommerce_init()
                         <a href="javascript:gen_secret()" id="generate-callback" style="font:400 30px/1 dashicons;margin-left: 5px;top: 6px;position:relative;text-decoration: none;" title="Generate New Callback URL">&#xf463;</a>
                     </h1>
                     <input size="130" type="text" value="<?php echo get_callback_url();?>" disabled/>
-                    <input type="hidden" name="blockonomics_api_updated" id="blockonomics_api_updated" value="false">
                     <p id="advanced_title" style="font-weight:bold"><a href="javascript:show_advanced()">Advanced Settings &#9660;</a></p>
                     <div id="advanced_window" style="display:none">
                         <p style="font-weight:bold"><a href="javascript:show_basic()">Advanced Settings &#9650;</a></p>
@@ -332,6 +332,7 @@ function blockonomics_woocommerce_init()
                         <a href="https://blockonomics.co.merchants">https://blockonomics.co.merchants</a>
                     </p>
                     <table class="form-table">
+                        <input type="hidden" name="blockonomics_test_setup_run" id="blockonomics_test_setup_run" value="false">
                         <th scope="row">Destination BTC wallet for payments</th>
                                 <td>
                                     <?php
@@ -366,17 +367,19 @@ function blockonomics_woocommerce_init()
                                     <?php endif; ?>
                                 </td>
                             </tr>
-                        <th scope="row">Setup</th>
-                            <td>
-                            <?php if (true): ?>
-                                <p>Setup Not run</p>
-                            <?php elseif (true): ?>
-                                <p>Succeded</p> <span>&#9989;</span>
-                            <?php elseif (true): ?>
-                                <p>Failed</p>
-                                <p>Fail Message</p>
+                            <?php 
+                                $setup_errors = get_option("setup_errors");
+                                if (isset($setup_errors['btc']) && get_option('blockonomics_btc') == '1'):  ?>
+                                <th scope="row">Setup</th>
+                                <td>
+                                <?php if ($setup_errors['btc'] && $setup_errors['btc']):?>
+                                    <p>Failed</p>
+                                    <p>Fail Message</p>
+                                <?php else:?>
+                                    <p>Succeded</p> <span>&#9989;</span>
+                                <?php endif; ?>
+                                </td>
                             <?php endif; ?>
-                            </td>
                         </table>
                     <h1>
                         <input type="checkbox" name="blockonomics_bch" value="1"<?php checked("1", get_option('blockonomics_bch')); ?>" />
@@ -386,7 +389,7 @@ function blockonomics_woocommerce_init()
                         <a href="https://bch.blockonomics.co.merchants">https://bch.blockonomics.co.merchants</a>
                     </p>
                         <table class="form-table">
-                        <th scope="row">Destination BTC wallet for payments</th>
+                        <th scope="row">Destination BCH wallet for payments</th>
                                 <td>
                                     <?php
                                     $total_received = get_option('blockonomics_temp_withdraw_amount') / 1.0e8;
@@ -420,17 +423,19 @@ function blockonomics_woocommerce_init()
                                     <?php endif; ?>
                                     </td>
                             </tr>
+                            <?php 
+                                $setup_errors = get_option("setup_errors");
+                                if (isset($setup_errors['bch']) && get_option('blockonomics_bch') == '1'):  ?>
                                 <th scope="row">Setup</th>
                                 <td>
-                                <?php if (true): ?>
-                                    <p>Setup Not run</p>
-                                <?php elseif (true): ?>
-                                    <p>Succeded</p> <span>&#9989;</span>
-                                <?php elseif (true): ?>
+                                <?php if ($setup_errors['bch'] && $setup_errors['bch']):?>
                                     <p>Failed</p>
                                     <p>Fail Message</p>
+                                <?php else:?>
+                                    <p>Succeded</p> <span>&#9989;</span>
                                 <?php endif; ?>
                                 </td>
+                            <?php endif; ?>
                         </table>
                         <form>
                             <input type="submit" class="button-primary" value="Test Setup" />
