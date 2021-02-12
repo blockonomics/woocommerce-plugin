@@ -329,19 +329,38 @@ class Blockonomics
 
     public function get_test_setup_crypto() {
         $bch_enabled  = get_option('blockonomics_bch');
+        $btc_enabled  = get_option('blockonomics_btc');
         if ($bch_enabled  == '1'){
-            return 'bch';
+            $enabled_cryptos['bch_enabled'] = true;
         }else{
-            return 'btc';
+            $enabled_cryptos['bch_enabled'] = false;
         }
+        if ($btc_enabled  == '1'){
+            $enabled_cryptos['btc_enabled'] = true;
+        }else{
+            $enabled_cryptos['btc_enabled'] = false;
+        }
+        return $enabled_cryptos;
     }
 
     // Runs when the Blockonomics Test Setup button is clicked
     // Returns any errors or false if no errors
     public function testSetup()
     {
+        $test_results['btc'] = false;
+        $test_results['bch'] = false;
         // Fetch the crypto to test based on the plugin settings
-        $crypto = $this->get_test_setup_crypto();
+        $enabled_cryptos = $this->get_test_setup_crypto();
+        if ($enabled_cryptos['btc_enabled']){
+            $test_results['btc'] = $this->test_one_crypto('btc');
+        } 
+        if ($enabled_cryptos['bch_enabled']){
+            $test_results['bch'] = $this->test_one_crypto('bch');
+        }
+        return $test_results;
+    }
+    public function test_one_crypto($crypto)
+    {
         $response = $this->get_callbacks($crypto);
         $error_str = $this->check_callback_urls_or_set_one($crypto, $response);
         if (!$error_str)

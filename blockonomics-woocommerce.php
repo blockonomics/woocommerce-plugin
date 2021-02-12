@@ -142,12 +142,12 @@ function blockonomics_woocommerce_init()
 
 
         // if (isset($_POST['runTest']))
-        if ($_GET['tab'] == "currencies" && isset($_GET['settings-updated']) ? $_GET['settings-updated'] : '' == 'true')
+        if (isset($_GET['tab']) && $_GET['tab'] == "currencies" && isset($_GET['settings-updated']) ? $_GET['settings-updated'] : '' == 'true')
         {
             $setup_errors = $blockonomics->testSetup();
-            if($setup_errors)
+            if($setup_errors['bch'])
             {
-                display_admin_message($setup_errors, 'error');
+                display_admin_message($setup_errors['bch'], 'error');
             }
             else
             {
