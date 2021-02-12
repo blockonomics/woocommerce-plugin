@@ -22,6 +22,9 @@ class WC_Filter_Orders_By_Address {
 				<option value="btc_address">
 					<?php esc_html_e( 'Bitcoin Address' ); ?>
 				</option>
+				<option value="bch_address">
+					<?php esc_html_e( 'Bitcoin Cash Address' ); ?>
+				</option>
 				<option value="blockonomics_btc_txid">
 					<?php esc_html_e( 'Bitcoin txid' ); ?>
 				</option>
