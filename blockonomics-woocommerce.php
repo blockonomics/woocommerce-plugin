@@ -344,13 +344,13 @@ function blockonomics_woocommerce_init()
                                     $temp_api_key = get_option("blockonomics_temp_api_key");
                                     if ($temp_api_key && !$api_key && !($total_received > 0)): ?>
 
-                                    <p><b>Blockonomics Wallet</b> (Balance: 0 BTC)</p>
+                                    <h1>Blockonomics Wallet (Balance: 0 BTC)</h1>
                                     <p>We are using a temporary wallet on Blockonomics to receive your payments.</p>
                                     <p>To receive payments directly to your wallet (recommended) -> Follow Wizard by clicking on <i>Get Started for Free</i> on <a href="https://www.blockonomics.co/merchants" target="_blank">Merchants</a> and enter the APIKey below [<a href="https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62">Blog Instructions</a>]</p>
 
                                     <?php elseif ($temp_api_key && $total_received > 0): ?>
 
-                                    <p><b>Blockonomics Wallet</b> (Balance: <?php echo "$total_received"; ?> BTC)</p>
+                                    <h1>Blockonomics Wallet (Balance: <?php echo "$total_received"; ?> BTC)</h1>
                                     <?php if (!$api_key): ?>
                                     <p> To withdraw, follow wizard by clicking on <i>Get Started for Free</i> on <a href="https://www.blockonomics.co/merchants" target="_blank">Merchants</a>, then enter the APIKey below [<a href="https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62">Blog Instructions</a>]
                                     </p>
@@ -360,12 +360,12 @@ function blockonomics_woocommerce_init()
 
                                     <?php elseif ($api_key): ?>
 
-                                    <p><b>Your wallet</b></p>
+                                    <h1>Direct To Wallet</h1>
                                     <p>Payments will go directly to the wallet which your setup on <a href="https://www.blockonomics.co/merchants" target="_blank">Blockonomics</a>. There is no need for withdraw</p>
 
                                     <?php else: ?>
 
-                                    <p><b>ERROR:</b> No wallet set up</p>
+                                    <h1><b>ERROR:</b> No wallet set up</h1>
 
                                     <?php endif; ?>
                                 </td>
@@ -377,8 +377,8 @@ function blockonomics_woocommerce_init()
                                 <th scope="row"><h1>Setup</h1></th>
                                 <td>
                                 <?php if ($setup_errors['btc'] && $setup_errors['btc']):?>
-                                    <p>Failed</p>
-                                    <p>Fail Message</p>
+                                    <span style="font:1000 30px/1 dashicons; top:0px; color:red">&#10006;</span>
+                                    <?php echo $setup_errors['btc'] ?>
                                 <?php else:?>
                                     <span style="font:1000 30px/1 dashicons; top:0px; color:green">&#10004;</span>
                                 <?php endif; ?>
@@ -404,13 +404,13 @@ function blockonomics_woocommerce_init()
                                     $temp_api_key = get_option("blockonomics_temp_api_key");
                                     if ($temp_api_key && !$api_key && !($total_received > 0)): ?>
 
-                                    <p><b>Blockonomics Wallet</b> (Balance: 0 BTC)</p>
+                                    <h1>Blockonomics Wallet (Balance: 0 BTC)</h1>
                                     <p>We are using a temporary wallet on Blockonomics to receive your payments.</p>
                                     <p>To receive payments directly to your wallet (recommended) -> Follow Wizard by clicking on <i>Get Started for Free</i> on <a href="https://www.blockonomics.co/merchants" target="_blank">Merchants</a> and enter the APIKey below [<a href="https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62">Blog Instructions</a>]</p>
 
                                     <?php elseif ($temp_api_key && $total_received > 0): ?>
 
-                                    <p><b>Blockonomics Wallet</b> (Balance: <?php echo "$total_received"; ?> BTC)</p>
+                                    <h1>Blockonomics Wallet(Balance: <?php echo "$total_received"; ?> BTC)</h1>
                                     <?php if (!$api_key): ?>
                                     <p> To withdraw, follow wizard by clicking on <i>Get Started for Free</i> on <a href="https://www.blockonomics.co/merchants" target="_blank">Merchants</a>, then enter the APIKey below [<a href="https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62">Blog Instructions</a>]
                                     </p>
@@ -420,12 +420,12 @@ function blockonomics_woocommerce_init()
 
                                     <?php elseif ($api_key): ?>
 
-                                    <p><b>Your wallet</b></p>
+                                    <h1>Direct To Wallet</h1>
                                     <p>Payments will go directly to the wallet which your setup on <a href="https://www.blockonomics.co/merchants" target="_blank">Blockonomics</a>. There is no need for withdraw</p>
 
                                     <?php else: ?>
 
-                                    <p><b>ERROR:</b> No wallet set up</p>
+                                    <h1><b>ERROR:</b> No wallet set up</h1>
 
                                     <?php endif; ?>
                                     </td>
@@ -434,15 +434,18 @@ function blockonomics_woocommerce_init()
                             <?php 
                                 $setup_errors = get_option("setup_errors");
                                 if (isset($setup_errors['bch']) && get_option('blockonomics_bch') == '1'):  ?>
-                                <th scope="row">Setup</th>
-                                <td>
+                                <tr>
+                                <th><h1>Setup</h1></th>
+
                                 <?php if ($setup_errors['bch'] && $setup_errors['bch']):?>
-                                    <p>Failed</p>
-                                    <p>Fail Message</p>
+                                    <td>
+                                    <span style="font:1000 30px/1 dashicons; top:0px; color:red">&#10006;</span>
+                                    <?php echo $setup_errors['bch'] ?>
+                                    </td>
                                 <?php else:?>
                                     <span style="font:1000 30px/1 dashicons; top:0px; color:green">&#10004;</span>
                                 <?php endif; ?>
-                                </td>
+                                </tr>
                             <?php endif; ?>
                         </table>
                         <form>
