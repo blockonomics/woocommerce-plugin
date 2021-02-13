@@ -307,8 +307,11 @@ function blockonomics_woocommerce_init()
                         <a href="https://blockonomics.co.merchants">https://blockonomics.co.merchants</a>
                     </p>
                     <table class="form-table">
+                        <?php 
+                        $btc_enabled = get_option("blockonomics_btc");
+                        if ($btc_enabled):  ?>
                         <input type="hidden" name="blockonomics_test_setup_run" id="blockonomics_test_setup_run" value="false">
-                        <th scope="row">Destination BTC wallet for payments</th>
+                        <th scope="row"><h1>Destination</h1></th>
                                 <td>
                                     <?php
                                     $total_received = get_option('blockonomics_temp_withdraw_amount') / 1.0e8;
@@ -342,16 +345,17 @@ function blockonomics_woocommerce_init()
                                     <?php endif; ?>
                                 </td>
                             </tr>
+                            <?php endif; ?>
                             <?php 
                                 $setup_errors = get_option("setup_errors");
                                 if (isset($setup_errors['btc']) && get_option('blockonomics_btc') == '1'):  ?>
-                                <th scope="row">Setup</th>
+                                <th scope="row"><h1>Setup</h1></th>
                                 <td>
                                 <?php if ($setup_errors['btc'] && $setup_errors['btc']):?>
                                     <p>Failed</p>
                                     <p>Fail Message</p>
                                 <?php else:?>
-                                    <p>Succeded</p> <span>&#9989;</span>
+                                    <span style="font:1000 30px/1 dashicons; top:0px; color:green">&#10004;</span>
                                 <?php endif; ?>
                                 </td>
                             <?php endif; ?>
@@ -364,7 +368,10 @@ function blockonomics_woocommerce_init()
                         <a href="https://bch.blockonomics.co.merchants">https://bch.blockonomics.co.merchants</a>
                     </p>
                         <table class="form-table">
-                        <th scope="row">Destination BCH wallet for payments</th>
+                        <?php 
+                        $bch_enabled = get_option("blockonomics_bch");
+                        if ($bch_enabled):  ?>
+                        <th scope="row"><h1>Destination</h1></th>
                                 <td>
                                     <?php
                                     $total_received = get_option('blockonomics_temp_withdraw_amount') / 1.0e8;
@@ -398,6 +405,7 @@ function blockonomics_woocommerce_init()
                                     <?php endif; ?>
                                     </td>
                             </tr>
+                            <?php endif; ?>
                             <?php 
                                 $setup_errors = get_option("setup_errors");
                                 if (isset($setup_errors['bch']) && get_option('blockonomics_bch') == '1'):  ?>
@@ -407,7 +415,7 @@ function blockonomics_woocommerce_init()
                                     <p>Failed</p>
                                     <p>Fail Message</p>
                                 <?php else:?>
-                                    <p>Succeded</p> <span>&#9989;</span>
+                                    <span style="font:1000 30px/1 dashicons; top:0px; color:green">&#10004;</span>
                                 <?php endif; ?>
                                 </td>
                             <?php endif; ?>
