@@ -297,16 +297,20 @@ function blockonomics_woocommerce_init()
                 </form>
                     <?php
                     break;
+
+
+
+
                 case 'currencies' :
                     ?>
+                    <table style="margin-left:40px; padding: 0px 0px !important; " class="form-table">
                     <h1>
-                        <input type="checkbox" name="blockonomics_btc" value="1"<?php checked("1", get_option('blockonomics_btc')); ?>" />
+                        <input style="margin-left:12px;" type="checkbox" name="blockonomics_btc" value="1"<?php checked("1", get_option('blockonomics_btc')); ?>" />
                         Bitcoin (BTC)
                     </h1>
-                    <p>To configure, click <b> Get Started for Free </b> on
-                        <a href="https://blockonomics.co.merchants">https://blockonomics.co.merchants</a>
-                    </p>
-                    <table class="form-table">
+                        <p style="margin-left:40px;">To configure, click <b> Get Started for Free </b> on
+                            <a href="https://blockonomics.co.merchants">https://blockonomics.co.merchants</a>
+                        </p>
                         <?php 
                         $btc_enabled = get_option("blockonomics_btc");
                         if ($btc_enabled):  ?>
@@ -349,30 +353,35 @@ function blockonomics_woocommerce_init()
                             <?php 
                                 $setup_errors = get_option("setup_errors");
                                 if (isset($setup_errors['btc']) && get_option('blockonomics_btc') == '1'):  ?>
-                                <th scope="row"><h1>Setup</h1></th>
-                                <td>
+                                <th><h1>Setup</h1></th>
                                 <?php if ($setup_errors['btc'] && $setup_errors['btc']):?>
+                                    <td style="padding: 0px 0px !important;">
                                     <span style="font:1000 30px/1 dashicons; top:0px; color:red">&#10006;</span>
-                                    <?php echo $setup_errors['btc'] ?>
+                                    </td>
+                                    <td style="padding: 0px 0px !important;">
+                                    <p style="display: inline;"> <?php echo $setup_errors['btc'] ?>  </p>
+                                    </td>
                                 <?php else:?>
-                                    <span style="font:1000 30px/1 dashicons; top:0px; color:green">&#10004;</span>
+                                    <td style="padding: 0px 0px !important;">
+                                        <span style="font:1000 30px/1 dashicons; top:0px; color:green">&#10004;</span>
+                                    </td>
                                 <?php endif; ?>
-                                </td>
                             <?php endif; ?>
                         </table>
-                    <h1>
+
+                    <h1 style="margin-left:12px;">
                         <input type="checkbox" name="blockonomics_bch" value="1"<?php checked("1", get_option('blockonomics_bch')); ?>" />
                         Bitcoin Cash (BCH)
                     </h1>
-                    <p>To configure, click <b> Get Started for Free </b> on
+                    <p style="margin-left:40px;">To configure, click <b> Get Started for Free </b> on
                         <a href="https://bch.blockonomics.co.merchants">https://bch.blockonomics.co.merchants</a>
                     </p>
-                        <table class="form-table">
+                        <table style="margin-left:40px;" class="form-table">
                         <?php 
                         $bch_enabled = get_option("blockonomics_bch");
                         if ($bch_enabled):  ?>
                         <th scope="row"><h1>Destination</h1></th>
-                                <td>
+                                <td colspan="2" style="padding: 0px 0px !important;">
                                     <?php
                                     $total_received = get_option('blockonomics_temp_withdraw_amount') / 1.0e8;
                                     $api_key = get_option("blockonomics_api_key");
@@ -399,9 +408,7 @@ function blockonomics_woocommerce_init()
                                     <p>Payments will go directly to the wallet which your setup on <a href="https://www.blockonomics.co/merchants" target="_blank">Blockonomics</a>. There is no need for withdraw</p>
 
                                     <?php else: ?>
-
                                     <h1><b>ERROR:</b> No wallet set up</h1>
-
                                     <?php endif; ?>
                                     </td>
                             </tr>
@@ -409,22 +416,23 @@ function blockonomics_woocommerce_init()
                             <?php 
                                 $setup_errors = get_option("setup_errors");
                                 if (isset($setup_errors['bch']) && get_option('blockonomics_bch') == '1'):  ?>
-                                <tr>
                                 <th><h1>Setup</h1></th>
-
                                 <?php if ($setup_errors['bch'] && $setup_errors['bch']):?>
-                                    <td>
+                                    <td style="padding: 0px 0px !important;">
                                     <span style="font:1000 30px/1 dashicons; top:0px; color:red">&#10006;</span>
-                                    <?php echo $setup_errors['bch'] ?>
+                                    </td>
+                                    <td style="padding: 0px 0px !important;">
+                                    <p style="display: inline;"> <?php echo $setup_errors['bch'] ?>  </p>
                                     </td>
                                 <?php else:?>
-                                    <span style="font:1000 30px/1 dashicons; top:0px; color:green">&#10004;</span>
-                                <?php endif; ?>
-                                </tr>
+                                    <td style="padding: 0px 0px !important;">
+                                        <span style="font:1000 30px/1 dashicons; top:0px; color:green">&#10004;</span>
+                                    </td>
+                                <?php endif; ?>   
                             <?php endif; ?>
                         </table>
                         <form>
-                            <input type="submit" class="button-primary" value="Test Setup" />
+                            <input style="margin-left:12px;" type="submit" class="button-primary" value="Test Setup" />
                             <input type="hidden" name="page_options" value="blockonomics_bch,blockonomics_btc" />
                             <input type="hidden" name="action" value="update" />
                             <input type="hidden" name="page" value="blockonomics_options">
