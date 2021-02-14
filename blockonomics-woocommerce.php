@@ -171,9 +171,9 @@ function blockonomics_woocommerce_init()
         {
             $setup_errors = $blockonomics->testSetup();
             update_option("setup_errors", $setup_errors);
-            if($setup_errors['bch'])
+            if($setup_errors['bch'] || $setup_errors['btc'])
             {
-                display_admin_message($setup_errors['bch'], 'error');
+                display_admin_message('Something went wrong when testing your setup.', 'error');
             }
             else
             {
@@ -341,7 +341,7 @@ function blockonomics_woocommerce_init()
                         if ($btc_enabled):  ?>
                         <input type="hidden" name="blockonomics_test_setup_run" id="blockonomics_test_setup_run" value="false">
                         <th scope="row"><h1>Destination</h1></th>
-                                <td>
+                                <td colspan="2" style="padding: 0px 0px !important;">
                                     <?php
                                     $total_received = get_option('blockonomics_temp_withdraw_amount') / 1.0e8;
                                     $api_key = get_option("blockonomics_api_key");
@@ -368,7 +368,6 @@ function blockonomics_woocommerce_init()
                                     <p>Payments will go directly to the wallet which your setup on <a href="https://www.blockonomics.co/merchants" target="_blank">Blockonomics</a>. There is no need for withdraw</p>
 
                                     <?php else: ?>
-
                                     <h1><b>ERROR:</b> No wallet set up</h1>
 
                                     <?php endif; ?>
@@ -457,7 +456,7 @@ function blockonomics_woocommerce_init()
                             <?php endif; ?>
                         </table>
                         <form>
-                            <input style="margin-left:12px;" type="submit" class="button-primary" value="Test Setup" />
+                            <input style="padding: 3px 15px 3px 15px;font-size: 15px; margin-top:10px;margin-left:12px;" type="submit" class="button-primary" value="Test Setup" />
                             <input type="hidden" name="page_options" value="blockonomics_bch,blockonomics_btc" />
                             <input type="hidden" name="action" value="update" />
                             <input type="hidden" name="page" value="blockonomics_options">
