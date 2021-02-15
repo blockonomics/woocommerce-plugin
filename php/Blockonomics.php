@@ -18,10 +18,12 @@ class Blockonomics
     const BCH_PRICE_URL = 'https://bch.blockonomics.co/api/price';
     const BCH_SET_CALLBACK_URL = 'https://bch.blockonomics.co/api/update_callback';
     const BCH_GET_CALLBACKS_URL = 'https://bch.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
+    const BCH_TEMP_API_KEY_URL = 'https://bch.blockonomics.co/api/temp_wallet';
+    const BCH_TEMP_WITHDRAW_URL = 'https://bch.blockonomics.co/api/temp_withdraw_request';
 
     public function __construct()
     {
-        $this->api_key = $this->get_api_key();
+        $this->btc_api_key = $this->get_api_key();
     }
 
     public function get_api_key()
@@ -202,9 +204,13 @@ class Blockonomics
     }
 
 
-    public function get_temp_api_key($callback_url)
+    public function get_temp_api_key($callback_url, $crypto)
     {
-        $url = Blockonomics::TEMP_API_KEY_URL;
+        if($crypto == 'btc'){
+            $url = Blockonomics::TEMP_API_KEY_URL;
+        }else{
+            $url = Blockonomics::BCH_TEMP_API_KEY_URL;
+        }
         $body = json_encode(array('callback' => $callback_url));
         $response = $this->post($url, '', $body);
         $responseObj = json_decode(wp_remote_retrieve_body($response));
