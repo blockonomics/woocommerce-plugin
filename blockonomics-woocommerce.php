@@ -132,8 +132,7 @@ function blockonomics_woocommerce_init()
             generate_secret(true);
         }
 
-        $api_key = $blockonomics->get_api_key();
-        
+        $api_key = $blockonomics->get_api_key();        
         // get_api_key() will return api key or temp api key
         // if both are null, generate new blockonomics guest account with temporary wallet
         // temp wallet will be used with temp api key
@@ -142,7 +141,7 @@ function blockonomics_woocommerce_init()
             generate_secret();
             $callback_url = get_callback_url();
             $btc_api_key_response = $blockonomics->get_temp_api_key($callback_url, 'btc');
-            $bch_api_key_response = $blockonomics->get_temp_api_key($callback_url, 'btc');
+            $bch_api_key_response = $blockonomics->get_temp_api_key($callback_url, 'bch');
             intepret_api_key_response($btc_api_key_response, 'btc');
             intepret_api_key_response($bch_api_key_response, 'bch');
         }
@@ -159,23 +158,20 @@ function blockonomics_woocommerce_init()
         }
 
 
-        // if (isset($_POST['runTest']))
         if (isset($_GET['tab']) && $_GET['tab'] == "currencies" && isset($_GET['settings-updated']) ? $_GET['settings-updated'] : '' == 'true')
         {
             $setup_errors = $blockonomics->testSetup();
             update_option("setup_errors", $setup_errors);
-            if($setup_errors['bch'] || $setup_errors['btc'])
+            if(!$setup_errors['bch'] && !$setup_errors['btc'])
             {
-                display_admin_message('Something went wrong when testing your setup.', 'error');
-            }
-            else
-            {
-                $message = __('Congrats ! Setup is all done', 'blockonomics-bitcoin-payments');
-                display_admin_message($message, 'updated');
 
-                $message = $blockonomics->make_withdraw();
-                if ($message) {
-                    display_admin_message($message[0], $message[1]);
+                $btc_message = $blockonomics->make_withdraw('btc');
+                $bch_message = $blockonomics->make_withdraw('bch');
+                if ($btc_message) {
+                    display_admin_message($btc_message[0], $btc_message[1]);
+                }
+                if($bch_message){
+                    display_admin_message($bch_message[0], $bch_message[1]);
                 }
             }
         }
@@ -184,7 +180,7 @@ function blockonomics_woocommerce_init()
     function intepret_api_key_response($response, $crypto) {
         if ($response->response_code != 200)
         {
-            $message = __('Error while generating ' .$crypto. 'temporary APIKey: '. isset($response->message) ? $response->message : '', 'blockonomics-bitcoin-payments');
+            $message = __('Error while generating ' .$crypto. ' temporary APIKey: '. isset($response->message) ? $response->message : '', 'blockonomics-bitcoin-payments');
             display_admin_message($message, 'error');
         }
         else
@@ -374,7 +370,7 @@ function blockonomics_woocommerce_init()
                                     <p>Payments will go directly to the wallet which your setup on <a href="https://www.blockonomics.co/merchants" target="_blank">Blockonomics</a>. There is no need for withdraw</p>
 
                                     <?php else: ?>
-                                    <h1><b>ERROR:</b> No wallet set up</h1>
+                                    <h1>Error: No wallet set up</h1>
 
                                     <?php endif; ?>
                                 </td>
