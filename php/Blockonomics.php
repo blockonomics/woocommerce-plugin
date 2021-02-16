@@ -23,7 +23,7 @@ class Blockonomics
 
     public function __construct()
     {
-        $this->btc_api_key = $this->get_api_key();
+        $this->api_key = $this->get_api_key();
     }
 
     public function get_api_key()
@@ -31,7 +31,8 @@ class Blockonomics
         $api_key = get_option("blockonomics_api_key");
         if (!$api_key)
         {
-            $api_key = get_option("blockonomics_temp_api_key");
+            $api_key = get_option("blockonomics_btc_temp_api_key");
+            // $api_key = get_option("blockonomics_bch_temp_api_key");
         }
         return $api_key;
     }
@@ -255,16 +256,21 @@ class Blockonomics
         return $active_currencies;
     }
 
-    public function make_withdraw()
+    public function make_withdraw($crypto)
     {
         $api_key = $this->api_key;
-        $temp_api_key = get_option('blockonomics_temp_api_key');
+        $temp_api_key = get_option('blockonomics_'.$crypto.'_temp_api_key');
         if (!$api_key || !$temp_api_key || $temp_api_key == $api_key) {
             return null;
         }
         if (get_option('blockonomics_temp_withdraw_amount') > 0)
         {
-            $url = Blockonomics::TEMP_WITHDRAW_URL.'?tempkey='.$temp_api_key;
+            if($crypto == 'btc'){
+                $url = Blockonomics::TEMP_WITHDRAW_URL.'?tempkey='.$temp_api_key;
+            }else{
+                $url = Blockonomics::BCH_TEMP_WITHDRAW_URL.'?tempkey='.$temp_api_key;;
+            }
+            
             $response = $this->post($url, $api_key);
             $responseObj = json_decode(wp_remote_retrieve_body($response));
             $response_code = wp_remote_retrieve_response_code($response);
@@ -278,7 +284,7 @@ class Blockonomics
             $message = __('Your funds withdraw request has been submitted. Please check your Blockonomics registered emailid for details', 'blockonomics-bitcoin-payments');
             return [$message, 'updated'];
         }
-        update_option("blockonomics_temp_api_key", null);
+        update_option("blockonomics_".$crypto."_temp_api_key", null);
         return null;
     }
 
