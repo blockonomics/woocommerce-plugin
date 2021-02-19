@@ -225,14 +225,14 @@ function blockonomics_woocommerce_init()
                     ?>
                     
                     <h1>API Key</h1>
-                    <input onchange="value_changed()" size="130" type="text" id="blockonomics_api_key" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" />
+                    <input style='max-width: 100%; text-overflow: ellipsis;' onchange="value_changed()" size="130" type="text" id="blockonomics_api_key" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" />
                     <p>To get your API Key, click <b> Get Started for Free </b> on
                         <a href="https://blockonomics.co.merchants">https://blockonomics.co.merchants</a>
                     </p>
                     <h1>Callback URL
                         <a href="javascript:gen_secret()" id="generate-callback" style="font:400 30px/1 dashicons;margin-left: 5px;top: 6px;position:relative;text-decoration: none;" title="Generate New Callback URL">&#xf463;</a>
                     </h1>
-                    <input size="130" type="text" value="<?php echo get_callback_url();?>" disabled/>
+                    <input style='max-width: 100%; text-overflow: ellipsis;' size="130" type="text" value="<?php echo get_callback_url();?>" disabled/>
                     <p id="advanced_title" style="font-weight:bold"><a href="javascript:show_advanced()">Advanced Settings &#9660;</a></p>
                     <div id="advanced_window" style="display:none">
                         <p style="font-weight:bold"><a href="javascript:show_basic()">Advanced Settings &#9650;</a></p>
