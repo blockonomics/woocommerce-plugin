@@ -320,7 +320,7 @@ function blockonomics_woocommerce_init()
                     ?>
                     <table style="margin-left:40px; padding: 0px 0px !important; " class="form-table">
                     <h1>
-                        <input style="margin-left:12px;" type="checkbox" name="blockonomics_btc" value="1"<?php checked("1", get_option('blockonomics_btc')); ?>" />
+                        <input style="margin-left:12px;" type="checkbox" name="blockonomics_btc" value="1"<?php checked("1", get_option('blockonomics_btc', true)); ?>" />
                         Bitcoin (BTC)
                     </h1>
                         <p style="margin-left:40px;">To configure, click <b> Get Started for Free </b> on
