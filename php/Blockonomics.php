@@ -18,8 +18,6 @@ class Blockonomics
     const BCH_PRICE_URL = 'https://bch.blockonomics.co/api/price';
     const BCH_SET_CALLBACK_URL = 'https://bch.blockonomics.co/api/update_callback';
     const BCH_GET_CALLBACKS_URL = 'https://bch.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
-    const BCH_TEMP_API_KEY_URL = 'https://bch.blockonomics.co/api/temp_wallet';
-    const BCH_TEMP_WITHDRAW_URL = 'https://bch.blockonomics.co/api/temp_withdraw_request';
 
     public function __construct()
     {
@@ -31,8 +29,7 @@ class Blockonomics
         $api_key = get_option("blockonomics_api_key");
         if (!$api_key)
         {
-            $api_key = get_option("blockonomics_btc_temp_api_key");
-            // $api_key = get_option("blockonomics_bch_temp_api_key");
+            $api_key = get_option("blockonomics_temp_api_key");
         }
         return $api_key;
     }
@@ -205,13 +202,10 @@ class Blockonomics
     }
 
 
-    public function get_temp_api_key($callback_url, $crypto)
+    public function get_temp_api_key($callback_url)
     {
-        if($crypto == 'btc'){
-            $url = Blockonomics::TEMP_API_KEY_URL;
-        }else{
-            $url = Blockonomics::BCH_TEMP_API_KEY_URL;
-        }
+
+        $url = Blockonomics::TEMP_API_KEY_URL;
         $body = json_encode(array('callback' => $callback_url));
         $response = $this->post($url, '', $body);
         $responseObj = json_decode(wp_remote_retrieve_body($response));
@@ -256,21 +250,17 @@ class Blockonomics
         return $active_currencies;
     }
 
-    public function make_withdraw($crypto)
+    public function make_withdraw()
     {
         $api_key = $this->api_key;
-        $temp_api_key = get_option('blockonomics_'.$crypto.'_temp_api_key');
+        $temp_api_key = get_option('blockonomics_temp_api_key');
         if (!$api_key || !$temp_api_key || $temp_api_key == $api_key) {
             return null;
         }
         if (get_option('blockonomics_temp_withdraw_amount') > 0)
         {
-            if($crypto == 'btc'){
-                $url = Blockonomics::TEMP_WITHDRAW_URL.'?tempkey='.$temp_api_key;
-            }else{
-                $url = Blockonomics::BCH_TEMP_WITHDRAW_URL.'?tempkey='.$temp_api_key;;
-            }
-            
+
+            $url = Blockonomics::TEMP_WITHDRAW_URL.'?tempkey='.$temp_api_key;
             $response = $this->post($url, $api_key);
             $responseObj = json_decode(wp_remote_retrieve_body($response));
             $response_code = wp_remote_retrieve_response_code($response);
@@ -284,7 +274,7 @@ class Blockonomics
             $message = __('Your funds withdraw request has been submitted. Please check your Blockonomics registered emailid for details', 'blockonomics-bitcoin-payments');
             return [$message, 'updated'];
         }
-        update_option("blockonomics_".$crypto."_temp_api_key", null);
+        update_option("blockonomics_temp_api_key", null);
         return null;
     }
 

@@ -140,10 +140,16 @@ function blockonomics_woocommerce_init()
         {
             generate_secret();
             $callback_url = get_callback_url();
-            $btc_api_key_response = $blockonomics->get_temp_api_key($callback_url, 'btc');
-            $bch_api_key_response = $blockonomics->get_temp_api_key($callback_url, 'bch');
-            intepret_api_key_response($btc_api_key_response, 'btc');
-            intepret_api_key_response($bch_api_key_response, 'bch');
+            $response = $blockonomics->get_temp_api_key($callback_url);
+            if ($response->response_code != 200)
+            {
+                $message = __('Error while generating temporary APIKey: '. isset($response->message) ? $response->message : '', 'blockonomics-bitcoin-payments');
+                display_admin_message($message, 'error');
+            }
+            else
+            {
+                update_option("blockonomics_temp_api_key", isset($response->apikey) ? $response->apikey : '');
+            }
         }
 
         add_options_page(
@@ -162,30 +168,13 @@ function blockonomics_woocommerce_init()
         {
             $setup_errors = $blockonomics->testSetup();
             update_option("setup_errors", $setup_errors);
-            if(!$setup_errors['bch'] && !$setup_errors['btc'])
+            if(!$setup_errors)
             {
-
-                $btc_message = $blockonomics->make_withdraw('btc');
-                $bch_message = $blockonomics->make_withdraw('bch');
-                if ($btc_message) {
-                    display_admin_message($btc_message[0], $btc_message[1]);
-                }
-                if($bch_message){
-                    display_admin_message($bch_message[0], $bch_message[1]);
+                $message = $blockonomics->make_withdraw();
+                if ($message) {
+                    display_admin_message($message[0], $message[1]);
                 }
             }
-        }
-    }
-
-    function intepret_api_key_response($response, $crypto) {
-        if ($response->response_code != 200)
-        {
-            $message = __('Error while generating ' .$crypto. ' temporary APIKey: '. isset($response->message) ? $response->message : '', 'blockonomics-bitcoin-payments');
-            display_admin_message($message, 'error');
-        }
-        else
-        {
-            update_option("blockonomics_".$crypto."_temp_api_key", isset($response->apikey) ? $response->apikey : '');
         }
     }
 
@@ -221,7 +210,6 @@ function blockonomics_woocommerce_init()
             }
             function value_changed() {
                 document.getElementById('blockonomics_api_updated').value = 'true';
-                // document.getElementById('settings_nav_bar').value = 'true';
             }
             function validateBlockonomicsForm() {
                 newApiKey = document.getElementById("blockonomics_api_key").value;
@@ -347,7 +335,7 @@ function blockonomics_woocommerce_init()
                                     <?php
                                     $total_received = get_option('blockonomics_temp_withdraw_amount') / 1.0e8;
                                     $api_key = get_option("blockonomics_api_key");
-                                    $temp_api_key = get_option("blockonomics_btc_temp_api_key");
+                                    $temp_api_key = get_option("blockonomics_temp_api_key");
                                     if ($temp_api_key && !$api_key && !($total_received > 0)): ?>
 
                                     <h1>Blockonomics Wallet (Balance: 0 BTC)</h1>
@@ -411,7 +399,7 @@ function blockonomics_woocommerce_init()
                                     <?php
                                     $total_received = get_option('blockonomics_temp_withdraw_amount') / 1.0e8;
                                     $api_key = get_option("blockonomics_api_key");
-                                    $temp_api_key = get_option("blockonomics_bch_temp_api_key");
+                                    $temp_api_key = get_option("blockonomics_temp_api_key");
                                     if ($temp_api_key && !$api_key && !($total_received > 0)): ?>
 
                                     <h1>Blockonomics Wallet (Balance: 0 BCH)</h1>
@@ -635,8 +623,7 @@ register_uninstall_hook( __FILE__, 'blockonomics_uninstall_hook' );
 function blockonomics_uninstall_hook() {
     delete_option('blockonomics_callback_secret');
     delete_option('blockonomics_api_key');
-    delete_option('blockonomics_btc_temp_api_key');
-    delete_option('blockonomics_bch_temp_api_key');
+    delete_option('blockonomics_temp_api_key');
     delete_option('blockonomics_temp_withdraw_amount');
     delete_option('blockonomics_margin');
     delete_option('blockonomics_timeperiod');
