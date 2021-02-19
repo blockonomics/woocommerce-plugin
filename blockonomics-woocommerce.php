@@ -143,7 +143,7 @@ function blockonomics_woocommerce_init()
         {
             $setup_errors = $blockonomics->testSetup();
             update_option("setup_errors", $setup_errors);
-            if(!$setup_errors)
+            if(!isset($setup_errors['btc']))
             {
                 $message = $blockonomics->make_withdraw();
                 if ($message) {
