@@ -1,6 +1,12 @@
 <?php
 defined( 'ABSPATH' ) or exit;
-add_action( 'plugins_loaded', 'wc_filter_orders_by_bitcoin_address' );
+
+if(isset($_GET['post_type']) && $_GET['post_type'] == 'shop_order') {
+	add_action( 'plugins_loaded', 'wc_filter_orders_by_bitcoin_address' );
+} else {
+	remove_filter( 'plugins_loaded', 'wc_filter_orders_by_bitcoin_address' );
+}
+
 
 class WC_Filter_Orders_By_Address {
 	protected static $instance;
