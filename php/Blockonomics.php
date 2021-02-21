@@ -369,13 +369,14 @@ class Blockonomics
 
     // Returns url to redirect the user to during checkout
     public function get_order_checkout_url($order_id){
+        $active_cryptos = $this->getActiveCurrencies();
         // Check if more than one crypto is activated
-        if (count($this->getActiveCurrencies()) > 1) {
+        if (count($active_cryptos) > 1) {
             $order_url = $this->get_parameterized_wc_url(array('select_crypto'=>$order_id));
-        }
-        // Default to btc if only bitcoin is active
-        else{
+        } elseif (isset($active_cryptos['btc'])){
             $order_url = $this->get_parameterized_wc_url(array('show_order'=>$order_id, 'crypto'=>'btc'));
+        } elseif (isset($active_cryptos['bch'])){
+            $order_url = $this->get_parameterized_wc_url(array('show_order'=>$order_id, 'crypto'=>'bch'));
         }
         return $order_url;
     }
