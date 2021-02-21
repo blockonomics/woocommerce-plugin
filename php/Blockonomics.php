@@ -238,11 +238,7 @@ class Blockonomics
         $active_currencies = array();
         $blockonomics_currencies = $this->getSupportedCurrencies();
         foreach ($blockonomics_currencies as $code => $currency) {
-            if($code == 'btc'){
-                $enabled = true;
-            }else{
-                $enabled = get_option('blockonomics_'.$code);
-            }
+            $enabled = get_option('blockonomics_'.$code);
             if($enabled){
                 $active_currencies[$code] = $currency;
             }
@@ -373,13 +369,15 @@ class Blockonomics
         // Check if more than one crypto is activated
         if (count($active_cryptos) > 1) {
             $order_url = $this->get_parameterized_wc_url(array('select_crypto'=>$order_id));
-        } elseif (isset($active_cryptos['btc'])){
+        } elseif (isset($active_cryptos['btc']['code']) ){
             $order_url = $this->get_parameterized_wc_url(array('show_order'=>$order_id, 'crypto'=>'btc'));
-        } elseif (isset($active_cryptos['bch'])){
+        } elseif (isset($active_cryptos['bch']['code'])){
             $order_url = $this->get_parameterized_wc_url(array('show_order'=>$order_id, 'crypto'=>'bch'));
         }
         return $order_url;
     }
+
+
 
     // Check if a template is a nojs template
     public function is_nojs_template($template_name){
