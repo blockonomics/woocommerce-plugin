@@ -54,15 +54,36 @@ function blockonomics_woocommerce_init()
 
     require_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'WC_Gateway_Blockonomics.php';
     include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
+    // include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'WC_Filter.php';
     
     add_action('admin_menu', 'add_page');
     add_action('init', 'woocommerce_handle_blockonomics_return');
     add_action('init', 'load_plugin_translations');
     add_action('woocommerce_order_details_after_order_table', 'nolo_custom_field_display_cust_order_meta', 10, 1);
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
+    add_action( 'restrict_manage_posts', 'filter_orders' , 20 );
+    add_filter( 'request', 'filter_orders_by_address_or_txid' );	
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_filter('clean_url', 'bnomics_async_scripts', 11, 1 );
 
+    /**
+     * Adding new filter to WooCommerce orders
+     **/
+    function filter_orders() {
+		global $typenow;
+		if ( 'shop_order' === $typenow ) {
+			?>
+			<input size='26' value="<?php if(isset( $_GET['filter_by'] )) echo($_GET['filter_by']); ?>" type='name' placeholder='Filter by crypto address/txid' name='filter_by'>
+			<?php
+		}
+	}
+	function filter_orders_by_address_or_txid( $vars ) {
+		global $typenow;
+		if ( 'shop_order' === $typenow && isset( $_GET['filter_by'] ) && ! empty( $_GET['filter_by'])){
+			$vars['meta_value'] = wc_clean( $_GET['filter_by'] );
+		}
+		return $vars;
+	}
     /**
      * Add this Gateway to WooCommerce
      **/
