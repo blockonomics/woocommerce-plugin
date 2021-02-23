@@ -265,17 +265,17 @@ function blockonomics_woocommerce_init()
                     ?>
                     
                     <h1>API Key</h1>
-                    <input style='max-width: 100%; text-overflow: ellipsis;' onchange="value_changed()" size="130" type="text" id="blockonomics_api_key" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" />
+                    <input class="bnomics-options-input" onchange="value_changed()" size="130" type="text" id="blockonomics_api_key" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" />
                     <p>To get your API Key, click <b> Get Started for Free </b> on
                         <a href="https://blockonomics.co.merchants">https://blockonomics.co.merchants</a>
                     </p>
                     <h1>Callback URL
-                        <a href="javascript:gen_secret()" id="generate-callback" style="font:400 30px/1 dashicons;margin-left: 5px;top: 6px;position:relative;text-decoration: none;" title="Generate New Callback URL">&#xf463;</a>
+                        <a href="javascript:gen_secret()" id="generate-callback" class="bnomics-options-callback-icon" title="Generate New Callback URL">&#xf463;</a>
                     </h1>
-                    <input style='max-width: 100%; text-overflow: ellipsis;' size="130" type="text" value="<?php echo get_callback_url();?>" disabled/>
-                    <p id="advanced_title" style="font-weight:bold"><a href="javascript:show_advanced()">Advanced Settings &#9660;</a></p>
+                    <input class="bnomics-options-input" size="130" type="text" value="<?php echo get_callback_url();?>" disabled/>
+                    <p id="advanced_title" class="bnomics-options-bold"><a href="javascript:show_advanced()">Advanced Settings &#9660;</a></p>
                     <div id="advanced_window" style="display:none">
-                        <p style="font-weight:bold"><a href="javascript:show_basic()">Advanced Settings &#9650;</a></p>
+                        <p class="bnomics-options-bold"><a href="javascript:show_basic()">Advanced Settings &#9650;</a></p>
                         <table class="form-table">
                             <tr valign="top"><th scope="row"><?php echo __('Time period of countdown timer on payment page (in minutes)', 'blockonomics-bitcoin-payments')?></th>
                                 <td>
@@ -315,7 +315,7 @@ function blockonomics_woocommerce_init()
                         </table>
                     </div>
                     <p class="submit">
-                        <input style="padding: 3px 15px 3px 15px;font-size: 15px;" type="submit"  class="button-primary" value="Save"/>
+                        <input type="submit"  class="button-primary bnomics-options-button" value="Save"/>
                         <input type="hidden" name="action" value="update" />
                         <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated,blockonomics_underpayment_slack,blockonomics_lite,blockonomics_nojs,blockonomics_network_confirmation" />
                     </p>
@@ -333,7 +333,7 @@ function blockonomics_woocommerce_init()
 
                 case 'currencies' :
                     ?>
-                    <table style="margin-left:40px; padding: 0px 0px !important; " class="form-table">
+                    <table class="form-table bnomics-options-intend-heading">
                     <h1>
                         <input style="margin-left:12px;" type="checkbox" name="blockonomics_btc" value="1"<?php checked("1", get_option('blockonomics_btc', true)); ?>" />
                         Bitcoin (BTC)
@@ -384,15 +384,15 @@ function blockonomics_woocommerce_init()
                                 if (isset($setup_errors['btc']) && get_option('blockonomics_btc') == '1'):  ?>
                                 <th><h1>Setup</h1></th>
                                 <?php if ($setup_errors['btc'] && $setup_errors['btc']):?>
-                                    <td style="padding: 0px 0px !important;">
-                                    <span style="font:1000 30px/1 dashicons; top:0px; color:red">&#10006;</span>
+                                    <td class="bnomics-options-no-padding">
+                                    <span class="bnomics-options-red-cross-mark">&#10006;</span>
                                     </td>
-                                    <td style="padding: 0px 0px !important;">
+                                    <td class="bnomics-options-no-padding">
                                     <p style="display: inline;"> <?php echo $setup_errors['btc'] ?>  </p>
                                     </td>
                                 <?php else:?>
-                                    <td style="padding: 0px 0px !important;">
-                                        <span style="font:1000 30px/1 dashicons; top:0px; color:green">&#10004;</span>
+                                    <td class="bnomics-options-no-padding">
+                                        <span class="bnomics-options-green-check-mark">&#10004;</span>
                                     </td>
                                 <?php endif; ?>
                             <?php endif; ?>
@@ -405,7 +405,7 @@ function blockonomics_woocommerce_init()
                     <p style="margin-left:40px;">To configure, click <b> Get Started for Free </b> on
                         <a href="https://bch.blockonomics.co.merchants">https://bch.blockonomics.co.merchants</a>
                     </p>
-                        <table style="margin-left:40px;" class="form-table">
+                        <table class="form-table bnomics-options-intend-heading">
                         <?php 
                         $bch_enabled = get_option("blockonomics_bch");
                         if ($bch_enabled):  ?>
@@ -447,21 +447,21 @@ function blockonomics_woocommerce_init()
                                 if (isset($setup_errors['bch']) && get_option('blockonomics_bch') == '1'):  ?>
                                 <th><h1>Setup</h1></th>
                                 <?php if ($setup_errors['bch'] && $setup_errors['bch']):?>
-                                    <td style="padding: 0px 0px !important;">
-                                    <span style="font:1000 30px/1 dashicons; top:0px; color:red">&#10006;</span>
+                                    <td class="bnomics-options-no-padding">
+                                    <span class="bnomics-options-red-cross-mark">&#10006;</span>
                                     </td>
-                                    <td style="padding: 0px 0px !important;">
+                                    <td class="bnomics-options-no-padding">
                                     <p style="display: inline;"> <?php echo $setup_errors['bch'] ?>  </p>
                                     </td>
                                 <?php else:?>
-                                    <td style="padding: 0px 0px !important;">
-                                        <span style="font:1000 30px/1 dashicons; top:0px; color:green">&#10004;</span>
+                                    <td class="bnomics-options-no-padding">
+                                        <span class="bnomics-options-green-check-mark">&#10004;</span>
                                     </td>
                                 <?php endif; ?>   
                             <?php endif; ?>
                         </table>
                         <form>
-                            <input style="padding: 3px 15px 3px 15px;font-size: 15px; margin-top:10px;margin-left:12px;" type="submit" class="button-primary" value="Test Setup" />
+                            <input style="margin-top:10px;margin-left:12px;" type="submit" class="button-primary bnomics-options-button" value="Test Setup" />
                             <input type="hidden" name="page_options" value="blockonomics_bch,blockonomics_btc" />
                             <input type="hidden" name="action" value="update" />
                             <input type="hidden" name="page" value="blockonomics_options">
