@@ -327,18 +327,14 @@ function blockonomics_woocommerce_init()
                 </form>
                     <?php
                     break;
-
-
-
-
                 case 'currencies' :
                     ?>
-                    <table class="form-table bnomics-options-intend-heading">
-                    <h1>
-                        <input style="margin-left:12px;" type="checkbox" name="blockonomics_btc" value="1"<?php checked("1", get_option('blockonomics_btc', true)); ?>" />
+                    <table class="form-table bnomics-options-intendation-heading">
+                    <h1 class="bnomics-options-small-intendation">
+                        <input type="checkbox" name="blockonomics_btc" value="1"<?php checked("1", get_option('blockonomics_btc', true)); ?>" />
                         Bitcoin (BTC)
                     </h1>
-                        <p style="margin-left:40px;">To configure, click <b> Get Started for Free </b> on
+                        <p class="bnomics-options-medium-intendation">To configure, click <b> Get Started for Free </b> on
                             <a href="https://blockonomics.co.merchants">https://blockonomics.co.merchants</a>
                         </p>
                         <?php 
@@ -346,7 +342,7 @@ function blockonomics_woocommerce_init()
                         if ($btc_enabled):  ?>
                         <input type="hidden" name="blockonomics_test_setup_run" id="blockonomics_test_setup_run" value="false">
                         <th scope="row"><h1>Destination</h1></th>
-                                <td colspan="2" style="padding: 0px 0px !important;">
+                                <td colspan="2" class="bnomics-options-no-padding">
                                     <?php
                                     $total_received = get_option('blockonomics_temp_withdraw_amount') / 1.0e8;
                                     $api_key = get_option("blockonomics_api_key");
@@ -398,19 +394,19 @@ function blockonomics_woocommerce_init()
                             <?php endif; ?>
                         </table>
 
-                    <h1 style="margin-left:12px;">
+                    <h1 class="bnomics-options-small-intendation">
                         <input type="checkbox" name="blockonomics_bch" value="1"<?php checked("1", get_option('blockonomics_bch')); ?>" />
                         Bitcoin Cash (BCH)
                     </h1>
-                    <p style="margin-left:40px;">To configure, click <b> Get Started for Free </b> on
+                    <p class="bnomics-options-medium-intendation">To configure, click <b> Get Started for Free </b> on
                         <a href="https://bch.blockonomics.co.merchants">https://bch.blockonomics.co.merchants</a>
                     </p>
-                        <table class="form-table bnomics-options-intend-heading">
+                        <table class="form-table bnomics-options-intendation-heading">
                         <?php 
                         $bch_enabled = get_option("blockonomics_bch");
                         if ($bch_enabled):  ?>
                         <th scope="row"><h1>Destination</h1></th>
-                                <td colspan="2" style="padding: 0px 0px !important;">
+                                <td colspan="2" class="bnomics-options-no-padding">
                                     <?php
                                     $total_received = get_option('blockonomics_temp_withdraw_amount') / 1.0e8;
                                     $api_key = get_option("blockonomics_api_key");
@@ -461,7 +457,7 @@ function blockonomics_woocommerce_init()
                             <?php endif; ?>
                         </table>
                         <form>
-                            <input style="margin-top:10px;margin-left:12px;" type="submit" class="button-primary bnomics-options-button" value="Test Setup" />
+                            <input type="submit" class="button-primary bnomics-options-button bnomics-options-small-margin-top bnomics-options-small-intendation" value="Test Setup" />
                             <input type="hidden" name="page_options" value="blockonomics_bch,blockonomics_btc" />
                             <input type="hidden" name="action" value="update" />
                             <input type="hidden" name="page" value="blockonomics_options">

@@ -20,7 +20,7 @@
     font-size: 15px !important;
 }
 
-.bnomics-options-intend-heading {
+.bnomics-options-intendation-heading {
     margin-left:40px; 
     padding: 0px 0px !important;
 }
@@ -41,4 +41,31 @@
     color:red
 }
 
+.bnomics-options-small-intendation {
+    margin-left:12px !important;
+}
+
+.bnomics-options-medium-intendation {
+    margin-left:40px;
+}
+
+.bnomics-options-small-margin-top {
+    margin-top:10px;
+}
+
+/* Mobile */
+@media screen and (max-width: 500px) {
+    .bnomics-options-medium-intendation {
+        margin-left: 0px !important;
+    }
+  
+    .bnomics-options-small-intendation {
+        margin-left: 0px !important;
+    }
+
+    .bnomics-options-intendation-heading {
+        margin-left: 0px !important;
+    }
+
+  }
 
