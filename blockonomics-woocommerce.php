@@ -61,13 +61,29 @@ function blockonomics_woocommerce_init()
     add_action('woocommerce_order_details_after_order_table', 'nolo_custom_field_display_cust_order_meta', 10, 1);
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
 <<<<<<< HEAD
+<<<<<<< HEAD
     add_action( 'restrict_manage_posts', 'filter_orders' , 20 );
     add_filter( 'request', 'filter_orders_by_address_or_txid' );	
 =======
 >>>>>>> 7abf122... removed find_bitcoin_order
+=======
+    add_action('admin_enqueue_scripts', 'blockonomics_load_admin_scripts' );
+>>>>>>> eb77aa7... WIP: adding css for blockonomics admin page
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_filter('clean_url', 'bnomics_async_scripts', 11, 1 );
 
+
+    /**
+     * Add Styles to Blockonomics Admin Page
+     **/
+    function blockonomics_load_admin_scripts(){ 
+        $current_screen = get_current_screen();
+        if ( strpos($current_screen->base, 'settings_page_blockonomics_options') === false) {
+            return;
+        } else {            
+            wp_enqueue_style('bnomics-admin-style', plugin_dir_url(__FILE__) . "css/blockonomics_options.css", '', get_plugin_data( __FILE__ )['Version']);
+        }
+    }
     /**
      * Adding new filter to WooCommerce orders
      **/
@@ -203,7 +219,6 @@ function blockonomics_woocommerce_init()
     function show_options()
     {
         ?>
-
         <script type="text/javascript">
             function gen_secret() {
                 document.generateSecretForm.submit();
