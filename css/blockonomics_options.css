@@ -1,4 +1,44 @@
-body {
-    background-color: black !important;
-    color: white !important;
+.bnomics-options-input {
+    max-width: 100%; 
+    text-overflow: ellipsis;
 }
+
+.bnomics-options-callback-icon {
+    font:400 30px/1 dashicons;
+    margin-left: 5px;
+    top: 6px;
+    position:relative;
+    text-decoration: none;
+}
+
+.bnomics-options-bold {
+    font-weight:bold;
+}
+
+.bnomics-options-button {
+    padding: 3px 15px 3px 15px !important;
+    font-size: 15px !important;
+}
+
+.bnomics-options-intend-heading {
+    margin-left:40px; 
+    padding: 0px 0px !important;
+}
+
+.bnomics-options-green-check-mark {
+    font:1000 30px/1 dashicons; 
+    top:0px; 
+    color:green;
+}
+
+.bnomics-options-no-padding {
+    padding: 0px 0px !important;
+}
+
+.bnomics-options-red-cross-mark {
+    font:1000 30px/1 dashicons; 
+    top:0px; 
+    color:red
+}
+
+
