@@ -114,7 +114,9 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         include_once 'Blockonomics.php';
         $blockonomics = new Blockonomics;
 
-        if ($show_order && $crypto) {
+        if($crypto === "empty"){
+            $blockonomics->load_blockonomics_template('no_crypto_selected');
+        }else if ($show_order && $crypto) {
             $blockonomics->load_checkout_template($show_order, $crypto);
         }else if ($select_crypto) {
             $blockonomics->load_blockonomics_template('crypto_options');

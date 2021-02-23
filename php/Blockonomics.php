@@ -373,6 +373,8 @@ class Blockonomics
             $order_url = $this->get_parameterized_wc_url(array('show_order'=>$order_id, 'crypto'=>'btc'));
         } elseif (isset($active_cryptos['bch']['code'])){
             $order_url = $this->get_parameterized_wc_url(array('show_order'=>$order_id, 'crypto'=>'bch'));
+        } else if (count($active_cryptos) === 0) {
+            $order_url = $this->get_parameterized_wc_url(array('crypto'=>'empty'));
         }
         return $order_url;
     }
@@ -439,7 +441,6 @@ class Blockonomics
     // Adds the selected template to the blockonomics page
     public function load_blockonomics_template($template_name){
         $this->load_blockonomics_header($template_name);
-
         // Load the selected template
         // Check if child theme or parent theme have overridden the template
         $template = 'blockonomics_'.$template_name.'.php';
