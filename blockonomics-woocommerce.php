@@ -76,11 +76,8 @@ function blockonomics_woocommerce_init()
     /**
      * Add Styles to Blockonomics Admin Page
      **/
-    function blockonomics_load_admin_scripts(){ 
-        $current_screen = get_current_screen();
-        if ( strpos($current_screen->base, 'settings_page_blockonomics_options') === false) {
-            return;
-        } else {            
+    function blockonomics_load_admin_scripts($hook){ 
+        if ( $hook === 'settings_page_blockonomics_options') {        
             wp_enqueue_style('bnomics-admin-style', plugin_dir_url(__FILE__) . "css/blockonomics_options.css", '', get_plugin_data( __FILE__ )['Version']);
         }
     }
