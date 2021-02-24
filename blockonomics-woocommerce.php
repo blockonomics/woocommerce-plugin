@@ -36,11 +36,13 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
+
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
 /**
  * Initialize hooks needed for the payment gateway
  */
@@ -59,6 +61,8 @@ function blockonomics_woocommerce_init()
     add_action('woocommerce_order_details_after_order_table', 'nolo_custom_field_display_cust_order_meta', 10, 1);
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
     add_action('admin_enqueue_scripts', 'blockonomics_load_admin_scripts' );
+    add_action( 'restrict_manage_posts', 'filter_orders' , 20 );
+    add_filter( 'request', 'filter_orders_by_address_or_txid' );	
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_filter('clean_url', 'bnomics_async_scripts', 11, 1 );
 
@@ -74,6 +78,24 @@ function blockonomics_woocommerce_init()
             wp_enqueue_style('bnomics-admin-style', plugin_dir_url(__FILE__) . "css/blockonomics_options.css", '', get_plugin_data( __FILE__ )['Version']);
         }
     }
+    /**
+     * Adding new filter to WooCommerce orders
+     **/
+    function filter_orders() {
+		global $typenow;
+		if ( 'shop_order' === $typenow ) {
+			?>
+			<input size='26' value="<?php if(isset( $_GET['filter_by'] )) echo($_GET['filter_by']); ?>" type='name' placeholder='Filter by crypto address/txid' name='filter_by'>
+			<?php
+		}
+	}
+	function filter_orders_by_address_or_txid( $vars ) {
+		global $typenow;
+		if ( 'shop_order' === $typenow && isset( $_GET['filter_by'] ) && ! empty( $_GET['filter_by'])){
+			$vars['meta_value'] = wc_clean( $_GET['filter_by'] );
+		}
+		return $vars;
+	}
     /**
      * Add this Gateway to WooCommerce
      **/
@@ -440,6 +462,7 @@ function blockonomics_woocommerce_init()
                 }
             ?>
         </div>
+
     <?php
     }
     function bnomics_display_tx_info($order, $email=false)
@@ -559,7 +582,6 @@ function blockonomics_update_db_check() {
 
         update_option( 'blockonomics_db_version', $blockonomics_db_version );
     }
-    
 }
 add_action( 'plugins_loaded', 'blockonomics_update_db_check' );
 

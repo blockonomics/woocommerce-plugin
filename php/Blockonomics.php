@@ -16,8 +16,6 @@ class Blockonomics
     const BCH_BASE_URL = 'https://bch.blockonomics.co';
     const BCH_NEW_ADDRESS_URL = 'https://bch.blockonomics.co/api/new_address';
     const BCH_PRICE_URL = 'https://bch.blockonomics.co/api/price';
-    const BCH_SET_CALLBACK_URL = 'https://bch.blockonomics.co/api/update_callback';
-    const BCH_GET_CALLBACKS_URL = 'https://bch.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
 
     public function __construct()
     {
@@ -92,25 +90,17 @@ class Blockonomics
         return $responseObj;
     }
 
-    public function update_callback($callback_url, $crypto, $xpub)
+    public function update_callback($callback_url, $xpub)
     {
-        if ($crypto == 'btc'){
-            $url = Blockonomics::SET_CALLBACK_URL;
-        }else{
-            $url = Blockonomics::BCH_SET_CALLBACK_URL;
-        }
+        $url = Blockonomics::SET_CALLBACK_URL;
         $body = json_encode(array('callback' => $callback_url, 'xpub' => $xpub));
         $response = $this->post($url, $this->api_key, $body);
         return json_decode(wp_remote_retrieve_body($response));
     }
 
-    public function get_callbacks($crypto)
+    public function get_callbacks()
     {
-        if ($crypto == 'btc'){
-            $url = Blockonomics::GET_CALLBACKS_URL;
-        }else{
-            $url = Blockonomics::BCH_GET_CALLBACKS_URL;
-        }
+        $url = Blockonomics::GET_CALLBACKS_URL;
         $response = $this->get($url, $this->api_key);
         return $response;
     }
@@ -351,7 +341,7 @@ class Blockonomics
         // No errors
         return false;
     }
-    
+
     // Returns WC endpoint of order adding the given extra parameters
     public function get_parameterized_wc_url($params = array()){
         $order_url = WC()->api_request_url('WC_Gateway_Blockonomics');
