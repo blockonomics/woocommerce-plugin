@@ -360,7 +360,7 @@ class Blockonomics
         if (count($active_cryptos) > 1) {
             $order_url = $this->get_parameterized_wc_url(array('select_crypto'=>$order_id));
         } elseif (count($active_cryptos) === 1) {
-            $order_url = $this->get_parameterized_wc_url(array('show_order'=>$order_id, 'crypto'=>reset(reset($active_cryptos))));
+            $order_url = $this->get_parameterized_wc_url(array('show_order'=>$order_id, 'crypto'=> array_key_first($active_cryptos)));
         } else if (count($active_cryptos) === 0) {
             $order_url = $this->get_parameterized_wc_url(array('crypto'=>'empty'));
         }
