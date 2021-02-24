@@ -369,10 +369,8 @@ class Blockonomics
         // Check if more than one crypto is activated
         if (count($active_cryptos) > 1) {
             $order_url = $this->get_parameterized_wc_url(array('select_crypto'=>$order_id));
-        } elseif (isset($active_cryptos['btc']['code']) ){
-            $order_url = $this->get_parameterized_wc_url(array('show_order'=>$order_id, 'crypto'=>'btc'));
-        } elseif (isset($active_cryptos['bch']['code'])){
-            $order_url = $this->get_parameterized_wc_url(array('show_order'=>$order_id, 'crypto'=>'bch'));
+        } elseif (count($active_cryptos) === 1) {
+            $order_url = $this->get_parameterized_wc_url(array('show_order'=>$order_id, 'crypto'=>reset(reset($active_cryptos))));
         } else if (count($active_cryptos) === 0) {
             $order_url = $this->get_parameterized_wc_url(array('crypto'=>'empty'));
         }
