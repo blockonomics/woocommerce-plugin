@@ -260,7 +260,7 @@ function blockonomics_woocommerce_init()
                 <a href="options-general.php?page=blockonomics_options&tab=settings"  id='settings_nav_bar'  class="nav-tab <?php echo $active_tab == 'settings' ? 'nav-tab-active' : ''; ?>">Settings</a>
                 <a href="options-general.php?page=blockonomics_options&tab=currencies"  id='currencies_nav_bar' class="nav-tab <?php echo $active_tab == 'currencies' ? 'nav-tab-active' : ''; ?>">Currencies</a>
             </h2>
-            <form method="post" id="myform" onsubmit="return validateBlockonomicsForm()" action="options.php">
+                <form method="post" id="myform" onsubmit="return validateBlockonomicsForm()" action="options.php">
                 <input type="hidden" name="blockonomics_api_updated" id="blockonomics_api_updated" value="false">
                 <?php wp_nonce_field('update-options');
                 switch ( $active_tab ){
@@ -309,7 +309,7 @@ function blockonomics_woocommerce_init()
                             </tr>
                             <tr valign="top">
                                 <th scope="row"><?php echo __('Network Confirmations required for payment to complete)', 'blockonomics-bitcoin-payments')?></th>
-                                <td><select onchange="add_asterisk('settings')" name="blockonomics_network_confirmation" />
+                                <td><select onchange="add_asterisk('settings')" name="blockonomics_network_confirmation">
                                         <option value="2" <?php selected(get_option('blockonomics_network_confirmation'), 2); ?>>2 (Recommended)</option>
                                         <option value="1" <?php selected(get_option('blockonomics_network_confirmation'), 1); ?>>1</option>
                                         <option value="0" <?php selected(get_option('blockonomics_network_confirmation'), 0); ?>>0</option>
@@ -332,7 +332,7 @@ function blockonomics_woocommerce_init()
                     break;
                 case 'currencies' :
                     ?>
-                    <form  >
+
                     <table width="100%" cellspacing="0" cellpadding="0" class="form-table bnomics-options-intendation-heading">
                     <h2 class="bnomics-options-small-intendation">
                         <input onchange="add_asterisk('currencies')" type="checkbox" name="blockonomics_btc" value="1"<?php checked("1", get_option('blockonomics_btc', true)); ?>" />
@@ -352,29 +352,20 @@ function blockonomics_woocommerce_init()
                                     $api_key = get_option("blockonomics_api_key");
                                     $temp_api_key = get_option("blockonomics_temp_api_key");
                                     if ($temp_api_key && !$api_key && !($total_received > 0)): ?>
-
-                                    <b>Blockonomics Wallet (Balance: 0 BTC)</b>
-                                    <p>We are using a temporary wallet on Blockonomics to receive your payments.</p>
-                                    <p>To receive payments directly to your wallet (recommended) -> Follow Wizard by clicking on <i>Get Started for Free</i> on <a href="https://www.blockonomics.co/merchants" target="_blank">Merchants</a> and enter the APIKey below [<a href="https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62">Blog Instructions</a>]</p>
-
+                                        <label class="bnomics-default-cursor"><b>Blockonomics Wallet (Balance: 0 BTC)</b>
+                                        We are using a temporary wallet on Blockonomics to receive your payments.
+                                        To receive payments directly to your wallet (recommended) -> Follow Wizard by clicking on <i>Get Started for Free</i> on <a href="https://www.blockonomics.co/merchants" target="_blank">Merchants</a> and enter the APIKey below [<a href="https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62">Blog Instructions</a>]</label>
                                     <?php elseif ($temp_api_key && $total_received > 0): ?>
-
-                                    <b>Blockonomics Wallet (Balance: <?php echo "$total_received"; ?> BTC)</b>
+                                        <label class="bnomics-default-cursor"><b>Blockonomics Wallet (Balance: <?php echo "$total_received"; ?> BTC)</b></label>
                                     <?php if (!$api_key): ?>
-                                    <p> To withdraw, follow wizard by clicking on <i>Get Started for Free</i> on <a href="https://www.blockonomics.co/merchants" target="_blank">Merchants</a>, then enter the APIKey below [<a href="https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62">Blog Instructions</a>]
-                                    </p>
+                                        <label class="bnomics-default-cursor"> To withdraw, follow wizard by clicking on <i>Get Started for Free</i> on <a href="https://www.blockonomics.co/merchants" target="_blank">Merchants</a>, then enter the APIKey below [<a href="https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62">Blog Instructions</a>]</label>
                                     <?php else: ?>
-                                    <p> To withdraw, Click on <b>Test Setup</b></p>
+                                        <label class="bnomics-default-cursor"> To withdraw, Click on <b>Test Setup</b></label>
                                     <?php endif; ?>
-
                                     <?php elseif ($api_key): ?>
-
-                                    <label><b>Direct To Wallet:</b>
-                                    Payments will go direct to your wallet. 
-                                    </label>
+                                        <label class="bnomics-default-cursor"><b>Direct To Wallet:</b>Payments will go direct to your wallet.</label>
                                     <?php else: ?>
-                                    <b>Error: No wallet set up</b>
-
+                                        <label class="bnomics-default-cursor"><b>Error: No wallet set up</b></label>
                                     <?php endif; ?>
                                 </td>
                             </tr>
@@ -387,8 +378,7 @@ function blockonomics_woocommerce_init()
                                     <td colspan='2' class="bnomics-options-no-padding">
                                         <p class='notice notice-error'>
                                             <?php echo $error.'.' ?> 
-                                            <br/>Please consult 
-                                            <a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank">this troubleshooting article</a>.
+                                            <br/>Please consult <a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank">this troubleshooting article</a>.
                                         </p>
                                     </td>
                                 <?php else:?>
@@ -413,12 +403,12 @@ function blockonomics_woocommerce_init()
                         <th scope="row"><b>Destination</b></th>
                                 <td colspan="2" class="bnomics-options-no-padding">
                                     <?php
-                                    $api_key = get_option("blockonomics_api_key");
+                                        $api_key = get_option("blockonomics_api_key");
                                     if ($api_key): ?>
-                                    <label><b>Direct To Wallet:</b>
-                                    Payments will go direct to your wallet.</label>
+                                        <label><b>Direct To Wallet:</b>
+                                        Payments will go direct to your wallet.</label>
                                     <?php else: ?>
-                                    <b><b>ERROR:</b> No wallet set up</b>
+                                        <b><b>ERROR:</b> No wallet set up</b>
                                     <?php endif; ?>
                                     </td>
                             </tr>
@@ -431,8 +421,7 @@ function blockonomics_woocommerce_init()
                                     <td colspan='2' class="bnomics-options-no-padding">
                                         <p class='notice notice-error'>
                                             <?php echo $error.'.' ?> 
-                                            <br/>Please consult 
-                                            <a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank">this troubleshooting article</a>.
+                                            <br/>Please consult <a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank">this troubleshooting article</a>.
                                         </p>
                                     </td>
                                 <?php else:?>
@@ -442,12 +431,13 @@ function blockonomics_woocommerce_init()
                                 <?php endif; ?>   
                             <?php endif; ?>
                         </table>
+
                         <div class="bnomics-options-small-margin-top">
-                            <input type="submit" class="button-primary bnomics-options-button bnomics-options-small-intendation" value="Test Setup" />
-                            <input type="hidden" name="page_options" value="blockonomics_bch,blockonomics_btc" />
+                        <input type="submit" class="button-primary bnomics-options-button bnomics-options-small-intendation" value="Test Setup" />
+                            <input type="hidden" name="page_options" value="blockonomics_bch, blockonomics_btc" />
                             <input type="hidden" name="action" value="update" />
-                            <input type="hidden" name="page" value="blockonomics_options">
                         </form>
+
                         </div>
                         <?php
                         break;
