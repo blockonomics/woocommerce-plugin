@@ -1,11 +1,47 @@
+h1{
+    padding-bottom: 7px !important;
+}
+
+h2 {
+    margin-block-end: 4px !important;
+}
+
+h3 {
+    margin-block-start: 0px !important;
+    margin-block-end: 0px !important;
+}
+
+h4 {
+    margin-block-start: 10px !important;
+    margin-block-end: 2px !important;
+    font-size: medium;
+}
+
+
+.form-table th {
+    width: 90px !important;
+}
+
+.form-table td p {
+    margin-top: 0px !important;
+}
+
+.form-table {
+    width: 50vh !important;
+}
+
+.form-table th {
+    padding: 5px 10px 5px 0;
+}
+
 .bnomics-options-input {
     max-width: 100%; 
     text-overflow: ellipsis;
 }
 
 .bnomics-options-callback-icon {
-    font:400 30px/1 dashicons;
-    margin-left: 5px;
+    font:400 24px/1 dashicons;
+    margin-left: 3px;
     top: 6px;
     position:relative;
     text-decoration: none;
@@ -16,7 +52,7 @@
 }
 
 .bnomics-options-button {
-    padding: 3px 15px 3px 15px !important;
+    padding: 0px 10px 0px 10px !important;
     font-size: 15px !important;
 }
 
@@ -25,8 +61,9 @@
     padding: 0px 0px !important;
 }
 
+
 .bnomics-options-green-check-mark {
-    font:1000 30px/1 dashicons; 
+    font:1000 25px/1 dashicons; 
     top:0px; 
     color:green;
 }
@@ -35,11 +72,13 @@
     padding: 0px 0px !important;
 }
 
+
 .bnomics-options-red-cross-mark {
-    font:1000 30px/1 dashicons; 
+    font:1000 25px/1 dashicons; 
     top:0px; 
     color:red
 }
+
 
 .bnomics-options-small-intendation {
     margin-left:12px !important;
@@ -65,6 +104,9 @@
 
     .bnomics-options-intendation-heading {
         margin-left: 0px !important;
+    }
+    .form-table {
+        width: 100% !important;
     }
 
   }
