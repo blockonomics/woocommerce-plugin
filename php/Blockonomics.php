@@ -92,9 +92,15 @@ class Blockonomics
         return $responseObj;
     }
 
+<<<<<<< HEAD
     public function update_callback($callback_url, $crypto, $xpub)
     {
         if ($crypto == 'btc'){
+=======
+    public function update_callback($callback_url, $xpub, $crypto)
+    {
+        if($crypto == 'btc'){
+>>>>>>> 7ddfc4d... fixed bch callbacks
             $url = Blockonomics::SET_CALLBACK_URL;
         }else{
             $url = Blockonomics::BCH_SET_CALLBACK_URL;
@@ -106,7 +112,11 @@ class Blockonomics
 
     public function get_callbacks($crypto)
     {
+<<<<<<< HEAD
         if ($crypto == 'btc'){
+=======
+        if($crypto == 'btc'){
+>>>>>>> 7ddfc4d... fixed bch callbacks
             $url = Blockonomics::GET_CALLBACKS_URL;
         }else{
             $url = Blockonomics::BCH_GET_CALLBACKS_URL;
@@ -153,7 +163,7 @@ class Blockonomics
             if(!$response_callback || $response_callback == null)
             {
                 //No callback URL set, set one 
-                $this->update_callback($callback_url, $crypto, $response_address);
+                $this->update_callback($callback_url, $response_address, $crypto);
             }
             elseif($response_callback_without_schema != $callback_url_without_schema)
             {
@@ -164,7 +174,7 @@ class Blockonomics
                 {
                     //Looks like the user regenrated callback by mistake
                     //Just force Update_callback on server
-                    $this->update_callback($callback_url, $crypto, $response_address);
+                    $this->update_callback($callback_url, $response_address, $crypto);
                 }
                 else
                 {
@@ -344,8 +354,6 @@ class Blockonomics
             $error_str = $this->test_new_address_gen($crypto, $response);
         }
         if($error_str) {
-            // Append troubleshooting article to all errors
-            $error_str = $error_str . '<p>' . __('For more information, please consult <a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank">this troubleshooting article</a>', 'blockonomics-bitcoin-payments'). '</p>';
             return $error_str;
         }
         // No errors
