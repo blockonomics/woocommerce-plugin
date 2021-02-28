@@ -16,6 +16,8 @@ class Blockonomics
     const BCH_BASE_URL = 'https://bch.blockonomics.co';
     const BCH_NEW_ADDRESS_URL = 'https://bch.blockonomics.co/api/new_address';
     const BCH_PRICE_URL = 'https://bch.blockonomics.co/api/price';
+    const BCH_SET_CALLBACK_URL = 'https://bch.blockonomics.co/api/update_callback';
+    const BCH_GET_CALLBACKS_URL = 'https://bch.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
 
     public function __construct()
     {
@@ -90,17 +92,25 @@ class Blockonomics
         return $responseObj;
     }
 
-    public function update_callback($callback_url, $xpub)
+    public function update_callback($callback_url, $xpub, $crypto)
     {
-        $url = Blockonomics::SET_CALLBACK_URL;
+        if($crypto == 'btc'){
+            $url = Blockonomics::SET_CALLBACK_URL;
+        }else{
+            $url = Blockonomics::BCH_SET_CALLBACK_URL;
+        }
         $body = json_encode(array('callback' => $callback_url, 'xpub' => $xpub));
         $response = $this->post($url, $this->api_key, $body);
         return json_decode(wp_remote_retrieve_body($response));
     }
 
-    public function get_callbacks()
+    public function get_callbacks($crypto)
     {
-        $url = Blockonomics::GET_CALLBACKS_URL;
+        if($crypto == 'btc'){
+            $url = Blockonomics::GET_CALLBACKS_URL;
+        }else{
+            $url = Blockonomics::BCH_GET_CALLBACKS_URL;
+        }
         $response = $this->get($url, $this->api_key);
         return $response;
     }
@@ -143,7 +153,7 @@ class Blockonomics
             if(!$response_callback || $response_callback == null)
             {
                 //No callback URL set, set one 
-                $this->update_callback($callback_url, $crypto, $response_address);
+                $this->update_callback($callback_url, $response_address, $crypto);
             }
             elseif($response_callback_without_schema != $callback_url_without_schema)
             {
@@ -154,7 +164,7 @@ class Blockonomics
                 {
                     //Looks like the user regenrated callback by mistake
                     //Just force Update_callback on server
-                    $this->update_callback($callback_url, $crypto, $response_address);
+                    $this->update_callback($callback_url, $response_address, $crypto);
                 }
                 else
                 {
@@ -334,8 +344,6 @@ class Blockonomics
             $error_str = $this->test_new_address_gen($crypto, $response);
         }
         if($error_str) {
-            // Append troubleshooting article to all errors
-            $error_str = $error_str . '<p>' . __('For more information, please consult <a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank">this troubleshooting article</a>', 'blockonomics-bitcoin-payments'). '</p>';
             return $error_str;
         }
         // No errors
