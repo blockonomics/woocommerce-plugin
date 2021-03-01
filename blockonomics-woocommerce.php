@@ -61,8 +61,8 @@ function blockonomics_woocommerce_init()
     add_action('woocommerce_order_details_after_order_table', 'nolo_custom_field_display_cust_order_meta', 10, 1);
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
     add_action('admin_enqueue_scripts', 'blockonomics_load_admin_scripts' );
-    add_action( 'restrict_manage_posts', 'filter_orders' , 20 );
-    add_filter( 'request', 'filter_orders_by_address_or_txid' );	
+    add_action('restrict_manage_posts', 'filter_orders' , 20 );
+    add_filter('request', 'filter_orders_by_address_or_txid' );	
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_filter('clean_url', 'bnomics_async_scripts', 11, 1 );
 
@@ -266,7 +266,7 @@ function blockonomics_woocommerce_init()
                 switch ( $active_tab ){
                 case 'settings' :
                     ?>
-                    
+
                     <h4>API Key</h4>
                     <input class="bnomics-options-input" onchange="value_changed()" size="130" type="text" id="blockonomics_api_key" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" />
                     <label><br/>To get your API Key, click <b> Get Started for Free </b> on
@@ -363,7 +363,7 @@ function blockonomics_woocommerce_init()
                                         <label class="bnomics-default-cursor"> To withdraw, Click on <b>Test Setup</b></label>
                                     <?php endif; ?>
                                     <?php elseif ($api_key): ?>
-                                        <label class="bnomics-default-cursor"><b>Direct To Wallet:</b>Payments will go direct to your wallet.</label>
+                                        <label class="bnomics-default-cursor"><b>Direct To Wallet: </b>Payments will go direct to your wallet.</label>
                                     <?php else: ?>
                                         <label class="bnomics-default-cursor"><b>Error: No wallet set up</b></label>
                                     <?php endif; ?>
