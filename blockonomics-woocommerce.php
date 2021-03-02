@@ -163,14 +163,6 @@ function blockonomics_woocommerce_init()
             'Blockonomics', 'Blockonomics', 'manage_options',
             'blockonomics_options', 'show_options'
         );
-
-        if (get_option('blockonomics_api_updated') == 'true' && isset($_GET['settings-updated']) ? $_GET['settings-updated'] : '' == 'true')
-        {
-            $message = __('API Key updated! Please click on Test Setup to verify Installation. ', 'blockonomics-bitcoin-payments');
-            display_admin_message($message, 'updated');
-        }
-
-
         if (isset($_GET['tab']) && $_GET['tab'] == "currencies" && isset($_GET['settings-updated']) ? $_GET['settings-updated'] : '' == 'true')
         {
             $setup_errors = $blockonomics->testSetup();
@@ -218,15 +210,38 @@ function blockonomics_woocommerce_init()
             function gen_secret() {
                 document.generateSecretForm.submit();
             }
+            function check_form(tab) {
+                const urlParams = new URLSearchParams(window.location.href);
+                const currentTab = urlParams.get('tab') ?? 'settings';
+                if (currentTab == tab){
+                    return;
+                }
+                if (document.getElementById('blockonomics_form_updated').value == 'true' || document.getElementById('blockonomics_api_updated').value == 'true'){
+                    if (currentTab === 'settings'){
+                        if(validateBlockonomicsForm()){
+                            document.myform.submit();
+                        }
+                    } else {
+                        document.myform.submit();
+                    }
+                } else {
+                    window.location.href = "options-general.php?page=blockonomics_options&tab="+tab;
+                }
+            }
+            
             function value_changed() {
                 document.getElementById('blockonomics_api_updated').value = 'true';
                 document.getElementById('settings_nav_bar').textContent = 'Settings*';
+                document.getElementById('settings_nav_bar').style.background = "#e6d9cb";
             }
             function add_asterisk(tab) {
+                document.getElementById('blockonomics_form_updated').value = 'true';
                 if(tab && tab === 'currencies') {
                     document.getElementById('currencies_nav_bar').textContent = 'Currencies*';
+                    document.getElementById('currencies_nav_bar').style.background = "#e6d9cb";
                 } else {
                     document.getElementById('settings_nav_bar').textContent = 'Settings*';
+                    document.getElementById('settings_nav_bar').style.background = "#e6d9cb";
                 }
             }
             function validateBlockonomicsForm() {
@@ -256,11 +271,12 @@ function blockonomics_woocommerce_init()
                 $active_tab = 'settings';
             }
             ?>
-            <h2 class="nav-tab-wrapper">
-                <a href="options-general.php?page=blockonomics_options&tab=settings"  id='settings_nav_bar'  class="nav-tab <?php echo $active_tab == 'settings' ? 'nav-tab-active' : ''; ?>">Settings</a>
-                <a href="options-general.php?page=blockonomics_options&tab=currencies"  id='currencies_nav_bar' class="nav-tab <?php echo $active_tab == 'currencies' ? 'nav-tab-active' : ''; ?>">Currencies</a>
-            </h2>
-                <form method="post" id="myform" onsubmit="return validateBlockonomicsForm()" action="options.php">
+                <form method="post" name="myform" id="myform" onsubmit="return validateBlockonomicsForm()" action="options.php">
+                <h2 class="nav-tab-wrapper">
+                    <a onclick="check_form('settings')" id='settings_nav_bar'  class="nav-tab <?php echo $active_tab == 'settings' ? 'nav-tab-active' : ''; ?>">Settings</a>
+                    <a onclick="check_form('currencies')" id='currencies_nav_bar' class="nav-tab <?php echo $active_tab == 'currencies' ? 'nav-tab-active' : ''; ?>">Currencies</a>
+                </h2>
+                <input type="hidden" name="blockonomics_form_updated" id="blockonomics_form_updated" value="false">
                 <input type="hidden" name="blockonomics_api_updated" id="blockonomics_api_updated" value="false">
                 <?php wp_nonce_field('update-options');
                 switch ( $active_tab ){
@@ -318,7 +334,7 @@ function blockonomics_woocommerce_init()
                         </table>
                     </div>
                     <p class="submit">
-                        <input type="submit"  class="button-primary bnomics-options-button" value="Save"/>
+                        <input type="submit" class="button-primary bnomics-options-button" value="Save"/>
                         <input type="hidden" name="action" value="update" />
                         <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated,blockonomics_underpayment_slack,blockonomics_lite,blockonomics_nojs,blockonomics_network_confirmation" />
                     </p>
