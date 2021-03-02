@@ -2,6 +2,10 @@ h1{
     padding-bottom: 7px !important;
 }
 
+.nav-tab {
+    cursor: pointer !important;
+}
+
 h2 {
     margin-block-end: 4px !important;
 }
