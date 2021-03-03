@@ -174,6 +174,7 @@ function blockonomics_woocommerce_init()
             'Blockonomics', 'Blockonomics', 'manage_options',
             'blockonomics_options', 'show_options'
         );
+        
         if (get_option('blockonomics_redirect') == "yes")
         {
             update_option('blockonomics_redirect', 'no');
@@ -252,15 +253,14 @@ function blockonomics_woocommerce_init()
                     window.location.href = "options-general.php?page=blockonomics_options&tab="+tab;
                 }
             }
-            
             function value_changed() {
                 document.getElementById('blockonomics_api_updated').value = 'true';
+                document.getElementById('blockonomics_form_updated').value = 'true';
                 document.getElementById('settings_nav_bar').textContent = 'Settings*';
                 document.getElementById('settings_nav_bar').style.background = "#e6d9cb";
             }
             function add_asterisk(tab) {
                 document.getElementById('blockonomics_form_updated').value = 'true';
-
                 if(tab && tab === 'currencies') {
                     document.getElementById('currencies_nav_bar').textContent = 'Currencies*';
                     document.getElementById('currencies_nav_bar').style.background = "#e6d9cb";
@@ -296,7 +296,7 @@ function blockonomics_woocommerce_init()
                 $active_tab = 'settings';
             }
             ?>
-                <form method="post" name="myform" id="myform" onsubmit="return validateBlockonomicsForm()" action="options.php">
+            <form method="post" name="myform" id="myform" onsubmit="return validateBlockonomicsForm()" action="options.php">
                 <h2 class="nav-tab-wrapper">
                     <a onclick="check_form('settings')" id='settings_nav_bar'  class="nav-tab <?php echo $active_tab == 'settings' ? 'nav-tab-active' : ''; ?>">Settings</a>
                     <a onclick="check_form('currencies')" id='currencies_nav_bar' class="nav-tab <?php echo $active_tab == 'currencies' ? 'nav-tab-active' : ''; ?>">Currencies</a>
@@ -306,9 +306,7 @@ function blockonomics_woocommerce_init()
                 <input type="hidden" name="blockonomics_redirect" id="blockonomics_redirect" value="false">
                 <?php wp_nonce_field('update-options');
                 switch ( $active_tab ){
-                case 'settings' :
-                    ?>
-
+                case 'settings' :?>
                     <h4>API Key</h4>
                     <input class="bnomics-options-input" onchange="value_changed()" size="130" type="text" id="blockonomics_api_key" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" />
                     <label><br/>To get your API Key, click <b> Get Started for Free </b> on
@@ -366,15 +364,13 @@ function blockonomics_woocommerce_init()
                     </p>
                 </form>
                 <form method="POST" name="generateSecretForm">
-                        <p class="submit">
-                            <input type="hidden" name="generateSecret" value="true">
-                        </p>
+                    <p class="submit">
+                        <input type="hidden" name="generateSecret" value="true">
+                    </p>
                 </form>
                     <?php
                     break;
-                case 'currencies' :
-                    ?>
-
+                case 'currencies' :?>
                     <table width="100%" cellspacing="0" cellpadding="0" class="form-table bnomics-options-intendation-heading">
                     <h2 class="bnomics-options-small-intendation">
                         <input onchange="add_asterisk('currencies')" type="checkbox" name="blockonomics_btc" value="1"<?php checked("1", get_option('blockonomics_btc', true)); ?>" />
@@ -430,7 +426,6 @@ function blockonomics_woocommerce_init()
                                 <?php endif; ?>
                             <?php endif; ?>
                         </table>
-
                     <h2 class="bnomics-options-small-intendation">
                         <input onchange="add_asterisk('currencies')" type="checkbox" name="blockonomics_bch" value="1"<?php checked("1", get_option('blockonomics_bch')); ?>" />
                         Bitcoin Cash (BCH)
@@ -473,13 +468,11 @@ function blockonomics_woocommerce_init()
                                 <?php endif; ?>   
                             <?php endif; ?>
                         </table>
-
                         <div class="bnomics-options-small-margin-top">
                         <input type="submit" class="button-primary bnomics-options-button bnomics-options-small-intendation" value="Test Setup" />
                             <input type="hidden" name="page_options" value="blockonomics_bch, blockonomics_btc, blockonomics_redirect" />
                             <input type="hidden" name="action" value="update" />
                         </form>
-
                         </div>
                         <?php
                         break;
