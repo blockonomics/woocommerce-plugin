@@ -307,6 +307,7 @@ function blockonomics_woocommerce_init()
                 <?php wp_nonce_field('update-options');
                 switch ( $active_tab ){
                 case 'settings' :?>
+                <div class="bnomics-width">
                     <h4>API Key</h4>
                     <input class="bnomics-options-input" onchange="value_changed()" size="130" type="text" id="blockonomics_api_key" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" />
                     <p class='bnomics-options-no-margin'>To get your API Key, click <b> Get Started for Free </b> on
@@ -368,10 +369,11 @@ function blockonomics_woocommerce_init()
                         <input type="hidden" name="generateSecret" value="true">
                     </p>
                 </form>
+                </div>
                     <?php
                     break;
                 case 'currencies' :?>
-                    <table width="100%" cellspacing="0" cellpadding="0" class="form-table bnomics-options-intendation-heading">
+                    <table width="100%" cellspacing="0" cellpadding="0" class="form-table bnomics-options-intendation-heading bnomics-width">
                     <h2 class="bnomics-options-small-intendation">
                         <input onchange="add_asterisk('currencies')" type="checkbox" name="blockonomics_btc" value="1"<?php checked("1", get_option('blockonomics_btc', true)); ?>" />
                         Bitcoin (BTC)
