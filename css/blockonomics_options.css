@@ -38,8 +38,8 @@ h4 {
     margin-top: 0px !important;
 }
 
-.form-table {
-    width: 50vh !important;
+.bnomics-width {
+    max-width: 550px !important;
 }
 
 .form-table th {
