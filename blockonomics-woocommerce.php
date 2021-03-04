@@ -371,7 +371,7 @@ function blockonomics_woocommerce_init()
                         $btc_enabled = get_option("blockonomics_btc");
                         if ($btc_enabled):  ?>
                         <input type="hidden" name="blockonomics_test_setup_run" id="blockonomics_test_setup_run" value="false">
-                        <th scope="row"><b>Destination</b></th>
+                        <th class="blockonomics-narrow-th" scope="row"><b>Destination</b></th>
                                 <td colspan="2" class="bnomics-options-no-padding">
                                     <?php
                                     $total_received = get_option('blockonomics_temp_withdraw_amount') / 1.0e8;
@@ -425,7 +425,7 @@ function blockonomics_woocommerce_init()
                         <?php 
                         $bch_enabled = get_option("blockonomics_bch");
                         if ($bch_enabled):  ?>
-                        <th scope="row"><b>Destination</b></th>
+                        <th class="blockonomics-narrow-th" scope="row"><b>Destination</b></th>
                                 <td colspan="2" class="bnomics-options-no-padding">
                                     <?php
                                         $api_key = get_option("blockonomics_api_key");
