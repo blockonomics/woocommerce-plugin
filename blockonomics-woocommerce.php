@@ -309,9 +309,9 @@ function blockonomics_woocommerce_init()
                 case 'settings' :?>
                     <h4>API Key</h4>
                     <input class="bnomics-options-input" onchange="value_changed()" size="130" type="text" id="blockonomics_api_key" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" />
-                    <label><br/>To get your API Key, click <b> Get Started for Free </b> on
+                    <p class='bnomics-options-no-margin'>To get your API Key, click <b> Get Started for Free </b> on
                         <a href="https://blockonomics.co.merchants">https://blockonomics.co.merchants</a>
-                    </label>
+                    </p>
                     <h4>Callback URL
                         <a href="javascript:gen_secret()" id="generate-callback" class="bnomics-options-callback-icon" title="Generate New Callback URL">&#xf463;</a>
                     </h4>
