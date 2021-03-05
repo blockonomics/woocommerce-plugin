@@ -174,13 +174,15 @@ function blockonomics_woocommerce_init()
         if (isset($_GET['tab']) && $_GET['tab'] == "currencies" && isset($_GET['settings-updated']) ? $_GET['settings-updated'] : '' == 'true')
         {
             $setup_errors = $blockonomics->testSetup();
-            set_transient('setup_test_finished', true, 1);
-            if(isset($setup_errors['bch'])){
-                set_transient('setup_error_bch', $setup_errors['bch'], 1);
-            }
-            if(isset($setup_errors['btc'])){
-                set_transient('setup_error_btc', $setup_errors['btc'], 1);
-            }else {
+            $btc_error = isset($setup_errors['btc']) ? $setup_errors['btc'] : 'false';
+            $bch_error = isset($setup_errors['bch']) ? $setup_errors['bch'] : 'false';
+            wp_redirect( home_url('/wp-admin/options-general.php?page=blockonomics_options&tab=currencies&btc_error='.$btc_error .'&bch_error='.$bch_error) ); 
+            exit;
+        }
+        if (isset($_GET['btc_error']))
+        {
+            $btc_error = $_GET['btc_error'];
+            if(!$btc_error){
                 $message = $blockonomics->make_withdraw();
                 if ($message) {
                     display_admin_message($message[0], $message[1]);
@@ -255,13 +257,17 @@ function blockonomics_woocommerce_init()
                 }
             }
             function validateBlockonomicsForm() {
-                newApiKey = document.getElementById("blockonomics_api_key").value;
-                apiKeyChanged = newApiKey != "<?php echo get_option("blockonomics_api_key")?>";
-                if (apiKeyChanged && newApiKey.length != 43) {
-                    alert("ERROR: Invalid APIKey");
-                    return false
+                if(!document.getElementById("blockonomics_api_key")){
+                    return true;
+                } else {
+                    newApiKey = document.getElementById("blockonomics_api_key").value;
+                    apiKeyChanged = newApiKey != "<?php echo get_option("blockonomics_api_key")?>";
+                    if (apiKeyChanged && newApiKey.length != 43) {
+                        alert("ERROR: Invalid APIKey");
+                        return false
+                    }
+                    return true;
                 }
-                return true;
             }
             function show_advanced() {
                 document.getElementById("advanced_title").style.display = 'none';
@@ -369,7 +375,6 @@ function blockonomics_woocommerce_init()
                         <?php 
                         $btc_enabled = get_option("blockonomics_btc");
                         if ($btc_enabled):  ?>
-                        <input type="hidden" name="blockonomics_test_setup_run" id="blockonomics_test_setup_run" value="false">
                         <th class="blockonomics-narrow-th" scope="row"><b>Destination</b></th>
                                 <td colspan="2" class="bnomics-options-no-padding">
                                     <?php
@@ -396,10 +401,9 @@ function blockonomics_woocommerce_init()
                             </tr>
                             <?php endif; ?>
                             <?php 
-                                $error = get_transient("setup_error_btc");
-                                $test_finished = get_transient("setup_test_finished");
-                                if ($test_finished && get_option('blockonomics_btc') == '1'):  ?>
-                                <?php if ($error):?>
+                                if (get_option('blockonomics_btc') == '1' && isset($_GET['btc_error'])):
+                                    $error = $_GET['btc_error'];
+                                    if ($error):?>
                                     <td colspan='2' class="bnomics-options-no-padding">
                                         <p class='notice notice-error'>
                                             <?php echo $error.'.' ?> 
@@ -420,7 +424,7 @@ function blockonomics_woocommerce_init()
                     <label class="bnomics-options-medium-intendation">To configure, click <b> Get Started for Free </b> on
                         <a href="https://bch.blockonomics.co/merchants">https://bch.blockonomics.co/merchants</a>
                     </label>
-                        <table class="form-table bnomics-options-intendation-heading">
+                        <table class="form-table bnomics-options-intendation-heading bnomics-width">
                         <?php 
                         $bch_enabled = get_option("blockonomics_bch");
                         if ($bch_enabled):  ?>
@@ -438,10 +442,9 @@ function blockonomics_woocommerce_init()
                             </tr>
                             <?php endif; ?>
                             <?php 
-                                $error = get_transient("setup_error_bch");
-                                $test_finished = get_transient("setup_test_finished");
-                                if ($test_finished && $bch_enabled == '1'):  ?>
-                                <?php if ($error):?>
+                                if ($bch_enabled == '1' && isset($_GET['bch_error'])):
+                                    $error = $_GET['bch_error'];
+                                    if ($error):?>
                                     <td colspan='2' class="bnomics-options-no-padding">
                                         <p class='notice notice-error'>
                                             <?php echo $error.'.' ?> 
