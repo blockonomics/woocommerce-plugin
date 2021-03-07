@@ -171,24 +171,6 @@ function blockonomics_woocommerce_init()
                 exit;
             }
         }
-        if (isset($_GET['tab']) && $_GET['tab'] == "currencies" && isset($_GET['settings-updated']) ? $_GET['settings-updated'] : '' == 'true')
-        {
-            $setup_errors = $blockonomics->testSetup();
-            $btc_error = isset($setup_errors['btc']) ? $setup_errors['btc'] : 'false';
-            $bch_error = isset($setup_errors['bch']) ? $setup_errors['bch'] : 'false';
-            wp_redirect( home_url('/wp-admin/options-general.php?page=blockonomics_options&tab=currencies&btc_error='.$btc_error .'&bch_error='.$bch_error) ); 
-            exit;
-        }
-        if (isset($_GET['btc_error']))
-        {
-            $btc_error = $_GET['btc_error'];
-            if(!$btc_error){
-                $message = $blockonomics->make_withdraw();
-                if ($message) {
-                    display_admin_message($message[0], $message[1]);
-                }
-            }
-        }
     }
 
     function display_admin_message($msg, $type)
@@ -215,6 +197,22 @@ function blockonomics_woocommerce_init()
 
     function show_options()
     {
+        if (isset($_GET['tab']) && $_GET['tab'] == "currencies" && isset($_GET['settings-updated']) ? $_GET['settings-updated'] : '' == 'true')
+        {
+            $blockonomics = new Blockonomics;
+            $setup_errors = $blockonomics->testSetup();
+            $btc_error = isset($setup_errors['btc']) ? $setup_errors['btc'] : 'false';
+            $bch_error = isset($setup_errors['bch']) ? $setup_errors['bch'] : 'false';
+        }
+        if (isset($btc_error))
+        {
+            if(!$btc_error){
+                $message = $blockonomics->make_withdraw();
+                if ($message) {
+                    display_admin_message($message[0], $message[1]);
+                }
+            }
+        }
         ?>
         <script type="text/javascript">
             function gen_secret() {
@@ -401,12 +399,11 @@ function blockonomics_woocommerce_init()
                             </tr>
                             <?php endif; ?>
                             <?php 
-                                if (get_option('blockonomics_btc') == '1' && isset($_GET['btc_error'])):
-                                    $error = $_GET['btc_error'];
-                                    if ($error):?>
+                                if (get_option('blockonomics_btc') == '1' && isset($btc_error)):
+                                    if ($btc_error):?>
                                     <td colspan='2' class="bnomics-options-no-padding">
                                         <p class='notice notice-error'>
-                                            <?php echo $error.'.' ?> 
+                                            <?php echo $btc_error.'.' ?> 
                                             <br/>Please consult <a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank">this troubleshooting article</a>.
                                         </p>
                                     </td>
@@ -442,12 +439,11 @@ function blockonomics_woocommerce_init()
                             </tr>
                             <?php endif; ?>
                             <?php 
-                                if ($bch_enabled == '1' && isset($_GET['bch_error'])):
-                                    $error = $_GET['bch_error'];
-                                    if ($error):?>
+                                if ($bch_enabled == '1' && isset($bch_error)):
+                                    if ($bch_error):?>
                                     <td colspan='2' class="bnomics-options-no-padding">
                                         <p class='notice notice-error'>
-                                            <?php echo $error.'.' ?> 
+                                            <?php echo $bch_error.'.' ?> 
                                             <br/>Please consult <a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank">this troubleshooting article</a>.
                                         </p>
                                     </td>
