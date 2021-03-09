@@ -348,7 +348,7 @@ function blockonomics_woocommerce_init()
                         </table>
                     </div>
                     <p class="submit">
-                        <input type="submit" class="button-primary bnomics-options-button" value="Save"/>
+                        <input type="submit" class="button-primary" value="Save"/>
                         <input type="hidden" name="action" value="update" />
                         <input type="hidden" name="page_options" value="blockonomics_redirect, blockonomics_api_key,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated,blockonomics_underpayment_slack,blockonomics_lite,blockonomics_nojs,blockonomics_network_confirmation" />
                     </p>
@@ -455,7 +455,7 @@ function blockonomics_woocommerce_init()
                             <?php endif; ?>
                         </table>
                         <div class="bnomics-options-small-margin-top">
-                        <input type="submit" class="button-primary bnomics-options-button bnomics-options-small-intendation" value="Test Setup" />
+                        <input type="submit" class="button-primary bnomics-options-small-intendation" value="Test Setup" />
                             <input type="hidden" name="page_options" value="blockonomics_bch, blockonomics_btc, blockonomics_redirect" />
                             <input type="hidden" name="action" value="update" />
                         </form>
