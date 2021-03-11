@@ -364,8 +364,7 @@ function blockonomics_woocommerce_init()
                                     $temp_api_key = get_option("blockonomics_temp_api_key");
                                     if ($temp_api_key && !$api_key && !($total_received > 0)): ?>
                                         <label class="bnomics-default-cursor"><b>Blockonomics Wallet (Balance: 0 BTC)</b>
-                                        We are using a temporary wallet on Blockonomics to receive your payments.
-                                        To receive payments directly to your wallet (recommended) -> Follow Wizard by clicking on <i>Get Started for Free</i> on <a href="https://www.blockonomics.co/merchants" target="_blank">Merchants</a> and enter the APIKey below [<a href="https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62">Blog Instructions</a>]</label>
+                                        <label class="bnomics-default-cursor"> To withdraw, follow wizard by clicking on <i>Get Started for Free</i> on <a href="https://www.blockonomics.co/merchants" target="_blank">Merchants</a>, then enter the APIKey below [<a href="https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62">Blog Instructions</a>]</label>
                                     <?php elseif ($temp_api_key && $total_received > 0): ?>
                                         <label class="bnomics-default-cursor"><b>Blockonomics Wallet (Balance: <?php echo "$total_received"; ?> BTC)</b></label>
                                     <?php if (!$api_key): ?>
