@@ -147,10 +147,10 @@ function blockonomics_woocommerce_init()
         {
             update_option('blockonomics_redirect', 'no');
             if(isset($_GET['tab']) && $_GET['tab'] == "currencies"){
-                wp_redirect( home_url('/wp-admin/options-general.php?page=blockonomics_options&tab=settings') ); 
+                wp_redirect( admin_url('/options-general.php?page=blockonomics_options&tab=settings') ); 
                 exit;
             }else {
-                wp_redirect( home_url('/wp-admin/options-general.php?page=blockonomics_options&tab=currencies') ); 
+                wp_redirect( admin_url('/options-general.php?page=blockonomics_options&tab=currencies') ); 
                 exit;
             }
         }
