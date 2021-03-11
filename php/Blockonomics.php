@@ -277,7 +277,7 @@ class Blockonomics
             update_option("blockonomics_temp_api_key", null);
             update_option('blockonomics_temp_withdraw_amount', 0);
             $message = __('Your funds withdraw request has been submitted. Please check your Blockonomics registered emailid for details', 'blockonomics-bitcoin-payments');
-            return [$message, 'updated'];
+            return [$message, 'success'];
         }
         update_option("blockonomics_temp_api_key", null);
         return null;
