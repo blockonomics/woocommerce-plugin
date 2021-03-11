@@ -548,7 +548,7 @@ function blockonomics_activation_hook() {
         trigger_error(__( 'Wordpress Bitcoin Payments - Blockonomics requires WooCommerce plugin to be installed and active.', 'blockonomics-bitcoin-payments' ).'<br>', E_USER_ERROR);
     }
 
-    set_transient( 'blockonomics_activation_hook_transient', true, 5);
+    set_transient( 'blockonomics_activation_hook_transient', true, 3);
 }
 
 // Since WP 3.1 the activation function registered with register_activation_hook() is not called when a plugin is updated.
@@ -586,7 +586,7 @@ function blockonomics_plugin_activation() {
 
     $html = '<div class="updated">';
     $html .= '<p>';
-    $html .= __( 'Congrats, you are now accepting BTC payments! You can configure Blockonomics <a href="page=options-general.php?blockonomics_options">on this page</a>.', 'blockonomics-bitcoin-payments' );
+    $html .= __( 'Congrats, you are now accepting BTC payments! You can configure Blockonomics <a href="options-general.php?page=blockonomics_options">on this page</a>.', 'blockonomics-bitcoin-payments' );
     $html .= '</p>';
     $html .= '</div>';
 
