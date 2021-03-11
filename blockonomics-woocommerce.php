@@ -272,11 +272,13 @@ function blockonomics_woocommerce_init()
             <h1>Blockonomics</h1>
             <?php 
                 if (isset($withdraw_requested)):?>
-                    <td colspan='2' class="bnomics-options-no-padding">
+                <div class="bnomics-width-withdraw">
+                    <td colspan='2' class="bnomics-options-no-padding bnomics-width">
                         <p class='notice notice-<?php echo $withdraw_requested[1]?>'>
                             <?php echo $withdraw_requested[0].'.' ?> 
                         </p>
                     </td>
+                </div>
             <?php endif; ?>
             <?php
             if( isset( $_GET[ 'tab' ] ) ) {

@@ -42,6 +42,11 @@ h4 {
     max-width: 550px !important;
 }
 
+.bnomics-width-withdraw {
+    max-width: 680px !important;
+}
+
+
 .form-table th {
     padding: 5px 10px 5px 0;
 }
