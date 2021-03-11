@@ -372,7 +372,7 @@ function blockonomics_woocommerce_init()
                         </label>
                         <?php 
                         $btc_enabled = get_option("blockonomics_btc");
-                        if ($btc_enabled):  ?>
+                        if ($btc_enabled || get_option("blockonomics_btc") === false):  ?>
                         <th class="blockonomics-narrow-th" scope="row"><b>Destination</b></th>
                                 <td colspan="2" class="bnomics-options-no-padding">
                                     <?php
