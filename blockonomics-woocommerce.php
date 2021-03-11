@@ -203,16 +203,8 @@ function blockonomics_woocommerce_init()
             $setup_errors = $blockonomics->testSetup();
             $btc_error = isset($setup_errors['btc']) ? $setup_errors['btc'] : 'false';
             $bch_error = isset($setup_errors['bch']) ? $setup_errors['bch'] : 'false';
-        }
-        if (isset($btc_error))
-        {
-            if(!$btc_error){
-                $message = $blockonomics->make_withdraw();
-                if ($message) {
-                    display_admin_message($message[0], $message[1]);
-                }
-            }
-        }
+            $withdraw_requested = $blockonomics->make_withdraw();  
+        } 
         ?>
         <script type="text/javascript">
             function gen_secret() {
@@ -278,6 +270,14 @@ function blockonomics_woocommerce_init()
         </script>
         <div class="wrap">
             <h1>Blockonomics</h1>
+            <?php 
+                if (isset($withdraw_requested)):?>
+                    <td colspan='2' class="bnomics-options-no-padding">
+                        <p class='notice notice-<?php echo $withdraw_requested[1]?>'>
+                            <?php echo $withdraw_requested[0].'.' ?> 
+                        </p>
+                    </td>
+            <?php endif; ?>
             <?php
             if( isset( $_GET[ 'tab' ] ) ) {
                 $active_tab = $_GET[ 'tab' ];
@@ -387,7 +387,7 @@ function blockonomics_woocommerce_init()
                                     <?php if (!$api_key): ?>
                                         <label class="bnomics-default-cursor"> To withdraw, follow wizard by clicking on <i>Get Started for Free</i> on <a href="https://www.blockonomics.co/merchants" target="_blank">Merchants</a>, then enter the APIKey below [<a href="https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62">Blog Instructions</a>]</label>
                                     <?php else: ?>
-                                        <label class="bnomics-default-cursor"> To withdraw, Click on <b>Test Setup</b></label>
+                                        <label class="bnomics-default-cursor"> To withdraw, Click on <b>Test Setup</b>.</label>
                                     <?php endif; ?>
                                     <?php elseif ($api_key): ?>
                                         <label class="bnomics-default-cursor"><b>Direct To Wallet: </b>Payments will go direct to your wallet.</label>
