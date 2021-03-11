@@ -19,9 +19,18 @@ class Blockonomics
     const BCH_SET_CALLBACK_URL = 'https://bch.blockonomics.co/api/update_callback';
     const BCH_GET_CALLBACKS_URL = 'https://bch.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
 
+
     public function __construct()
     {
         $this->api_key = $this->get_api_key();
+        //array_key_first was introduced in PHP 7.3. This is to keep backwards compability
+        if (!function_exists('array_key_first')) {
+            function array_key_first(array $array) {
+                foreach ($array as $key => $value) { 
+                    return $key; 
+                }
+            }
+        }
     }
 
     public function get_api_key()
@@ -374,9 +383,7 @@ class Blockonomics
         }
         return $order_url;
     }
-
-
-
+    
     // Check if a template is a nojs template
     public function is_nojs_template($template_name){
         if (strpos($template_name, 'nojs') === 0) {
