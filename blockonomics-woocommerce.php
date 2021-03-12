@@ -272,8 +272,8 @@ function blockonomics_woocommerce_init()
             ?>
             <form method="post" name="myform" id="myform" onsubmit="return validateBlockonomicsForm()" action="options.php">
                 <h2 class="nav-tab-wrapper">
-                    <a onclick="check_form('settings')" id='settings_nav_bar'  class="nav-tab <?php echo $active_tab == 'settings' ? 'nav-tab-active' : ''; ?>">Settings</a>
-                    <a onclick="check_form('currencies')" id='currencies_nav_bar' class="nav-tab <?php echo $active_tab == 'currencies' ? 'nav-tab-active' : ''; ?>">Currencies</a>
+                    <a onclick="check_form('settings')" id='settings_nav_bar'  class="nav-tab <?php echo __($active_tab == 'settings' ? 'nav-tab-active' : '', 'blockonomics-bitcoin-payments') ; ?>">Settings</a>
+                    <a onclick="check_form('currencies')" id='currencies_nav_bar' class="nav-tab <?php echo __($active_tab == 'currencies' ? 'nav-tab-active' : '', 'blockonomics-bitcoin-payments'); ?>">Currencies</a>
                 </h2>
                 <input type="hidden" name="blockonomics_form_updated" id="blockonomics_form_updated" value="false">
                 <input type="hidden" name="blockonomics_api_updated" id="blockonomics_api_updated" value="false">
@@ -365,7 +365,7 @@ function blockonomics_woocommerce_init()
                                         <th class="blockonomics-narrow-th" scope="row"><b>Temporary Destination</b></th>
                                         <td colspan="2" class="bnomics-options-no-padding">
                                         <label><b>Blockonomics Wallet (Balance: <?php echo "$total_received"; ?> BTC)</b></label>
- <label>Our temporary wallet receives your payments until your configure your own wallet. Withdraw to your wallet is triggered automatically when configuration is done</label>
+                                        <label>Our temporary wallet receives your payments until your configure your own wallet. Withdraw to your wallet is triggered automatically when configuration is done</label>
                                 </td>
                             </tr>
                             <?php endif; ?>
