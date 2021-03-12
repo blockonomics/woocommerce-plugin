@@ -258,7 +258,7 @@ class Blockonomics
         $blockonomics_currencies = $this->getSupportedCurrencies();
         foreach ($blockonomics_currencies as $code => $currency) {
             $enabled = get_option('blockonomics_'.$code);
-            if($enabled){
+            if($enabled || ($code === 'btc' && $enabled === false   )){
                 $active_currencies[$code] = $currency;
             }
         }
