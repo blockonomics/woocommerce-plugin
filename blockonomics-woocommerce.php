@@ -374,30 +374,18 @@ function blockonomics_woocommerce_init()
                         </label>
                         <?php 
                         $btc_enabled = get_option("blockonomics_btc");
-                        if ($btc_enabled || get_option("blockonomics_btc") === false):  ?>
-                        <th class="blockonomics-narrow-th" scope="row"><b>Destination</b></th>
-                                <td colspan="2" class="bnomics-options-no-padding">
-                                    <?php
+                        if ($btc_enabled || get_option("blockonomics_btc") === false):  
                                     $total_received = get_option('blockonomics_temp_withdraw_amount') / 1.0e8;
                                     $api_key = get_option("blockonomics_api_key");
                                     $temp_api_key = get_option("blockonomics_temp_api_key");
-                                    if ($temp_api_key && !$api_key && !($total_received > 0)): ?>
-                                        <label class="bnomics-default-cursor"><b>Blockonomics Wallet (Balance: 0 BTC)</b>
-                                        <label class="bnomics-default-cursor"> To withdraw, follow wizard by clicking on <i>Get Started for Free</i> on <a href="https://www.blockonomics.co/merchants" target="_blank">Merchants</a>, then enter the APIKey below [<a href="https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62">Blog Instructions</a>]</label>
-                                    <?php elseif ($temp_api_key && $total_received > 0): ?>
-                                        <label class="bnomics-default-cursor"><b>Blockonomics Wallet (Balance: <?php echo "$total_received"; ?> BTC)</b></label>
-                                    <?php if (!$api_key): ?>
-                                        <label class="bnomics-default-cursor"> To withdraw, follow wizard by clicking on <i>Get Started for Free</i> on <a href="https://www.blockonomics.co/merchants" target="_blank">Merchants</a>, then enter the APIKey below [<a href="https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62">Blog Instructions</a>]</label>
-                                    <?php else: ?>
-                                        <label class="bnomics-default-cursor"> To withdraw, Click on <b>Test Setup</b>.</label>
-                                    <?php endif; ?>
-                                    <?php elseif ($api_key): ?>
-                                        <label class="bnomics-default-cursor"><b>Direct To Wallet: </b>Payments will go direct to your wallet.</label>
-                                    <?php else: ?>
-                                        <label class="bnomics-default-cursor"><b>Error: No wallet set up</b></label>
-                                    <?php endif; ?>
+                                       if ($temp_api_key): ?>
+                                        <th class="blockonomics-narrow-th" scope="row"><b>Temporary Destination</b></th>
+                                        <td colspan="2" class="bnomics-options-no-padding">
+                                        <label><b>Blockonomics Wallet (Balance: <?php echo "$total_received"; ?> BTC)</b></label>
+ <label>Our temporary wallet receives your payments until your configure your own wallet. Withdraw to your wallet is triggered automatically when configuration is done</label>
                                 </td>
                             </tr>
+                            <?php endif; ?>
                             <?php endif; ?>
                             <?php 
                                 if (get_option('blockonomics_btc') == '1' && isset($btc_error)):
@@ -425,21 +413,6 @@ function blockonomics_woocommerce_init()
                         <table class="form-table bnomics-options-intendation-heading bnomics-width">
                         <?php 
                         $bch_enabled = get_option("blockonomics_bch");
-                        if ($bch_enabled):  ?>
-                        <th class="blockonomics-narrow-th" scope="row"><b>Destination</b></th>
-                                <td colspan="2" class="bnomics-options-no-padding">
-                                    <?php
-                                        $api_key = get_option("blockonomics_api_key");
-                                    if ($api_key): ?>
-                                        <label><b>Direct To Wallet:</b>
-                                        Payments will go direct to your wallet.</label>
-                                    <?php else: ?>
-                                        <b><b>ERROR:</b> No wallet set up</b>
-                                    <?php endif; ?>
-                                    </td>
-                            </tr>
-                            <?php endif; ?>
-                            <?php 
                                 if ($bch_enabled == '1' && isset($bch_error)):
                                     if ($bch_error):?>
                                     <td colspan='2' class="bnomics-options-no-padding">
