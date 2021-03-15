@@ -393,7 +393,7 @@ function blockonomics_woocommerce_init()
                                     <td colspan='2' class="bnomics-options-no-padding">
                                         <p class='notice notice-error'>
                                             <?php echo $btc_error.'.' ?> 
-                                            <br/><?php echo __("Please consult", 'blockonomics-bitcoin-payments')?><a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank"><?php echo __("this troubleshooting article", 'blockonomics-bitcoin-payments')?></a>.
+                                            <br/><?php echo __("Please consult ", 'blockonomics-bitcoin-payments')?><a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank"><?php echo __("this troubleshooting article", 'blockonomics-bitcoin-payments')?></a>.
                                         </p>
                                     </td>
                                 <?php else:?>
@@ -418,7 +418,7 @@ function blockonomics_woocommerce_init()
                                     <td colspan='2' class="bnomics-options-no-padding">
                                         <p class='notice notice-error'>
                                             <?php echo $bch_error.'.' ?> 
-                                            <br/><?php echo __("Please consult", 'blockonomics-bitcoin-payments')?><a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank"><?php echo __("this troubleshooting article", 'blockonomics-bitcoin-payments')?></a>.
+                                            <br/><?php echo __("Please consult ", 'blockonomics-bitcoin-payments')?><a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank"><?php echo __("this troubleshooting article", 'blockonomics-bitcoin-payments')?></a>.
                                         </p>
                                     </td>
                                 <?php else:?>
