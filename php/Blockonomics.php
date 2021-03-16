@@ -94,6 +94,7 @@ class Blockonomics
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     public function update_callback($callback_url, $crypto, $xpub)
     {
         if ($crypto == 'btc'){
@@ -102,6 +103,12 @@ class Blockonomics
     {
         if($crypto == 'btc'){
 >>>>>>> 7ddfc4d... fixed bch callbacks
+=======
+
+    public function update_callback($callback_url, $crypto, $xpub)
+    {
+        if ($crypto == 'btc'){
+>>>>>>> c72c631... reverted
             $url = Blockonomics::SET_CALLBACK_URL;
         }else{
             $url = Blockonomics::BCH_SET_CALLBACK_URL;
@@ -114,10 +121,14 @@ class Blockonomics
     public function get_callbacks($crypto)
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
         if ($crypto == 'btc'){
 =======
         if($crypto == 'btc'){
 >>>>>>> 7ddfc4d... fixed bch callbacks
+=======
+        if ($crypto == 'btc'){
+>>>>>>> c72c631... reverted
             $url = Blockonomics::GET_CALLBACKS_URL;
         }else{
             $url = Blockonomics::BCH_GET_CALLBACKS_URL;
@@ -250,7 +261,7 @@ class Blockonomics
         $blockonomics_currencies = $this->getSupportedCurrencies();
         foreach ($blockonomics_currencies as $code => $currency) {
             $enabled = get_option('blockonomics_'.$code);
-            if($enabled || ($code === 'btc' && $enabled === false   )){
+            if($enabled || ($code === 'btc' && $enabled === false )){
                 $active_currencies[$code] = $currency;
             }
         }

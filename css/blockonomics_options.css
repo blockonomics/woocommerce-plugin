@@ -2,10 +2,6 @@ h1{
     padding-bottom: 7px !important;
 }
 
-.nav-tab {
-    cursor: pointer !important;
-}
-
 h2 {
     margin-block-end: 4px !important;
 }
@@ -21,6 +17,10 @@ h4 {
     font-size: medium;
 }
 
+.nav-tab {
+    cursor: pointer !important;
+}
+
 label {
     cursor: auto;
 }
@@ -32,7 +32,6 @@ label {
 .wp-core-ui .notice.is-dismissible {
     display: none;
 }
-
 
 .blockonomics-narrow-th {
     width: 90px !important;
@@ -49,7 +48,6 @@ label {
 .bnomics-width-withdraw {
     max-width: 680px !important;
 }
-
 
 .form-table th {
     padding: 5px 10px 5px 0;
@@ -71,12 +69,9 @@ label {
     font-weight:bold;
 }
 
-
-.bnomics-options-intendation-heading {
-    margin-left:40px; 
-    padding: 0px 0px !important;
+.bnomics-options-intendation {
+    margin-left: 25px;
 }
-
 
 .bnomics-options-green-check-mark {
     font:1000 25px/1 dashicons; 
@@ -99,35 +94,17 @@ label {
     color:red
 }
 
-
-.bnomics-options-small-intendation {
-    margin-left:12px !important;
-}
-
-.bnomics-options-medium-intendation {
-    margin-left:40px;
-}
-
 .bnomics-options-small-margin-top {
     margin-top:10px;
 }
 
 /* Mobile */
 @media screen and (max-width: 500px) {
-    .bnomics-options-medium-intendation {
-        margin-left: 0px !important;
-    }
-  
-    .bnomics-options-small-intendation {
-        margin-left: 0px !important;
-    }
-
-    .bnomics-options-intendation-heading {
-        margin-left: 0px !important;
-    }
     .form-table {
         width: 100% !important;
     }
-
+    .bnomics-options-intendation {
+        margin-left: 12px;
+    }
   }
 
