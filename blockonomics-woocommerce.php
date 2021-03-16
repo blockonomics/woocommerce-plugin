@@ -300,7 +300,7 @@ function blockonomics_woocommerce_init()
                     <h4><?php echo __('API Key', 'blockonomics-bitcoin-payments')?></h4>
                     <input class="bnomics-options-input" onchange="value_changed()" size="130" type="text" id="blockonomics_api_key" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" />
                     <p class='bnomics-options-no-margin'><?php echo __('To get your API Key, click <b> Get Started for Free </b> on', 'blockonomics-bitcoin-payments')?>
-                        <a href="https://blockonomics.co.merchants"><?php echo __('https://blockonomics.co.merchants', 'blockonomics-bitcoin-payments')?></a>
+                        <a href="https://blockonomics.co/merchants" target="_blank"><?php echo __('https://blockonomics.co/merchants', 'blockonomics-bitcoin-payments')?></a>
                     </p>
                     <h4><?php echo __('Callback URL', 'blockonomics-bitcoin-payments')?>
                         <a href="javascript:gen_secret()" id="generate-callback" class="bnomics-options-callback-icon" title="Generate New Callback URL">&#xf463;</a>
@@ -368,7 +368,7 @@ function blockonomics_woocommerce_init()
                         <?php echo __('Bitcoin (BTC)', 'blockonomics-bitcoin-payments')?>
                     </h2>
                         <label class="bnomics-options-intendation"><?php echo __('To configure, click <b> Get Started for Free </b> on', 'blockonomics-bitcoin-payments')?>
-                            <a href="https://blockonomics.co/merchants"><?php echo __('https://blockonomics.co/merchants', 'blockonomics-bitcoin-payments')?></a>
+                            <a href="https://blockonomics.co/merchants" target="_blank"><?php echo __('https://blockonomics.co/merchants', 'blockonomics-bitcoin-payments')?></a>
                         </label>
                         <?php 
                         $btc_enabled = get_option("blockonomics_btc");
@@ -406,7 +406,7 @@ function blockonomics_woocommerce_init()
                         <?php echo __("Bitcoin Cash (BCH)", 'blockonomics-bitcoin-payments')?>
                     </h2>
                     <label class="bnomics-options-intendation"><?php echo __('To configure, click <b> Get Started for Free </b> on', 'blockonomics-bitcoin-payments')?>
-                        <a href="https://bch.blockonomics.co/merchants"><?php echo __('https://bch.blockonomics.co/merchants', 'blockonomics-bitcoin-payments')?></a>
+                        <a href="https://bch.blockonomics.co/merchants" target="_blank"><?php echo __('https://bch.blockonomics.co/merchants', 'blockonomics-bitcoin-payments')?></a>
                     </label>
                         <table class="form-table bnomics-options-intendation bnomics-width">
                         <?php 
