@@ -93,9 +93,10 @@ class Blockonomics
         return $responseObj;
     }
 
-    public function update_callback($callback_url, $xpub, $crypto)
+
+    public function update_callback($callback_url, $crypto, $xpub)
     {
-        if($crypto == 'btc'){
+        if ($crypto == 'btc'){
             $url = Blockonomics::SET_CALLBACK_URL;
         }else{
             $url = Blockonomics::BCH_SET_CALLBACK_URL;
@@ -107,7 +108,7 @@ class Blockonomics
 
     public function get_callbacks($crypto)
     {
-        if($crypto == 'btc'){
+        if ($crypto == 'btc'){
             $url = Blockonomics::GET_CALLBACKS_URL;
         }else{
             $url = Blockonomics::BCH_GET_CALLBACKS_URL;
@@ -240,7 +241,7 @@ class Blockonomics
         $blockonomics_currencies = $this->getSupportedCurrencies();
         foreach ($blockonomics_currencies as $code => $currency) {
             $enabled = get_option('blockonomics_'.$code);
-            if($enabled || ($code === 'btc' && $enabled === false   )){
+            if($enabled || ($code === 'btc' && $enabled === false )){
                 $active_currencies[$code] = $currency;
             }
         }
@@ -350,7 +351,7 @@ class Blockonomics
         // No errors
         return false;
     }
-
+    
     // Returns WC endpoint of order adding the given extra parameters
     public function get_parameterized_wc_url($params = array()){
         $order_url = WC()->api_request_url('WC_Gateway_Blockonomics');
