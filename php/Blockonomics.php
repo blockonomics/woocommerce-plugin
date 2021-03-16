@@ -19,7 +19,6 @@ class Blockonomics
     const BCH_SET_CALLBACK_URL = 'https://bch.blockonomics.co/api/update_callback';
     const BCH_GET_CALLBACKS_URL = 'https://bch.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
 
-
     public function __construct()
     {
         $this->api_key = $this->get_api_key();
@@ -93,22 +92,9 @@ class Blockonomics
         return $responseObj;
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     public function update_callback($callback_url, $crypto, $xpub)
     {
         if ($crypto == 'btc'){
-=======
-    public function update_callback($callback_url, $xpub, $crypto)
-    {
-        if($crypto == 'btc'){
->>>>>>> 7ddfc4d... fixed bch callbacks
-=======
-
-    public function update_callback($callback_url, $crypto, $xpub)
-    {
-        if ($crypto == 'btc'){
->>>>>>> c72c631... reverted
             $url = Blockonomics::SET_CALLBACK_URL;
         }else{
             $url = Blockonomics::BCH_SET_CALLBACK_URL;
@@ -120,15 +106,7 @@ class Blockonomics
 
     public function get_callbacks($crypto)
     {
-<<<<<<< HEAD
-<<<<<<< HEAD
         if ($crypto == 'btc'){
-=======
-        if($crypto == 'btc'){
->>>>>>> 7ddfc4d... fixed bch callbacks
-=======
-        if ($crypto == 'btc'){
->>>>>>> c72c631... reverted
             $url = Blockonomics::GET_CALLBACKS_URL;
         }else{
             $url = Blockonomics::BCH_GET_CALLBACKS_URL;
