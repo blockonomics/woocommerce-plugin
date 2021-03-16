@@ -56,38 +56,18 @@ function blockonomics_woocommerce_init()
     add_action('woocommerce_order_details_after_order_table', 'nolo_custom_field_display_cust_order_meta', 10, 1);
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
     add_action('admin_enqueue_scripts', 'blockonomics_load_admin_scripts' );
-    add_action( 'restrict_manage_posts', 'filter_orders' , 20 );
-    add_filter( 'request', 'filter_orders_by_address_or_txid' );	
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_filter('clean_url', 'bnomics_async_scripts', 11, 1 );
 
 
     /**
-    * Add Styles to Blockonomics Admin Page
-    **/
+     * Add Styles to Blockonomics Admin Page
+     **/
     function blockonomics_load_admin_scripts($hook){ 
         if ( $hook === 'settings_page_blockonomics_options') {        
             wp_enqueue_style('bnomics-admin-style', plugin_dir_url(__FILE__) . "css/blockonomics_options.css", '', get_plugin_data( __FILE__ )['Version']);
         }
     }
-    /**
-     * Adding new filter to WooCommerce orders
-     **/
-    function filter_orders() {
-		global $typenow;
-		if ( 'shop_order' === $typenow ) {
-			?>
-			<input size='26' value="<?php if(isset( $_GET['filter_by'] )) echo($_GET['filter_by']); ?>" type='name' placeholder='Filter by crypto address/txid' name='filter_by'>
-			<?php
-		}
-	}
-	function filter_orders_by_address_or_txid( $vars ) {
-		global $typenow;
-		if ( 'shop_order' === $typenow && isset( $_GET['filter_by'] ) && ! empty( $_GET['filter_by'])){
-			$vars['meta_value'] = wc_clean( $_GET['filter_by'] );
-		}
-		return $vars;
-	}
     /**
      * Add this Gateway to WooCommerce
      **/
@@ -123,7 +103,6 @@ function blockonomics_woocommerce_init()
         }
     }
 
-
     // Add entry in the settings menu
     function add_page()
     {
@@ -134,8 +113,7 @@ function blockonomics_woocommerce_init()
             generate_secret(true);
         }
 
-        $api_key = $blockonomics->get_api_key();
-        
+        $api_key = $blockonomics->get_api_key();        
         // get_api_key() will return api key or temp api key
         // if both are null, generate new blockonomics guest account with temporary wallet
         // temp wallet will be used with temp api key
@@ -144,7 +122,6 @@ function blockonomics_woocommerce_init()
             generate_secret();
             $callback_url = get_callback_url();
             $response = $blockonomics->get_temp_api_key($callback_url);
-
             if ($response->response_code != 200)
             {
                 $message = __('Error while generating temporary APIKey: '. isset($response->message) ? $response->message : '', 'blockonomics-bitcoin-payments');
@@ -160,7 +137,7 @@ function blockonomics_woocommerce_init()
             'Blockonomics', 'Blockonomics', 'manage_options',
             'blockonomics_options', 'show_options'
         );
-
+        
         if (get_option('blockonomics_redirect') == "yes")
         {
             update_option('blockonomics_redirect', 'no');
@@ -440,7 +417,14 @@ function blockonomics_woocommerce_init()
                 }
             ?>
         </div>
+<<<<<<< HEAD
 
+=======
+<<<<<<< HEAD
+=======
+
+>>>>>>> 1148081447ab282c7e7be79b38cbe112004897e7
+>>>>>>> e9adfc4fe192ede51b0b15da9283fdc6816b8ba0
     <?php
     }
     function bnomics_display_tx_info($order, $email=false)
@@ -540,7 +524,7 @@ function blockonomics_activation_hook() {
         trigger_error(__( 'Wordpress Bitcoin Payments - Blockonomics requires WooCommerce plugin to be installed and active.', 'blockonomics-bitcoin-payments' ).'<br>', E_USER_ERROR);
     }
 
-    set_transient( 'blockonomics_activation_hook_transient', true, 5);
+    set_transient( 'blockonomics_activation_hook_transient', true, 3);
 }
 
 // Since WP 3.1 the activation function registered with register_activation_hook() is not called when a plugin is updated.
@@ -560,6 +544,7 @@ function blockonomics_update_db_check() {
 
         update_option( 'blockonomics_db_version', $blockonomics_db_version );
     }
+    
 }
 add_action( 'plugins_loaded', 'blockonomics_update_db_check' );
 
@@ -592,6 +577,7 @@ register_uninstall_hook( __FILE__, 'blockonomics_uninstall_hook' );
 function blockonomics_uninstall_hook() {
     delete_option('blockonomics_callback_secret');
     delete_option('blockonomics_api_key');
+    delete_option('blockonomics_redirect');
     delete_option('blockonomics_temp_api_key');
     delete_option('blockonomics_temp_withdraw_amount');
     delete_option('blockonomics_margin');
