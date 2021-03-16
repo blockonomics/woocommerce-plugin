@@ -56,11 +56,33 @@ function blockonomics_woocommerce_init()
     add_action('woocommerce_order_details_after_order_table', 'nolo_custom_field_display_cust_order_meta', 10, 1);
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
     add_action('admin_enqueue_scripts', 'blockonomics_load_admin_scripts' );
+    add_action('admin_enqueue_scripts', 'admin_session_init');
     add_action('restrict_manage_posts', 'filter_orders' , 20 );
     add_filter('request', 'filter_orders_by_address_or_txid' );	
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_filter('clean_url', 'bnomics_async_scripts', 11, 1 );
+    add_action('shutdown', 'destroy_session');
+    add_action('admin_post_redirect', 'prefix_admin_add_foobar' );
 
+    function prefix_admin_add_foobar() {
+        if(isset($_GET['tab']) && $_GET['tab'] == "currencies"){
+            wp_redirect(admin_url('/options-general.php?page=blockonomics_options&tab=settings') ); 
+            exit;
+        }else {
+            wp_redirect(admin_url('/options-general.php?page=blockonomics_options&tab=currencies') ); 
+            exit;
+        }
+    }
+
+    function admin_session_init() {
+        if (!session_id()) {
+            session_start();
+        }
+    }
+
+    function destroy_session() {
+        session_destroy();
+    }
 
     /**
      * Add Styles to Blockonomics Admin Page
@@ -157,18 +179,6 @@ function blockonomics_woocommerce_init()
             'Blockonomics', 'Blockonomics', 'manage_options',
             'blockonomics_options', 'show_options'
         );
-        
-        if (get_option('blockonomics_redirect') == "yes")
-        {
-            update_option('blockonomics_redirect', 'no');
-            if(isset($_GET['tab']) && $_GET['tab'] == "currencies"){
-                wp_redirect( admin_url('/options-general.php?page=blockonomics_options&tab=settings') ); 
-                exit;
-            }else {
-                wp_redirect( admin_url('/options-general.php?page=blockonomics_options&tab=currencies') ); 
-                exit;
-            }
-        }
     }
 
     function display_admin_message($msg, $type)
@@ -201,8 +211,24 @@ function blockonomics_woocommerce_init()
             $setup_errors = $blockonomics->testSetup();
             $btc_error = isset($setup_errors['btc']) ? $setup_errors['btc'] : 'false';
             $bch_error = isset($setup_errors['bch']) ? $setup_errors['bch'] : 'false';
-            $withdraw_requested = $blockonomics->make_withdraw();  
-        } 
+            $withdraw_requested = $blockonomics->make_withdraw();
+        }
+        if (isset($_GET['settings-updated']) ? $_GET['settings-updated'] : '' == 'true'){
+            ?><script type="text/javascript">
+            let redirect = sessionStorage.getItem("redirect");
+            if(redirect == 'true'){
+                sessionStorage.clear();
+                const urlParams = new URLSearchParams(window.location.href);
+                const currentTab = urlParams.get('tab') ?? 'settings';
+                if (currentTab === 'settings'){
+                    window.location.href = "options-general.php?page=blockonomics_options&tab=currencies";
+                } else {
+                    window.location.href = "options-general.php?page=blockonomics_options&tab=settings";
+                }
+            }
+            </script><?php
+        }
+
         ?>
         <script type="text/javascript">
             function gen_secret() {
@@ -217,11 +243,11 @@ function blockonomics_woocommerce_init()
                 if (document.getElementById('blockonomics_form_updated').value == 'true' || document.getElementById('blockonomics_api_updated').value == 'true'){
                     if (currentTab === 'settings'){
                         if(validateBlockonomicsForm()){
-                            document.getElementById('blockonomics_redirect').value = 'yes';
+                            sessionStorage.setItem("redirect", true);
                             document.myform.submit();
                         }
                     } else {
-                        document.getElementById('blockonomics_redirect').value = 'yes';
+                        sessionStorage.setItem("redirect", true);
                         document.myform.submit();
                     }
                 } else {
@@ -292,7 +318,6 @@ function blockonomics_woocommerce_init()
                 </h2>
                 <input type="hidden" name="blockonomics_form_updated" id="blockonomics_form_updated" value="false">
                 <input type="hidden" name="blockonomics_api_updated" id="blockonomics_api_updated" value="false">
-                <input type="hidden" name="blockonomics_redirect" id="blockonomics_redirect" value="false">
                 <?php wp_nonce_field('update-options');
                 switch ( $active_tab ){
                 case 'settings' :?>
@@ -350,7 +375,7 @@ function blockonomics_woocommerce_init()
                     <p class="submit">
                         <input type="submit" class="button-primary" value="<?php echo __("Save", 'blockonomics-bitcoin-payments')?>"/>
                         <input type="hidden" name="action" value="update" />
-                        <input type="hidden" name="page_options" value="blockonomics_redirect, blockonomics_api_key,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated,blockonomics_underpayment_slack,blockonomics_lite,blockonomics_nojs,blockonomics_network_confirmation" />
+                        <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated,blockonomics_underpayment_slack,blockonomics_lite,blockonomics_nojs,blockonomics_network_confirmation" />
                     </p>
                 </form>
                 <form method="POST" name="generateSecretForm">
@@ -428,7 +453,7 @@ function blockonomics_woocommerce_init()
                         </table>
                         <div class="bnomics-options-small-margin-top">
                         <input type="submit" class="button-primary" value="<?php echo __("Test Setup", 'blockonomics-bitcoin-payments')?>" />
-                            <input type="hidden" name="page_options" value="blockonomics_bch, blockonomics_btc, blockonomics_redirect" />
+                            <input type="hidden" name="page_options" value="blockonomics_bch, blockonomics_btc" />
                             <input type="hidden" name="action" value="update" />
                         </form>
                         </div>
@@ -589,7 +614,6 @@ register_uninstall_hook( __FILE__, 'blockonomics_uninstall_hook' );
 function blockonomics_uninstall_hook() {
     delete_option('blockonomics_callback_secret');
     delete_option('blockonomics_api_key');
-    delete_option('blockonomics_redirect');
     delete_option('blockonomics_temp_api_key');
     delete_option('blockonomics_temp_withdraw_amount');
     delete_option('blockonomics_margin');
