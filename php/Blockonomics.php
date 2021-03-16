@@ -153,7 +153,7 @@ class Blockonomics
             if(!$response_callback || $response_callback == null)
             {
                 //No callback URL set, set one 
-                $this->update_callback($callback_url, $response_address, $crypto);
+                $this->update_callback($callback_url, $crypto, $response_address);
             }
             elseif($response_callback_without_schema != $callback_url_without_schema)
             {
@@ -164,7 +164,7 @@ class Blockonomics
                 {
                     //Looks like the user regenrated callback by mistake
                     //Just force Update_callback on server
-                    $this->update_callback($callback_url, $response_address, $crypto);
+                    $this->update_callback($callback_url, $crypto, $response_address);
                 }
                 else
                 {
