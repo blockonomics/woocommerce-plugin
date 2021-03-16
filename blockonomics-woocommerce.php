@@ -417,14 +417,6 @@ function blockonomics_woocommerce_init()
                 }
             ?>
         </div>
-<<<<<<< HEAD
-
-=======
-<<<<<<< HEAD
-=======
-
->>>>>>> 1148081447ab282c7e7be79b38cbe112004897e7
->>>>>>> e9adfc4fe192ede51b0b15da9283fdc6816b8ba0
     <?php
     }
     function bnomics_display_tx_info($order, $email=false)
