@@ -23,14 +23,6 @@ class Blockonomics
     public function __construct()
     {
         $this->api_key = $this->get_api_key();
-        //array_key_first was introduced in PHP 7.3. This is to keep backwards compability
-        if (!function_exists('array_key_first')) {
-            function array_key_first(array $array) {
-                foreach ($array as $key => $value) { 
-                    return $key; 
-                }
-            }
-        }
     }
 
     public function get_api_key()
@@ -387,7 +379,7 @@ class Blockonomics
         if (count($active_cryptos) > 1) {
             $order_url = $this->get_parameterized_wc_url(array('select_crypto'=>$order_id));
         } elseif (count($active_cryptos) === 1) {
-            $order_url = $this->get_parameterized_wc_url(array('show_order'=>$order_id, 'crypto'=> array_key_first($active_cryptos)));
+            $order_url = $this->get_parameterized_wc_url(array('show_order'=>$order_id, 'crypto'=> array_keys($active_cryptos)[0]));
         } else if (count($active_cryptos) === 0) {
             $order_url = $this->get_parameterized_wc_url(array('crypto'=>'empty'));
         }
