@@ -56,34 +56,10 @@ function blockonomics_woocommerce_init()
     add_action('woocommerce_order_details_after_order_table', 'nolo_custom_field_display_cust_order_meta', 10, 1);
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
     add_action('admin_enqueue_scripts', 'blockonomics_load_admin_scripts' );
-    add_action('admin_enqueue_scripts', 'admin_session_init');
     add_action('restrict_manage_posts', 'filter_orders' , 20 );
     add_filter('request', 'filter_orders_by_address_or_txid' );	
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_filter('clean_url', 'bnomics_async_scripts', 11, 1 );
-    add_action('shutdown', 'destroy_session');
-    add_action('admin_post_redirect', 'prefix_admin_add_foobar' );
-
-    function prefix_admin_add_foobar() {
-        if(isset($_GET['tab']) && $_GET['tab'] == "currencies"){
-            wp_redirect(admin_url('/options-general.php?page=blockonomics_options&tab=settings') ); 
-            exit;
-        }else {
-            wp_redirect(admin_url('/options-general.php?page=blockonomics_options&tab=currencies') ); 
-            exit;
-        }
-    }
-
-    function admin_session_init() {
-        if (!session_id()) {
-            session_start();
-        }
-    }
-
-    function destroy_session() {
-        session_destroy();
-    }
-
     /**
      * Add Styles to Blockonomics Admin Page
      **/
