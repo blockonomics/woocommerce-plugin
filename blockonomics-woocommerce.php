@@ -373,15 +373,13 @@ function blockonomics_woocommerce_init()
                             <?php 
                                 if (get_option('blockonomics_btc') == '1' && isset($btc_error)):
                                     if ($btc_error):?>
-                                    <td colspan='2' class="bnomics-options-no-padding">
-                                        <p class='notice notice-error'>
+                                    <td colspan='2' class="notice notice-error bnomics-test-setup-message">
                                             <?php echo $btc_error.'.' ?> 
                                             <br/><?php echo __("Please consult ", 'blockonomics-bitcoin-payments')?><a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank"><?php echo __("this troubleshooting article", 'blockonomics-bitcoin-payments')?></a>.
-                                        </p>
                                     </td>
                                 <?php else:?>
-                                    <td colspan="2"class="bnomics-options-no-padding">
-                                        <p class='notice notice-success'><?php echo __("Success", 'blockonomics-bitcoin-payments')?></p>
+                                    <td colspan="2"class="notice notice-success bnomics-test-setup-message">
+                                        <?php echo __("Success", 'blockonomics-bitcoin-payments')?>
                                     </td>
                                 <?php endif; ?>
                             <?php endif; ?>
@@ -398,15 +396,13 @@ function blockonomics_woocommerce_init()
                             $bch_enabled = get_option("blockonomics_bch");
                             if ($bch_enabled == '1' && isset($bch_error)):
                                 if ($bch_error):?>
-                                <td colspan='2' class="bnomics-options-no-padding">
-                                    <p class='notice notice-error'>
+                                <td colspan='2' class="notice notice-success bnomics-test-setup-message">
                                         <?php echo $bch_error.'.' ?> 
                                         <br/><?php echo __("Please consult ", 'blockonomics-bitcoin-payments')?><a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank"><?php echo __("this troubleshooting article", 'blockonomics-bitcoin-payments')?></a>.
-                                    </p>
                                 </td>
                                 <?php else:?>
-                                <td colspan="2"class="bnomics-options-no-padding">
-                                    <p class='notice notice-success'><?php echo __("Success", 'blockonomics-bitcoin-payments')?></p>
+                                <td colspan="2"class="notice notice-success bnomics-test-setup-message">
+                                    <?php echo __("Success", 'blockonomics-bitcoin-payments')?>
                                 </td>
                                 <?php endif; ?>   
                             <?php endif; ?>
