@@ -223,9 +223,7 @@ function blockonomics_woocommerce_init()
             }
             function value_changed() {
                 document.getElementById('blockonomics_api_updated').value = 'true';
-                document.getElementById('blockonomics_form_updated').value = 'true';
-                document.getElementById('settings_nav_bar').textContent = 'Settings*';
-                document.getElementById('settings_nav_bar').style.background = "#e6d9cb";
+                add_asterisk("settings");
             }
             function add_asterisk(tab) {
                 document.getElementById('blockonomics_form_updated').value = 'true';
@@ -350,27 +348,27 @@ function blockonomics_woocommerce_init()
                     break;
                 case 'currencies' :?>
                     <table width="100%" cellspacing="0" cellpadding="0" class="form-table bnomics-options-intendation bnomics-width">
-                    <h2>
-                        <input onchange="add_asterisk('currencies')" type="checkbox" name="blockonomics_btc" value="1"<?php checked("1", get_option('blockonomics_btc', true)); ?>" />
-                        <?php echo __('Bitcoin (BTC)', 'blockonomics-bitcoin-payments')?>
-                    </h2>
+                        <h2>
+                            <input onchange="add_asterisk('currencies')" type="checkbox" name="blockonomics_btc" value="1"<?php checked("1", get_option('blockonomics_btc', true)); ?>" />
+                            <?php echo __('Bitcoin (BTC)', 'blockonomics-bitcoin-payments')?>
+                        </h2>
                         <label class="bnomics-options-intendation"><?php echo __('To configure, click <b> Get Started for Free </b> on', 'blockonomics-bitcoin-payments')?>
                             <a href="https://blockonomics.co/merchants" target="_blank"><?php echo __('https://blockonomics.co/merchants', 'blockonomics-bitcoin-payments')?></a>
                         </label>
                         <?php 
                         $btc_enabled = get_option("blockonomics_btc");
                         if ($btc_enabled || get_option("blockonomics_btc") === false):  
-                                    $total_received = get_option('blockonomics_temp_withdraw_amount') / 1.0e8;
-                                    $api_key = get_option("blockonomics_api_key");
-                                    $temp_api_key = get_option("blockonomics_temp_api_key");
-                                       if ($temp_api_key): ?>
-                                        <th class="blockonomics-narrow-th" scope="row"><b><?php echo __('Temporary Destination', 'blockonomics-bitcoin-payments')?></b></th>
-                                        <td colspan="2" class="bnomics-options-no-padding">
-                                        <label><b><?php echo __("Blockonomics Wallet (Balance: $total_received BTC)", 'blockonomics-bitcoin-payments')?></b></label>
+                            $total_received = get_option('blockonomics_temp_withdraw_amount') / 1.0e8;
+                            $api_key = get_option("blockonomics_api_key");
+                            $temp_api_key = get_option("blockonomics_temp_api_key");
+                            if ($temp_api_key): ?>
+                                <th class="blockonomics-narrow-th" scope="row"><b><?php echo __('Temporary Destination', 'blockonomics-bitcoin-payments')?></b></th>
+                                <td colspan="2" class="bnomics-options-no-padding">
+                                    <label><b><?php echo __("Blockonomics Wallet (Balance: $total_received BTC)", 'blockonomics-bitcoin-payments')?></b></label>
                                     <label><?php echo __("Our temporary wallet receives your payments until your configure your own wallet. Withdraw to your wallet is triggered automatically when configuration is done", 'blockonomics-bitcoin-payments')?></label>
                                 </td>
-                            </tr>
-                            <?php endif; ?>
+                                </tr>
+                                <?php endif; ?>
                             <?php endif; ?>
                             <?php 
                                 if (get_option('blockonomics_btc') == '1' && isset($btc_error)):
@@ -397,19 +395,19 @@ function blockonomics_woocommerce_init()
                     </label>
                         <table class="form-table bnomics-options-intendation bnomics-width">
                         <?php 
-                        $bch_enabled = get_option("blockonomics_bch");
-                                if ($bch_enabled == '1' && isset($bch_error)):
-                                    if ($bch_error):?>
-                                    <td colspan='2' class="bnomics-options-no-padding">
-                                        <p class='notice notice-error'>
-                                            <?php echo $bch_error.'.' ?> 
-                                            <br/><?php echo __("Please consult ", 'blockonomics-bitcoin-payments')?><a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank"><?php echo __("this troubleshooting article", 'blockonomics-bitcoin-payments')?></a>.
-                                        </p>
-                                    </td>
+                            $bch_enabled = get_option("blockonomics_bch");
+                            if ($bch_enabled == '1' && isset($bch_error)):
+                                if ($bch_error):?>
+                                <td colspan='2' class="bnomics-options-no-padding">
+                                    <p class='notice notice-error'>
+                                        <?php echo $bch_error.'.' ?> 
+                                        <br/><?php echo __("Please consult ", 'blockonomics-bitcoin-payments')?><a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank"><?php echo __("this troubleshooting article", 'blockonomics-bitcoin-payments')?></a>.
+                                    </p>
+                                </td>
                                 <?php else:?>
-                                    <td colspan="2"class="bnomics-options-no-padding">
-                                        <p class='notice notice-success'><?php echo __("Success", 'blockonomics-bitcoin-payments')?></p>
-                                    </td>
+                                <td colspan="2"class="bnomics-options-no-padding">
+                                    <p class='notice notice-success'><?php echo __("Success", 'blockonomics-bitcoin-payments')?></p>
+                                </td>
                                 <?php endif; ?>   
                             <?php endif; ?>
                         </table>
