@@ -162,6 +162,17 @@ function blockonomics_woocommerce_init()
         add_settings_error('option_notice', 'option_notice', $msg, $type);
     }
 
+    function configure_message($domain = '')
+    {
+        echo 
+        '<label class="bnomics-options-intendation">'.
+            __('To configure, click <b> Get Started for Free </b> on ', 'blockonomics-bitcoin-payments').
+            '<a href="https://'.$domain.'blockonomics.co/merchants" target="_blank">'.
+                __('https://'.$domain.'blockonomics.co/merchants', 'blockonomics-bitcoin-payments').
+            '</a>
+        </label>';
+    }
+
     function success_message()
     {
         echo '<td colspan="2"class="notice notice-success bnomics-test-setup-message">'.__("Success", 'blockonomics-bitcoin-payments').'</td>';
@@ -169,9 +180,12 @@ function blockonomics_woocommerce_init()
 
     function error_message($error)
     {
-        echo '<td colspan="2" class="notice notice-error bnomics-test-setup-message">'.$error.'.<br/>'.__("Please consult ", 'blockonomics-bitcoin-payments').
-        '<a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank">'.
-        __("this troubleshooting article", 'blockonomics-bitcoin-payments').'</a>.</td>';
+        echo 
+        '<td colspan="2" class="notice notice-error bnomics-test-setup-message">'.$error.'.<br/>'.
+            __("Please consult ", 'blockonomics-bitcoin-payments').
+            '<a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank">'.
+            __("this troubleshooting article", 'blockonomics-bitcoin-payments').'</a>.
+        </td>';
     }
 
     function generate_secret($force_generate = false)
@@ -364,10 +378,8 @@ function blockonomics_woocommerce_init()
                             <input onchange="add_asterisk('currencies')" type="checkbox" name="blockonomics_btc" value="1"<?php checked("1", get_option('blockonomics_btc', true)); ?>" />
                             <?php echo __('Bitcoin (BTC)', 'blockonomics-bitcoin-payments')?>
                         </h2>
-                        <label class="bnomics-options-intendation"><?php echo __('To configure, click <b> Get Started for Free </b> on', 'blockonomics-bitcoin-payments')?>
-                            <a href="https://blockonomics.co/merchants" target="_blank"><?php echo __('https://blockonomics.co/merchants', 'blockonomics-bitcoin-payments')?></a>
-                        </label>
                         <?php 
+                        configure_message();
                         $btc_enabled = get_option("blockonomics_btc");
                         if ($btc_enabled || get_option("blockonomics_btc") === false):  
                             $total_received = get_option('blockonomics_temp_withdraw_amount') / 1.0e8;
@@ -380,43 +392,40 @@ function blockonomics_woocommerce_init()
                                     <label><?php echo __("Our temporary wallet receives your payments until your configure your own wallet. Withdraw to your wallet is triggered automatically when configuration is done", 'blockonomics-bitcoin-payments')?></label>
                                 </td>
                                 </tr>
-                                <?php endif; ?>
-                            <?php endif; ?>
-                            <?php 
-                                if (get_option('blockonomics_btc') == '1' && isset($btc_error)):
-                                    if ($btc_error):
-                                        error_message($btc_error);
-                                    else:
-                                        success_message();
-                                    endif;
-                                endif; ?>
-                        </table>
-                    <h2>
-                        <input onchange="add_asterisk('currencies')" type="checkbox" name="blockonomics_bch" value="1"<?php checked("1", get_option('blockonomics_bch')); ?>" />
-                        <?php echo __("Bitcoin Cash (BCH)", 'blockonomics-bitcoin-payments')?>
-                    </h2>
-                    <label class="bnomics-options-intendation"><?php echo __('To configure, click <b> Get Started for Free </b> on', 'blockonomics-bitcoin-payments')?>
-                        <a href="https://bch.blockonomics.co/merchants" target="_blank"><?php echo __('https://bch.blockonomics.co/merchants', 'blockonomics-bitcoin-payments')?></a>
-                    </label>
-                        <table class="form-table bnomics-options-intendation bnomics-width">
+                            <?php endif; 
+                        endif; 
+                        if (get_option('blockonomics_btc') == '1' && isset($btc_error)):
+                            if ($btc_error):
+                                error_message($btc_error);
+                            else:
+                                success_message();
+                            endif;
+                        endif; ?>
+                    </table>
+                    <table class="form-table bnomics-options-intendation bnomics-width">
+                        <h2>
+                            <input onchange="add_asterisk('currencies')" type="checkbox" name="blockonomics_bch" value="1"<?php checked("1", get_option('blockonomics_bch')); ?>" />
+                            <?php echo __("Bitcoin Cash (BCH)", 'blockonomics-bitcoin-payments')?>
+                        </h2>
                         <?php 
-                            $bch_enabled = get_option("blockonomics_bch");
-                            if ($bch_enabled == '1' && isset($bch_error)):
-                                if ($bch_error):
-                                    error_message($bch_error);
-                                else:
-                                    success_message();
-                                endif; 
-                            endif; ?>
-                        </table>
-                        <div class="bnomics-options-small-margin-top">
-                        <input type="submit" class="button-primary" value="<?php echo __("Test Setup", 'blockonomics-bitcoin-payments')?>" />
-                            <input type="hidden" name="page_options" value="blockonomics_bch, blockonomics_btc" />
-                            <input type="hidden" name="action" value="update" />
-                        </form>
-                        </div>
-                        <?php
-                        break;
+                        configure_message('bch.');
+                        $bch_enabled = get_option("blockonomics_bch");
+                        if ($bch_enabled == '1' && isset($bch_error)):
+                            if ($bch_error):
+                                error_message($bch_error);
+                            else:
+                                success_message();
+                            endif; 
+                        endif; ?>
+                    </table>
+                    <div class="bnomics-options-small-margin-top">
+                    <input type="submit" class="button-primary" value="<?php echo __("Test Setup", 'blockonomics-bitcoin-payments')?>" />
+                        <input type="hidden" name="page_options" value="blockonomics_bch, blockonomics_btc" />
+                        <input type="hidden" name="action" value="update" />
+                    </form>
+                    </div>
+                    <?php
+                    break;
                 }
             ?>
         </div>
