@@ -189,22 +189,6 @@ function blockonomics_woocommerce_init()
             $bch_error = isset($setup_errors['bch']) ? $setup_errors['bch'] : 'false';
             $withdraw_requested = $blockonomics->make_withdraw();
         }
-        if (isset($_GET['settings-updated']) ? $_GET['settings-updated'] : '' == 'true'){
-            ?><script type="text/javascript">
-            let redirect = sessionStorage.getItem("redirect");
-            if(redirect == 'true'){
-                sessionStorage.clear();
-                const urlParams = new URLSearchParams(window.location.href);
-                const currentTab = urlParams.get('tab') ?? 'settings';
-                if (currentTab === 'settings'){
-                    window.location.href = "options-general.php?page=blockonomics_options&tab=currencies";
-                } else {
-                    window.location.href = "options-general.php?page=blockonomics_options&tab=settings";
-                }
-            }
-            </script><?php
-        }
-
         ?>
         <script type="text/javascript">
             function gen_secret() {
@@ -219,16 +203,23 @@ function blockonomics_woocommerce_init()
                 if (document.getElementById('blockonomics_form_updated').value == 'true' || document.getElementById('blockonomics_api_updated').value == 'true'){
                     if (currentTab === 'settings'){
                         if(validateBlockonomicsForm()){
-                            sessionStorage.setItem("redirect", true);
-                            document.myform.submit();
+                            xlm_request('currencies');
                         }
                     } else {
-                        sessionStorage.setItem("redirect", true);
-                        document.myform.submit();
+                        xlm_request('settings');
                     }
                 } else {
                     window.location.href = "options-general.php?page=blockonomics_options&tab="+tab;
                 }
+            }
+            function xlm_request(tab) {
+                const xhr = new XMLHttpRequest();
+                xhr.open("POST", "options.php"); 
+                xhr.onload = function(event){ 
+                    window.location.href = "options-general.php?page=blockonomics_options&tab="+tab;
+                }; 
+                const formData = new FormData(document.myform); 
+                xhr.send(formData);
             }
             function value_changed() {
                 document.getElementById('blockonomics_api_updated').value = 'true';
