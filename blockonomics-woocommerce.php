@@ -162,6 +162,18 @@ function blockonomics_woocommerce_init()
         add_settings_error('option_notice', 'option_notice', $msg, $type);
     }
 
+    function success_message()
+    {
+        echo '<td colspan="2"class="notice notice-success bnomics-test-setup-message">'.__("Success", 'blockonomics-bitcoin-payments').'</td>';
+    }
+
+    function error_message($error)
+    {
+        echo '<td colspan="2" class="notice notice-error bnomics-test-setup-message">'.$error.'.<br/>'.__("Please consult ", 'blockonomics-bitcoin-payments').
+        '<a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank">'.
+        __("this troubleshooting article", 'blockonomics-bitcoin-payments').'</a>.</td>';
+    }
+
     function generate_secret($force_generate = false)
     {
         $callback_secret = get_option("blockonomics_callback_secret");
@@ -372,17 +384,12 @@ function blockonomics_woocommerce_init()
                             <?php endif; ?>
                             <?php 
                                 if (get_option('blockonomics_btc') == '1' && isset($btc_error)):
-                                    if ($btc_error):?>
-                                    <td colspan='2' class="notice notice-error bnomics-test-setup-message">
-                                            <?php echo $btc_error.'.' ?> 
-                                            <br/><?php echo __("Please consult ", 'blockonomics-bitcoin-payments')?><a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank"><?php echo __("this troubleshooting article", 'blockonomics-bitcoin-payments')?></a>.
-                                    </td>
-                                <?php else:?>
-                                    <td colspan="2"class="notice notice-success bnomics-test-setup-message">
-                                        <?php echo __("Success", 'blockonomics-bitcoin-payments')?>
-                                    </td>
-                                <?php endif; ?>
-                            <?php endif; ?>
+                                    if ($btc_error):
+                                        error_message($btc_error);
+                                    else:
+                                        success_message();
+                                    endif;
+                                endif; ?>
                         </table>
                     <h2>
                         <input onchange="add_asterisk('currencies')" type="checkbox" name="blockonomics_bch" value="1"<?php checked("1", get_option('blockonomics_bch')); ?>" />
@@ -395,17 +402,12 @@ function blockonomics_woocommerce_init()
                         <?php 
                             $bch_enabled = get_option("blockonomics_bch");
                             if ($bch_enabled == '1' && isset($bch_error)):
-                                if ($bch_error):?>
-                                <td colspan='2' class="notice notice-success bnomics-test-setup-message">
-                                        <?php echo $bch_error.'.' ?> 
-                                        <br/><?php echo __("Please consult ", 'blockonomics-bitcoin-payments')?><a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank"><?php echo __("this troubleshooting article", 'blockonomics-bitcoin-payments')?></a>.
-                                </td>
-                                <?php else:?>
-                                <td colspan="2"class="notice notice-success bnomics-test-setup-message">
-                                    <?php echo __("Success", 'blockonomics-bitcoin-payments')?>
-                                </td>
-                                <?php endif; ?>   
-                            <?php endif; ?>
+                                if ($bch_error):
+                                    error_message($bch_error);
+                                else:
+                                    success_message();
+                                endif; 
+                            endif; ?>
                         </table>
                         <div class="bnomics-options-small-margin-top">
                         <input type="submit" class="button-primary" value="<?php echo __("Test Setup", 'blockonomics-bitcoin-payments')?>" />
