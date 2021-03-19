@@ -229,13 +229,8 @@ function blockonomics_woocommerce_init()
             }
             function add_asterisk(tab) {
                 document.getElementById('blockonomics_form_updated').value = 'true';
-                if(tab && tab === 'currencies') {
-                    document.getElementById('currencies_nav_bar').textContent = 'Currencies*';
-                    document.getElementById('currencies_nav_bar').style.background = "#e6d9cb";
-                } else {
-                    document.getElementById('settings_nav_bar').textContent = 'Settings*';
-                    document.getElementById('settings_nav_bar').style.background = "#e6d9cb";
-                }
+                document.getElementById(tab+'_nav_bar').style.background = "#e6d9cb";
+                document.getElementById(tab+'_nav_bar').textContent = tab.charAt(0).toUpperCase() + tab.slice(1)+"*";
             }
             function validateBlockonomicsForm() {
                 if(!document.getElementById("blockonomics_api_key")){
