@@ -203,10 +203,10 @@ function blockonomics_woocommerce_init()
                 if (document.getElementById('blockonomics_form_updated').value == 'true' || document.getElementById('blockonomics_api_updated').value == 'true'){
                     if (currentTab === 'settings'){
                         if(validateBlockonomicsForm()){
-                            xlm_request('currencies');
+                            xlm_request(tab);
                         }
                     } else {
-                        xlm_request('settings');
+                        xlm_request(tab);
                     }
                 } else {
                     window.location.href = "options-general.php?page=blockonomics_options&tab="+tab;
