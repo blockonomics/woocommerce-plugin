@@ -383,7 +383,7 @@ function blockonomics_woocommerce_init()
                                     <label><b><?php echo __("Blockonomics Wallet (Balance: $total_received BTC)", 'blockonomics-bitcoin-payments')?></b></label>
                                     <label><?php echo __("Our temporary wallet receives your payments until your configure your own wallet. Withdraw to your wallet is triggered automatically when configuration is done", 'blockonomics-bitcoin-payments')?></label>
                                 </td>
-                                </tr>
+                            </tr>
                             <?php endif; 
                         endif; 
                         if (get_option('blockonomics_btc') == '1' && isset($btc_error)):
@@ -411,11 +411,11 @@ function blockonomics_woocommerce_init()
                         endif; ?>
                     </table>
                     <div class="bnomics-options-small-margin-top">
-                    <input type="submit" class="button-primary" value="<?php echo __("Test Setup", 'blockonomics-bitcoin-payments')?>" />
+                        <input type="submit" class="button-primary" value="<?php echo __("Test Setup", 'blockonomics-bitcoin-payments')?>" />
                         <input type="hidden" name="page_options" value="blockonomics_bch, blockonomics_btc" />
                         <input type="hidden" name="action" value="update" />
-                    </form>
                     </div>
+                    </form>
                     <?php
                     break;
                 }
