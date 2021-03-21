@@ -1,20 +1,12 @@
-h1{
-    padding-bottom: 7px !important;
-}
-
 h2 {
     margin-block-end: 4px !important;
 }
 
-h3 {
-    margin-block-start: 0px !important;
-    margin-block-end: 0px !important;
-}
-
 h4 {
     margin-block-start: 10px !important;
-    margin-block-end: 2px !important;
+    margin-block-end: 3px !important;
     font-size: medium;
+    margin-left: 1px;
 }
 
 .nav-tab {
@@ -37,20 +29,12 @@ label {
     width: 90px !important;
 }
 
-.form-table td p {
-    margin-top: 0px !important;
-}
-
 .bnomics-width {
     max-width: 550px !important;
 }
 
 .bnomics-width-withdraw {
     max-width: 680px !important;
-}
-
-.form-table th {
-    padding: 5px 10px 5px 0;
 }
 
 .bnomics-options-input {
@@ -73,12 +57,6 @@ label {
     margin-left: 25px;
 }
 
-.bnomics-options-green-check-mark {
-    font:1000 25px/1 dashicons; 
-    top:0px; 
-    color:green;
-}
-
 .bnomics-options-no-padding {
     padding: 0px 0px !important;
 }
@@ -86,17 +64,6 @@ label {
 .bnomics-test-setup-message {
     padding-top: 1px !important;
     padding-bottom: 1px !important;
-}
-
-.bnomics-options-no-margin {
-    margin: 0px 0px !important;
-}
-
-
-.bnomics-options-red-cross-mark {
-    font:1000 25px/1 dashicons; 
-    top:0px; 
-    color:red
 }
 
 .bnomics-options-small-margin-top {
