@@ -228,13 +228,13 @@ function blockonomics_woocommerce_init()
                 }
                 if (document.getElementById('blockonomics_form_updated').value == 'true' || document.getElementById('blockonomics_api_updated').value == 'true'){
                     if(validateBlockonomicsForm()){
-                        xlm_request(tab);
+                        save_form_then_redirect(tab);
                     }
                 } else {
                     window.location.href = "options-general.php?page=blockonomics_options&tab="+tab;
                 }
             }
-            function xlm_request(tab) {
+            function save_form_then_redirect(tab) {
                 const xhr = new XMLHttpRequest();
                 xhr.open("POST", "options.php"); 
                 xhr.onload = function(event){ 
