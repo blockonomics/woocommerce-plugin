@@ -162,11 +162,11 @@ function blockonomics_woocommerce_init()
         add_settings_error('option_notice', 'option_notice', $msg, $type);
     }
 
-    function configure_message($domain = '')
+    function get_started_message($domain = '', $label_class = 'bnomics-options-intendation', $message = 'To configure')
     {
         echo 
-        '<label class="bnomics-options-intendation">'.
-            __('To configure, click <b> Get Started for Free </b> on ', 'blockonomics-bitcoin-payments').
+        "<label class=$label_class>".
+            __("$message, click <b> Get Started for Free </b> on ", 'blockonomics-bitcoin-payments').
             '<a href="https://'.$domain.'blockonomics.co/merchants" target="_blank">'.
                 __('https://'.$domain.'blockonomics.co/merchants', 'blockonomics-bitcoin-payments').
             '</a>
@@ -304,9 +304,7 @@ function blockonomics_woocommerce_init()
                 <div class="bnomics-width">
                     <h4><?php echo __('API Key', 'blockonomics-bitcoin-payments')?></h4>
                     <input class="bnomics-options-input" onchange="value_changed()" size="130" type="text" id="blockonomics_api_key" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" />
-                    <p class='bnomics-options-no-margin'><?php echo __('To get your API Key, click <b> Get Started for Free </b> on', 'blockonomics-bitcoin-payments')?>
-                        <a href="https://blockonomics.co/merchants" target="_blank"><?php echo __('https://blockonomics.co/merchants', 'blockonomics-bitcoin-payments')?></a>
-                    </p>
+                    <?php get_started_message('', '', 'To get your API Key');?>
                     <h4><?php echo __('Callback URL', 'blockonomics-bitcoin-payments')?>
                         <a href="javascript:gen_secret()" id="generate-callback" class="bnomics-options-callback-icon" title="Generate New Callback URL">&#xf463;</a>
                     </h4>
@@ -373,7 +371,7 @@ function blockonomics_woocommerce_init()
                             <?php echo __('Bitcoin (BTC)', 'blockonomics-bitcoin-payments')?>
                         </h2>
                         <?php 
-                        configure_message();
+                        get_started_message();
                         $btc_enabled = get_option("blockonomics_btc");
                         if ($btc_enabled || get_option("blockonomics_btc") === false):  
                             $total_received = get_option('blockonomics_temp_withdraw_amount') / 1.0e8;
@@ -402,7 +400,7 @@ function blockonomics_woocommerce_init()
                             <?php echo __("Bitcoin Cash (BCH)", 'blockonomics-bitcoin-payments')?>
                         </h2>
                         <?php 
-                        configure_message('bch.');
+                        get_started_message('bch.');
                         $bch_enabled = get_option("blockonomics_bch");
                         if ($bch_enabled == '1' && isset($bch_error)):
                             if ($bch_error):
