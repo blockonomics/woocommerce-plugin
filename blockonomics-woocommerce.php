@@ -227,11 +227,7 @@ function blockonomics_woocommerce_init()
                     return;
                 }
                 if (document.getElementById('blockonomics_form_updated').value == 'true' || document.getElementById('blockonomics_api_updated').value == 'true'){
-                    if (currentTab === 'settings'){
-                        if(validateBlockonomicsForm()){
-                            xlm_request(tab);
-                        }
-                    } else {
+                    if(validateBlockonomicsForm()){
                         xlm_request(tab);
                     }
                 } else {
