@@ -253,17 +253,15 @@ function blockonomics_woocommerce_init()
                 document.getElementById(tab+'_nav_bar').textContent = tab.charAt(0).toUpperCase() + tab.slice(1)+"*";
             }
             function validateBlockonomicsForm() {
-                if(!document.getElementById("blockonomics_api_key")){
-                    return true;
-                } else {
+                if(document.getElementById("blockonomics_api_key")){
                     newApiKey = document.getElementById("blockonomics_api_key").value;
                     apiKeyChanged = newApiKey != "<?php echo get_option("blockonomics_api_key")?>";
                     if (apiKeyChanged && newApiKey.length != 43) {
                         alert("ERROR: Invalid APIKey");
                         return false
                     }
-                    return true;
                 }
+                return true;
             }
             function show_advanced() {
                 document.getElementById("advanced_title").style.display = 'none';
