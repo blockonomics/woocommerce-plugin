@@ -235,6 +235,7 @@ function blockonomics_woocommerce_init()
                 }
             }
             function save_form_then_redirect(tab) {
+                document.getElementById('myform').innerHTML = "Saving Settings...";
                 const xhr = new XMLHttpRequest();
                 xhr.open("POST", "options.php"); 
                 xhr.onload = function(event){ 
