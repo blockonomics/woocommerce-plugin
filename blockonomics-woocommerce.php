@@ -235,7 +235,6 @@ function blockonomics_woocommerce_init()
                 }
             }
             function save_form_then_redirect(tab) {
-                document.getElementById('myform').innerHTML = "Saving Settings...";
                 const xhr = new XMLHttpRequest();
                 xhr.open("POST", "options.php"); 
                 xhr.onload = function(event){ 
@@ -243,6 +242,7 @@ function blockonomics_woocommerce_init()
                 }; 
                 const formData = new FormData(document.myform); 
                 xhr.send(formData);
+                document.getElementById('myform').innerHTML = "Saving Settings...";
             }
             function value_changed() {
                 document.getElementById('blockonomics_api_updated').value = 'true';
