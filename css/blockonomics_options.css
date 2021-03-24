@@ -1,0 +1,82 @@
+h2 {
+    margin-block-end: 4px !important;
+}
+
+h4 {
+    margin-block-start: 10px !important;
+    margin-block-end: 3px !important;
+    font-size: medium;
+    margin-left: 1px;
+}
+
+.nav-tab {
+    cursor: pointer !important;
+}
+
+label {
+    cursor: auto;
+}
+
+.bnomics-default-cursor {
+    cursor: default !important;
+}
+
+.wp-core-ui .notice.is-dismissible {
+    display: none;
+}
+
+.blockonomics-narrow-th {
+    width: 90px !important;
+}
+
+.bnomics-width {
+    max-width: 550px !important;
+}
+
+.bnomics-width-withdraw {
+    max-width: 680px !important;
+}
+
+.bnomics-options-input {
+    max-width: 100%; 
+}
+
+.bnomics-options-callback-icon {
+    font:400 24px/1 dashicons;
+    margin-left: 3px;
+    top: 6px;
+    position:relative;
+    text-decoration: none;
+}
+
+.bnomics-options-bold {
+    font-weight:bold;
+}
+
+.bnomics-options-intendation {
+    margin-left: 25px;
+}
+
+.bnomics-options-no-padding {
+    padding: 0px 0px !important;
+}
+
+.bnomics-test-setup-message {
+    padding-top: 1px !important;
+    padding-bottom: 1px !important;
+}
+
+.bnomics-options-small-margin-top {
+    margin-top:10px;
+}
+
+/* Mobile */
+@media screen and (max-width: 500px) {
+    .form-table {
+        width: 100% !important;
+    }
+    .bnomics-options-intendation {
+        margin-left: 12px;
+    }
+  }
+
