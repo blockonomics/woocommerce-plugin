@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 3.1  =
+* New Test Setup Interface with Currencies Tab
+* Added Woocommerce filter to locate orders by txid/address
+
 = 3.0  =
 * Using DB table to store orders
 
