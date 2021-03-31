@@ -131,12 +131,6 @@ class Blockonomics
     public function check_get_callbacks_response_body ($response, $crypto){
         $error_str = '';
         $response_body = json_decode(wp_remote_retrieve_body($response));
-
-        $callback_secret = get_option('blockonomics_callback_secret');
-        $api_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-        $callback_url = add_query_arg('secret', $callback_secret, $api_url);
-        $callback_url_without_schema = preg_replace('/https?:\/\//', '', $callback_url);
-
         if (!isset($response_body) || count($response_body) == 0)
         {
             $error_str = __('You have not entered an xPub', 'blockonomics-bitcoin-payments');
@@ -144,43 +138,27 @@ class Blockonomics
         elseif (count($response_body) == 1)
         {
             $response_callback = '';
-            $response_address = '';
+            $xpub = '';
             if(isset($response_body[0])){
                 $response_callback = isset($response_body[0]->callback) ? $response_body[0]->callback : '';
-                $response_address = isset($response_body[0]->address) ? $response_body[0]->address : '';
+                $xpub = isset($response_body[0]->address) ? $response_body[0]->address : '';
             }
-            $response_callback_without_schema = preg_replace('/https?:\/\//', '', $response_callback);
-            if(!$response_callback || $response_callback == null)
-            {
-                //No callback URL set, set one 
-                $this->update_callback($callback_url, $crypto, $response_address);
-            }
-            elseif($response_callback_without_schema != $callback_url_without_schema)
-            {
-                $base_url = get_bloginfo('wpurl');
-                $base_url = preg_replace('/https?:\/\//', '', $base_url);
-                // Check if only secret differs
-                if(strpos($response_callback, $base_url) !== false)
-                {
-                    //Looks like the user regenrated callback by mistake
-                    //Just force Update_callback on server
-                    $this->update_callback($callback_url, $crypto, $response_address);
-                }
-                else
-                {
-                    $error_str = __("You have an existing callback URL", 'blockonomics-bitcoin-payments');
-                }
-                
+            $callback_secret = get_option('blockonomics_callback_secret');
+            $api_url = WC()->api_request_url('WC_Gateway_Blockonomics');
+            $callback_url = add_query_arg('secret', $callback_secret, $api_url);
+            $base_url = get_bloginfo('wpurl');
+            $base_url = preg_replace('/https?:\/\//', '', $base_url);
+            //Compare Server and WP callback
+            if ($response_callback == $callback_url) {
+                //Exact match => No changes required
+            } elseif (strpos($response_callback, $base_url)){
+                //Domains have exact match but other details are different => replace callback 
+                $this->update_callback($callback_url, $crypto, $xpub);
+            } else {
+                //Different domains => Multiple Callbacks Error
+                $error_str = __("You have an existing callback URL", 'blockonomics-bitcoin-payments');
             }
         }
-        else 
-        {
-            $error_str = __("You have an existing callback URL", 'blockonomics-bitcoin-payments');
-            // Check if callback url is set
-            foreach ($response_body as $res_obj)
-             if(preg_replace('/https?:\/\//', '', $res_obj->callback) == $callback_url_without_schema)
-                $error_str = "";
-        }  
         return $error_str;
     }
 
