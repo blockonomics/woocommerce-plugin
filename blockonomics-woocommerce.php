@@ -495,7 +495,7 @@ function blockonomics_create_table() {
 
     $table_name = $wpdb->prefix . 'blockonomics_orders';
     $charset_collate = $wpdb->get_charset_collate();
-    $sql = "CREATE TABLE IF NOT EXISTS $table_name (
+    $sql = "CREATE TABLE $table_name (
         order_id int NOT NULL,
         status int NOT NULL,
         crypto varchar(3) NOT NULL,
@@ -535,7 +535,7 @@ function blockonomics_update_db_check() {
         // if ($installed_ver < 1.0) {
         //     $wpdb->query("ALTER TABLE $table_name DROP transaction;");
         // }
-        update_option( 'blockonomics_db_version', $blockonomics_db_version );
+        blockonomics_create_table();
     }
 }
 
