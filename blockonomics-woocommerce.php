@@ -512,7 +512,7 @@ function blockonomics_create_table() {
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
     dbDelta( $sql );
 
-    add_option( 'blockonomics_db_version', $blockonomics_db_version );
+    update_option( 'blockonomics_db_version', $blockonomics_db_version );
 }
 
 function blockonomics_activation_hook() {
