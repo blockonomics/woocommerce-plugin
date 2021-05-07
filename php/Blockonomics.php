@@ -139,17 +139,22 @@ class Blockonomics
         {
             $response_callback = '';
             $xpub = '';
-            if(isset($response_body[0])){
-                $response_callback = isset($response_body[0]->callback) ? $response_body[0]->callback : '';
-                $xpub = isset($response_body[0]->address) ? $response_body[0]->address : '';
-            }
             $callback_secret = get_option('blockonomics_callback_secret');
             $api_url = WC()->api_request_url('WC_Gateway_Blockonomics');
             $callback_url = add_query_arg('secret', $callback_secret, $api_url);
             $base_url = get_bloginfo('wpurl');
             $base_url = preg_replace('/https?:\/\//', '', $base_url);
+            if(isset($response_body[0])){
+                $response_callback = isset($response_body[0]->callback) ? $response_body[0]->callback : '';
+                $xpub = isset($response_body[0]->address) ? $response_body[0]->address : '';
+            }
+            //Check if there's a callback on the server
+            if(!$response_callback || $response_callback == null)
+            {
+                //No callback URL set, set one 
+                $this->update_callback($callback_url, $crypto, $xpub);
             //Compare Server and WP callback
-            if ($response_callback == $callback_url) {
+            } elseif ($response_callback == $callback_url) {
                 //Exact match => No changes required
             } elseif (strpos($response_callback, $base_url)){
                 //Domains have exact match but other details are different => replace callback 
