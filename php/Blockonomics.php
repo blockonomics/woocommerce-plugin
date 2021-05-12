@@ -131,19 +131,25 @@ class Blockonomics
     public function check_get_callbacks_response_body ($response, $crypto){
         $error_str = '';
         $response_body = json_decode(wp_remote_retrieve_body($response));
+        //If merchant doesn't have any xPubs on his Blockonomics account
         if (!isset($response_body) || count($response_body) == 0)
         {
             $error_str = __('You have not entered an xPub', 'blockonomics-bitcoin-payments');
         }
-        elseif (count($response_body) == 1)
+        //If merchant has at least one xPub on his Blockonomics account
+        elseif (count($response_body) >= 1)
         {
-            $response_callback = '';
-            $xpub = '';
+            //variables related to url-comparison
             $callback_secret = get_option('blockonomics_callback_secret');
             $api_url = WC()->api_request_url('WC_Gateway_Blockonomics');
             $callback_url = add_query_arg('secret', $callback_secret, $api_url);
             $base_url = get_bloginfo('wpurl');
             $base_url = preg_replace('/https?:\/\//', '', $base_url);
+            //variables that hold the results of the comparisons
+            $response_callback = '';
+            $xpub = '';
+            $matching_callback = false;
+            $available_xpub = '';
             if(isset($response_body[0])){
                 $response_callback = isset($response_body[0]->callback) ? $response_body[0]->callback : '';
                 $xpub = isset($response_body[0]->address) ? $response_body[0]->address : '';
