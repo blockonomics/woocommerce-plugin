@@ -131,6 +131,9 @@ class Blockonomics
     public function check_get_callbacks_response_body ($response, $crypto){
         $error_str = '';
         $response_body = json_decode(wp_remote_retrieve_body($response));
+        $callback_secret = get_option('blockonomics_callback_secret');
+        $api_url = WC()->api_request_url('WC_Gateway_Blockonomics');
+        $wordpress_callback_url = add_query_arg('secret', $callback_secret, $api_url);
         //if merchant doesn't have any xPubs on his Blockonomics account
         if (!isset($response_body) || count($response_body) == 0)
         {
@@ -139,23 +142,22 @@ class Blockonomics
         //if merchant has at least one xPub on his Blockonomics account
         elseif (count($response_body) >= 1)
         {
-            $result = $this->examine_server_callback_urls($response_body, $crypto);
-            if(!$result['matching_callback'] && $result['available_xpub']){
+            $result = $this->examine_server_callback_urls($response_body, $wordpress_callback_url,$crypto);
+            $matching_callback = $result['matching_callback'];
+            $available_xpub = $result['available_xpub'];
+            if(!$matching_callback && $available_xpub){
                 $this->update_callback($wordpress_callback_url, $crypto, $available_xpub);
                 $matching_callback = true;
             }
-            if(!$result['matching_callback']){
+            if(!$matching_callback){
                 $error_str = __("Multiple callback error: Please add a new store with valid xpub", 'blockonomics-bitcoin-payments');
             }
         }
         return $error_str;
     }
 
-    public function examine_server_callback_urls($response_body, $crypto)
+    public function examine_server_callback_urls($response_body, $wordpress_callback_url, $crypto)
     {
-        $callback_secret = get_option('blockonomics_callback_secret');
-        $api_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-        $wordpress_callback_url = add_query_arg('secret', $callback_secret, $api_url);
         $base_url = get_bloginfo('wpurl');
         $base_url = preg_replace('/https?:\/\//', '', $base_url);
         $result = array(
@@ -165,8 +167,8 @@ class Blockonomics
         //go through all xpubs on the server and examine their callback urls
         foreach($response_body as $one_response){
             $server_callback_url = isset($one_response->callback) ? $one_response->callback : '';
-            $xpub = isset($one_response->xpub) ? $one_response->xpub : '';
-            if(!$callback_url){
+            $xpub = isset($one_response->address) ? $one_response->address : '';
+            if(!$server_callback_url){
                 $result['available_xpub'] = $xpub;
                 //Exact match
             }else if($server_callback_url == $wordpress_callback_url){
