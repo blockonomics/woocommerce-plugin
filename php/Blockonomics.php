@@ -139,7 +139,7 @@ class Blockonomics
         //if merchant has at least one xPub on his Blockonomics account
         elseif (count($response_body) >= 1)
         {
-            $result = examine_server_callback_urls($response_body, $crypto);
+            $result = $this->examine_server_callback_urls($response_body, $crypto);
             if(!$result['matching_callback'] && $result['available_xpub']){
                 $this->update_callback($wordpress_callback_url, $crypto, $available_xpub);
                 $matching_callback = true;
