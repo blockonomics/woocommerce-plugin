@@ -173,7 +173,6 @@ class Blockonomics
             }
             //if there's an exact match but the protocols are different => store values and only update as last resort
             else if(strpos($server_callback_url, $base_url)){
-                echo 'server: ' . $server_callback_url;
                 $different_protocols = true;
                 $different_protocol_xpub = $xpub;
             }
