@@ -147,57 +147,37 @@ class Blockonomics
         return $error_str;
     }
 
+    // checks each existing xpub callback URL to update and/or use
     public function examine_server_callback_urls($response_body, $wordpress_callback_url, $api_url, $crypto)
     {
-        //Scenario 1: Exact match                       =>      return $error_str;
-        //Scenario 2: All but secret matches            =>      update_callback(), then return $error_str;
-        //Scenario 3: Scenario 1 and 2 failed           =>      Use an empty callback, if present.
-        //Scenario 4: Scenario 1, 2, and 3 failed       =>      Use matching callback with different protocol, if present.
-        //Scenario 5: All above failed                  =>      Multiple callback error: Please add a new store with valid xpub
-
-        //prepare variables
         $base_url = preg_replace('/https?:\/\//', '', $api_url);
-        $matching_callback = false;
-        $different_protocols = false;
-        $different_protocol_xpub = '';
         $available_xpub = '';
         $error_str = '';
 
-        //go through all xpubs on the server and examine their callback url
+        //Go through all xpubs on the server and examine their callback url
         foreach($response_body as $one_response){
             $server_callback_url = isset($one_response->callback) ? $one_response->callback : '';
             $xpub = isset($one_response->address) ? $one_response->address : '';
-            //if the xpub doesn't have a callback => store available xpub
+            // No callback
             if(!$server_callback_url){
                 $available_xpub = $xpub;
-            //Exact match => return
+            // Exact match
             }else if($server_callback_url == $wordpress_callback_url){
-                return $error_str;
-            //All but secret match => update_callback and return
-            }else if(strpos($server_callback_url, $api_url) === 0){
-                $this->update_callback($wordpress_callback_url, $crypto, $xpub);
-                return $error_str;
+                return '';
             }
-            //matching url but the protocols are different => store values and only update as last resort
+            // Partial Match - Only secret or protocol differ
             else if(strpos($server_callback_url, $base_url)){
-                $different_protocols = true;
-                $different_protocol_xpub = $xpub;
+                $this->update_callback($wordpress_callback_url, $crypto, $xpub);
+                return '';
             }
         }
-
-        //Scenario 1 (Exact match) and 2 (All but secret matches) failed => use available xpub if we have one  
+        // Use the available xpub
         if($available_xpub){
             $this->update_callback($wordpress_callback_url, $crypto, $available_xpub);
-            $matching_callback = true;
-        //Scenario 1 (Exact match) and 2 (All but secret matches) failed, also no available_xpub => use callback with different protocol
-        } elseif ($different_protocols){
-            $this->update_callback($wordpress_callback_url, $crypto, $different_protocol_xpub);
-            $matching_callback = true;
+            return '';
         }
-        //No match and no empty callback
-        if(!$matching_callback){
-            $error_str = __("Multiple callback error: Please add a new store with valid xpub", 'blockonomics-bitcoin-payments');
-        }
+        // No match and no empty callback
+        $error_str = __("Multiple callback error: Please add a new store with valid xpub", 'blockonomics-bitcoin-payments');
         return $error_str;
     }
 
