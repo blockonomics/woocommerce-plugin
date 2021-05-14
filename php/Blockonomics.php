@@ -149,11 +149,11 @@ class Blockonomics
 
     public function examine_server_callback_urls($response_body, $wordpress_callback_url, $api_url, $crypto)
     {
-        //Scenario 1: Exact match => return $error_str;
-        //Scenario 2: All but secret matches => update_callback(), then return $error_str;
-        //Scenario 3: if scenario 1 and 2 failed; Use an empty callback, if present.
-        //Scenario 4: if scenario 1, 2, and 3 failed; Use matching callback with different protocol, if present.
-        //Scenario 5: All above failed => Multiple callback error: Please add a new store with valid xpub
+        //Scenario 1: Exact match                       =>      return $error_str;
+        //Scenario 2: All but secret matches            =>      update_callback(), then return $error_str;
+        //Scenario 3: Scenario 1 and 2 failed           =>      Use an empty callback, if present.
+        //Scenario 4: Scenario 1, 2, and 3 failed       =>      Use matching callback with different protocol, if present.
+        //Scenario 5: All above failed                  =>      Multiple callback error: Please add a new store with valid xpub
 
         //prepare variables
         $base_url = preg_replace('/https?:\/\//', '', $api_url);
