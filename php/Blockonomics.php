@@ -155,6 +155,7 @@ class Blockonomics
         //Go through all xpubs on the server and examine their callback url
         foreach($response_body as $one_response){
             $server_callback_url = isset($one_response->callback) ? $one_response->callback : '';
+            $server_base_url = preg_replace('/https?:\/\//', '', $server_callback_url);
             $xpub = isset($one_response->address) ? $one_response->address : '';
             // No callback
             if(!$server_callback_url){
@@ -164,7 +165,7 @@ class Blockonomics
                 return '';
             }
             // Partial Match - Only secret or protocol differ
-            else if(strpos($server_callback_url, $api_url) === 0 || strpos($server_callback_url, $base_url)){
+            else if(strpos($server_callback_url, $api_url) === 0 || strpos($server_base_url, $base_url) === 0 ){
                 $this->update_callback($wordpress_callback_url, $crypto, $xpub);
                 return '';
             }
