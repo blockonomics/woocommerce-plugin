@@ -157,15 +157,15 @@ class Blockonomics
             $server_callback_url = isset($one_response->callback) ? $one_response->callback : '';
             $server_base_url = preg_replace('/https?:\/\//', '', $server_callback_url);
             $xpub = isset($one_response->address) ? $one_response->address : '';
-            // No callback
             if(!$server_callback_url){
+                // No callback
                 $available_xpub = $xpub;
-            // Exact match
             }else if($server_callback_url == $wordpress_callback_url){
+                // Exact match
                 return '';
             }
-            // Partial Match - Only secret or protocol differ
             else if(strpos($server_callback_url, $api_url) === 0 || strpos($server_base_url, $base_url) === 0 ){
+                // Partial Match - Only secret or protocol differ
                 $this->update_callback($wordpress_callback_url, $crypto, $xpub);
                 return '';
             }
