@@ -131,9 +131,7 @@ class Blockonomics
     public function check_get_callbacks_response_body ($response, $crypto){
         $error_str = '';
         $response_body = json_decode(wp_remote_retrieve_body($response));
-        $callback_secret = get_option('blockonomics_callback_secret');
-        $api_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-        $wordpress_callback_url = add_query_arg('secret', $callback_secret, $api_url);
+
         //if merchant doesn't have any xPubs on his Blockonomics account
         if (!isset($response_body) || count($response_body) == 0)
         {
@@ -142,14 +140,17 @@ class Blockonomics
         //if merchant has at least one xPub on his Blockonomics account
         elseif (count($response_body) >= 1)
         {
-            $error_str = $this->examine_server_callback_urls($response_body, $wordpress_callback_url, $api_url, $crypto);
+            $error_str = $this->examine_server_callback_urls($response_body, $crypto);
         }
         return $error_str;
     }
 
     // checks each existing xpub callback URL to update and/or use
-    public function examine_server_callback_urls($response_body, $wordpress_callback_url, $api_url, $crypto)
+    public function examine_server_callback_urls($response_body, $crypto)
     {
+        $callback_secret = get_option('blockonomics_callback_secret');
+        $api_url = WC()->api_request_url('WC_Gateway_Blockonomics');
+        $wordpress_callback_url = add_query_arg('secret', $callback_secret, $api_url);
         $base_url = preg_replace('/https?:\/\//', '', $api_url);
         $available_xpub = '';
         $partial_match = '';
