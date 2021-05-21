@@ -165,7 +165,7 @@ class Blockonomics
                 // Exact match
                 return '';
             }
-            else if(strpos($server_callback_url, $api_url) === 0 || strpos($server_base_url, $base_url) === 0 ){
+            else if(strpos($server_base_url, $base_url) === 0 ){
                 // Partial Match - Only secret or protocol differ
                 $partial_match = $xpub;
             }
