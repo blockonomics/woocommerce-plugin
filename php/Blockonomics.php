@@ -135,7 +135,7 @@ class Blockonomics
         //if merchant doesn't have any xPubs on his Blockonomics account
         if (!isset($response_body) || count($response_body) == 0)
         {
-            $error_str = __('You have not entered an xPub', 'blockonomics-bitcoin-payments');
+            $error_str = __('Please add a new store on blockonomics website', 'blockonomics-bitcoin-payments');
         }
         //if merchant has at least one xPub on his Blockonomics account
         elseif (count($response_body) >= 1)
@@ -178,7 +178,7 @@ class Blockonomics
             return '';
         }
         // No match and no empty callback
-        $error_str = __("Multiple callback error: Please add a new store with valid xpub", 'blockonomics-bitcoin-payments');
+        $error_str = __("Please add a new store on blockonomics website", 'blockonomics-bitcoin-payments');
         return $error_str;
     }
 
