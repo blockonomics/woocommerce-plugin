@@ -3,7 +3,7 @@
 **Tags:** bitcoin, accept bitcoin, bitcoin woocommerce, bitcoin wordpress plugin, bitcoin payments 
 **Requires at least:** 3.0.1 
 **Tested up to:** 5.7
-**Stable tag:** 3.1
+**Stable tag:** 3.2
 **License:** MIT 
 **License URI:** http://opensource.org/licenses/MIT 
 
@@ -22,7 +22,7 @@ Blockonomics is the only Bitcoin payment gateway that enables full decentralizat
 - Payments are received **directly into your wallet** 
 - **No approvals** of API key/documentation required 
 - **Safe and secure** transactions 
-- Installation only takes **two minutes** - [Video Tutorial](https://www.youtube.com/watch?v=tysaHV2CxPI)  
+- Installation only takes **two minutes** - [Video Tutorial](https://www.youtube.com/watch?v=nFKzzMgdBpQ)  
 - Eliminate chargebacks and fraud 
 - **World-class** customer support team 
 
@@ -45,7 +45,7 @@ You can operate the plugin in two different modes:
 - To withdraw received funds, user has to change to *Direct to Wallet* mode
 
 ### Direct to Wallet Mode (Recommended)  ### 
-[Video Tutorial](https://www.youtube.com/watch?v=uY44SYEdyI0) | [Blog Tutorial](https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62)  
+[Video Tutorial](https://www.youtube.com/watch?v=lNFBAk2x6ns) | [Blog Tutorial](https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62)  
  
 - Click on **Get Started For Free** on [Blockonomics > Merchants](https://www.blockonomics.co/merchants) and proceed to complete merchant wizard. 
 - Your API key should be now shown on the [merchants page](https://www.blockonomics.co/merchants)   

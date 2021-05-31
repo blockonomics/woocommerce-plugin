@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 3.2  =
+* Updated Test Setup logic
+* Security fixes
+
 = 3.1  =
 * New Test Setup Interface with Currencies Tab
 * Added Woocommerce filter to locate orders by txid/address
