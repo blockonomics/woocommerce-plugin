@@ -27,7 +27,7 @@ $blockonomics = new Blockonomics;
       <!-- Address Error -->
       <div id="address-error-btc" ng-show="address_error_btc" ng-cloak>
         <h2><?=__('Could not generate new Bitcoin address', 'blockonomics-bitcoin-payments')?></h2>
-        <p><?=__('Note to webmaster: Please login to your admin panel, navigate to Settings > Blockonomics and click <i>Test Setup</i> to diagnose the issue.', 'blockonomics-bitcoin-payments')?></p>
+        <p><?=__('Note to webmaster: Please login to your admin panel, navigate to Settings > Blockonomics > Currencies and click <i>Test Setup</i> to diagnose the issue.', 'blockonomics-bitcoin-payments')?></p>
       </div>
       <!-- Gap limit Error -->
       <div id="address-error-btc-gaplimit" ng-show="btc_gaplimit_error" ng-cloak>
