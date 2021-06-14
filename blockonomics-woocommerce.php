@@ -207,7 +207,13 @@ function blockonomics_woocommerce_init()
 
     function show_options()
     {
-        if (isset($_GET['tab']) && $_GET['tab'] == "currencies" && isset($_GET['settings-updated']) ? $_GET['settings-updated'] : '' == 'true')
+        if( isset( $_GET[ 'tab' ] ) ) {
+            $active_tab = sanitize_key($_GET[ 'tab' ]);
+        } else {
+            $active_tab = 'settings';
+        }
+
+        if ($active_tab == "currencies" && isset($_GET['settings-updated']) ? wp_validate_boolean($_GET['settings-updated']) : '' == 'true')
         {
             $blockonomics = new Blockonomics;
             $setup_errors = $blockonomics->testSetup();
@@ -285,13 +291,6 @@ function blockonomics_woocommerce_init()
                     </td>
                 </div>
             <?php endif; ?>
-            <?php
-            if( isset( $_GET[ 'tab' ] ) ) {
-                $active_tab = $_GET[ 'tab' ];
-            } else {
-                $active_tab = 'settings';
-            }
-            ?>
             <form method="post" name="myform" id="myform" onsubmit="return validateBlockonomicsForm()" action="options.php">
                 <h2 class="nav-tab-wrapper">
                     <a onclick="check_form('settings')" id='settings_nav_bar'  class="nav-tab <?php echo $active_tab == 'settings' ? 'nav-tab-active' : ''; ?>"><?php echo __('Settings', 'blockonomics-bitcoin-payments')?></a>

@@ -1,7 +1,7 @@
 <?php
 $blockonomics = new Blockonomics;
-$crypto = isset($_REQUEST["crypto"]) ? $_REQUEST["crypto"] : "";
-$order_id = isset($_REQUEST["show_order"]) ? $_REQUEST["show_order"] : "";
+$crypto = isset($_REQUEST["crypto"]) ? sanitize_key($_REQUEST["crypto"]) : "";
+$order_id = isset($_REQUEST["show_order"]) ? sanitize_text_field($_REQUEST["show_order"]) : "";
 
 $order = $blockonomics->get_order_by_id_and_crypto($order_id, $crypto);
 if ($order['status'] >= 0){
