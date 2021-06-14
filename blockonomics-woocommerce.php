@@ -81,7 +81,7 @@ function blockonomics_woocommerce_init()
 	}
 	function filter_orders_by_address_or_txid( $vars ) {
 		global $typenow;
-		if ( 'shop_order' === $typenow && isset( $_GET['filter_by'] ) && ! empty( $_GET['filter_by'])){
+		if ( 'shop_order' === $typenow && !empty( $_GET['filter_by'])) {
 			$vars['meta_value'] = wc_clean( $_GET['filter_by'] );
 		}
 		return $vars;
