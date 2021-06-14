@@ -51,7 +51,6 @@ function blockonomics_woocommerce_init()
     include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
     
     add_action('admin_menu', 'add_page');
-    add_action('init', 'woocommerce_handle_blockonomics_return');
     add_action('init', 'load_plugin_translations');
     add_action('woocommerce_order_details_after_order_table', 'nolo_custom_field_display_cust_order_meta', 10, 1);
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
@@ -98,27 +97,6 @@ function blockonomics_woocommerce_init()
     function load_plugin_translations()
     {
         load_plugin_textdomain('blockonomics-bitcoin-payments', false, dirname(plugin_basename(__FILE__)) . '/languages/');
-    }
-
-    function woocommerce_handle_blockonomics_return()
-    {
-        if (!isset($_GET['return_from_blockonomics'])) {
-            return;
-        }
-
-        if (isset($_GET['cancelled'])) {
-            $order = new WC_Order($_GET['order']['custom']);
-            if ($order->status != 'completed') {
-                $order->update_status('failed', __('Customer cancelled blockonomics payment', 'blockonomics-bitcoin-payments'));
-            }
-        }
-
-        // Blockonomics order param interferes with woocommerce
-        unset($_GET['order']);
-        unset($_REQUEST['order']);
-        if (isset($_GET['order_key'])) {
-            $_GET['order'] = $_GET['order_key'];
-        }
     }
 
     // Add entry in the settings menu
