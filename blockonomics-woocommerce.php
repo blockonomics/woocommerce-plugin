@@ -51,7 +51,6 @@ function blockonomics_woocommerce_init()
     include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
     
     add_action('admin_menu', 'add_page');
-    add_action('init', 'woocommerce_handle_blockonomics_return');
     add_action('init', 'load_plugin_translations');
     add_action('woocommerce_order_details_after_order_table', 'nolo_custom_field_display_cust_order_meta', 10, 1);
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
@@ -75,13 +74,13 @@ function blockonomics_woocommerce_init()
 		global $typenow;
 		if ( 'shop_order' === $typenow ) {
 			?>
-			<input size='26' value="<?php if(isset( $_GET['filter_by'] )) echo(sanitize_text_field($_GET['filter_by'])); ?>" type='name' placeholder='Filter by crypto address/txid' name='filter_by'>
+			<input size='26' value="<?php if(isset( $_GET['filter_by'] )) echo(esc_attr($_GET['filter_by'])); ?>" type='name' placeholder='Filter by crypto address/txid' name='filter_by'>
 			<?php
 		}
 	}
 	function filter_orders_by_address_or_txid( $vars ) {
 		global $typenow;
-		if ( 'shop_order' === $typenow && isset( $_GET['filter_by'] ) && ! empty( $_GET['filter_by'])){
+		if ( 'shop_order' === $typenow && !empty( $_GET['filter_by'])) {
 			$vars['meta_value'] = wc_clean( $_GET['filter_by'] );
 		}
 		return $vars;
@@ -98,27 +97,6 @@ function blockonomics_woocommerce_init()
     function load_plugin_translations()
     {
         load_plugin_textdomain('blockonomics-bitcoin-payments', false, dirname(plugin_basename(__FILE__)) . '/languages/');
-    }
-
-    function woocommerce_handle_blockonomics_return()
-    {
-        if (!isset($_GET['return_from_blockonomics'])) {
-            return;
-        }
-
-        if (isset($_GET['cancelled'])) {
-            $order = new WC_Order($_GET['order']['custom']);
-            if ($order->status != 'completed') {
-                $order->update_status('failed', __('Customer cancelled blockonomics payment', 'blockonomics-bitcoin-payments'));
-            }
-        }
-
-        // Blockonomics order param interferes with woocommerce
-        unset($_GET['order']);
-        unset($_REQUEST['order']);
-        if (isset($_GET['order_key'])) {
-            $_GET['order'] = $_GET['order_key'];
-        }
     }
 
     // Add entry in the settings menu
@@ -207,7 +185,13 @@ function blockonomics_woocommerce_init()
 
     function show_options()
     {
-        if (isset($_GET['tab']) && $_GET['tab'] == "currencies" && isset($_GET['settings-updated']) ? $_GET['settings-updated'] : '' == 'true')
+        if( isset( $_GET[ 'tab' ] ) ) {
+            $active_tab = sanitize_key($_GET[ 'tab' ]);
+        } else {
+            $active_tab = 'settings';
+        }
+
+        if ($active_tab == "currencies" && isset($_GET['settings-updated']) ? wp_validate_boolean($_GET['settings-updated']) : '' == 'true')
         {
             $blockonomics = new Blockonomics;
             $setup_errors = $blockonomics->testSetup();
@@ -285,13 +269,6 @@ function blockonomics_woocommerce_init()
                     </td>
                 </div>
             <?php endif; ?>
-            <?php
-            if( isset( $_GET[ 'tab' ] ) ) {
-                $active_tab = $_GET[ 'tab' ];
-            } else {
-                $active_tab = 'settings';
-            }
-            ?>
             <form method="post" name="myform" id="myform" onsubmit="return validateBlockonomicsForm()" action="options.php">
                 <h2 class="nav-tab-wrapper">
                     <a onclick="check_form('settings')" id='settings_nav_bar'  class="nav-tab <?php echo $active_tab == 'settings' ? 'nav-tab-active' : ''; ?>"><?php echo __('Settings', 'blockonomics-bitcoin-payments')?></a>

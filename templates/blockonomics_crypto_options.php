@@ -1,7 +1,7 @@
 <?php
 $blockonomics = new Blockonomics;
 $cryptos = $blockonomics->getActiveCurrencies();
-$order_id = $_REQUEST['select_crypto'];
+$order_id = isset($_REQUEST["select_crypto"]) ? sanitize_text_field($_REQUEST["select_crypto"]) : "";
 $order_url = $blockonomics->get_parameterized_wc_url(array('show_order'=>$order_id))
 ?>
 <div class="bnomics-order-container">
