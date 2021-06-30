@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 3.3  =
+* Minor Security fixes
+
+
 = 3.2  =
 * Updated Test Setup logic
 * Security fixes
