@@ -236,10 +236,37 @@
   border: none;
 }
 
+.show-on-mobile {
+  display: none;
+}
 /* Mobile */
-@media screen and (max-width: 350px) {
+@media screen and (max-width: 415px) {
   .bnomics-select-container td {
     padding: 20px 5px;
+  }
+  .bnomics-select-options {
+    display: block;
+    width: 100%;
+    height: 75px;
+    margin-bottom: 10px;
+  }
+  [class^="bnomics-icon-"], [class*=" bnomics-icon-"] {
+    font-size: 35px;
+    padding-right:10px;
+    float: left;
+    margin-left: 5vw;
+  }
+  .bnomics-icon-bch {
+    margin-left: 3vw;
+  }
+  .hide-on-mobile {
+    display: none;
+  }
+  .show-on-mobile {
+    display: block;
+    text-align:left;
+    font-weight: 400;
+    font-size: 22px;
   }
 }
 

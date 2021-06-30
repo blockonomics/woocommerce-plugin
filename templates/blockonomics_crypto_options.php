@@ -13,11 +13,13 @@ $order_url = $blockonomics->get_parameterized_wc_url(array('show_order'=>$order_
           $order_url = add_query_arg('crypto', $code, $order_url);
         ?>
           <td onclick="window.location='<?php echo $order_url;?>'" class="bnomics-select-options">
-            <p>
+            <p class='hide-on-mobile'>
               <?=__('Pay With', 'blockonomics-bitcoin-payments')?>
             </p>
             <span class="bnomics-icon-<?php echo $code;?> bnomics-rotate-<?php echo $code;?>"></span>
-            <p>
+            <b class='show-on-mobile'><?php echo $crypto['name'];?></b>
+            
+            <p class='hide-on-mobile' >
               <?php echo $crypto['name'];?><br>
               <b><?php echo $code;?></b>
             </p>
