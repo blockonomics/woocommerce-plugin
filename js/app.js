@@ -44,11 +44,7 @@ function CheckoutController($scope, $interval, Order, $timeout, Url) {
 
     //Proccess the order data
     function proccess_order_data() {
-        if($scope.crypto.code === 'btc'){
-            var subdomain = 'www';
-        }else{
-            var subdomain = $scope.crypto.code;
-        }
+        const subdomain = ($scope.crypto.code === 'btc') ? 'btc' : $scope.crypto.code;
         //Check the status of the order
         if ($scope.order.status == -1) {
             $scope.clock = $scope.order.time_remaining;

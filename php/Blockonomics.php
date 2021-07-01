@@ -450,8 +450,8 @@ class Blockonomics
     }
 
     public function calculate_order_params($order){
-        // Check if order is unused, new or expired
-        if ( $order['status'] == -1 && (!isset($order['timestamp']) || $order['timestamp'] <= time() - get_option("blockonomics_timeperiod", 10) * 60) ) {
+        // Check if order is unused or new
+        if ( $order['status'] == -1) {
             $wc_order = new WC_Order($order['order_id']);
             $order['value'] = $wc_order->get_total();
             $order['currency'] = get_woocommerce_currency();
@@ -466,9 +466,8 @@ class Blockonomics
                 $price = 1;
             }
             $order['satoshi'] = intval(round(1.0e8*$wc_order->get_total()/$price));
-            $order['timestamp'] = time();
         }
-        $order['time_remaining'] = $order['timestamp'] + get_option("blockonomics_timeperiod", 10)*60 - time();
+        $order['time_remaining'] = get_option("blockonomics_timeperiod", 10)*60;
         return $order;
     }
 
