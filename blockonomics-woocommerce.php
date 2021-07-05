@@ -501,7 +501,6 @@ function blockonomics_create_table() {
         crypto varchar(3) NOT NULL,
         address varchar(191) NOT NULL,
         timestamp int,
-        time_remaining int,
         satoshi int,
         currency varchar(3),
         value longtext,

@@ -47,7 +47,7 @@ function CheckoutController($scope, $interval, Order, $timeout, Url) {
         const subdomain = ($scope.crypto.code === 'btc') ? 'www' : $scope.crypto.code;
         //Check the status of the order
         if ($scope.order.status == -1) {
-            $scope.clock = $scope.order.time_remaining;
+            $scope.clock = totalTime;
             //Mark order as expired if we ran out of time
             if ($scope.clock < 0) {
                 $scope.order.status = -3;
