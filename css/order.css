@@ -175,9 +175,8 @@
   font-variant: normal;
   text-transform: none;
   line-height: 1;
-  font-size: 35px;
+  font-size: 1.9em;
   width: 15%;
-  margin-left: 1vw !important;
   display: block;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -204,6 +203,8 @@
   transform: rotate(15deg);
   margin-left: auto;
   margin-right: auto;
+  top: 0.1em;
+  position: relative;
 }
 
 .bnomics-rotate-bch {
@@ -214,17 +215,18 @@
   transform: rotate(-15deg);
   margin-left: auto;
   margin-right: auto;
+  top: -0.1em;
+  position: relative;
 }
 
 .bnomics-select-options {
   cursor:pointer;
   width:100%;
   display: block;
-  height: 75px;
-  margin-bottom: 10px;
+  height: 4.2em;
+  margin-bottom: 10px !important;
   box-shadow: 0 4px 8px 0;
   transition: 0.3s;
-  border-radius:5px;
   text-align: left !important;
   word-break: break-word;
   text-transform: uppercase;
@@ -250,7 +252,7 @@
 
 .vertical-line {
   border-left: 2px solid ;
-  height: 100%;
+  height: 2em;
   display: flex;
   padding-left: 5%;
 }
