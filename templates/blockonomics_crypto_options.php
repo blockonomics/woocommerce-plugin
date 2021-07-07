@@ -22,7 +22,6 @@ $order_url = $blockonomics->get_parameterized_wc_url(array('show_order'=>$order_
         <?php 
         }
         ?>
-
       </tr>
     </table>
   </div>
