@@ -226,7 +226,6 @@
   transition: 0.3s;
   text-align: left !important;
   word-break: break-word;
-  overflow: hidden;
 }
 
 .bnomics-select-options:hover {
