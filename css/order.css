@@ -226,7 +226,6 @@
   transition: 0.3s;
   text-align: left !important;
   word-break: break-word;
-  text-transform: uppercase;
   overflow: hidden;
 }
 
@@ -252,6 +251,7 @@
   height: 2em;
   display: flex;
   padding-left: 5%;
+  align-items: center;
 }
 
 /* ---- Spinner ---- */
