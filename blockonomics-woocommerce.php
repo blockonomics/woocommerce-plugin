@@ -485,7 +485,7 @@ register_activation_hook( __FILE__, 'blockonomics_activation_hook' );
 add_action('admin_notices', 'blockonomics_plugin_activation');
 
 global $blockonomics_db_version;
-$blockonomics_db_version = '1.0';
+$blockonomics_db_version = '1.1';
 
 function blockonomics_create_table() {
     // Create blockonomics_orders table
@@ -530,10 +530,10 @@ function blockonomics_update_db_check() {
 
     $installed_ver = get_site_option( 'blockonomics_db_version' );
     if ( $installed_ver != $blockonomics_db_version ) {
-        // Example function to demonstrate table changes between upgrade versions
-        // if ($installed_ver < 1.0) {
-        //     $wpdb->query("ALTER TABLE $table_name DROP transaction;");
-        // }
+        $table_name = $wpdb->prefix . 'blockonomics_orders';
+        if ($blockonomics_db_version > 1.0) {
+            $wpdb->query("ALTER TABLE $table_name DROP time_remaining;");
+        }
         blockonomics_create_table();
     }
 }
