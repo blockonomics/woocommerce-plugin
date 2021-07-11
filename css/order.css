@@ -185,11 +185,9 @@
 
 .bnomics-icon-bch:before {
   content: "\e900";
-  margin-left: 0.1em !important;
 }
 .bnomics-icon-btc:before {
   content: "\e901";
-  margin-left: 0.2em !important;
 }
 
 .bnomics-rotate-btc {
@@ -224,7 +222,7 @@
   margin-bottom: 10px !important;
   box-shadow: 0 4px 8px 0;
   transition: 0.3s;
-  text-align: left !important;
+  text-align: center !important;
   word-break: break-word;
 }
 
