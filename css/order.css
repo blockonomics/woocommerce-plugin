@@ -175,8 +175,9 @@
   font-variant: normal;
   text-transform: none;
   line-height: 1;
-  font-size: 1.9em;
+  font-size: 2em;
   width: 15%;
+  min-width: 40px;
   display: block;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -188,30 +189,6 @@
 }
 .bnomics-icon-btc:before {
   content: "\e901";
-}
-
-.bnomics-rotate-btc {
-  -webkit-transform:rotate(15deg);
-  -moz-transform: rotate(15deg);
-  -ms-transform: rotate(15deg);
-  -o-transform: rotate(15deg);
-  transform: rotate(15deg);
-  margin-left: auto;
-  margin-right: auto;
-  top: 0.1em;
-  position: relative;
-}
-
-.bnomics-rotate-bch {
-  -webkit-transform:rotate(-15deg);
-  -moz-transform: rotate(-15deg);
-  -ms-transform: rotate(-15deg);
-  -o-transform: rotate(-15deg);
-  transform: rotate(-15deg);
-  margin-left: auto;
-  margin-right: auto;
-  top: -0.1em;
-  position: relative;
 }
 
 .bnomics-select-options {
