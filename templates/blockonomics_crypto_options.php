@@ -11,7 +11,7 @@ $order_url = $blockonomics->get_parameterized_wc_url(array('show_order'=>$order_
       foreach ($cryptos as $code => $crypto) {
         $order_url = add_query_arg('crypto', $code, $order_url);
       ?>
-        <a action="<?php echo $order_url;?>">
+        <a href="<?php echo $order_url;?>">
           <input type="hidden" name="show_order" value="<?php echo $order_id;?>" />
           <input type="hidden" name="crypto" value="<?php echo $code;?>" />
           
