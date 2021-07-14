@@ -175,10 +175,13 @@
   font-variant: normal;
   text-transform: none;
   line-height: 1;
-  font-size: 4em;
+  font-size: 2em;
+  width: 15%;
+  min-width: 40px;
   display: block;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  float: left;
 }
 
 .bnomics-icon-bch:before {
@@ -188,35 +191,16 @@
   content: "\e901";
 }
 
-.bnomics-rotate-btc {
-  -webkit-transform:rotate(15deg);
-  -moz-transform: rotate(15deg);
-  -ms-transform: rotate(15deg);
-  -o-transform: rotate(15deg);
-  transform: rotate(15deg);
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.bnomics-rotate-bch {
-  -webkit-transform:rotate(-15deg);
-  -moz-transform: rotate(-15deg);
-  -ms-transform: rotate(-15deg);
-  -o-transform: rotate(-15deg);
-  transform: rotate(-15deg);
-  margin-left: auto;
-  margin-right: auto;
-}
-
 .bnomics-select-options {
   cursor:pointer;
-  width:50%;
+  width:100%;
+  display: block;
+  height: 4.2em;
+  margin-bottom: 10px !important;
   box-shadow: 0 4px 8px 0;
   transition: 0.3s;
-  border-radius:5px;
   text-align: center !important;
   word-break: break-word;
-  text-transform: uppercase;
 }
 
 .bnomics-select-options:hover {
@@ -236,11 +220,12 @@
   border: none;
 }
 
-/* Mobile */
-@media screen and (max-width: 350px) {
-  .bnomics-select-container td {
-    padding: 20px 5px;
-  }
+.vertical-line {
+  border-left: 2px solid ;
+  height: 2em;
+  display: flex;
+  padding-left: 5%;
+  align-items: center;
 }
 
 /* ---- Spinner ---- */
