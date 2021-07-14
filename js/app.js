@@ -92,13 +92,11 @@ function CheckoutController($scope, $interval, Order, $timeout, Url) {
                     // show the checkout page
                     proccess_order_data();
                     $scope.checkout_panel  = true;
-                }else if($scope.crypto.code === 'btc'){
+                } else {
                     if (data.error && data.error.toLowerCase().indexOf("gap limit") !== -1)
-                      $scope.btc_gaplimit_error = data.error;
+                      $scope.gaplimit_error = data.error;
                     else
-                      $scope.address_error_btc = true;
-                }else if($scope.crypto.code === 'bch'){
-                    $scope.address_error_bch = true;
+                      $scope.address_error = true;
                 }
             });
         }
