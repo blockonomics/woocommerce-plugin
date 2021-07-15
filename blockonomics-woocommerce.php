@@ -500,7 +500,6 @@ function blockonomics_create_table() {
         status int NOT NULL,
         crypto varchar(3) NOT NULL,
         address varchar(191) NOT NULL,
-        timestamp int,
         satoshi int,
         currency varchar(3),
         value longtext,
@@ -532,7 +531,7 @@ function blockonomics_update_db_check() {
     if ( $installed_ver != $blockonomics_db_version ) {
         $table_name = $wpdb->prefix . 'blockonomics_orders';
         if ($installed_ver < 1.1) {
-            $wpdb->query("ALTER TABLE $table_name DROP time_remaining;");
+            $wpdb->query("ALTER TABLE $table_name DROP COLUMN time_remaining, timestamp;");
         }
         blockonomics_create_table();
     }

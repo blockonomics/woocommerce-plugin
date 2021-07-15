@@ -466,7 +466,6 @@ class Blockonomics
                 $price = 1;
             }
             $order['satoshi'] = intval(round(1.0e8*$wc_order->get_total()/$price));
-            $order['timestamp'] = time();
         }
         return $order;
     }
