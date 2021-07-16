@@ -101,7 +101,10 @@ class Blockonomics
         }
         $body = json_encode(array('callback' => $callback_url, 'xpub' => $xpub));
         $response = $this->post($url, $this->api_key, $body);
-        return json_decode(wp_remote_retrieve_body($response));
+        $responseObj = json_decode(wp_remote_retrieve_body($response));
+        if (!isset($responseObj)) $responseObj = new stdClass();
+        $responseObj->{'response_code'} = wp_remote_retrieve_response_code($response);
+        return $responseObj;
     }
 
     public function get_callbacks($crypto)
@@ -173,9 +176,9 @@ class Blockonomics
         }
         // Use the available xpub
         if($partial_match || $available_xpub){
-            $update_xpub = $partial_match ? $partial_match : $available_xpub;
+          $update_xpub = $partial_match ? $partial_match : $available_xpub;
             $response = $this->update_callback($wordpress_callback_url, $crypto, $update_xpub);
-            if ($response->status != 200) {
+            if ($response->response_code != 200) {
                 return $response->message;
             }
             return '';
