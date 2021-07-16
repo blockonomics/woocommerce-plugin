@@ -3,7 +3,7 @@
 **Tags:** bitcoin, accept bitcoin, bitcoin woocommerce, bitcoin wordpress plugin, bitcoin payments 
 **Requires at least:** 3.0.1 
 **Tested up to:** 5.7
-**Stable tag:** 3.3
+**Stable tag:** 3.3.1
 **License:** MIT 
 **License URI:** http://opensource.org/licenses/MIT 
 
