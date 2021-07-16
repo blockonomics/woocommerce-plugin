@@ -174,7 +174,10 @@ class Blockonomics
         // Use the available xpub
         if($partial_match || $available_xpub){
             $update_xpub = $partial_match ? $partial_match : $available_xpub;
-            $this->update_callback($wordpress_callback_url, $crypto, $update_xpub);
+            $response = $this->update_callback($wordpress_callback_url, $crypto, $update_xpub);
+            if ($response->status != 200) {
+                return $response->message;
+            }
             return '';
         }
         // No match and no empty callback
