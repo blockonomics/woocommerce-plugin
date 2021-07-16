@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 3.3.1  =
+* Minor bug fix
+
 = 3.3  =
 * Minor Security fixes
 

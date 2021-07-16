@@ -317,7 +317,7 @@ class Blockonomics
     private function set_headers($api_key)
     {
         if($api_key){
-            return 'Authorization: Bearer ' . $api_key;
+            return array('Authorization' => 'Bearer ' . $api_key);
         }else{
             return '';
         }
