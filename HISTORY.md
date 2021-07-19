@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 3.4  =
+* Updated UI for better Mobile View
+* Fixed bugs in refresh page behaviour
+
 = 3.3  =
 * Minor Security fixes
 

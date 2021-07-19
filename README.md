@@ -33,6 +33,7 @@ Blockonomics is the only Bitcoin payment gateway that enables full decentralizat
 - Supports **all major fiat currencies** 
 - Complete checkout process happens within your website/theme
 - **Privacy friendly** - Customer order information remains private to your shop and is never submitted to Blockonomics
+- 1% Payment Fee, first 20 payments as free 
 - Callbacks to TOR websites supported
 
 ## Installation ## 
