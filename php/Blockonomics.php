@@ -39,7 +39,7 @@ class Blockonomics
         $error_str = '';
         $callback_secret = get_option('blockonomics_callback_secret');
         $response = $this->new_address($callback_secret, $crypto, true);
-        if ($response->response_code!=200){	
+        if ($response->response_code!=200){ 
              $error_str = $response->response_message;
         }
         return $error_str;
@@ -487,7 +487,6 @@ class Blockonomics
             exit(json_encode(array("error"=>$responseObj->response_message)));
         }
         $address = $responseObj->address;
-
         $order = array(
                 'order_id'           => $order_id,
                 'status'             => -1,
@@ -495,8 +494,6 @@ class Blockonomics
                 'address'            => $address
         );
         $order = $this->calculate_order_params($order);
-
-        $this->record_address($order_id, $crypto, $address);
         return $order;
     }
 
@@ -533,6 +530,17 @@ class Blockonomics
     }
 
     // Updates an order in blockonomics_orders table
+    public function insert_order($order){
+        global $wpdb;
+        $wpdb->hide_errors();
+        $table_name = $wpdb->prefix . 'blockonomics_orders';
+        return $wpdb->insert( 
+            $table_name, 
+            $order 
+        );
+    }
+
+    // Updates an order in blockonomics_orders table
     public function update_order($order){
         global $wpdb;
         $table_name = $wpdb->prefix . 'blockonomics_orders';
@@ -547,11 +555,14 @@ class Blockonomics
         $order = $this->get_order_by_id_and_crypto($order_id, $crypto);
         if ($order) {
             $order = $this->calculate_order_params($order);
+            $this->update_order($order);
         }else {
             $order = $this->create_new_order($order_id, $crypto);
+            if (!$this->insert_order($order)) {
+                exit(json_encode(array("error"=>"Temporary address error, please try again")));
+            }
+            $this->record_address($order_id, $crypto, $order['address']);
         }
-        $this->update_order($order);
-
         return $order;
     }
 
