@@ -39,6 +39,11 @@ $blockonomics = new Blockonomics;
         <h2><?=__('Could not generate new Bitcoin Cash address', 'blockonomics-bitcoin-payments')?></h2>
         <p><?=__('Note to webmaster: Please follow the instructions <a href="https://help.blockonomics.co/en/support/solutions/articles/33000253348-bch-setup-on-woocommerce" target="_blank">here</a> to configure BCH payments.', 'blockonomics-bitcoin-payments')?></p>
       </div>
+      <!-- Duplicate Address Error -->
+      <div id="address-error-duplicate" ng-show="address_error_duplicate" ng-cloak>
+        <h2><?=__('Temporary address error', 'blockonomics-bitcoin-payments')?></h2>
+        <p><?=__('Please refresh to try again', 'blockonomics-bitcoin-payments')?></p>
+      </div>
       <!-- Payment Expired -->
       <div class="bnomics-order-expired-wrapper" ng-show="order.status == -3" ng-cloak>
         <h3 class="warning bnomics-status-warning"><?=__('Payment Expired', 'blockonomics-bitcoin-payments')?></h3><br>
