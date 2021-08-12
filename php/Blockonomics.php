@@ -529,7 +529,7 @@ class Blockonomics
         return false;
     }
 
-    // Updates an order in blockonomics_orders table
+    // Inserts a new order in blockonomics_orders table
     public function insert_order($order){
         global $wpdb;
         $wpdb->hide_errors();
