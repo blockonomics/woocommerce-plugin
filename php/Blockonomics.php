@@ -559,7 +559,7 @@ class Blockonomics
         }else {
             $order = $this->create_new_order($order_id, $crypto);
             if (!$this->insert_order($order)) {
-                exit(json_encode(array("error"=>"Temporary address error, please try again")));
+                exit(json_encode(array("error"=>"Duplicate Address Error. This is Temporary error, Please try again")));
             }
             $this->record_address($order_id, $crypto, $order['address']);
         }

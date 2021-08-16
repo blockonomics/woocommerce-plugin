@@ -41,8 +41,8 @@ $blockonomics = new Blockonomics;
       </div>
       <!-- Duplicate Address Error -->
       <div id="address-error-duplicate" ng-show="address_error_duplicate" ng-cloak>
-        <h2><?=__('Temporary address error', 'blockonomics-bitcoin-payments')?></h2>
-        <p><?=__('Please refresh to try again', 'blockonomics-bitcoin-payments')?></p>
+        <h2><?=__('Duplicate Address Error', 'blockonomics-bitcoin-payments')?></h2>
+        <p><?=__('This is Temporary error, Please try again', 'blockonomics-bitcoin-payments')?></p>
       </div>
       <!-- Payment Expired -->
       <div class="bnomics-order-expired-wrapper" ng-show="order.status == -3" ng-cloak>
