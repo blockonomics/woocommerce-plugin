@@ -35,9 +35,9 @@ $blockonomics = new Blockonomics;
         <p><?=__('Note to webmaster: Please follow the instructions <a href="https://help.blockonomics.co/en/support/solutions/articles/33000253348-bch-setup-on-woocommerce" target="_blank">here</a> to configure BCH payments.', 'blockonomics-bitcoin-payments')?></p>
       </div>
       <!-- Gap limit + Duplicate Address Error -->
-      <div id="address-error-message" ng-show="error_message" ng-cloak>
+      <div id="address-error-message" ng-show="customer_facing_error" ng-cloak>
         <h2><?=__('Could not generate new address', 'blockonomics-bitcoin-payments')?></h2>
-       <p>{{error_message}}</p>
+       <p>{{customer_facing_error}}</p>
       </div>
       <!-- Payment Expired -->
       <div class="bnomics-order-expired-wrapper" ng-show="order.status == -3" ng-cloak>
