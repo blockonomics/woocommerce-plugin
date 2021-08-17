@@ -76,6 +76,7 @@ function CheckoutController($scope, $interval, Order, $timeout, Url) {
     //Check if the blockonomics order is present
     function check_blockonomics_order() {
         $scope.spinner = true;
+        $scope.address_error = [];
         if (typeof $scope.order_id != 'undefined') {
             //Fetch the order using order_id
             Order.get({
@@ -88,15 +89,11 @@ function CheckoutController($scope, $interval, Order, $timeout, Url) {
                     // show the checkout page
                     proccess_order_data();
                     $scope.checkout_panel  = true;
-                }else if(data.error && data.error.toLowerCase().indexOf("temporary address") !== -1){
-                    $scope.address_error_duplicate = true;
-                }else if($scope.crypto.code === 'btc'){
-                    if (data.error && data.error.toLowerCase().indexOf("gap limit") !== -1)
-                      $scope.btc_gaplimit_error = data.error;
+                }else {
+                    if (data.error && (data.error.toLowerCase().indexOf("gap limit") !== -1 || data.error.toLowerCase().indexOf("temporary address") !== -1))
+                        $scope.error_message = data.error;
                     else
-                      $scope.address_error_btc = true;
-                }else if($scope.crypto.code === 'bch'){
-                    $scope.address_error_bch = true;
+                        $scope.address_error[$scope.crypto.code] = true;
                 }
             });
         }
