@@ -554,11 +554,14 @@ class Blockonomics
     public function process_order($order_id, $crypto){
         $order = $this->get_order_by_id_and_crypto($order_id, $crypto);
         if ($order) {
+            // Update the existing order info
             $order = $this->calculate_order_params($order);
             $this->update_order($order);
         }else {
+            // Create and add the new order to the database
             $order = $this->create_new_order($order_id, $crypto);
             if (!$this->insert_order($order)) {
+                // insert_order fails if duplicate address found. Ensures no duplicate orders in the database
                 exit(json_encode(array("error"=>"Duplicate Address Error. This is Temporary error, Please try again")));
             }
             $this->record_address($order_id, $crypto, $order['address']);
