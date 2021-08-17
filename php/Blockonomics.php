@@ -562,7 +562,7 @@ class Blockonomics
             $order = $this->create_new_order($order_id, $crypto);
             if (!$this->insert_order($order)) {
                 // insert_order fails if duplicate address found. Ensures no duplicate orders in the database
-                exit(json_encode(array("error"=>"Duplicate Address Error. This is Temporary error, Please try again")));
+                exit(json_encode(array("error"=>__("Duplicate Address Error. This is Temporary error, Please try again", 'blockonomics-bitcoin-payments'))));
             }
             $this->record_address($order_id, $crypto, $order['address']);
         }
