@@ -25,19 +25,14 @@ $blockonomics = new Blockonomics;
         <p><?=__('Unable to render correctly, Note to Administrator: Please enable lite mode in the Blockonomics plugin.', 'blockonomics-bitcoin-payments')?></p>
       </div>
       <!-- Address Error -->
-      <div id="address-error-btc" ng-show="address_error_btc" ng-cloak>
-        <h2><?=__('Could not generate new Bitcoin address', 'blockonomics-bitcoin-payments')?></h2>
+      <div id="address-error" ng-show="address_error" ng-cloak>
+        <h2><?=__('Could not generate new ', 'blockonomics-bitcoin-payments')?>{{crypto.name}}<?=__(' address', 'blockonomics-bitcoin-payments')?></h2>
         <p><?=__('Note to webmaster: Please login to your admin panel, navigate to Settings > Blockonomics > Currencies and click <i>Test Setup</i> to diagnose the issue.', 'blockonomics-bitcoin-payments')?></p>
       </div>
       <!-- Gap limit Error -->
-      <div id="address-error-btc-gaplimit" ng-show="btc_gaplimit_error" ng-cloak>
-        <h2><?=__('Could not generate new Bitcoin address', 'blockonomics-bitcoin-payments')?></h2>
-       <p><?=__('Note to webmaster:', 'blockonomics-bitcoin-payments')?> {{btc_gaplimit_error}}.</p>
-      </div>
-      <!-- BCH Address Error -->
-      <div id="address-error-bch" ng-show="address_error_bch" ng-cloak>
-        <h2><?=__('Could not generate new Bitcoin Cash address', 'blockonomics-bitcoin-payments')?></h2>
-        <p><?=__('Note to webmaster: Please follow the instructions <a href="https://help.blockonomics.co/en/support/solutions/articles/33000253348-bch-setup-on-woocommerce" target="_blank">here</a> to configure BCH payments.', 'blockonomics-bitcoin-payments')?></p>
+      <div id="address-error-gaplimit" ng-show="gaplimit_error" ng-cloak>
+        <h2><?=__('Could not generate new ', 'blockonomics-bitcoin-payments')?>{{crypto.name}}<?=__(' address', 'blockonomics-bitcoin-payments')?></h2>
+        <p><?=__('Note to webmaster:', 'blockonomics-bitcoin-payments')?> {{gaplimit_error}}.</p>
       </div>
       <!-- Payment Expired -->
       <div class="bnomics-order-expired-wrapper" ng-show="order.status == -3" ng-cloak>
