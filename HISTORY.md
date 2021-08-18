@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 3.5  =
+* Fixed duplicate addresses issue for high traffic websites 
+* Fixed upgrade database bugs
+
 = 3.4  =
 * Updated UI for better Mobile View
 * Fixed bugs in refresh page behaviour
