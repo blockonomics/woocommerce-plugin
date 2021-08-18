@@ -37,6 +37,8 @@ if (!defined('ABSPATH')) {
 }
 
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
+require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+require_once ABSPATH . 'wp-admin/install-helper.php';
 
 /**
  * Initialize hooks needed for the payment gateway
@@ -56,7 +58,7 @@ function blockonomics_woocommerce_init()
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
     add_action('admin_enqueue_scripts', 'blockonomics_load_admin_scripts' );
     add_action('restrict_manage_posts', 'filter_orders' , 20 );
-    add_filter('request', 'filter_orders_by_address_or_txid' );	
+    add_filter('request', 'filter_orders_by_address_or_txid' ); 
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_filter('clean_url', 'bnomics_async_scripts', 11, 1 );
     /**
@@ -484,7 +486,6 @@ function blockonomics_create_table() {
         PRIMARY KEY  (address),
         KEY orderkey (order_id,crypto)
     ) $charset_collate;";
-    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
     dbDelta( $sql );
 
     update_option( 'blockonomics_db_version', $blockonomics_db_version );
@@ -508,7 +509,8 @@ function blockonomics_update_db_check() {
     if ( $installed_ver != $blockonomics_db_version ) {
         $table_name = $wpdb->prefix . 'blockonomics_orders';
         if ($installed_ver < 1.1) {
-            $wpdb->query("ALTER TABLE $table_name DROP COLUMN time_remaining, DROP COLUMN timestamp;");
+            maybe_drop_column($table_name, "time_remaining", "ALTER TABLE $table_name DROP COLUMN time_remaining");
+            maybe_drop_column($table_name, "timestamp", "ALTER TABLE $table_name DROP COLUMN timestamp");
         }
         blockonomics_create_table();
     }
