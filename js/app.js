@@ -90,7 +90,7 @@ function CheckoutController($scope, $interval, Order, $timeout, Url) {
                     proccess_order_data();
                     $scope.checkout_panel  = true;
                 }else {
-                    if (data.error && (data.error.toLowerCase().indexOf("gap limit") !== -1 || data.error.toLowerCase().indexOf("temporary address") !== -1))
+                    if (data.error && (data.error.toLowerCase().indexOf("gap limit") !== -1 || data.error.toLowerCase().indexOf("temporary") !== -1))
                         $scope.customer_facing_error = data.error;
                     else
                         $scope.address_error[$scope.crypto.code] = true;
