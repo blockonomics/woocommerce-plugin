@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 3.5.1  =
+* Removed Powered by from checkout page. Other minor fixes
+
 = 3.5  =
 * Fixed duplicate addresses issue for high traffic websites 
 * Fixed upgrade database bugs
