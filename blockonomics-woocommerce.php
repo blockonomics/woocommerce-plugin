@@ -564,8 +564,7 @@ function blockonomics_uninstall_hook() {
 
     global $wpdb;
     $table_name = $wpdb->prefix . 'blockonomics_orders';
-    $sql = "DROP TABLE IF EXISTS $table_name";
-    $wpdb->query($sql);
+    $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS %s", $table_name));
     delete_option("blockonomics_db_version");
 }
 

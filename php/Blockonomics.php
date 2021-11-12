@@ -521,7 +521,7 @@ class Blockonomics
         global $wpdb;
         $table_name = $wpdb->prefix . 'blockonomics_orders';
         $order = $wpdb->get_row(
-            $wpdb->prepare("SELECT * FROM $table_name WHERE order_id = %s AND crypto = %s", array($order_id, $crypto)
+            $wpdb->prepare("SELECT * FROM %s WHERE order_id = %s AND crypto = %s", array($table_name, $order_id, $crypto)
         ), ARRAY_A);
         if($order){
             return $order;
@@ -581,7 +581,7 @@ class Blockonomics
         global $wpdb;
         $table_name = $wpdb->prefix . 'blockonomics_orders';
         $order = $wpdb->get_row(
-            $wpdb->prepare("SELECT * FROM $table_name WHERE address = %s", array($address)
+            $wpdb->prepare("SELECT * FROM %s WHERE address = %s", array($table_name, $address)
         ), ARRAY_A);
         if($order){
             return $order;
