@@ -75,15 +75,16 @@ function blockonomics_woocommerce_init()
     function filter_orders() {
 		global $typenow;
 		if ( 'shop_order' === $typenow ) {
+            $filter_by = isset($_GET['filter_by']) ? sanitize_text_field(wp_unslash($_GET['filter_by'])) : "";
 			?>
-			<input size='26' value="<?php if(isset( $_GET['filter_by'] )) echo(esc_attr($_GET['filter_by'])); ?>" type='name' placeholder='Filter by crypto address/txid' name='filter_by'>
+			<input size='26' value="<?php echo($filter_by ); ?>" type='name' placeholder='Filter by crypto address/txid' name='filter_by'>
 			<?php
 		}
 	}
 	function filter_orders_by_address_or_txid( $vars ) {
 		global $typenow;
 		if ( 'shop_order' === $typenow && !empty( $_GET['filter_by'])) {
-			$vars['meta_value'] = wc_clean( $_GET['filter_by'] );
+			$vars['meta_value'] = wc_clean( sanitize_text_field(wp_unslash($_GET['filter_by'])) );
 		}
 		return $vars;
 	}
@@ -193,8 +194,8 @@ function blockonomics_woocommerce_init()
         } else {
             $active_tab = 'settings';
         }
-
-        if ($active_tab == "currencies" && isset($_GET['settings-updated']) ? wp_validate_boolean($_GET['settings-updated']) : '' == 'true')
+        $settings_updated = isset($_GET['settings-updated']) ? wp_validate_boolean(sanitize_text_field(wp_unslash($_GET['settings-updated']))) : "";
+        if ($active_tab == "currencies" && $settings_updated == 'true')
         {
             $blockonomics = new Blockonomics;
             $setup_errors = $blockonomics->testSetup();
