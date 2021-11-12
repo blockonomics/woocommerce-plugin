@@ -512,7 +512,7 @@ class Blockonomics
     // Redirect the user to the woocommerce finish order page
     public function redirect_finish_order($order_id){
         $wc_order = new WC_Order($order_id);
-        wp_redirect($wc_order->get_checkout_order_received_url());
+        wp_safe_redirect($wc_order->get_checkout_order_received_url());
         exit();
     }
 
