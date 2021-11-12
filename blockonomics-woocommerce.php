@@ -106,7 +106,8 @@ function blockonomics_woocommerce_init()
     {
         $blockonomics = new Blockonomics;
 
-        if (isset($_POST['generateSecret']))
+        $nonce = isset($_REQUEST['_wpnonce']) ? wp_verify_nonce( sanitize_text_field(wp_unslash($_REQUEST['_wpnonce'])), 'update-options' ) : "";
+        if (isset($_POST['generateSecret']) && $nonce)
         {
             generate_secret(true);
         }
@@ -338,6 +339,7 @@ function blockonomics_woocommerce_init()
                 </form>
                 <form method="POST" name="generateSecretForm">
                     <p class="submit">
+                        <?php wp_nonce_field('update-options');?>
                         <input type="hidden" name="generateSecret" value="true">
                     </p>
                 </form>
