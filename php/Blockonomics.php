@@ -519,10 +519,10 @@ class Blockonomics
     // Fetch the correct crypto order linked to the order id
     public function get_order_by_id_and_crypto($order_id, $crypto){
         global $wpdb;
-        $table_name = $wpdb->prefix . 'blockonomics_orders';
         $order = $wpdb->get_row(
-            $wpdb->prepare("SELECT * FROM %s WHERE order_id = %s AND crypto = %s", array($table_name, $order_id, $crypto)
-        ), ARRAY_A);
+            $wpdb->prepare("SELECT * FROM ".$wpdb->prefix."blockonomics_orders WHERE order_id = %s AND crypto = %s", array($order_id, $crypto)),
+            ARRAY_A
+        );
         if($order){
             return $order;
         }
@@ -579,10 +579,10 @@ class Blockonomics
     // Get the order info by crypto address
     public function get_order_by_address($address){
         global $wpdb;
-        $table_name = $wpdb->prefix . 'blockonomics_orders';
         $order = $wpdb->get_row(
-            $wpdb->prepare("SELECT * FROM %s WHERE address = %s", array($table_name, $address)
-        ), ARRAY_A);
+            $wpdb->prepare("SELECT * FROM ".$wpdb->prefix."blockonomics_orders WHERE address = %s", array($address)),
+            ARRAY_A
+        );
         if($order){
             return $order;
         }
