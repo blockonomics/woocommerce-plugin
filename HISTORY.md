@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 3.5.2  =
+* Updated Wordpress compatability
+
 = 3.5.1  =
 * Removed Powered by from checkout page. Other minor fixes
 
