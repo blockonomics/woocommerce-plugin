@@ -75,15 +75,16 @@ function blockonomics_woocommerce_init()
     function filter_orders() {
 		global $typenow;
 		if ( 'shop_order' === $typenow ) {
+            $filter_by = isset($_GET['filter_by']) ? sanitize_text_field(wp_unslash($_GET['filter_by'])) : "";
 			?>
-			<input size='26' value="<?php if(isset( $_GET['filter_by'] )) echo(esc_attr($_GET['filter_by'])); ?>" type='name' placeholder='Filter by crypto address/txid' name='filter_by'>
+			<input size='26' value="<?php echo($filter_by ); ?>" type='name' placeholder='Filter by crypto address/txid' name='filter_by'>
 			<?php
 		}
 	}
 	function filter_orders_by_address_or_txid( $vars ) {
 		global $typenow;
 		if ( 'shop_order' === $typenow && !empty( $_GET['filter_by'])) {
-			$vars['meta_value'] = wc_clean( $_GET['filter_by'] );
+			$vars['meta_value'] = wc_clean( sanitize_text_field(wp_unslash($_GET['filter_by'])) );
 		}
 		return $vars;
 	}
@@ -106,7 +107,8 @@ function blockonomics_woocommerce_init()
     {
         $blockonomics = new Blockonomics;
 
-        if (isset($_POST['generateSecret']))
+        $nonce = isset($_REQUEST['_wpnonce']) ? wp_verify_nonce( sanitize_text_field(wp_unslash($_REQUEST['_wpnonce'])), 'update-options' ) : "";
+        if (isset($_POST['generateSecret']) && $nonce)
         {
             generate_secret(true);
         }
@@ -192,8 +194,8 @@ function blockonomics_woocommerce_init()
         } else {
             $active_tab = 'settings';
         }
-
-        if ($active_tab == "currencies" && isset($_GET['settings-updated']) ? wp_validate_boolean($_GET['settings-updated']) : '' == 'true')
+        $settings_updated = isset($_GET['settings-updated']) ? wp_validate_boolean(sanitize_text_field(wp_unslash($_GET['settings-updated']))) : "";
+        if ($active_tab == "currencies" && $settings_updated == 'true')
         {
             $blockonomics = new Blockonomics;
             $setup_errors = $blockonomics->testSetup();
@@ -338,6 +340,7 @@ function blockonomics_woocommerce_init()
                 </form>
                 <form method="POST" name="generateSecretForm">
                     <p class="submit">
+                        <?php wp_nonce_field('update-options');?>
                         <input type="hidden" name="generateSecret" value="true">
                     </p>
                 </form>
@@ -561,9 +564,7 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_network_confirmation');
 
     global $wpdb;
-    $table_name = $wpdb->prefix . 'blockonomics_orders';
-    $sql = "DROP TABLE IF EXISTS $table_name";
-    $wpdb->query($sql);
+    $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS ".$wpdb->prefix."blockonomics_orders"));
     delete_option("blockonomics_db_version");
 }
 

@@ -98,18 +98,18 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
     // Sanitizes all request/input data
     public function handle_requests()
     {
-        $show_order = isset($_GET["show_order"]) ? sanitize_text_field($_GET['show_order']) : "";
+        $show_order = isset($_GET["show_order"]) ? sanitize_text_field(wp_unslash($_GET['show_order'])) : "";
         $crypto = isset($_GET["crypto"]) ? sanitize_key($_GET['crypto']) : "";
-        $select_crypto = isset($_GET["select_crypto"]) ? sanitize_text_field($_GET['select_crypto']) : "";
-        $finish_order = isset($_GET["finish_order"]) ? sanitize_text_field($_GET['finish_order']) : "";
-        $get_order = isset($_GET['get_order']) ? sanitize_text_field($_GET['get_order']) : "";
-        $secret = isset($_GET['secret']) ? sanitize_text_field($_GET['secret']) : "";
-        $addr = isset($_GET['addr']) ? sanitize_text_field($_GET['addr']) : "";
+        $select_crypto = isset($_GET["select_crypto"]) ? sanitize_text_field(wp_unslash($_GET['select_crypto'])) : "";
+        $finish_order = isset($_GET["finish_order"]) ? sanitize_text_field(wp_unslash($_GET['finish_order'])) : "";
+        $get_order = isset($_GET['get_order']) ? sanitize_text_field(wp_unslash($_GET['get_order'])) : "";
+        $secret = isset($_GET['secret']) ? sanitize_text_field(wp_unslash($_GET['secret'])) : "";
+        $addr = isset($_GET['addr']) ? sanitize_text_field(wp_unslash($_GET['addr'])) : "";
         $status = isset($_GET['status']) ? intval($_GET['status']) : "";
         $value = isset($_GET['value']) ? absint($_GET['value']) : "";
-        $txid = isset($_GET['txid']) ? sanitize_text_field($_GET['txid']) : "";
-        $rbf = isset($_GET['rbf']) ? wp_validate_boolean($_GET['rbf']) : "";
-        $qrcode = isset($_GET['qrcode']) ? esc_url_raw( $_GET['qrcode'], array('bitcoin', 'bitcoincash') ) : "";
+        $txid = isset($_GET['txid']) ? sanitize_text_field(wp_unslash($_GET['txid'])) : "";
+        $rbf = isset($_GET['rbf']) ? wp_validate_boolean(intval(wp_unslash($_GET['rbf']))) : "";
+        $qrcode = isset($_GET['qrcode']) ? esc_url_raw( wp_unslash($_GET['qrcode']), array('bitcoin', 'bitcoincash') ) : "";
 
         include_once 'Blockonomics.php';
         $blockonomics = new Blockonomics;

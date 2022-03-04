@@ -512,17 +512,17 @@ class Blockonomics
     // Redirect the user to the woocommerce finish order page
     public function redirect_finish_order($order_id){
         $wc_order = new WC_Order($order_id);
-        wp_redirect($wc_order->get_checkout_order_received_url());
+        wp_safe_redirect($wc_order->get_checkout_order_received_url());
         exit();
     }
 
     // Fetch the correct crypto order linked to the order id
     public function get_order_by_id_and_crypto($order_id, $crypto){
         global $wpdb;
-        $table_name = $wpdb->prefix . 'blockonomics_orders';
         $order = $wpdb->get_row(
-            $wpdb->prepare("SELECT * FROM $table_name WHERE order_id = %s AND crypto = %s", array($order_id, $crypto)
-        ), ARRAY_A);
+            $wpdb->prepare("SELECT * FROM ".$wpdb->prefix."blockonomics_orders WHERE order_id = %s AND crypto = %s", array($order_id, $crypto)),
+            ARRAY_A
+        );
         if($order){
             return $order;
         }
@@ -579,10 +579,10 @@ class Blockonomics
     // Get the order info by crypto address
     public function get_order_by_address($address){
         global $wpdb;
-        $table_name = $wpdb->prefix . 'blockonomics_orders';
         $order = $wpdb->get_row(
-            $wpdb->prepare("SELECT * FROM $table_name WHERE address = %s", array($address)
-        ), ARRAY_A);
+            $wpdb->prepare("SELECT * FROM ".$wpdb->prefix."blockonomics_orders WHERE address = %s", array($address)),
+            ARRAY_A
+        );
         if($order){
             return $order;
         }
