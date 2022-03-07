@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 3.5.3  =
+* Wordpress security fixes 
+
 = 3.5.2  =
 * Updated Wordpress compatability
 
