@@ -252,3 +252,10 @@
 @-webkit-keyframes spin {
   to { -webkit-transform: rotate(360deg); }
 }
+
+
+/** Woocommerce Multi Currency Support (CURCY) **/
+
+.woocommerce-multi-currency {
+  display: none!important;
+}
