@@ -26,7 +26,8 @@ function CheckoutController($scope, $interval, Order, $timeout, Url) {
     $scope.no_display_error = true;
     $scope.copyshow = false;
     //fetch url params
-    $scope.order_id = Url.get_parameter_by_name("show_order");
+    $scope.order_id_hash = Url.get_parameter_by_name("show_order");
+    $scope.order_id = null
 
     check_blockonomics_order();
 
@@ -60,14 +61,14 @@ function CheckoutController($scope, $interval, Order, $timeout, Url) {
                 ws.close();
                 $interval(function() {
                     //Redirect to order confirmation page if message from socket
-                    window.location = Url.get_wc_endpoint({'finish_order' : $scope.order_id});
+                    window.location = Url.get_wc_endpoint({'finish_order' : $scope.order_id_hash});
                 //Wait for 2 seconds for order status to update on server
                 }, 2000, 1);
             }
         }
         else if ($scope.order.status >= 0){
           //Goto order confirmation as payment is already in process or done
-          window.location = Url.get_wc_endpoint({'finish_order' : $scope.order_id});
+          window.location = Url.get_wc_endpoint({'finish_order' : $scope.order_id_hash});
         }
 
     }
@@ -77,13 +78,14 @@ function CheckoutController($scope, $interval, Order, $timeout, Url) {
     function check_blockonomics_order() {
         $scope.spinner = true;
         $scope.address_error = [];
-        if (typeof $scope.order_id != 'undefined') {
-            //Fetch the order using order_id
+        if (typeof $scope.order_id_hash != 'undefined') {
+            //Fetch the order using encrypted order_id
             Order.get({
-                "get_order": $scope.order_id,
+                "get_order": $scope.order_id_hash,
                 "crypto": $scope.crypto.code
             }, function(data) {
                 $scope.spinner = false;
+                $scope.order_id = data.order_id;
                 if(data.address !== undefined){
                     $scope.order = data;
                     // show the checkout page

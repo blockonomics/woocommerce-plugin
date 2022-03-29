@@ -371,10 +371,11 @@ class Blockonomics
     public function get_order_checkout_url($order_id){
         $active_cryptos = $this->getActiveCurrencies();
         // Check if more than one crypto is activated
+        $order_id_hash = $this->encrypt_hash($order_id);
         if (count($active_cryptos) > 1) {
-            $order_url = $this->get_parameterized_wc_url(array('select_crypto'=>$order_id));
+            $order_url = $this->get_parameterized_wc_url(array('select_crypto'=>$order_id_hash));
         } elseif (count($active_cryptos) === 1) {
-            $order_url = $this->get_parameterized_wc_url(array('show_order'=>$order_id, 'crypto'=> array_keys($active_cryptos)[0]));
+            $order_url = $this->get_parameterized_wc_url(array('show_order'=>$order_id_hash, 'crypto'=> array_keys($active_cryptos)[0]));
         } else if (count($active_cryptos) === 0) {
             $order_url = $this->get_parameterized_wc_url(array('crypto'=>'empty'));
         }
@@ -498,10 +499,11 @@ class Blockonomics
     }
 
     // Load the the checkout template in the page
-    public function load_checkout_template($order_id, $crypto){
+    public function load_checkout_template($order_id_hash, $crypto){
         // Check to send the user to nojs page
         if($this->is_nojs_active()){
             // Create or update the order for the nojs template
+            $order_id = $this->decrypt_hash($order_id_hash);
             $this->process_order($order_id, $crypto);
             $this->load_blockonomics_template('nojs_checkout');
         }else{
@@ -510,7 +512,8 @@ class Blockonomics
     }
 
     // Redirect the user to the woocommerce finish order page
-    public function redirect_finish_order($order_id){
+    public function redirect_finish_order($order_id_hash){
+        $order_id = $this->decrypt_hash($order_id_hash);
         $wc_order = new WC_Order($order_id);
         wp_safe_redirect($wc_order->get_checkout_order_received_url());
         exit();
@@ -570,7 +573,8 @@ class Blockonomics
     }
 
     // Get the order info by id and crypto
-    public function get_order_info($order_id, $crypto){
+    public function get_order_info($order_id_hash, $crypto){
+        $order_id = $this->decrypt_hash($order_id_hash);
         $order = $this->process_order($order_id, $crypto);
         header("Content-Type: application/json");
         exit(json_encode($order));
@@ -669,4 +673,62 @@ class Blockonomics
         ob_end_clean();
         QRcode::png($codeText);
     } 
+
+    /**
+     * Encrypts a string using the application secret. This returns a hex representation of the binary cipher text
+     *
+     * @param  $input
+     * @return string
+     */
+    public function encrypt_hash($input)
+    {
+        $encryption_algorithm = 'AES-128-CBC';
+        $hashing_algorith = 'sha256';
+        $secret = get_option('blockonomics_callback_secret');;
+        $key = hash($hashing_algorith, $secret, true);
+        $iv = substr($secret, 0, 16);
+
+        $cipherText = openssl_encrypt(
+            $input,
+            $encryption_algorithm,
+            $key,
+            OPENSSL_RAW_DATA,
+            $iv
+        );
+
+        return bin2hex($cipherText);
+    }
+
+    /**
+     * Decrypts a string using the application secret.
+     *
+     * @param  $hash
+     * @return string
+     */
+    public function decrypt_hash($hash)
+    {
+        $encryption_algorithm = 'AES-128-CBC';
+        $hashing_algorith = 'sha256';
+        $secret = get_option('blockonomics_callback_secret');;
+        // prevent decrypt failing when $hash is not hex or has odd length
+        if (strlen($hash) % 2 || !ctype_xdigit($hash)) {
+            return '';
+        }
+
+        // we'll need the binary cipher
+        $binaryInput = hex2bin($hash);
+        $iv = substr($secret, 0, 16);
+        $cipherText = $binaryInput;
+        $key = hash($hashing_algorith, $secret, true);
+
+        $decrypted = openssl_decrypt(
+            $cipherText,
+            $encryption_algorithm,
+            $key,
+            OPENSSL_RAW_DATA,
+            $iv
+        );
+
+        return $decrypted;
+    }
 }
