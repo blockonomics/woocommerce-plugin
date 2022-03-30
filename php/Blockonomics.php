@@ -371,11 +371,11 @@ class Blockonomics
     public function get_order_checkout_url($order_id){
         $active_cryptos = $this->getActiveCurrencies();
         // Check if more than one crypto is activated
-        $order_id_hash = $this->encrypt_hash($order_id);
+        $order_hash = $this->encrypt_hash($order_id);
         if (count($active_cryptos) > 1) {
-            $order_url = $this->get_parameterized_wc_url(array('select_crypto'=>$order_id_hash));
+            $order_url = $this->get_parameterized_wc_url(array('select_crypto'=>$order_hash));
         } elseif (count($active_cryptos) === 1) {
-            $order_url = $this->get_parameterized_wc_url(array('show_order'=>$order_id_hash, 'crypto'=> array_keys($active_cryptos)[0]));
+            $order_url = $this->get_parameterized_wc_url(array('show_order'=>$order_hash, 'crypto'=> array_keys($active_cryptos)[0]));
         } else if (count($active_cryptos) === 0) {
             $order_url = $this->get_parameterized_wc_url(array('crypto'=>'empty'));
         }
@@ -499,11 +499,11 @@ class Blockonomics
     }
 
     // Load the the checkout template in the page
-    public function load_checkout_template($order_id_hash, $crypto){
+    public function load_checkout_template($order_hash, $crypto){
         // Check to send the user to nojs page
         if($this->is_nojs_active()){
             // Create or update the order for the nojs template
-            $order_id = $this->decrypt_hash($order_id_hash);
+            $order_id = $this->decrypt_hash($order_hash);
             $this->process_order($order_id, $crypto);
             $this->load_blockonomics_template('nojs_checkout');
         }else{
@@ -512,8 +512,8 @@ class Blockonomics
     }
 
     // Redirect the user to the woocommerce finish order page
-    public function redirect_finish_order($order_id_hash){
-        $order_id = $this->decrypt_hash($order_id_hash);
+    public function redirect_finish_order($order_hash){
+        $order_id = $this->decrypt_hash($order_hash);
         $wc_order = new WC_Order($order_id);
         wp_safe_redirect($wc_order->get_checkout_order_received_url());
         exit();
@@ -573,8 +573,8 @@ class Blockonomics
     }
 
     // Get the order info by id and crypto
-    public function get_order_info($order_id_hash, $crypto){
-        $order_id = $this->decrypt_hash($order_id_hash);
+    public function get_order_info($order_hash, $crypto){
+        $order_id = $this->decrypt_hash($order_hash);
         $order = $this->process_order($order_id, $crypto);
         header("Content-Type: application/json");
         exit(json_encode($order));
