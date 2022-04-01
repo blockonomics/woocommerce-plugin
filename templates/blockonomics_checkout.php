@@ -70,7 +70,7 @@ $blockonomics = new Blockonomics;
                 <div class="bnomics-bg">
                   <!-- Order Amounts -->
                   <div class="bnomics-amount">
-                    <div class="bnomics-amount-text" ng-hide="amount_copyshow" ng-cloak><?=__('To pay, send exactly this {{crypto.code | uppercase}} amount', 'blockonomics-bitcoin-payments')?></div>
+                    <div class="bnomics-amount-text" ng-hide="amount_copyshow" ng-cloak><?=__('1. Buy Bitcoin <a href="#">here</a><br>2. Send the <strong>BTC</strong> to the given address<br>3. Wait for payment confirmation', 'blockonomics-bitcoin-payments')?></div>
                     <div class="bnomics-copy-amount-text" ng-show="amount_copyshow" ng-cloak><?=__('Copied to clipboard', 'blockonomics-bitcoin-payments')?></div>
                     <ul ng-click="blockonomics_amount_click()" id="bnomics-amount-input" class="bnomics-amount-input">
                         <li id="bnomics-amount-copy">{{order.satoshi/1.0e8}}</li>
