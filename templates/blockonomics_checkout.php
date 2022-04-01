@@ -52,6 +52,12 @@ $blockonomics = new Blockonomics;
       <div class="bnomics-order-panel" ng-show="order.status == -1" ng-cloak>
         <div class="bnomics-order-info">
           <div class="bnomics-bitcoin-pane">
+            <!-- Order Countdown Timer -->
+            <div class="bnomics-progress-bar-wrapper">
+              <div class="bnomics-progress-bar-container">
+                <div class="bnomics-progress-bar" style="width: {{progress}}%;"></div>
+              </div>
+            </div>
             <div class="bnomics-btc-info">
               <!-- Left Side -->
               <!-- QR and Open in wallet -->
@@ -63,7 +69,6 @@ $blockonomics = new Blockonomics;
                     </qrcode>
                   </a>
                 </div>
-                <div class="bnomics-qr-code-hint"><a href="{{crypto.uri}}:{{order.address}}?amount={{order.satoshi/1.0e8}}" target="_blank"><?=__('Open in wallet', 'blockonomics-bitcoin-payments')?></a></div>
               </div>
               <!-- Right Side -->
               <div class="bnomics-amount">
@@ -88,13 +93,8 @@ $blockonomics = new Blockonomics;
                           <li id="bnomics-address-copy">{{order.address}}</li>
                     </ul>
                   </div>
-                  <!-- Order Countdown Timer -->
-                  <div class="bnomics-progress-bar-wrapper">
-                    <div class="bnomics-progress-bar-container">
-                      <div class="bnomics-progress-bar" style="width: {{progress}}%;"></div>
-                    </div>
-                  </div>
-                  <span class="ng-cloak bnomics-time-left">{{clock*1000 | date:'mm:ss' : 'UTC'}} min</span>
+
+                  <div class="bnomics-qr-code-hint"><a href="{{crypto.uri}}:{{order.address}}?amount={{order.satoshi/1.0e8}}" target="_blank"><button class="button btn btn-primary"><?=__('Open in wallet', 'blockonomics-bitcoin-payments')?></button></a></div>
                 </div>
               </div>
             </div>
