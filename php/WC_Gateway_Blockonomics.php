@@ -114,6 +114,26 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         include_once 'Blockonomics.php';
         $blockonomics = new Blockonomics;
 
+        $order_hash = "";
+
+        if ($select_crypto) {
+            $order_hash = $select_crypto;
+        } else if ($show_order) {
+            $order_hash = $show_order;
+        } else if ($finish_order) {
+            $order_hash = $finish_order;
+        } else if ($get_order) {
+            $order_hash = $get_order;
+        }
+
+        if ($order_hash) {
+            $order_id = $blockonomics->decrypt_hash($order_hash);
+            if (empty(wc_get_order($order_id))) {
+                echo "Invalid Order";
+                exit();
+            }
+        }
+
         if($crypto === "empty"){
             $blockonomics->load_blockonomics_template('no_crypto_selected');
         }else if ($show_order && $crypto) {
