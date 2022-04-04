@@ -499,11 +499,10 @@ class Blockonomics
     }
 
     // Load the the checkout template in the page
-    public function load_checkout_template($order_hash, $crypto){
+    public function load_checkout_template($order_id, $crypto){
         // Check to send the user to nojs page
         if($this->is_nojs_active()){
             // Create or update the order for the nojs template
-            $order_id = $this->decrypt_hash($order_hash);
             $this->process_order($order_id, $crypto);
             $this->load_blockonomics_template('nojs_checkout');
         }else{
@@ -512,8 +511,7 @@ class Blockonomics
     }
 
     // Redirect the user to the woocommerce finish order page
-    public function redirect_finish_order($order_hash){
-        $order_id = $this->decrypt_hash($order_hash);
+    public function redirect_finish_order($order_id){
         $wc_order = new WC_Order($order_id);
         wp_safe_redirect($wc_order->get_checkout_order_received_url());
         exit();
@@ -573,8 +571,7 @@ class Blockonomics
     }
 
     // Get the order info by id and crypto
-    public function get_order_info($order_hash, $crypto){
-        $order_id = $this->decrypt_hash($order_hash);
+    public function get_order_info($order_id, $crypto){
         $order = $this->process_order($order_id, $crypto);
         header("Content-Type: application/json");
         exit(json_encode($order));
