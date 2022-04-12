@@ -131,7 +131,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         if ($order_hash) {
             $order_id = $blockonomics->decrypt_hash($order_hash);
             if (empty(wc_get_order($order_id))) {
-                echo "Invalid Order";
+                echo __("Error: Incorrect hash. Order not found.", 'blockonomics-bitcoin-payments');
                 exit();
             }
         }
