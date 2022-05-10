@@ -709,7 +709,8 @@ class Blockonomics
         $secret = get_option('blockonomics_callback_secret');;
         // prevent decrypt failing when $hash is not hex or has odd length
         if (strlen($hash) % 2 || !ctype_xdigit($hash)) {
-            return '';
+            echo __("Error: Incorrect Hash. Hash cannot be validated.", 'blockonomics-bitcoin-payments');
+            exit();
         }
 
         // we'll need the binary cipher
@@ -725,6 +726,11 @@ class Blockonomics
             OPENSSL_RAW_DATA,
             $iv
         );
+
+        if (empty(wc_get_order($decrypted))) {
+            echo __("Error: Incorrect hash. Order not found.", 'blockonomics-bitcoin-payments');
+            exit();
+        }
 
         return $decrypted;
     }
