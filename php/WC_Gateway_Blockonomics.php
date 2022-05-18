@@ -114,33 +114,18 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         include_once 'Blockonomics.php';
         $blockonomics = new Blockonomics;
 
-        $order_hash = "";
-
-        if ($show_order) {
-            $order_hash = $show_order;
-        } else if ($select_crypto) {
-            $order_hash = $select_crypto;
-        } else if ($finish_order) {
-            $order_hash = $finish_order;
-        } else if ($get_order) {
-            $order_hash = $get_order;
-        }
-        
-        $order_id = "";
-
-        if ($order_hash) {
-            $order_id = $blockonomics->decrypt_hash($order_hash);
-        }
-
         if($crypto === "empty"){
             $blockonomics->load_blockonomics_template('no_crypto_selected');
         }else if ($show_order && $crypto) {
+            $order_id = $blockonomics->decrypt_hash($show_order);
             $blockonomics->load_checkout_template($order_id, $crypto);
         }else if ($select_crypto) {
             $blockonomics->load_blockonomics_template('crypto_options');
         }else if ($finish_order) {
+            $order_id = $blockonomics->decrypt_hash($finish_order);
             $blockonomics->redirect_finish_order($order_id);
         }else if ($get_order && $crypto) {
+            $order_id = $blockonomics->decrypt_hash($get_order);
             $blockonomics->get_order_info($order_id, $crypto);
         }else if ($secret && $addr && isset($status) && $value && $txid) {
             $blockonomics->process_callback($secret, $addr, $status, $value, $txid, $rbf);
