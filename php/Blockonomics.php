@@ -646,7 +646,11 @@ class Blockonomics
         $this->check_callback_secret($secret);
 
         $order = $this->get_order_by_address($address);
-        $wc_order = new WC_Order($order['order_id']);
+        $wc_order = wc_get_order($order['order_id']);
+
+        if (empty($wc_order)) {
+            exit(__("Error: order not found", 'blockonomics-bitcoin-payments'));
+        }
         
         $order['txid'] = $txid;
 
