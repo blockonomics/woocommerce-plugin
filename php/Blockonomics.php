@@ -371,10 +371,11 @@ class Blockonomics
     public function get_order_checkout_url($order_id){
         $active_cryptos = $this->getActiveCurrencies();
         // Check if more than one crypto is activated
+        $order_hash = $this->encrypt_hash($order_id);
         if (count($active_cryptos) > 1) {
-            $order_url = $this->get_parameterized_wc_url(array('select_crypto'=>$order_id));
+            $order_url = $this->get_parameterized_wc_url(array('select_crypto'=>$order_hash));
         } elseif (count($active_cryptos) === 1) {
-            $order_url = $this->get_parameterized_wc_url(array('show_order'=>$order_id, 'crypto'=> array_keys($active_cryptos)[0]));
+            $order_url = $this->get_parameterized_wc_url(array('show_order'=>$order_hash, 'crypto'=> array_keys($active_cryptos)[0]));
         } else if (count($active_cryptos) === 0) {
             $order_url = $this->get_parameterized_wc_url(array('crypto'=>'empty'));
         }
@@ -673,4 +674,68 @@ class Blockonomics
         ob_end_clean();
         QRcode::png($codeText);
     } 
+
+    /**
+     * Encrypts a string using the application secret. This returns a hex representation of the binary cipher text
+     *
+     * @param  $input
+     * @return string
+     */
+    public function encrypt_hash($input)
+    {
+        $encryption_algorithm = 'AES-128-CBC';
+        $hashing_algorith = 'sha256';
+        $secret = get_option('blockonomics_callback_secret');;
+        $key = hash($hashing_algorith, $secret, true);
+        $iv = substr($secret, 0, 16);
+
+        $cipherText = openssl_encrypt(
+            $input,
+            $encryption_algorithm,
+            $key,
+            OPENSSL_RAW_DATA,
+            $iv
+        );
+
+        return bin2hex($cipherText);
+    }
+
+    /**
+     * Decrypts a string using the application secret.
+     *
+     * @param  $hash
+     * @return string
+     */
+    public function decrypt_hash($hash)
+    {
+        $encryption_algorithm = 'AES-128-CBC';
+        $hashing_algorith = 'sha256';
+        $secret = get_option('blockonomics_callback_secret');;
+        // prevent decrypt failing when $hash is not hex or has odd length
+        if (strlen($hash) % 2 || !ctype_xdigit($hash)) {
+            echo __("Error: Incorrect Hash. Hash cannot be validated.", 'blockonomics-bitcoin-payments');
+            exit();
+        }
+
+        // we'll need the binary cipher
+        $binaryInput = hex2bin($hash);
+        $iv = substr($secret, 0, 16);
+        $cipherText = $binaryInput;
+        $key = hash($hashing_algorith, $secret, true);
+
+        $decrypted = openssl_decrypt(
+            $cipherText,
+            $encryption_algorithm,
+            $key,
+            OPENSSL_RAW_DATA,
+            $iv
+        );
+
+        if (empty(wc_get_order($decrypted))) {
+            echo __("Error: Incorrect hash. Order not found.", 'blockonomics-bitcoin-payments');
+            exit();
+        }
+
+        return $decrypted;
+    }
 }

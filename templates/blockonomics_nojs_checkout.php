@@ -1,8 +1,8 @@
 <?php
 $blockonomics = new Blockonomics;
 $crypto = isset($_REQUEST["crypto"]) ? sanitize_key($_REQUEST["crypto"]) : "";
-$order_id = isset($_REQUEST["show_order"]) ? sanitize_text_field(wp_unslash($_REQUEST["show_order"])) : "";
-
+$order_hash = isset($_REQUEST["show_order"]) ? sanitize_text_field(wp_unslash($_REQUEST["show_order"])) : "";
+$order_id = $blockonomics->decrypt_hash($order_hash);
 $order = $blockonomics->get_order_by_id_and_crypto($order_id, $crypto);
 if ($order['status'] >= 0){
   $blockonomics->redirect_finish_order($order_id);
