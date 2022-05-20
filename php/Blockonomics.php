@@ -587,7 +587,7 @@ class Blockonomics
         if($order){
             return $order;
         }
-        exit(__("Error: order not found", 'blockonomics-bitcoin-payments'));
+        exit(__("Error: Blockonomics order not found", 'blockonomics-bitcoin-payments'));
     }
 
     // Check if the callback secret in the request matches
@@ -650,7 +650,7 @@ class Blockonomics
         $wc_order = wc_get_order($order['order_id']);
 
         if (empty($wc_order)) {
-            exit(__("Error: order not found", 'blockonomics-bitcoin-payments'));
+            exit(__("Error: Woocommerce order not found", 'blockonomics-bitcoin-payments'));
         }
         
         $order['txid'] = $txid;
@@ -732,7 +732,7 @@ class Blockonomics
         );
 
         if (empty(wc_get_order($decrypted))) {
-            echo __("Error: Incorrect hash. Order not found.", 'blockonomics-bitcoin-payments');
+            echo __("Error: Incorrect hash. Woocommerce order not found.", 'blockonomics-bitcoin-payments');
             exit();
         }
 
