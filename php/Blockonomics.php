@@ -657,7 +657,7 @@ class Blockonomics
 
         if (!$rbf){
           // Unconfirmed RBF payments are easily cancelled should be ignored
-          // https://blog.blockonomics.co/bitcoin-payments-can-now-easily-cancelled-a-step-forward-or-two-back-bdef08276382  
+          // https://insights.blockonomics.co/bitcoin-payments-can-now-easily-cancelled-a-step-forward-or-two-back/ 
           $this->save_transaction($value, $order, $wc_order);
           $status = $this->update_paid_amount($status, $value, $order, $wc_order);
         }

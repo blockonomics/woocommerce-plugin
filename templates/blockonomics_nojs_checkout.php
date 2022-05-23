@@ -64,7 +64,7 @@ if ($order['status'] >= 0){
     </div>
     <!-- Blockonomics How to pay + Credit -->
     <div class="bnomics-powered-by">
-      <a href="https://blog.blockonomics.co/how-to-pay-a-bitcoin-invoice-abf4a04d041c" target="_blank"><?=__('How do I pay? | Check reviews of this shop', 'blockonomics-bitcoin-payments')?></a><br>
+      <a href="https://insights.blockonomics.co/how-to-pay-a-bitcoin-invoice/" target="_blank"><?=__('How do I pay? | Check reviews of this shop', 'blockonomics-bitcoin-payments')?></a><br>
     </div>
   </div>
 <?php

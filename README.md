@@ -15,7 +15,7 @@ The fastest and easiest way to start accepting Bitcoin payments on your WooComme
 
 ### A truly decentralized bitcoin payment processor for WordPress ### 
 
-Blockonomics is the only Bitcoin payment gateway that enables full decentralization in the e-commerce industry. Purchases made to your website are instantly sent to your wallet, rather than to a payment gateway wallet. This not only saves you fees when taking your coins out, but it allows you to take ownership of your revenue without the need for a middle man. Never lose revenue from payment gateway wallet hacks - **be your own bank**! 
+Blockonomics is the only Bitcoin payment gateway that enables full decentralization in the e-commerce industry. Purchases made to your website are instantly sent to your wallet, rather than to a payment gateway wallet. This not only saves you fees when taking your coins out, but it allows you to take ownership of your revenue without the need for a middle man. We have a long term association with [Wordpress and Wordcamps](https://insights.blockonomics.co/blockonomics-loves-wordcamps/).
 
 
 ### Accept bitcoin payments, fast & easy ### 
