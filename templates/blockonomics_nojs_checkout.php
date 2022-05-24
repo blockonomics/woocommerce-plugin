@@ -12,7 +12,6 @@ if ($order['status'] >= 0){
   }else{
     $order_amount = $order['satoshi']/1.0e8;
   }
-  $check_payment_url = $blockonomics->get_parameterized_wc_url(array('show_order'=>$order_id, 'crypto'=>$crypto));
   $cryptos = $blockonomics->getActiveCurrencies();
   $qrcode_url = $blockonomics->get_parameterized_wc_url(array('qrcode'=>$cryptos[$crypto]['uri'] . ':' .$order['address'].'?amount='.$order_amount));
   ?>
@@ -55,7 +54,7 @@ if ($order['status'] >= 0){
                 </div>
 
                 <div>
-                  <a href="<?php echo $check_payment_url;?>">Click here if already paid</a>
+                  <a href="">Click here if already paid</a>
                 </div>
               </div>
             </div>
@@ -65,8 +64,7 @@ if ($order['status'] >= 0){
     </div>
     <!-- Blockonomics How to pay + Credit -->
     <div class="bnomics-powered-by">
-      <a href="https://blog.blockonomics.co/how-to-pay-a-bitcoin-invoice-abf4a04d041c" target="_blank"><?=__('How do I pay? | Check reviews of this shop', 'blockonomics-bitcoin-payments')?></a><br>
-      <div class="bnomics-powered-by-text bnomics-grey"><?=__('Powered by Blockonomics', 'blockonomics-bitcoin-payments')?></div>
+      <a href="https://insights.blockonomics.co/how-to-pay-a-bitcoin-invoice/" target="_blank"><?=__('How do I pay? | Check reviews of this shop', 'blockonomics-bitcoin-payments')?></a><br>
     </div>
   </div>
 <?php
