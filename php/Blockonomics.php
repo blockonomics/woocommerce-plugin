@@ -460,6 +460,7 @@ class Blockonomics
         // Check if order is unused or new
         if ( $order['status'] == -1) {
             $wc_order = new WC_Order($order['order_id']);
+            $wc_order->update_status('pending');
             $order['value'] = $wc_order->get_total();
             $order['currency'] = get_woocommerce_currency();
             if(get_woocommerce_currency() != 'BTC'){
