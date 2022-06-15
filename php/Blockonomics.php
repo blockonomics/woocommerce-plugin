@@ -381,6 +381,18 @@ class Blockonomics
         }
         return $order_url;
     }
+
+    // Returns url to redirect the user to during error
+    public function get_order_error_url($order_id, $error_type, $error_msg=NULL){
+        
+        // Check if more than one crypto is activated
+        $order_hash = $this->encrypt_hash($order_id);
+        return $this->get_parameterized_wc_url(array(
+            'error_order' => $order_hash,
+            'error_type' => $error_type,
+            'error_msg' => $error_msg
+        ));
+    }
     
     // Check if a template is a nojs template
     public function is_nojs_template($template_name){
@@ -485,7 +497,7 @@ class Blockonomics
     public function create_new_order($order_id, $crypto){
         $responseObj = $this->new_address(get_option("blockonomics_callback_secret"), $crypto);
         if($responseObj->response_code != 200) {
-            exit(json_encode(array("error"=>$responseObj->response_message)));
+            return array("error"=>$responseObj->response_message);
         }
         $address = $responseObj->address;
         $order = array(
@@ -500,20 +512,41 @@ class Blockonomics
 
     // Load the the checkout template in the page
     public function load_checkout_template($order_id, $crypto){
-        // Check to send the user to nojs page
+        // Create or update the order
+        $order = $this->process_order($order_id, $crypto);
+
+        if (array_key_exists("error", $order)) {
+            $error = strtolower($order["error"]);
+
+            if (strpos($error, 'gap_limit') !== false || strpos($error, 'temporary') !== false) {
+                $this->redirect_error_page($order_id, 'api', $order['error']);
+            } else {
+                $this->redirect_error_page($order_id, 'address_generation_'.$crypto);
+            }
+        }
+
         if($this->is_nojs_active()){
-            // Create or update the order for the nojs template
-            $this->process_order($order_id, $crypto);
             $this->load_blockonomics_template('nojs_checkout');
         }else{
             $this->load_blockonomics_template('checkout');
         }
     }
 
+    public function get_wc_order_received_url($order_id){
+        $wc_order = new WC_Order($order_id);
+        return $wc_order->get_checkout_order_received_url();
+    }
+
     // Redirect the user to the woocommerce finish order page
     public function redirect_finish_order($order_id){
         $wc_order = new WC_Order($order_id);
         wp_safe_redirect($wc_order->get_checkout_order_received_url());
+        exit();
+    }
+
+    // Redirect the user to the blockonomics error page
+    public function redirect_error_page($order_id, $error_type, $error_msg=NULL){
+        wp_safe_redirect($this->get_order_error_url($order_id, $error_type, $error_msg));
         exit();
     }
 
@@ -561,9 +594,13 @@ class Blockonomics
         }else {
             // Create and add the new order to the database
             $order = $this->create_new_order($order_id, $crypto);
+            if (array_key_exists("error", $order)) {
+                // Some error in Address Generation from API, return the same array.
+                return $order;
+            }
             if (!$this->insert_order($order)) {
                 // insert_order fails if duplicate address found. Ensures no duplicate orders in the database
-                exit(json_encode(array("error"=>__("Duplicate Address Error. This is a Temporary error, please try again", 'blockonomics-bitcoin-payments'))));
+                return array("error"=>__("Duplicate Address Error. This is a Temporary error, please try again", 'blockonomics-bitcoin-payments'));
             }
             $this->record_address($order_id, $crypto, $order['address']);
         }
