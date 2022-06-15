@@ -10,7 +10,15 @@ class Blockonomics {
         fiat_currency,
         fiat_amount,
         finish_order_url,
-        time_period = 10
+        time_period = 10,
+        text_order = null,
+        text_pay_amount = null,
+        text_pay_address = null,
+        text_open_copied = null,
+        text_open_wallet = null,
+        text_payment_expired = null,
+        text_try_again = null,
+        text_check_review = null
     }={}) {
 
         // Internal Params
@@ -38,6 +46,16 @@ class Blockonomics {
         this.finish_order_url = finish_order_url
         this.time_period = time_period
 
+        // Text Strings
+        this.text_order = (text_order || `Order`).trim()
+        this.text_pay_amount = (text_pay_amount || `To pay, send exactly this ${this.crypto.code.toUpperCase()} amount`).trim()
+        this.text_pay_address = (text_pay_address || `To this ${this.crypto.name} address`).trim()
+        this.text_open_copied = (text_open_copied || 'Copied to clipboard').trim()
+        this.text_open_wallet = (text_open_wallet || 'Open in wallet').trim()
+        this.text_payment_expired = (text_payment_expired || 'Payment Expired').trim()
+        this.text_try_again = (text_try_again || 'Click here to try again').trim()
+        this.text_check_review = (text_check_review || 'How do I pay? | Check reviews of this shop').trim()
+
         // Computed Properties
         this.progress = {
             total_time: this.time_period * 60,
@@ -55,6 +73,7 @@ class Blockonomics {
 
         await this.load_external_css()
 
+        this.create_layout()
         this.create_bindings()
 
         await this.load_external_scripts()
@@ -108,6 +127,95 @@ class Blockonomics {
             setTimeout(check_script, 1000)
         })
 
+    }
+
+    create_layout() {
+        let html = `
+        <div class="bnomics-order-container">
+            
+            <!-- Heading row -->
+            <div class="bnomics-order-heading">
+                <div class="bnomics-order-heading-wrapper">
+                    <div class="bnomics-order-id">
+                        <span class="bnomics-order-number">${this.text_order} #${this.order_id}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Spinner -->
+            <div class="bnomics-spinner-wrapper">
+                <div class="bnomics-spinner"></div>
+            </div>
+            
+            <!-- Payment Expired -->
+            <div class="bnomics-order-expired-wrapper">
+                <h3 class="warning bnomics-status-warning">${this.text_payment_expired}</h3><br/>
+                <p><a href="#" id="bnomics-try-again">${this.text_try_again}</a></p>
+            </div>
+
+            <!-- Blockonomics Checkout Panel -->
+            <div class="bnomics-order-panel">
+                <div class="bnomics-order-info">
+                    <div class="bnomics-bitcoin-pane">
+                        <div class="bnomics-btc-info">
+                            <!-- Left Side -->
+                            <div class="bnomics-qr-code">
+                                <!-- QR and Open in wallet -->
+                                <div class="bnomics-qr">
+                                    <a href="${this.crypto.uri}:${this.crypto_address}}?amount=${this.crypto_amount/1.0e8}" target="_blank">
+                                        <canvas id="bnomics-qr-code"></canvas>
+                                    </a>
+                                </div>
+                                <div class="bnomics-qr-code-hint">
+                                    <a href="${this.crypto.uri}:${this.crypto_address}}?amount=${this.crypto_amount/1.0e8}" target="_blank">${this.text_open_wallet}</a>
+                                </div>
+                            </div>
+
+                            <!-- Right Side -->
+                            <div class="bnomics-amount">
+                                <div class="bnomics-bg">
+                                    <!-- Order Amounts -->
+                                    <div class="bnomics-amount">
+                                        <div class="bnomics-amount-text">${this.text_pay_amount}</div>
+                                        <div class="bnomics-copy-amount-text">${this.text_open_copied}</div>
+                                        <ul id="bnomics-amount-input" class="bnomics-amount-input">
+                                            <li id="bnomics-amount-copy">${this.crypto_amount/1.0e8}</li>
+                                            <li>${this.crypto.code.toUpperCase()}</li>
+                                            <li class="bnomics-grey"> ≈ </li>
+                                            <li class="bnomics-grey">${this.fiat_amount}</li>
+                                            <li class="bnomics-grey">${this.fiat_currency}</li>
+                                        </ul>
+                                    </div>
+                                    <!-- Order Address -->
+                                    <div class="bnomics-address">
+                                        <div class="bnomics-address-text">${this.text_pay_address}</div>
+                                        <div class="bnomics-copy-address-text">${this.text_open_copied}</div>
+                                        <ul id="bnomics-address-input" class="bnomics-address-input">
+                                            <li id="bnomics-address-copy">${this.crypto_address}</li>
+                                        </ul>
+                                    </div>
+                                    <!-- Order Countdown Timer -->
+                                    <div class="bnomics-progress-bar-wrapper">
+                                        <div class="bnomics-progress-bar-container">
+                                        <div class="bnomics-progress-bar" style="width: 0%;"></div>
+                                    </div>
+                                </div>
+
+                                <span class="bnomics-time-left">00:00 min</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Blockonomics How to pay + Credit -->
+            <div class="bnomics-powered-by">
+                <a href="https://insights.blockonomics.co/how-to-pay-a-bitcoin-invoice/" target="_blank">${this.text_check_review}</a><br>
+            </div>
+        </div>`;
+
+        this.container.innerHTML = html
     }
 
     create_bindings() {
