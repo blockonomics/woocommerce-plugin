@@ -2,47 +2,25 @@
 class Blockonomics {
 
     constructor({
-        checkout_id = 'blockonomics_checkout',
-        crypto = 'btc',
-        order_id,
-        crypto_amount,
-        crypto_address,
-        fiat_currency,
-        fiat_amount,
-        finish_order_url,
-        time_period = 10
+        checkout_id = 'blockonomics_checkout'
     }={}) {
-
-        // Internal Params
-        this.cryptos = {
-            btc: {
-                code: 'btc',
-                name: 'Bitcoin',
-                uri: 'bitcoin'
-            },
-            bch: {
-                code: 'bch',
-                name: 'Bitcoin Cash',
-                uri: 'bitcoincash'
-            }
-        }
 
         // User Params
         this.checkout_id = checkout_id
-        this.crypto = this.cryptos[crypto]
-        this.order_id = order_id
-        this.crypto_amount = crypto_amount
-        this.crypto_address = crypto_address
-        this.fiat_currency = fiat_currency
-        this.fiat_amount = fiat_amount
-        this.finish_order_url = finish_order_url
-        this.time_period = time_period
+
+        this.data = {
+            time_period: 10,
+            crypto: null,
+            finish_order_url: null,
+            payment_uri: null,
+            crypto_address: null
+        }
 
         // Computed Properties
         this.progress = {
-            total_time: this.time_period * 60,
+            total_time: 0,
             interval: null,
-            clock: this.time_period * 60,
+            clock: 0,
             percent: 100
         }
     }
@@ -148,10 +126,25 @@ class Blockonomics {
 
         //Reload the page if user clicks try again after the order expires
         this._try_again.addEventListener('click', () => location.reload())
+
+        // Load data attributes
+        let data_container = this.container.querySelector(".blockonomics-data")
+        Object.keys(data_container.dataset).forEach(key => {
+            this.data[key] = data_container.dataset[key]
+        })
+        this.data.time_period = isNaN(this.data.time_period) ? 10 : Number(this.data.time_period)
+        this.data.crypto = JSON.parse(this.data.crypto)
+
+        this.progress = {
+            total_time: this.data.time_period * 60,
+            interval: null,
+            clock: this.data.time_period * 60,
+            percent: 100
+        }
     }
 
     generate_qr() {
-        const data = `${this.crypto.uri}:${this.crypto_address}?amount=${this.crypto_amount/1.0e8}`
+        const data = `${this.data.payment_uri}`
         this._qr =  new QRious({
             element: this._qr_code,
             value: data,
@@ -181,7 +174,7 @@ class Blockonomics {
 
     connect_to_ws() {
         //Connect and Listen on websocket for payment notification
-        var ws = new ReconnectingWebSocket("wss://" + (this.crypto.code == 'btc' ? 'www' : this.crypto.code) + ".blockonomics.co/payment/" + this.crypto_address);
+        var ws = new ReconnectingWebSocket("wss://" + (this.data.crypto.code == 'btc' ? 'www' : this.data.crypto.code) + ".blockonomics.co/payment/" + this.data.crypto_address);
         let $this = this
 
         ws.onmessage = function(evt) {
@@ -242,7 +235,7 @@ class Blockonomics {
     }
 
     redirect_to_finish_order() {
-        window.location.href = this.finish_order_url
+        window.location.href = this.data.finish_order_url
     }
 }
 

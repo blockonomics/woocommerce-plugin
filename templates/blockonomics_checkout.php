@@ -21,9 +21,20 @@ if ($order['status'] >= 0){
 
   $cryptos = $blockonomics->getActiveCurrencies();
   $crypto = $cryptos[$crypto];
+
+  $payment_uri = $crypto['uri'] . ":" . $order['address'] . "?amount=" . $order_amount;
 ?>
 
 <div id="blockonomics_checkout">
+  <div
+    class="blockonomics-data" 
+    data-crypto='<?php echo json_encode($crypto); ?>'
+    data-crypto_address="<?php echo $order['address']; ?>"
+    data-time_period="<?php echo get_option('blockonomics_timeperiod', 10); ?>"
+    data-finish_order_url="<?php echo $blockonomics->get_wc_order_received_url($order_id); ?>"
+    data-payment_uri="<?php echo $payment_uri; ?>"
+  ></div>
+  
   <div class="bnomics-order-container">
     <!-- Heading row -->
     <div class="bnomics-order-heading">
@@ -54,12 +65,12 @@ if ($order['status'] >= 0){
                     <div class="bnomics-qr-code">
                         <!-- QR and Open in wallet -->
                         <div class="bnomics-qr">
-                            <a href="<?php echo $crypto['uri']; ?>:<?php echo $order['address']; ?>?amount=<?php echo $order_amount; ?>" target="_blank">
+                            <a href="<?php echo $payment_uri; ?>" target="_blank">
                                 <canvas id="bnomics-qr-code"></canvas>
                             </a>
                         </div>
                         <div class="bnomics-qr-code-hint">
-                            <a href="<?php echo $crypto['uri']; ?>:<?php echo $order['address']; ?>?amount=<?php echo $order_amount; ?>" target="_blank"><?=__('Open in wallet', 'blockonomics-bitcoin-payments')?></a>
+                            <a href="<?php echo $payment_uri; ?>" target="_blank"><?=__('Open in wallet', 'blockonomics-bitcoin-payments')?></a>
                         </div>
                     </div>
 
@@ -116,19 +127,9 @@ if ($order['status'] >= 0){
       window.location.href = '<?php echo $blockonomics->get_order_error_url($order_id, 'display_error'); ?>'
   }, 30000);
 
-  let blockonomics = new Blockonomics({
-  	checkout_id: 'blockonomics_checkout',
-  	crypto: '<?php echo $crypto['code']; ?>',
-  	order_id: '<?php echo $order_id; ?>',
-  	crypto_amount: <?php echo $order['satoshi']; ?>,
-  	crypto_address: '<?php echo $order['address']; ?>',
-  	fiat_currency: '<?php echo $order['currency']; ?>',
-  	fiat_amount: <?php echo $order['value']; ?>,
-  	finish_order_url: "<?php echo $blockonomics->get_wc_order_received_url($order_id); ?>",
-  	time_period: <?php echo get_option('blockonomics_timeperiod', 10); ?>,
-  });
-
+  let blockonomics = new Blockonomics();
   blockonomics.init();
+
   is_initialised = true;
 </script>
 
