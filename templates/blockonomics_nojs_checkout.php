@@ -15,7 +15,7 @@ if ($order['status'] >= 0){
   $cryptos = $blockonomics->getActiveCurrencies();
   $qrcode_url = $blockonomics->get_parameterized_wc_url(array('qrcode'=>$cryptos[$crypto]['uri'] . ':' .$order['address'].'?amount='.$order_amount));
   ?>
-  <div class="bnomics-order-container">
+  <div class="bnomics-order-container no-js">
     <!-- Heading row -->
     <div class="bnomics-order-heading">
       <div class="bnomics-order-heading-wrapper">

@@ -252,3 +252,14 @@
 @-webkit-keyframes spin {
   to { -webkit-transform: rotate(360deg); }
 }
+/** Hide Panels by Default **/
+.blockonomics-data {
+  display: none;
+}
+
+.bnomics-order-container:not(.no-js) .bnomics-order-expired-wrapper,
+.bnomics-order-container:not(.no-js) .bnomics-order-panel,
+.bnomics-order-container:not(.no-js) .bnomics-copy-amount-text,
+.bnomics-order-container:not(.no-js) .bnomics-copy-address-text {
+  display: none;
+}

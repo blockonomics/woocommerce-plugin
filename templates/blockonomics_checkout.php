@@ -40,7 +40,7 @@ if ($order['status'] >= 0){
     <div class="bnomics-order-heading">
         <div class="bnomics-order-heading-wrapper">
             <div class="bnomics-order-id">
-                <span class="bnomics-order-number"><?=__('Order', 'blockonomics-bitcoin-payments')?> #<?php echo $order_id; ?></span>
+                <span class="bnomics-order-number"><?=__('Order #', 'blockonomics-bitcoin-payments')?><?php echo $order_id; ?></span>
             </div>
         </div>
     </div>
@@ -48,6 +48,12 @@ if ($order['status'] >= 0){
     <!-- Spinner -->
     <div class="bnomics-spinner-wrapper">
         <div class="bnomics-spinner"></div>
+    </div>
+
+    <!-- Display Error -->
+    <div class="bnomics-display-error">
+        <h2><?=__('Display Error', 'blockonomics-bitcoin-payments')?></h2>
+        <p><?=__('Unable to render correctly, Note to Administrator: Please enable lite mode in the Blockonomics plugin.', 'blockonomics-bitcoin-payments')?></p>
     </div>
     
     <!-- Payment Expired -->
@@ -120,17 +126,8 @@ if ($order['status'] >= 0){
 </div>
 
 <script type="text/javascript">
-  let is_initialised = false
-
-  setTimeout(() => {
-    if (!is_initialised) 
-      window.location.href = '<?php echo $blockonomics->get_order_error_url($order_id, 'display_error'); ?>'
-  }, 30000);
-
   let blockonomics = new Blockonomics();
   blockonomics.init();
-
-  is_initialised = true;
 </script>
 
 <?php

@@ -8,84 +8,28 @@ class Blockonomics {
         // User Params
         this.checkout_id = checkout_id
 
-        this.data = {
-            time_period: 10,
-            crypto: null,
-            finish_order_url: null,
-            payment_uri: null,
-            crypto_address: null
-        }
+        this.data = {}
 
         // Computed Properties
-        this.progress = {
-            total_time: 0,
-            interval: null,
-            clock: 0,
-            percent: 100
-        }
+        this.progress = {}
     }
 
-    async init() {
+    init() {
         this.container = document.getElementById(this.checkout_id);
         if (!this.container) {
             throw Error(`Blockonomics Initialisation Error: Container #${this.checkout_id} was not found!`)
         }
 
-        await this.load_external_css()
-
         this.create_bindings()
-
-        await this.load_external_scripts()
         
         this.progress.interval = setInterval(() => this.tick(), 1000)
         this._spinner_wrapper.style.display = 'none'
         this._order_panel.style.display = 'block'
         this.generate_qr()
         this.connect_to_ws()
-    }
-
-    load_external_css() {
-        // Placeholder Function, may be used in future
-    }
-
-    load_external_scripts() {
-        let scripts = [
-            "https://cdnjs.cloudflare.com/ajax/libs/reconnecting-websocket/1.0.0/reconnecting-websocket.min.js",
-            "https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"
-        ]
-
         
-        for(let i=0; i<scripts.length; i++) {
-            window.bnomics_external_script_loaded = false
-
-            let script = document.createElement('script')
-            script.setAttribute('src', scripts[i])
-            script.setAttribute('type', 'text/javascript')
-            script.classList.add('controlled-by-bnomics')
-            script.setAttribute("async", true)
-            script.addEventListener('load', () => {script.setAttribute('bnomics-loaded', 'true')})
-            script.addEventListener('error', () => {script.setAttribute('bnomics-error', 'true')})
-
-            document.body.appendChild(script)
-        }
-
-        return new Promise( (resolve, reject) => {
-            let check_script = () => {
-
-                let is_loaded = true
-                document.querySelectorAll('script.controlled-by-bnomics').forEach(script => {
-                    if (!script.hasAttribute('bnomics-loaded') && !script.hasAttribute('bnomics-error')) {
-                        is_loaded = false
-                    }
-                })
-
-                if (is_loaded) resolve()
-                else setTimeout(check_script, 1000)
-            }
-
-            setTimeout(check_script, 1000)
-        })
-
+        // Hide Display Error
+        this._display_error_wrapper.style.display = "none"
     }
 
     create_bindings() {
@@ -109,12 +53,8 @@ class Blockonomics {
 
         this._try_again = this.container.querySelector('#bnomics-try-again')
         this._qr_code = this.container.querySelector('#bnomics-qr-code')
-        
-        // Hide Panels
-        this._order_expired_wrapper.style.display = 'none'
-        this._order_panel.style.display = 'none'
-        this._copy_amount_text.style.display = 'none'
-        this._copy_address_text.style.display = 'none'
+
+        this._display_error_wrapper = this.container.querySelector(".bnomics-display-error")
 
         // Click Bindings
 
@@ -132,7 +72,7 @@ class Blockonomics {
         Object.keys(data_container.dataset).forEach(key => {
             this.data[key] = data_container.dataset[key]
         })
-        this.data.time_period = isNaN(this.data.time_period) ? 10 : Number(this.data.time_period)
+        this.data.time_period = Number(this.data.time_period)
         this.data.crypto = JSON.parse(this.data.crypto)
 
         this.progress = {
