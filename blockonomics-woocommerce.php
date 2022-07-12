@@ -308,11 +308,11 @@ function blockonomics_woocommerce_init()
                             </tr>
                             <tr valign="top">
                                 <th scope="row"><?php echo __('Extra Currency Rate Margin % (Increase live fiat to BTC rate by small percent)', 'blockonomics-bitcoin-payments')?></th>
-                                <td><input onchange="add_asterisk('settings')" type="number" min="0" max="10" step="0.01" name="blockonomics_margin" value="<?php echo esc_attr( get_option('blockonomics_margin', 0) ); ?>" /></td>
+                                <td><input onchange="add_asterisk('settings')" type="number" min="0" max="20" step="0.01" name="blockonomics_margin" value="<?php echo esc_attr( get_option('blockonomics_margin', 0) ); ?>" /></td>
                             </tr>
                             <tr valign="top">
                                 <th scope="row"><?php echo __('Underpayment Slack % (Allow payments that are off by a small percentage)', 'blockonomics-bitcoin-payments')?></th>
-                                <td><input onchange="add_asterisk('settings')" type="number" min="0" max="10" step="0.01" name="blockonomics_underpayment_slack" value="<?php echo esc_attr( get_option('blockonomics_underpayment_slack', 0) ); ?>" /></td>
+                                <td><input onchange="add_asterisk('settings')" type="number" min="0" max="20" step="0.01" name="blockonomics_underpayment_slack" value="<?php echo esc_attr( get_option('blockonomics_underpayment_slack', 0) ); ?>" /></td>
                             </tr>
                             <tr valign="top">
                                 <th scope="row"><?php echo __('Display Payment Page in Lite Mode (Enable this if you are having problems in rendering checkout page)', 'blockonomics-bitcoin-payments')?></th>
