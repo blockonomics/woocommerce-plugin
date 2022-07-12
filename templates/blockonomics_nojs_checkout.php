@@ -6,7 +6,10 @@ $order_id = $blockonomics->decrypt_hash($order_hash);
 $order = $blockonomics->get_order_by_id_and_crypto($order_id, $crypto);
 if ($order['status'] >= 0){
   $blockonomics->redirect_finish_order($order_id);
-}else {
+} else if ($order['status'] == -2) {
+  // Partial payment is recevied
+  $blockonomics->redirect_error_page($order_id, 'paid_amount_is_less');
+} else {
   if($order['satoshi'] < 10000){
     $order_amount = rtrim(number_format($order['satoshi']/1.0e8, 8),0);
   }else{
