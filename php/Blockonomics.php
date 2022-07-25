@@ -422,32 +422,21 @@ class Blockonomics
         // Lite mode will render without wordpress theme headers
         if($this->is_lite_mode_active()){
         ?>
-          <link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/order.css', dirname(__FILE__));?>">
+            <link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/order.css', dirname(__FILE__));?>">
+            <script src="<?php echo plugins_url('js/vendors/reconnecting-websocket.min.js', dirname(__FILE__));?>"></script>
+            <script src="<?php echo plugins_url('js/vendors/qrious.min.js', dirname(__FILE__));?>"></script>
+            <script src="<?php echo plugins_url('js/checkout.js', dirname(__FILE__));?>"></script>
         <?php
-        }else{
-          get_header();
+        } else {
+            get_header();
         }
     }
 
     // Adds the footer to the blockonomics page
     public function load_blockonomics_footer($template_name){
         // Lite mode will render without wordpress theme footers
-        if($this->is_lite_mode_active()){
-            // Only load the lite mode javascript if nojs is not active
-            if (!$this->is_nojs_template($template_name)) {
-                ?>
-                  <script>var ajax_object = {ajax_url:"<?php echo admin_url( 'admin-ajax.php' ); ?>", wc_url:"<?php echo WC()->api_request_url('WC_Gateway_Blockonomics'); ?>"};
-                  </script>
-                  <script src="<?php echo plugins_url('js/angular.min.js', dirname(__FILE__));?>"></script>
-                  <script src="<?php echo plugins_url('js/angular-resource.min.js', dirname(__FILE__));?>"></script>
-                  <script src="<?php echo plugins_url('js/app.js', dirname(__FILE__));?>"></script>
-                  <script src="<?php echo plugins_url('js/angular-qrcode.js', dirname(__FILE__));?>"></script>
-                  <script src="<?php echo plugins_url('js/vendors.min.js', dirname(__FILE__));?>"></script>
-                  <script src="<?php echo plugins_url('js/reconnecting-websocket.min.js', dirname(__FILE__));?>"></script>
-                <?php
-            }
-        }else{
-          get_footer();
+        if(!$this->is_lite_mode_active()){
+            get_footer();
         }
     }
 
