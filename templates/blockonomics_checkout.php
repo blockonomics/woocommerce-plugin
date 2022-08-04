@@ -1,41 +1,20 @@
 <?php
-$blockonomics = new Blockonomics;
-$crypto = isset($_REQUEST["crypto"]) ? sanitize_key($_REQUEST["crypto"]) : "";
-$order_hash = isset($_REQUEST["show_order"]) ? sanitize_text_field(wp_unslash($_REQUEST["show_order"])) : "";
-$order_id = $blockonomics->decrypt_hash($order_hash);
-$order = $blockonomics->get_order_by_id_and_crypto($order_id, $crypto);
-
-if ($order['status'] >= 0){
-  // Payment is recevied
-  $blockonomics->redirect_finish_order($order_id);
-} else if ($order['status'] == -2) {
-  // Partial payment is recevied
-  $blockonomics->redirect_error_page($order_id, 'paid_amount_is_less');
-} else {
-  // Display Checkout page
-  if($order['satoshi'] < 10000){
-    $order_amount = rtrim(number_format($order['satoshi']/1.0e8, 8),0);
-  } else{
-    $order_amount = $order['satoshi']/1.0e8;
-  }
-
-  $cryptos = $blockonomics->getActiveCurrencies();
-  $crypto = $cryptos[$crypto];
-
-  $payment_uri = $crypto['uri'] . ":" . $order['address'] . "?amount=" . $order_amount;
+    /** 
+     * Blockonomics Checkout Page (JS Enabled)
+     * 
+     * The following variables are available to be used in the template along with all WP Functions/Methods/Globals
+     * 
+     * $order: Order Object
+     * $order_id: WooCommerce Order ID
+     * $order_amount: Crypto Amount
+     * $crypto: Crypto Object (code, name, uri) e.g. (btc, Bitcoin, bitcoin)
+     * $payment_uri: Crypto URI with Amount and Protocol
+     * $qrcode_url: QR Code URL, can be used for NoJS QRCode Generation
+     * 
+     */
 ?>
 
-<div id="blockonomics_checkout">
-  <div
-    class="blockonomics-data" 
-    data-crypto='<?php echo json_encode($crypto); ?>'
-    data-crypto_address="<?php echo $order['address']; ?>"
-    data-time_period="<?php echo get_option('blockonomics_timeperiod', 10); ?>"
-    data-finish_order_url="<?php echo $blockonomics->get_wc_order_received_url($order_id); ?>"
-    data-payment_uri="<?php echo $payment_uri; ?>"
-  ></div>
-  
-  <div class="bnomics-order-container">
+<div class="bnomics-order-container">
     <!-- Heading row -->
     <div class="bnomics-order-heading">
         <div class="bnomics-order-heading-wrapper">
@@ -122,13 +101,4 @@ if ($order['status'] >= 0){
     <div class="bnomics-powered-by">
         <a href="https://insights.blockonomics.co/how-to-pay-a-bitcoin-invoice/" target="_blank"><?=__('How do I pay? | Check reviews of this shop', 'blockonomics-bitcoin-payments')?></a><br>
     </div>
-  </div>
 </div>
-
-<script type="text/javascript">
-  let blockonomics = new Blockonomics();
-  blockonomics.init();
-</script>
-
-<?php
-}

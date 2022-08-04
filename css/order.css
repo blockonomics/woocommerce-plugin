@@ -257,9 +257,9 @@
   display: none;
 }
 
-.bnomics-order-container:not(.no-js) .bnomics-order-expired-wrapper,
-.bnomics-order-container:not(.no-js) .bnomics-order-panel,
-.bnomics-order-container:not(.no-js) .bnomics-copy-amount-text,
-.bnomics-order-container:not(.no-js) .bnomics-copy-address-text {
+#blockonomics_checkout:not(.no-js) .bnomics-order-container .bnomics-order-expired-wrapper,
+#blockonomics_checkout:not(.no-js) .bnomics-order-container .bnomics-order-panel,
+#blockonomics_checkout:not(.no-js) .bnomics-order-container .bnomics-copy-amount-text,
+#blockonomics_checkout:not(.no-js) .bnomics-order-container .bnomics-copy-address-text {
   display: none;
 }

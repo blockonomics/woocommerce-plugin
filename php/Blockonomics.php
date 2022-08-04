@@ -381,18 +381,6 @@ class Blockonomics
         }
         return $order_url;
     }
-
-    // Returns url to redirect the user to during error
-    public function get_order_error_url($order_id, $error_type, $error_msg=NULL){
-        
-        // Check if more than one crypto is activated
-        $order_hash = $this->encrypt_hash($order_id);
-        return $this->get_parameterized_wc_url(array(
-            'error_order' => $order_hash,
-            'error_type' => $error_type,
-            'error_msg' => $error_msg
-        ));
-    }
     
     // Check if a template is a nojs template
     public function is_nojs_template($template_name){
@@ -441,11 +429,14 @@ class Blockonomics
     }
 
     // Adds the selected template to the blockonomics page
-    public function load_blockonomics_template($template_name){
+    public function load_blockonomics_template($template_name, $context = array()){
         $this->load_blockonomics_header($template_name);
         // Load the selected template
         // Check if child theme or parent theme have overridden the template
         $template = 'blockonomics_'.$template_name.'.php';
+        foreach ($context as $key => $value) {
+            set_query_var('blockonomics_'.$key, $value);
+        }
         if ( $overridden_template = locate_template( $template ) ) {
             load_template( $overridden_template );
         } else {
@@ -504,21 +495,22 @@ class Blockonomics
         // Create or update the order
         $order = $this->process_order($order_id, $crypto);
 
+        // Context to pass to Template
+        $context = array();
+        
         if (array_key_exists("error", $order)) {
             $error = strtolower($order["error"]);
 
             if (strpos($error, 'gap_limit') !== false || strpos($error, 'temporary') !== false) {
-                $this->redirect_error_page($order_id, 'api', $order['error']);
+                $context['error_type'] = "api";
+                $context['error_msg'] = $order['error'];
             } else {
-                $this->redirect_error_page($order_id, 'address_generation_'.$crypto);
+                $context['error_type'] = "address_generation_".$crypto;
+                $context['error_msg'] = $order['error'];
             }
         }
-
-        if($this->is_nojs_active()){
-            $this->load_blockonomics_template('nojs_checkout');
-        }else{
-            $this->load_blockonomics_template('checkout');
-        }
+        
+        $this->load_blockonomics_template('checkout_helper', $context);
     }
 
     public function get_wc_order_received_url($order_id){
@@ -530,12 +522,6 @@ class Blockonomics
     public function redirect_finish_order($order_id){
         $wc_order = new WC_Order($order_id);
         wp_safe_redirect($wc_order->get_checkout_order_received_url());
-        exit();
-    }
-
-    // Redirect the user to the blockonomics error page
-    public function redirect_error_page($order_id, $error_type, $error_msg=NULL){
-        wp_safe_redirect($this->get_order_error_url($order_id, $error_type, $error_msg));
         exit();
     }
 
