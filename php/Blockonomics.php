@@ -428,15 +428,23 @@ class Blockonomics
         }
     }
 
+    public function set_template_context($context) {
+        // Todo: With WP 5.5+, the load_template methods supports args
+        // and can be used as a replacement to this.
+        foreach ($context as $key => $value) {
+            set_query_var($key, $value);
+        }
+    }
+
     // Adds the selected template to the blockonomics page
     public function load_blockonomics_template($template_name, $context = array()){
         $this->load_blockonomics_header($template_name);
         // Load the selected template
-        // Check if child theme or parent theme have overridden the template
         $template = 'blockonomics_'.$template_name.'.php';
-        foreach ($context as $key => $value) {
-            set_query_var('blockonomics_'.$key, $value);
-        }
+        // Load Template Context
+        $this->set_template_context($context);
+        
+        // Check if child theme or parent theme have overridden the template
         if ( $overridden_template = locate_template( $template ) ) {
             load_template( $overridden_template );
         } else {
@@ -497,20 +505,43 @@ class Blockonomics
 
         // Context to pass to Template
         $context = array();
-        
-        if (array_key_exists("error", $order)) {
-            $error = strtolower($order["error"]);
+        $context['order_id'] = $order_id;
 
+        $cryptos = $this->getActiveCurrencies();
+        $context['crypto'] = $cryptos[$crypto];
+
+        $has_error = FALSE;
+        if (array_key_exists('error', $order)) {
+            $error = strtolower($order['error']);
+            $has_error = TRUE;
             if (strpos($error, 'gap_limit') !== false || strpos($error, 'temporary') !== false) {
-                $context['error_type'] = "api";
+                $context['error_title'] = __('Could not generate new address', 'blockonomics-bitcoin-payments');
                 $context['error_msg'] = $order['error'];
             } else {
-                $context['error_type'] = "address_generation_".$crypto;
-                $context['error_msg'] = $order['error'];
+                if($crypto == 'btc') {
+                    $context['error_title'] = __('Could not generate new Bitcoin address', 'blockonomics-bitcoin-payments');
+                    $context['error_msg'] = __('Note to webmaster: Please login to your admin panel, navigate to Settings > Blockonomics > Currencies and click <i>Test Setup</i> to diagnose the issue.', 'blockonomics-bitcoin-payments');
+                } else {
+                    $context['error_title'] = __('Could not generate new Bitcoin Cash address', 'blockonomics-bitcoin-payments');
+                    $context['error_msg'] = __('Note to webmaster: Please follow the instructions <a href="https://help.blockonomics.co/en/support/solutions/articles/33000253348-bch-setup-on-woocommerce" target="_blank">here</a> to configure BCH payments.', 'blockonomics-bitcoin-payments');
+                }
+            }
+        } else {
+            $context['order'] = $order;
+
+            if ($order['status'] == -2) {
+                // Payment is Underpaid
+                $has_error = TRUE;
+                $context['error_title'] = '';
+                $context['error_msg'] = __('Paid order BTC amount is less than expected. Contact merchant', 'blockonomics-bitcoin-payments');
+            } elseif ($order['status'] >= 0) {
+            // Payment is Received
+                $this->redirect_finish_order($order_id);
             }
         }
         
-        $this->load_blockonomics_template('checkout_helper', $context);
+        $template_name = ($has_error) ? 'error' : 'checkout_helper';
+        $this->load_blockonomics_template($template_name, $context);
     }
 
     public function get_wc_order_received_url($order_id){
