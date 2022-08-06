@@ -14,7 +14,7 @@
   $qrcode_url = $blockonomics->get_parameterized_wc_url(array('qrcode'=>$crypto['uri'] . ':' .$order['address'].'?amount='.$order_amount));
 ?>
 
-<div id="blockonomics_checkout" <?php if($is_no_js){ ?>class="no-js"<? }?>>
+<div id="blockonomics_checkout" <?php if($is_no_js){ ?>class="no-js"<?php } ?>>
   <div
     class="blockonomics-data" 
     data-crypto='<?php echo json_encode($crypto); ?>'
