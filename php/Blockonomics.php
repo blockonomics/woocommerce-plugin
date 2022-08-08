@@ -514,18 +514,10 @@ class Blockonomics
         if (array_key_exists('error', $order)) {
             $error = strtolower($order['error']);
             $has_error = TRUE;
-            if (strpos($error, 'gap_limit') !== false || strpos($error, 'temporary') !== false) {
-                $context['error_title'] = __('Could not generate new address', 'blockonomics-bitcoin-payments');
-                $context['error_msg'] = $order['error'];
-            } else {
-                if($crypto == 'btc') {
-                    $context['error_title'] = __('Could not generate new Bitcoin address', 'blockonomics-bitcoin-payments');
-                    $context['error_msg'] = __('Note to webmaster: Please login to your admin panel, navigate to Settings > Blockonomics > Currencies and click <i>Test Setup</i> to diagnose the issue.', 'blockonomics-bitcoin-payments');
-                } else {
-                    $context['error_title'] = __('Could not generate new Bitcoin Cash address', 'blockonomics-bitcoin-payments');
-                    $context['error_msg'] = __('Note to webmaster: Please follow the instructions <a href="https://help.blockonomics.co/en/support/solutions/articles/33000253348-bch-setup-on-woocommerce" target="_blank">here</a> to configure BCH payments.', 'blockonomics-bitcoin-payments');
-                }
-            }
+            
+            // Show Generic Error to Client.
+            $context['error_title'] = __('Could not generate new address (This may be a temporary error. Please try again)', 'blockonomics-bitcoin-payments');
+            $context['error_msg'] = __('If this continues, please ask website administrator to do following:<br/><ul><li>Login to admin panel, navigate to Settings > Blockonomics > Currencies and click Test Setup to diagnose the exact issue.</li><li>Check blockonomics registered email address for error messages</li>', 'blockonomics-bitcoin-payments');
         } else {
             $context['order'] = $order;
 
