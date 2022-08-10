@@ -529,10 +529,29 @@ class Blockonomics
             } elseif ($order['status'] >= 0) {
             // Payment is Received
                 $this->redirect_finish_order($order_id);
+            } else {
+
+                // Display Checkout Page
+                if ($order['satoshi'] < 10000){
+                    $context['order_amount'] = rtrim(number_format($order['satoshi']/1.0e8, 8),0);
+                } else {
+                    $context['order_amount'] = $order['satoshi']/1.0e8;
+                }
+
+                $context['payment_uri'] = $context['crypto']['uri'] . ":" . $order['address'] . "?amount=" . $context['order_amount'];
+                $context['qrcode_url'] = $this->get_parameterized_wc_url(array('qrcode'=>$context['crypto']['uri'] . ':' .$order['address'].'?amount='.$context['order_amount']));
+                $context['order_completed_url'] = $this->get_wc_order_received_url($order_id);
+                $context['time_period'] = get_option('blockonomics_timeperiod', 10);
             }
         }
+        $template_name = NULL;
+
+        if ($has_error) {
+            $template_name = 'error';
+        } else {
+            $template_name = ($this->is_nojs_active()) ? 'nojs_checkout' : 'checkout';
+        }
         
-        $template_name = ($has_error) ? 'error' : 'checkout_helper';
         $this->load_blockonomics_template($template_name, $context);
     }
 
