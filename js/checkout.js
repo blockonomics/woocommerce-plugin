@@ -24,7 +24,7 @@ class Blockonomics {
             this.data = JSON.parse(blockonomics_data)
         } catch(e) {
             if (e.toString().includes('ReferenceError')) {
-                throw Error(`Blockonomics Initialisation Error: Data Object was not found in Window. Please set window.blockonomics_data.`)
+                throw Error(`Blockonomics Initialisation Error: Data Object was not found in Window. Please set blockonomics_data variable.`)
             }
             throw Error(`Blockonomics Initialisation Error: Data Object is not a valid JSON.`)
         }
