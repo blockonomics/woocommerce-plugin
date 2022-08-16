@@ -2,7 +2,8 @@
 class Blockonomics {
 
     constructor({
-        checkout_id = 'blockonomics_checkout'
+        checkout_id = 'blockonomics_checkout',
+        auto_init = true
     }={}) {
 
         // User Params
@@ -12,6 +13,10 @@ class Blockonomics {
 
         // Computed Properties
         this.progress = {}
+
+        // Initialise
+        if (auto_init)
+            this.init()
     }
 
     init() {
@@ -184,7 +189,5 @@ class Blockonomics {
     }
 }
 
-window.Blockonomics = Blockonomics
-
 // Automatically trigger only after DOM is loaded
-addEventListener('DOMContentLoaded', () => new Blockonomics().init());
+addEventListener('DOMContentLoaded', () => new Blockonomics());
