@@ -183,4 +183,4 @@ class Blockonomics {
 }
 
 // Automatically trigger only after DOM is loaded
-addEventListener('DOMContentLoaded', () => new Blockonomics());
+new Blockonomics()

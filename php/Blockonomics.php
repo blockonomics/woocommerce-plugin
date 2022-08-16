@@ -402,35 +402,44 @@ class Blockonomics
 
     // Adds the header to the blockonomics page
     public function load_blockonomics_header($template_name, $additional_script=NULL){
-        add_action('wp_enqueue_scripts', 'bnomics_enqueue_stylesheets' );
-        // Don't load javascript files if no js is active
-        if (!$this->is_nojs_template($template_name)) {
-            add_action('wp_enqueue_scripts', 'bnomics_enqueue_scripts' );
-            
-            if (isset($additional_script)) {
-                add_action('wp_enqueue_scripts', function () use ($additional_script) {
-                    wp_add_inline_script('bnomics-checkout', $additional_script, 'before');
-                });
-            }
-        }
         // Lite mode will render without wordpress theme headers
         if($this->is_lite_mode_active()){
         ?>
             <link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/order.css', dirname(__FILE__));?>">
+        <?php
+        } else {
+            add_action('wp_enqueue_scripts', 'bnomics_enqueue_stylesheets' );
+            
+            // wp_enqueue_scripts needs to be called before get_header(), but the scripts are loaded in footer as
+            // $in_footer is set to TRUE for scripts in bnomics_enqueu_scripts
+
+            if (!$this->is_nojs_template($template_name)) {
+                
+                add_action('wp_enqueue_scripts', 'bnomics_enqueue_scripts' );
+                
+                if (isset($additional_script)) {
+                    add_action('wp_enqueue_scripts', function () use ($additional_script) {
+                        wp_add_inline_script('bnomics-checkout', $additional_script, 'before');
+                    });
+                }
+            }
+
+            get_header();
+        }
+    }
+
+    // Adds the footer to the blockonomics page
+    public function load_blockonomics_footer($template_name, $additional_script=NULL){
+        
+        // Lite mode will render without wordpress theme footers
+        if($this->is_lite_mode_active()){
+        ?>
             <script src="<?php echo plugins_url('js/vendors/reconnecting-websocket.min.js', dirname(__FILE__));?>"></script>
             <script src="<?php echo plugins_url('js/vendors/qrious.min.js', dirname(__FILE__));?>"></script>
             <script><?php echo $additional_script; ?></script>
             <script src="<?php echo plugins_url('js/checkout.js', dirname(__FILE__));?>"></script>
         <?php
         } else {
-            get_header();
-        }
-    }
-
-    // Adds the footer to the blockonomics page
-    public function load_blockonomics_footer($template_name){
-        // Lite mode will render without wordpress theme footers
-        if(!$this->is_lite_mode_active()){
             get_footer();
         }
     }
@@ -459,7 +468,7 @@ class Blockonomics
             load_template( plugin_dir_path(__FILE__)."../templates/" .$template );
         }
 
-        $this->load_blockonomics_footer($template_name);
+        $this->load_blockonomics_footer($template_name, $additional_script);
 
         exit();
     }
