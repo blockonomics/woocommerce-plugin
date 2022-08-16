@@ -25,8 +25,15 @@ class Blockonomics {
             throw Error(`Blockonomics Initialisation Error: Container #${this.checkout_id} was not found!`)
         }
 
-        if (!window.blockonomics_data) {
-            throw Error(`Blockonomics Initialisation Error: Data Object was not found in Window. Please set window.blockonomics_data.`)
+        // Load data attributes
+        // This assumes a constant/var `blockonomics_data` is defined before the script is called.
+        try {
+            this.data = JSON.parse(blockonomics_data)
+        } catch(e) {
+            if (e.toString().includes('ReferenceError')) {
+                throw Error(`Blockonomics Initialisation Error: Data Object was not found in Window. Please set window.blockonomics_data.`)
+            }
+            throw Error(`Blockonomics Initialisation Error: Data Object is not a valid JSON.`)
         }
 
         this.create_bindings()
@@ -75,13 +82,6 @@ class Blockonomics {
 
         //Reload the page if user clicks try again after the order expires
         this._try_again.addEventListener('click', () => location.reload())
-
-        // Load data attributes
-        try {
-            this.data = JSON.parse(window.blockonomics_data)
-        } catch(e) {
-            throw Error(`Blockonomics Initialisation Error: Data Object is not a valid JSON.`)
-        }
 
         this.data.time_period = Number(this.data.time_period)
 

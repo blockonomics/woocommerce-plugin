@@ -560,7 +560,7 @@ class Blockonomics
                 $template_name = 'nojs_checkout';
             } else {
                 $template_name = 'checkout';
-                $script = "window.blockonomics_data = '" . json_encode( array (
+                $script = "const blockonomics_data = '" . json_encode( array (
                     'crypto' => $context['crypto'],
                     'crypto_address' => $order['address'],
                     'time_period' => get_option('blockonomics_timeperiod', 10),
