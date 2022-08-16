@@ -10,8 +10,6 @@
      * $crypto: Crypto Object (code, name, uri) e.g. (btc, Bitcoin, bitcoin)
      * $payment_uri: Crypto URI with Amount and Protocol
      * $qrcode_url: QR Code URL, can be used for NoJS QRCode Generation
-     * $order_completed_url: URL to goto after order has been completed
-     * $time_period: Time period before price expires (Not remaining time, but total time)
      */
 ?>
 <div id="blockonomics_checkout">
@@ -108,17 +106,4 @@
         Blockonomics Data Attributes for JS,
         Modifying the div below can cause unexpected errors and rendering issues
     -->
-    <div
-        class="blockonomics-data" 
-        data-crypto='<?php echo json_encode($crypto); ?>'
-        data-crypto_address="<?php echo $order['address']; ?>"
-        data-time_period="<?php echo $time_period; ?>"
-        data-finish_order_url="<?php echo $order_completed_url; ?>"
-        data-payment_uri="<?php echo $payment_uri; ?>"
-    ></div>
 </div>
-
-<script type="text/javascript">
-    let blockonomics = new Blockonomics();
-    blockonomics.init();
-</script>

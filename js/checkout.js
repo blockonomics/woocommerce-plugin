@@ -20,6 +20,10 @@ class Blockonomics {
             throw Error(`Blockonomics Initialisation Error: Container #${this.checkout_id} was not found!`)
         }
 
+        if (!window.blockonomics_data) {
+            throw Error(`Blockonomics Initialisation Error: Data Object was not found in Window. Please set window.blockonomics_data.`)
+        }
+
         this.create_bindings()
         
         this.progress.interval = setInterval(() => this.tick(), 1000)
@@ -68,12 +72,13 @@ class Blockonomics {
         this._try_again.addEventListener('click', () => location.reload())
 
         // Load data attributes
-        let data_container = this.container.querySelector(".blockonomics-data")
-        Object.keys(data_container.dataset).forEach(key => {
-            this.data[key] = data_container.dataset[key]
-        })
+        try {
+            this.data = JSON.parse(window.blockonomics_data)
+        } catch(e) {
+            throw Error(`Blockonomics Initialisation Error: Data Object is not a valid JSON.`)
+        }
+
         this.data.time_period = Number(this.data.time_period)
-        this.data.crypto = JSON.parse(this.data.crypto)
 
         this.progress = {
             total_time: this.data.time_period * 60,
@@ -180,3 +185,6 @@ class Blockonomics {
 }
 
 window.Blockonomics = Blockonomics
+
+// Automatically trigger only after DOM is loaded
+addEventListener('DOMContentLoaded', () => new Blockonomics().init());

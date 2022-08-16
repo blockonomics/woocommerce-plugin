@@ -401,11 +401,17 @@ class Blockonomics
     }
 
     // Adds the header to the blockonomics page
-    public function load_blockonomics_header($template_name){
+    public function load_blockonomics_header($template_name, $additional_script=NULL){
         add_action('wp_enqueue_scripts', 'bnomics_enqueue_stylesheets' );
         // Don't load javascript files if no js is active
         if (!$this->is_nojs_template($template_name)) {
             add_action('wp_enqueue_scripts', 'bnomics_enqueue_scripts' );
+            
+            if (isset($additional_script)) {
+                add_action('wp_enqueue_scripts', function () use ($additional_script) {
+                    wp_add_inline_script('bnomics-checkout', $additional_script, 'before');
+                });
+            }
         }
         // Lite mode will render without wordpress theme headers
         if($this->is_lite_mode_active()){
@@ -413,6 +419,7 @@ class Blockonomics
             <link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/order.css', dirname(__FILE__));?>">
             <script src="<?php echo plugins_url('js/vendors/reconnecting-websocket.min.js', dirname(__FILE__));?>"></script>
             <script src="<?php echo plugins_url('js/vendors/qrious.min.js', dirname(__FILE__));?>"></script>
+            <script><?php echo $additional_script; ?></script>
             <script src="<?php echo plugins_url('js/checkout.js', dirname(__FILE__));?>"></script>
         <?php
         } else {
@@ -437,8 +444,9 @@ class Blockonomics
     }
 
     // Adds the selected template to the blockonomics page
-    public function load_blockonomics_template($template_name, $context = array()){
-        $this->load_blockonomics_header($template_name);
+    public function load_blockonomics_template($template_name, $context = array(), $additional_script = NULL){
+        $this->load_blockonomics_header($template_name, $additional_script);
+
         // Load the selected template
         $template = 'blockonomics_'.$template_name.'.php';
         // Load Template Context
@@ -540,19 +548,29 @@ class Blockonomics
 
                 $context['payment_uri'] = $context['crypto']['uri'] . ":" . $order['address'] . "?amount=" . $context['order_amount'];
                 $context['qrcode_url'] = $this->get_parameterized_wc_url(array('qrcode'=>$context['crypto']['uri'] . ':' .$order['address'].'?amount='.$context['order_amount']));
-                $context['order_completed_url'] = $this->get_wc_order_received_url($order_id);
-                $context['time_period'] = get_option('blockonomics_timeperiod', 10);
             }
         }
         $template_name = NULL;
+        $script = NULL;
 
         if ($has_error) {
             $template_name = 'error';
         } else {
-            $template_name = ($this->is_nojs_active()) ? 'nojs_checkout' : 'checkout';
+            if ($this->is_nojs_active()) {
+                $template_name = 'nojs_checkout';
+            } else {
+                $template_name = 'checkout';
+                $script = "window.blockonomics_data = '" . json_encode( array (
+                    'crypto' => $context['crypto'],
+                    'crypto_address' => $order['address'],
+                    'time_period' => get_option('blockonomics_timeperiod', 10),
+                    'finish_order_url' => $this->get_wc_order_received_url($order_id),
+                    'payment_uri' => $context['payment_uri']
+                )). "'";
+            }
         }
         
-        $this->load_blockonomics_template($template_name, $context);
+        $this->load_blockonomics_template($template_name, $context, $script);
     }
 
     public function get_wc_order_received_url($order_id){

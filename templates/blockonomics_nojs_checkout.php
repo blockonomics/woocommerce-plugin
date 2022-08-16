@@ -10,8 +10,6 @@
      * $crypto: Crypto Object (code, name, uri) e.g. (btc, Bitcoin, bitcoin)
      * $payment_uri: Crypto URI with Amount and Protocol
      * $qrcode_url: QR Code URL, can be used for NoJS QRCode Generation
-     * $order_completed_url: URL to goto after order has been completed
-     * $time_period: Time period before price expires (Not remaining time, but total time)
      */
 ?>
 
