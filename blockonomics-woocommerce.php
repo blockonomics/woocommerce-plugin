@@ -40,9 +40,6 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
 require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 require_once ABSPATH . 'wp-admin/install-helper.php';
 
-// Define constant for Plugin Directory
-define( 'BLOCKONOMICS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-
 /**
  * Initialize hooks needed for the payment gateway
  */
