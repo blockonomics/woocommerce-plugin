@@ -2,21 +2,14 @@
 class Blockonomics {
 
     constructor({
-        checkout_id = 'blockonomics_checkout',
-        auto_init = true
+        checkout_id = 'blockonomics_checkout'
     }={}) {
 
         // User Params
         this.checkout_id = checkout_id
 
-        this.data = {}
-
-        // Computed Properties
-        this.progress = {}
-
         // Initialise
-        if (auto_init)
-            this.init()
+        this.init()
     }
 
     init() {
