@@ -440,9 +440,9 @@ function blockonomics_woocommerce_init()
     }
 
     function bnomics_enqueue_scripts(){
-        wp_enqueue_script( 'reconnecting-websocket', plugins_url('js/vendors/reconnecting-websocket.min.js', __FILE__), array(), get_plugin_data( __FILE__ )['Version'], TRUE );
-        wp_enqueue_script( 'qrious', plugins_url('js/vendors/qrious.min.js', __FILE__), array(), get_plugin_data( __FILE__ )['Version'], TRUE );
-        wp_enqueue_script( 'bnomics-checkout', plugins_url('js/checkout.js', __FILE__), array('reconnecting-websocket', 'qrious'), get_plugin_data( __FILE__ )['Version'], TRUE);
+        wp_enqueue_script( 'reconnecting-websocket', plugins_url('js/vendors/reconnecting-websocket.min.js#deferload', __FILE__), array(), get_plugin_data( __FILE__ )['Version'], TRUE );
+        wp_enqueue_script( 'qrious', plugins_url('js/vendors/qrious.min.js#deferload', __FILE__), array(), get_plugin_data( __FILE__ )['Version'], TRUE );
+        wp_enqueue_script( 'bnomics-checkout', plugins_url('js/checkout.js#deferload', __FILE__), array('reconnecting-websocket', 'qrious'), get_plugin_data( __FILE__ )['Version'], TRUE);
     }
 
     // Async load
