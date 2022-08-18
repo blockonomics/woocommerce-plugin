@@ -512,70 +512,104 @@ class Blockonomics
         return $order;
     }
 
-    // Load the the checkout template in the page
-    public function load_checkout_template($order_id, $crypto){
-        // Create or update the order
-        $order = $this->process_order($order_id, $crypto);
-
-        // Context to pass to Template
+    public function get_error_context($error_type){
         $context = array();
-        $context['order_id'] = $order_id;
+
+        if ($error_type == 'generic') {
+            // Show Generic Error to Client.
+            $context['error_title'] = __('Could not generate new address (This may be a temporary error. Please try again)', 'blockonomics-bitcoin-payments');
+            $context['error_msg'] = __('If this continues, please ask website administrator to do following:<br/><ul><li>Login to admin panel, navigate to Settings > Blockonomics > Currencies and click Test Setup to diagnose the exact issue.</li><li>Check blockonomics registered email address for error messages</li>', 'blockonomics-bitcoin-payments');
+        } else if($error_type == 'underpaid') {
+            $context['error_title'] = '';
+            $context['error_msg'] = __('Paid order BTC amount is less than expected. Contact merchant', 'blockonomics-bitcoin-payments');
+        }
+
+        return $context;
+    }
+
+    public function fix_displaying_small_values($satoshi){
+        if ($satoshi < 10000){
+            return rtrim(number_format($satoshi/1.0e8, 8),0);
+        } else {
+            return $satoshi/1.0e8;
+        }
+    }
+
+    public function get_checkout_context($order, $crypto){
+        
+        $context = array();
+        $error_context = NULL;
+
+        $context['order_id'] = $order['order_id'];
 
         $cryptos = $this->getActiveCurrencies();
         $context['crypto'] = $cryptos[$crypto];
 
-        $has_error = FALSE;
         if (array_key_exists('error', $order)) {
-            $error = strtolower($order['error']);
-            $has_error = TRUE;
-            
-            // Show Generic Error to Client.
-            $context['error_title'] = __('Could not generate new address (This may be a temporary error. Please try again)', 'blockonomics-bitcoin-payments');
-            $context['error_msg'] = __('If this continues, please ask website administrator to do following:<br/><ul><li>Login to admin panel, navigate to Settings > Blockonomics > Currencies and click Test Setup to diagnose the exact issue.</li><li>Check blockonomics registered email address for error messages</li>', 'blockonomics-bitcoin-payments');
+            $error_context = $this->get_error_context('generic');
         } else {
             $context['order'] = $order;
 
             if ($order['status'] == -2) {
                 // Payment is Underpaid
-                $has_error = TRUE;
-                $context['error_title'] = '';
-                $context['error_msg'] = __('Paid order BTC amount is less than expected. Contact merchant', 'blockonomics-bitcoin-payments');
+                $error_context = $this->get_error_context('underpaid');
             } elseif ($order['status'] >= 0) {
-            // Payment is Received
+                // Payment is Received
                 $this->redirect_finish_order($order_id);
             } else {
-
                 // Display Checkout Page
-                if ($order['satoshi'] < 10000){
-                    $context['order_amount'] = rtrim(number_format($order['satoshi']/1.0e8, 8),0);
-                } else {
-                    $context['order_amount'] = $order['satoshi']/1.0e8;
-                }
-
+                $context['order_amount'] = $this->fix_displaying_small_values($order['satoshi']);
                 $context['payment_uri'] = $context['crypto']['uri'] . ":" . $order['address'] . "?amount=" . $context['order_amount'];
                 $context['qrcode_url'] = $this->get_parameterized_wc_url(array('qrcode'=>$context['crypto']['uri'] . ':' .$order['address'].'?amount='.$context['order_amount']));
             }
         }
-        $template_name = NULL;
+
+        if ($error_context != NULL) {
+            $context = array_merge($context, $error_context);
+        }
+
+        return $context;
+    }
+
+    public function get_checkout_template($context){
+        if (array_key_exists('error_msg', $context)) {
+            return 'error';
+        } else {
+            return ($this->is_nojs_active()) ? 'nojs_checkout' : 'checkout';
+        }
+    }
+
+    public function get_checkout_script($context, $template_name) {
         $script = NULL;
 
-        if ($has_error) {
-            $template_name = 'error';
-        } else {
-            if ($this->is_nojs_active()) {
-                $template_name = 'nojs_checkout';
-            } else {
-                $template_name = 'checkout';
-                $script = "const blockonomics_data = '" . json_encode( array (
-                    'crypto' => $context['crypto'],
-                    'crypto_address' => $order['address'],
-                    'time_period' => get_option('blockonomics_timeperiod', 10),
-                    'finish_order_url' => $this->get_wc_order_received_url($order_id),
-                    'payment_uri' => $context['payment_uri']
-                )). "'";
-            }
+        if ($template_name == 'checkout') {
+            $script = "const blockonomics_data = '" . json_encode( array (
+                'crypto' => $context['crypto'],
+                'crypto_address' => $context['order']['address'],
+                'time_period' => get_option('blockonomics_timeperiod', 10),
+                'finish_order_url' => $this->get_wc_order_received_url($context['order_id']),
+                'payment_uri' => $context['payment_uri']
+            )). "'";
         }
+
+        return $script;
+    }
+
+    // Load the the checkout template in the page
+    public function load_checkout_template($order_id, $crypto){
+        // Create or update the order
+        $order = $this->process_order($order_id, $crypto);
         
+        // Load Checkout Context
+        $context = $this->get_checkout_context($order, $crypto);
+        
+        // Get Template to Load
+        $template_name = $this->get_checkout_template($context);
+
+        // Get any additional inline script to load
+        $script = $this->get_checkout_script($context, $template_name);
+        
+        // Load the template
         $this->load_blockonomics_template($template_name, $context, $script);
     }
 
