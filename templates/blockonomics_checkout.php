@@ -101,9 +101,4 @@
             <a href="https://insights.blockonomics.co/how-to-pay-a-bitcoin-invoice/" target="_blank"><?=__('How do I pay? | Check reviews of this shop', 'blockonomics-bitcoin-payments')?></a><br>
         </div>
     </div>
-    
-    <!-- Note to Template Editor:
-        Blockonomics Data Attributes for JS,
-        Modifying the div below can cause unexpected errors and rendering issues
-    -->
 </div>
