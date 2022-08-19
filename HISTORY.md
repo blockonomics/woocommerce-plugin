@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 3.5.5  =
+* Increased range of allowed underpayment and currency margin
+* Updated Wordpress comptability 
+
 = 3.5.4  =
 * Encrypt order id in checkout
 * Fix callbacks exiting without error
