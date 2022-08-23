@@ -63,7 +63,7 @@
                             <div class="bnomics-bg">
                                 <!-- Order Amounts -->
                                 <div class="bnomics-amount">
-                                    <div class="bnomics-amount-text"><?=__('To pay, send exactly this '.strtoupper($crypto['code']).' amount', 'blockonomics-bitcoin-payments')?></div>
+                                    <div class="bnomics-amount-text"><?=__('To pay, send exactly this', 'blockonomics-bitcoin-payments')?> <?=strtoupper($crypto['code'])?></div>
                                     <div class="bnomics-copy-amount-text"><?=__('Copied to clipboard', 'blockonomics-bitcoin-payments')?></div>
                                     <ul id="bnomics-amount-input" class="bnomics-amount-input">
                                         <li id="bnomics-amount-copy"><?php echo $order_amount; ?></li>

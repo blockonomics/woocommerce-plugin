@@ -43,12 +43,12 @@
               <div class="bnomics-bg">
                 <!-- Order Amounts -->
                 <div class="bnomics-amount">
-                  <div class="bnomics-amount-text"><?=__('To pay, send exactly this '.strtoupper($crypto['code']).' amount', 'blockonomics-bitcoin-payments')?></div>
+                  <div class="bnomics-amount-text"><?=__('To pay, send exactly this', 'blockonomics-bitcoin-payments')?> <?=strtoupper($crypto['code'])?></div>
                   <input type="text" id="bnomics-amount-input" class="bnomics-amount-input" style="cursor: text;" value="<?php echo $order_amount ?>" readonly>
                 </div>
                 <!-- Order Address -->
                 <div class="bnomics-address">
-                  <div class="bnomics-address-text"><?=__('To this '.strtolower($crypto['name']).' address', 'blockonomics-bitcoin-payments')?></div>
+                  <div class="bnomics-address-text"><?=__('To this', 'blockonomics-bitcoin-payments')?> <?=strtolower($crypto['name'])?> <?=__('address', 'blockonomics-bitcoin-payments')?></div>
                   <input type="text" id="bnomics-address-input" class="bnomics-address-input" style="cursor: text;" value="<?php echo $order['address']; ?>" readonly>
                 </div>
 
