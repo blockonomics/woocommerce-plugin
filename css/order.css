@@ -253,9 +253,6 @@
   to { -webkit-transform: rotate(360deg); }
 }
 /** Hide Panels by Default **/
-.blockonomics-data {
-  display: none;
-}
 
 #blockonomics_checkout:not(.no-js) .bnomics-order-container .bnomics-order-expired-wrapper,
 #blockonomics_checkout:not(.no-js) .bnomics-order-container .bnomics-order-panel,
