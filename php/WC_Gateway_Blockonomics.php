@@ -117,13 +117,16 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         if($crypto === "empty"){
             $blockonomics->load_blockonomics_template('no_crypto_selected');
         }else if ($show_order && $crypto) {
-            $blockonomics->load_checkout_template($show_order, $crypto);
+            $order_id = $blockonomics->decrypt_hash($show_order);
+            $blockonomics->load_checkout_template($order_id, $crypto);
         }else if ($select_crypto) {
             $blockonomics->load_blockonomics_template('crypto_options');
         }else if ($finish_order) {
-            $blockonomics->redirect_finish_order($finish_order);
+            $order_id = $blockonomics->decrypt_hash($finish_order);
+            $blockonomics->redirect_finish_order($order_id);
         }else if ($get_order && $crypto) {
-            $blockonomics->get_order_info($get_order, $crypto);
+            $order_id = $blockonomics->decrypt_hash($get_order);
+            $blockonomics->get_order_info($order_id, $crypto);
         }else if ($secret && $addr && isset($status) && $value && $txid) {
             $blockonomics->process_callback($secret, $addr, $status, $value, $txid, $rbf);
         }else if ($qrcode) {
