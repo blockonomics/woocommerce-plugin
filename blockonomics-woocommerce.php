@@ -3,13 +3,13 @@
  * Plugin Name: WordPress Bitcoin Payments - Blockonomics
  * Plugin URI: https://github.com/blockonomics/woocommerce-plugin
  * Description: Accept Bitcoin Payments on your WooCommerce-powered website with Blockonomics
- * Version: 3.5.3
+ * Version: 3.5.5
  * Author: Blockonomics
  * Author URI: https://www.blockonomics.co
  * License: MIT
  * Text Domain: blockonomics-bitcoin-payments
  * Domain Path: /languages/
- * WC tested up to: 6.0.0
+ * WC tested up to: 6.8.1
  */
 
 /*  Copyright 2017 Blockonomics Inc.
@@ -308,11 +308,11 @@ function blockonomics_woocommerce_init()
                             </tr>
                             <tr valign="top">
                                 <th scope="row"><?php echo __('Extra Currency Rate Margin % (Increase live fiat to BTC rate by small percent)', 'blockonomics-bitcoin-payments')?></th>
-                                <td><input onchange="add_asterisk('settings')" type="number" min="0" max="10" step="0.01" name="blockonomics_margin" value="<?php echo esc_attr( get_option('blockonomics_margin', 0) ); ?>" /></td>
+                                <td><input onchange="add_asterisk('settings')" type="number" min="0" max="20" step="0.01" name="blockonomics_margin" value="<?php echo esc_attr( get_option('blockonomics_margin', 0) ); ?>" /></td>
                             </tr>
                             <tr valign="top">
                                 <th scope="row"><?php echo __('Underpayment Slack % (Allow payments that are off by a small percentage)', 'blockonomics-bitcoin-payments')?></th>
-                                <td><input onchange="add_asterisk('settings')" type="number" min="0" max="10" step="0.01" name="blockonomics_underpayment_slack" value="<?php echo esc_attr( get_option('blockonomics_underpayment_slack', 0) ); ?>" /></td>
+                                <td><input onchange="add_asterisk('settings')" type="number" min="0" max="20" step="0.01" name="blockonomics_underpayment_slack" value="<?php echo esc_attr( get_option('blockonomics_underpayment_slack', 0) ); ?>" /></td>
                             </tr>
                             <tr valign="top">
                                 <th scope="row"><?php echo __('Display Payment Page in Lite Mode (Enable this if you are having problems in rendering checkout page)', 'blockonomics-bitcoin-payments')?></th>
@@ -440,12 +440,9 @@ function blockonomics_woocommerce_init()
     }
 
     function bnomics_enqueue_scripts(){
-      wp_enqueue_script( 'angular', plugins_url('js/angular.min.js#deferload', __FILE__), '', get_plugin_data( __FILE__ )['Version'] );
-      wp_enqueue_script( 'angular-resource', plugins_url('js/angular-resource.min.js#deferload', __FILE__), '', get_plugin_data( __FILE__ )['Version'] );
-      wp_enqueue_script( 'app', plugins_url('js/app.js#deferload', __FILE__), '', get_plugin_data( __FILE__ )['Version'] );
-      wp_enqueue_script( 'angular-qrcode', plugins_url('js/angular-qrcode.js#deferload', __FILE__), '', get_plugin_data( __FILE__ )['Version'] );
-      wp_enqueue_script( 'vendors', plugins_url('js/vendors.min.js#deferload', __FILE__), '', get_plugin_data( __FILE__ )['Version'] );
-      wp_enqueue_script( 'reconnecting-websocket', plugins_url('js/reconnecting-websocket.min.js#deferload', __FILE__), '', get_plugin_data( __FILE__ )['Version'] );
+        wp_enqueue_script( 'reconnecting-websocket', plugins_url('js/vendors/reconnecting-websocket.min.js#deferload', __FILE__), array(), get_plugin_data( __FILE__ )['Version'] );
+        wp_enqueue_script( 'qrious', plugins_url('js/vendors/qrious.min.js#deferload', __FILE__), array(), get_plugin_data( __FILE__ )['Version'] );
+        wp_enqueue_script( 'bnomics-checkout', plugins_url('js/checkout.js#deferload', __FILE__), array('reconnecting-websocket', 'qrious'), get_plugin_data( __FILE__ )['Version'] );
     }
 
     // Async load
