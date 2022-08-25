@@ -440,12 +440,9 @@ function blockonomics_woocommerce_init()
     }
 
     function bnomics_enqueue_scripts(){
-      wp_enqueue_script( 'angular', plugins_url('js/angular.min.js#deferload', __FILE__), '', get_plugin_data( __FILE__ )['Version'] );
-      wp_enqueue_script( 'angular-resource', plugins_url('js/angular-resource.min.js#deferload', __FILE__), '', get_plugin_data( __FILE__ )['Version'] );
-      wp_enqueue_script( 'app', plugins_url('js/app.js#deferload', __FILE__), '', get_plugin_data( __FILE__ )['Version'] );
-      wp_enqueue_script( 'angular-qrcode', plugins_url('js/angular-qrcode.js#deferload', __FILE__), '', get_plugin_data( __FILE__ )['Version'] );
-      wp_enqueue_script( 'vendors', plugins_url('js/vendors.min.js#deferload', __FILE__), '', get_plugin_data( __FILE__ )['Version'] );
-      wp_enqueue_script( 'reconnecting-websocket', plugins_url('js/reconnecting-websocket.min.js#deferload', __FILE__), '', get_plugin_data( __FILE__ )['Version'] );
+        wp_enqueue_script( 'reconnecting-websocket', plugins_url('js/vendors/reconnecting-websocket.min.js#deferload', __FILE__), array(), get_plugin_data( __FILE__ )['Version'] );
+        wp_enqueue_script( 'qrious', plugins_url('js/vendors/qrious.min.js#deferload', __FILE__), array(), get_plugin_data( __FILE__ )['Version'] );
+        wp_enqueue_script( 'bnomics-checkout', plugins_url('js/checkout.js#deferload', __FILE__), array('reconnecting-websocket', 'qrious'), get_plugin_data( __FILE__ )['Version'] );
     }
 
     // Async load

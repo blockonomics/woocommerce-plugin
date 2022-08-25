@@ -233,6 +233,8 @@
   width: 100%;
   text-align: center;
   padding: 20px;
+  animation: errorAnimationSync 0s 3s forwards;
+  -webkit-animation: errorAnimationSync 0s 3s forwards;
 }
 
 .bnomics-spinner {
@@ -251,4 +253,18 @@
 }
 @-webkit-keyframes spin {
   to { -webkit-transform: rotate(360deg); }
+}
+@keyframes errorAnimationSync {
+  to { height: 0; width: 0; overflow: hidden; padding: 0; }
+}
+@-webkit-keyframes errorAnimationSync {
+  to { height: 0; width: 0; overflow: hidden; padding: 0; }
+}
+/** Hide Panels by Default **/
+
+#blockonomics_checkout:not(.no-js) .bnomics-order-container .bnomics-order-expired-wrapper,
+#blockonomics_checkout:not(.no-js) .bnomics-order-container .bnomics-order-panel,
+#blockonomics_checkout:not(.no-js) .bnomics-order-container .bnomics-copy-amount-text,
+#blockonomics_checkout:not(.no-js) .bnomics-order-container .bnomics-copy-address-text {
+  display: none;
 }
