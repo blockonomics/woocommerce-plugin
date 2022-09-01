@@ -400,17 +400,25 @@ class Blockonomics
         return get_option('blockonomics_lite', false);
     }
 
+    public function is_error_template($template_name) {
+        if (strpos($template_name, 'error') === 0) {
+            return true;
+        }
+        return false;
+    }
+
     // Adds the header to the blockonomics page
     public function load_blockonomics_header($template_name, $additional_script=NULL){
         
         $is_nojs_template = $this->is_nojs_template($template_name);
+        $is_error_template = $this->is_error_template($template_name);
 
         // Lite mode will render without wordpress theme headers
         if($this->is_lite_mode_active()){
         ?>
             <link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/order.css', dirname(__FILE__));?>">
         <?php
-            if (!$is_nojs_template) {
+            if (!$is_nojs_template && !$is_error_template) {
         ?>
             <script src="<?php echo plugins_url('js/vendors/reconnecting-websocket.min.js', dirname(__FILE__));?>" defer="defer"></script>
             <script src="<?php echo plugins_url('js/vendors/qrious.min.js', dirname(__FILE__));?>" defer="defer"></script>
@@ -424,7 +432,7 @@ class Blockonomics
             // wp_enqueue_scripts needs to be called before get_header(), but the scripts are loaded in footer as
             // $in_footer is set to TRUE for scripts in bnomics_enqueu_scripts
 
-            if (!$is_nojs_template) {
+            if (!$is_nojs_template && !$is_error_template) {
                 
                 add_action('wp_enqueue_scripts', 'bnomics_enqueue_scripts' );
                 
