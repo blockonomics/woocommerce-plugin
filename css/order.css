@@ -143,6 +143,12 @@
   to   { width:auto;height: auto; }
 }
 
+/* Style for QR Code in NoJS mode */
+svg {
+  width: 180px;
+  margin: auto;
+}
+
 /* Mobile */
 @media screen and (max-width: 800px) {
   .bnomics-btc-info {
