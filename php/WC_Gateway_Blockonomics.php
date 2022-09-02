@@ -109,7 +109,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $value = isset($_GET['value']) ? absint($_GET['value']) : "";
         $txid = isset($_GET['txid']) ? sanitize_text_field(wp_unslash($_GET['txid'])) : "";
         $rbf = isset($_GET['rbf']) ? wp_validate_boolean(intval(wp_unslash($_GET['rbf']))) : "";
-        $qrcode = isset($_GET['qrcode']) ? esc_url_raw( wp_unslash($_GET['qrcode']), array('bitcoin', 'bitcoincash') ) : "";
 
         include_once 'Blockonomics.php';
         $blockonomics = new Blockonomics;
@@ -129,8 +128,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             $blockonomics->get_order_info($order_id, $crypto);
         }else if ($secret && $addr && isset($status) && $value && $txid) {
             $blockonomics->process_callback($secret, $addr, $status, $value, $txid, $rbf);
-        }else if ($qrcode) {
-          $blockonomics->generate_qrcode($qrcode);
         }
 
         exit();

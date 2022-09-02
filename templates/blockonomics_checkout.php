@@ -9,7 +9,7 @@
      * $order_amount: Crypto Amount
      * $crypto: Crypto Object (code, name, uri) e.g. (btc, Bitcoin, bitcoin)
      * $payment_uri: Crypto URI with Amount and Protocol
-     * $qrcode_url: QR Code URL, can be used for NoJS QRCode Generation
+     * $qrcode_svg_element: Generate QR Code when NoJS mode is active.
      */
 ?>
 <div id="blockonomics_checkout">

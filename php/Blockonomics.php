@@ -575,7 +575,8 @@ class Blockonomics
                 // Display Checkout Page
                 $context['order_amount'] = $this->fix_displaying_small_values($order['satoshi']);
                 $context['payment_uri'] = $context['crypto']['uri'] . ":" . $order['address'] . "?amount=" . $context['order_amount'];
-                $context['qrcode_url'] = $this->get_parameterized_wc_url(array('qrcode'=>$context['crypto']['uri'] . ':' .$order['address'].'?amount='.$context['order_amount']));
+                //Using svg library qrcode.php to generate QR Code in NoJS mode
+                $context['qrcode_svg_element'] = $this->generate_qrcode_svg_element($context['payment_uri']);
             }
         }
 
@@ -793,13 +794,9 @@ class Blockonomics
         $this->update_order($order);
     }
 
-    public function generate_qrcode($data) {
-        include plugin_dir_path(__FILE__) . 'phpqrcode.php';
-        ob_start("callback");
-        $codeText = sanitize_text_field($data);
-        $debugLog = ob_get_contents();
-        ob_end_clean();
-        QRcode::png($codeText);
+    public function generate_qrcode_svg_element($data) {
+        include plugin_dir_path(__FILE__) . 'qrcode.php';
+        return QRCode::svg($codeText);
     } 
 
     /**
