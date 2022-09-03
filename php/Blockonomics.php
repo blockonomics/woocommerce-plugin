@@ -796,6 +796,7 @@ class Blockonomics
 
     public function generate_qrcode_svg_element($data) {
         include plugin_dir_path(__FILE__) . 'qrcode.php';
+        $codeText = sanitize_text_field($data);
         return QRCode::svg($codeText);
     } 
 
