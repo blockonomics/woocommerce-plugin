@@ -114,24 +114,58 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         include_once 'Blockonomics.php';
         $blockonomics = new Blockonomics;
 
+        // The following are dummy variables to improve readability 
+        $action = null;
+        $RENDER_NO_CRYPTO_SELECTED_ERROR_PAGE = 'RENDER_NO_CRYPTO_SELECTED_ERROR_PAGE';
+        $RENDER_CHECKOUT_SUCCESS_SHOW_ORDER_PAGE = 'RENDER_CHECKOUT_SUCCESS_SHOW_ORDER_PAGE';
+        $PRE_CHECKOUT_RENDER_SELECT_CRYPTO_PAGE = 'PRE_CHECKOUT_RENDER_SELECT_CRYPTO_PAGE';
+        $POST_CHECKOUT_REDIRECT_TO_FINISH_ORDER = 'POST_CHECKOUT_REDIRECT_TO_FINISH_ORDER';
+        $GET_ORDER_INFO_FOR_CHECKOUT = 'GET_ORDER_INFO_FOR_CHECKOUT';
+        $POST_CHECKOUT_PROCESS_CALLBACK = 'POST_CHECKOUT_PROCESS_CALLBACK';
+        $GENERATE_QRCODE_FOR_NOJS_CHECKOUT = 'GENERATE_QRCODE_FOR_NOJS_CHECKOUT';
+
         if($crypto === "empty"){
-            $blockonomics->load_blockonomics_template('no_crypto_selected');
+            $action = $RENDER_NO_CRYPTO_SELECTED_ERROR_PAGE;
         }else if ($show_order && $crypto) {
-            $order_id = $blockonomics->decrypt_hash($show_order);
-            $blockonomics->load_checkout_template($order_id, $crypto);
+            $action = $RENDER_CHECKOUT_SUCCESS_SHOW_ORDER_PAGE;
         }else if ($select_crypto) {
-            $blockonomics->load_blockonomics_template('crypto_options');
+            $action = $PRE_CHECKOUT_RENDER_SELECT_CRYPTO_PAGE;
         }else if ($finish_order) {
-            $order_id = $blockonomics->decrypt_hash($finish_order);
-            $blockonomics->redirect_finish_order($order_id);
+            $action = $POST_CHECKOUT_REDIRECT_TO_FINISH_ORDER;
         }else if ($get_order && $crypto) {
-            $order_id = $blockonomics->decrypt_hash($get_order);
-            $blockonomics->get_order_info($order_id, $crypto);
+            $action = $GET_ORDER_INFO_FOR_CHECKOUT;
         }else if ($secret && $addr && isset($status) && $value && $txid) {
-            $blockonomics->process_callback($secret, $addr, $status, $value, $txid, $rbf);
+            $action = $POST_CHECKOUT_PROCESS_CALLBACK;
         }else if ($qrcode) {
-          $blockonomics->generate_qrcode($qrcode);
+            $action = $GENERATE_QRCODE_FOR_NOJS_CHECKOUT;
         }
+
+        switch($action)
+        {
+            case $RENDER_NO_CRYPTO_SELECTED_ERROR_PAGE:
+                $blockonomics->load_blockonomics_template('no_crypto_selected');
+
+            case $RENDER_CHECKOUT_SUCCESS_SHOW_ORDER_PAGE:
+                $order_id = $blockonomics->decrypt_hash($show_order);
+                $blockonomics->load_checkout_template($order_id, $crypto);
+
+            case $PRE_CHECKOUT_RENDER_SELECT_CRYPTO_PAGE:
+                $blockonomics->load_blockonomics_template('crypto_options');
+
+            case $POST_CHECKOUT_REDIRECT_TO_FINISH_ORDER:
+                $order_id = $blockonomics->decrypt_hash($finish_order);
+                $blockonomics->redirect_finish_order($order_id);
+
+            case $GET_ORDER_INFO_FOR_CHECKOUT:
+                $order_id = $blockonomics->decrypt_hash($get_order);
+                $blockonomics->get_order_info($order_id, $crypto);
+
+            case $POST_CHECKOUT_PROCESS_CALLBACK:
+                $blockonomics->process_callback($secret, $addr, $status, $value, $txid, $rbf);
+
+            case $GENERATE_QRCODE_FOR_NOJS_CHECKOUT:
+                $blockonomics->generate_qrcode($qrcode);
+        }        
 
         exit();
     }
