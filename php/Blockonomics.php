@@ -56,7 +56,7 @@ class Blockonomics
         {
             $get_params = "?match_callback=$secret";
         }
-        if($crypto == 'btc'){
+        if($crypto === 'btc'){
             $url = Blockonomics::NEW_ADDRESS_URL.$get_params;
         }else{
             $url = Blockonomics::BCH_NEW_ADDRESS_URL.$get_params;            
@@ -75,7 +75,7 @@ class Blockonomics
 
     public function get_price($currency, $crypto)
     {
-        if($crypto == 'btc'){
+        if($crypto === 'btc'){
             $url = Blockonomics::PRICE_URL. "?currency=$currency";
         }else{
             $url = Blockonomics::BCH_PRICE_URL. "?currency=$currency";
@@ -94,7 +94,7 @@ class Blockonomics
 
     public function update_callback($callback_url, $crypto, $xpub)
     {
-        if ($crypto == 'btc'){
+        if ($crypto === 'btc'){
             $url = Blockonomics::SET_CALLBACK_URL;
         }else{
             $url = Blockonomics::BCH_SET_CALLBACK_URL;
@@ -109,7 +109,7 @@ class Blockonomics
 
     public function get_callbacks($crypto)
     {
-        if ($crypto == 'btc'){
+        if ($crypto === 'btc'){
             $url = Blockonomics::GET_CALLBACKS_URL;
         }else{
             $url = Blockonomics::BCH_GET_CALLBACKS_URL;
@@ -162,12 +162,12 @@ class Blockonomics
             $server_callback_url = isset($one_response->callback) ? $one_response->callback : '';
             $server_base_url = preg_replace('/https?:\/\//', '', $server_callback_url);
             $xpub = isset($one_response->address) ? $one_response->address : '';
-            if(!$server_callback_url){
-                // No callback
-                $available_xpub = $xpub;
-            }else if($server_callback_url == $wordpress_callback_url){
-                // Exact match
+            if($server_callback_url == $wordpress_callback_url){
+                // callback match is exact
                 return '';
+            }else if(!$server_callback_url){
+                // No Callback
+                $available_xpub = $xpub;;
             }
             else if(strpos($server_base_url, $base_url) === 0 ){
                 // Partial Match - Only secret or protocol differ
@@ -372,13 +372,13 @@ class Blockonomics
         $active_cryptos = $this->getActiveCurrencies();
         // Check if more than one crypto is activated
         $order_hash = $this->encrypt_hash($order_id);
-        if (count($active_cryptos) > 1) {
-            $order_url = $this->get_parameterized_wc_url(array('select_crypto'=>$order_hash));
-        } elseif (count($active_cryptos) === 1) {
-            $order_url = $this->get_parameterized_wc_url(array('show_order'=>$order_hash, 'crypto'=> array_keys($active_cryptos)[0]));
-        } else if (count($active_cryptos) === 0) {
+        if (count($active_cryptos) === 0) {
             $order_url = $this->get_parameterized_wc_url(array('crypto'=>'empty'));
-        }
+        } else if (count($active_cryptos) > 1) {
+            $order_url = $this->get_parameterized_wc_url(array('select_crypto'=>$order_hash));
+        } else if (count($active_cryptos) === 1) {
+            $order_url = $this->get_parameterized_wc_url(array('show_order'=>$order_hash, 'crypto'=> array_keys($active_cryptos)[0]));
+        } 
         return $order_url;
     }
     
@@ -410,9 +410,6 @@ class Blockonomics
     // Adds the header to the blockonomics page
     public function load_blockonomics_header($template_name, $additional_script=NULL){
         
-        $is_nojs_template = $this->is_nojs_template($template_name);
-        $is_error_template = $this->is_error_template($template_name);
-
         // Lite mode will render without wordpress theme headers
         if($this->is_lite_mode_active()){
         ?>
@@ -597,7 +594,7 @@ class Blockonomics
     public function get_checkout_script($context, $template_name) {
         $script = NULL;
 
-        if ($template_name == 'checkout') {
+        if ($template_name === 'checkout') {
             $script = "const blockonomics_data = '" . json_encode( array (
                 'crypto' => $context['crypto'],
                 'crypto_address' => $context['order']['address'],
