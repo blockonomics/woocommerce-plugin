@@ -109,7 +109,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $value = isset($_GET['value']) ? absint($_GET['value']) : "";
         $txid = isset($_GET['txid']) ? sanitize_text_field(wp_unslash($_GET['txid'])) : "";
         $rbf = isset($_GET['rbf']) ? wp_validate_boolean(intval(wp_unslash($_GET['rbf']))) : "";
-        $qrcode = isset($_GET['qrcode']) ? esc_url_raw( wp_unslash($_GET['qrcode']), array('bitcoin', 'bitcoincash') ) : "";
 
         include_once 'Blockonomics.php';
         $blockonomics = new Blockonomics;
@@ -122,7 +121,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $POST_CHECKOUT_REDIRECT_TO_FINISH_ORDER = 'POST_CHECKOUT_REDIRECT_TO_FINISH_ORDER';
         $GET_ORDER_INFO_FOR_CHECKOUT = 'GET_ORDER_INFO_FOR_CHECKOUT';
         $POST_CHECKOUT_PROCESS_CALLBACK = 'POST_CHECKOUT_PROCESS_CALLBACK';
-        $GENERATE_QRCODE_FOR_NOJS_CHECKOUT = 'GENERATE_QRCODE_FOR_NOJS_CHECKOUT';
 
         if($crypto === "empty"){
             $action = $RENDER_NO_CRYPTO_SELECTED_ERROR_PAGE;
@@ -136,8 +134,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             $action = $GET_ORDER_INFO_FOR_CHECKOUT;
         }else if ($secret && $addr && isset($status) && $value && $txid) {
             $action = $POST_CHECKOUT_PROCESS_CALLBACK;
-        }else if ($qrcode) {
-            $action = $GENERATE_QRCODE_FOR_NOJS_CHECKOUT;
         }
 
         switch($action)
@@ -163,8 +159,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             case $POST_CHECKOUT_PROCESS_CALLBACK:
                 $blockonomics->process_callback($secret, $addr, $status, $value, $txid, $rbf);
 
-            case $GENERATE_QRCODE_FOR_NOJS_CHECKOUT:
-                $blockonomics->generate_qrcode($qrcode);
         }        
 
         exit();

@@ -142,7 +142,11 @@
 @keyframes errorAnimation {
   to   { width:auto;height: auto; }
 }
-
+/* Style for QR Code in NoJS mode */
+svg {
+  width: 160px;
+  margin: auto;
+}
 /* Mobile */
 @media screen and (max-width: 800px) {
   .bnomics-btc-info {
