@@ -162,12 +162,12 @@ class Blockonomics
             $server_callback_url = isset($one_response->callback) ? $one_response->callback : '';
             $server_base_url = preg_replace('/https?:\/\//', '', $server_callback_url);
             $xpub = isset($one_response->address) ? $one_response->address : '';
-            if($server_callback_url == $wordpress_callback_url){
-                // callback match is exact
+            if(!$server_callback_url){
+                // No callback
+                $available_xpub = $xpub;
+            }else if($server_callback_url == $wordpress_callback_url){
+                // Exact match
                 return '';
-            }else if(!$server_callback_url){
-                // No Callback
-                $available_xpub = $xpub;;
             }
             else if(strpos($server_base_url, $base_url) === 0 ){
                 // Partial Match - Only secret or protocol differ
@@ -372,12 +372,12 @@ class Blockonomics
         $active_cryptos = $this->getActiveCurrencies();
         // Check if more than one crypto is activated
         $order_hash = $this->encrypt_hash($order_id);
-        if (count($active_cryptos) === 0) {
-            $order_url = $this->get_parameterized_wc_url(array('crypto'=>'empty'));
-        } else if (count($active_cryptos) > 1) {
+        if (count($active_cryptos) > 1) {
             $order_url = $this->get_parameterized_wc_url(array('select_crypto'=>$order_hash));
-        } else if (count($active_cryptos) === 1) {
+        } elseif (count($active_cryptos) === 1) {
             $order_url = $this->get_parameterized_wc_url(array('show_order'=>$order_hash, 'crypto'=> array_keys($active_cryptos)[0]));
+        } else if (count($active_cryptos) === 0) {
+            $order_url = $this->get_parameterized_wc_url(array('crypto'=>'empty'));
         } 
         return $order_url;
     }
