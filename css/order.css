@@ -1,12 +1,4 @@
 /* ----- Checkout Page Styles ------*/
-[ng\:cloak],
-[ng-cloak],
-[data-ng-cloak],
-[x-ng-cloak],
-.ng-cloak,
-.x-ng-cloak {
-  display: none !important;
-}
 
 .bnomics-order-container {
   margin: 5vh auto;
@@ -142,13 +134,11 @@
 @keyframes errorAnimation {
   to   { width:auto;height: auto; }
 }
-
 /* Style for QR Code in NoJS mode */
 svg {
-  width: 180px;
+  width: 160px;
   margin: auto;
 }
-
 /* Mobile */
 @media screen and (max-width: 800px) {
   .bnomics-btc-info {
@@ -214,7 +204,7 @@ svg {
 }
 
 .bnomics-select-container {
-  padding-top: 10vh;
+  /* padding-top: 10vh; */
   text-align:center;
   max-width:400px;
   margin:auto;
