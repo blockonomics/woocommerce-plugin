@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 3.5.6  =
+* Removed angularjs dependency 
+* Updated error message to be simpler
+
 = 3.5.5  =
 * Increased range of allowed underpayment and currency margin
 * Updated Wordpress comptability 
