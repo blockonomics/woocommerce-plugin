@@ -9,7 +9,7 @@
      * $order_amount: Crypto Amount
      * $crypto: Crypto Object (code, name, uri) e.g. (btc, Bitcoin, bitcoin)
      * $payment_uri: Crypto URI with Amount and Protocol
-     * $qrcode_url: QR Code URL, can be used for NoJS QRCode Generation
+     * $qrcode_svg_element: Generate QR Code when NoJS mode is active.
      */
 ?>
 
@@ -33,7 +33,7 @@
             <div class="bnomics-qr-code">
               <div class="bnomics-qr" style="width: 100%">
                 <a href="<?php echo $payment_uri ?>" target="_blank">
-                  <img style="margin: auto;width: 180px;" src="<?php echo $qrcode_url ?>" />
+                <?php echo $qrcode_svg_element ?>
                 </a>
               </div>
               <div class="bnomics-qr-code-hint"><a href="<?php echo $payment_uri ?>" target="_blank"><?=__('Open in wallet', 'blockonomics-bitcoin-payments')?></a></div>

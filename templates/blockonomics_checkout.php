@@ -9,7 +9,7 @@
      * $order_amount: Crypto Amount
      * $crypto: Crypto Object (code, name, uri) e.g. (btc, Bitcoin, bitcoin)
      * $payment_uri: Crypto URI with Amount and Protocol
-     * $qrcode_url: QR Code URL, can be used for NoJS QRCode Generation
+     * $qrcode_svg_element: Generate QR Code when NoJS mode is active.
      */
 ?>
 <div id="blockonomics_checkout">
@@ -31,7 +31,7 @@
         <!-- Display Error -->
         <div class="bnomics-display-error">
             <h2><?=__('Display Error', 'blockonomics-bitcoin-payments')?></h2>
-            <p><?=__('Unable to render correctly, Note to Administrator: Please enable lite mode in the Blockonomics plugin.', 'blockonomics-bitcoin-payments')?></p>
+            <p><?=__('Unable to render correctly, Note to Administrator: Please try enabling other modes like No Javascript or Lite mode in the Blockonomics plugin > Advanced Settings.', 'blockonomics-bitcoin-payments')?></p>
         </div>
         
         <!-- Payment Expired -->
