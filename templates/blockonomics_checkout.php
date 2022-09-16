@@ -42,14 +42,15 @@
 
         <!-- Blockonomics Checkout Panel -->
         <div class="bnomics-order-panel">
-            <!-- Order Countdown Timer -->
-            <div class="bnomics-progress-bar-wrapper">
-                <div class="bnomics-progress-bar-container">
-                    <div class="bnomics-progress-bar" style="width: 0%;"></div>
-                </div>
-            </div>
             <div class="bnomics-order-info">
                 <div class="bnomics-bitcoin-pane">
+                    <!-- Order Countdown Timer -->
+                    <div class="bnomics-progress-bar-wrapper">
+                        <div class="bnomics-progress-bar-container">
+                            <div class="bnomics-progress-bar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
                     <div class="bnomics-btc-info">
                         <!-- Left Side -->
                         <div class="bnomics-qr-code">
