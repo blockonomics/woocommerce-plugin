@@ -749,8 +749,23 @@ class Blockonomics
     public function check_paid_amount($status, $value, $order, $wc_order){
       $underpayment_slack = get_option("blockonomics_underpayment_slack", 0)/100 * $order['satoshi'];
       if ($order['satoshi'] - $underpayment_slack > $value) {
+        
+        $coupon_code = 'AASSDD';
+        $coupon_code = substr(str_shuffle(md5(time())),0,6);
+        $coupon_code = 'bck_' . $coupon_code;
+        $coupon = new WC_Coupon();
+
+        $coupon->set_code( $coupon_code ); // Coupon code
+        $coupon->set_amount(20); // Discount amount
+        $coupon->set_usage_limit(1);// limit coupon to one use
+        $coupon->save();
+
+        $wc_order->apply_coupon($coupon_code);
+
+        $wc_order->save();            
+        
         $status = -2; //Payment error , amount less than expected 
-        $wc_order->update_status('failed', __('Paid amount less than expected.', 'blockonomics-bitcoin-payments'));
+        //$wc_order->update_status('failed', __('Paid amount less than expected.', 'blockonomics-bitcoin-payments'));
       }else{
         $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
         $wc_order->payment_complete($order['txid']);
