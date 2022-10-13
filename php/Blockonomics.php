@@ -749,13 +749,15 @@ class Blockonomics
     public function check_paid_amount($status, $value, $order, $wc_order){
       $underpayment_slack = get_option("blockonomics_underpayment_slack", 0)/100 * $order['satoshi'];
       if ($order['satoshi'] - $underpayment_slack > $value) {
+        // calculate what % of order amount is paid to get the discount amount
+        $paid_order_amount_ratio = $value/$order['satoshi'];
 
-        //auto generate coupon code a random string 
+        //auto generate coupon equal to amount already paid and apply it for discount
         $coupon_code = substr(str_shuffle(md5(time())),0,6);
         $coupon_code = 'bck_' . $coupon_code;
         $coupon = new WC_Coupon();
         $coupon->set_code( $coupon_code ); // Coupon code
-        $coupon->set_amount(20); // Discount amount
+        $coupon->set_amount($paid_order_amount_ratio * $order['value']); // Discount amount
         $coupon->set_usage_limit(1);// limit coupon to one use
         $coupon->save();
 
