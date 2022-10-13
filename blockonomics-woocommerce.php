@@ -58,8 +58,6 @@ function blockonomics_woocommerce_init()
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
     add_action('admin_enqueue_scripts', 'blockonomics_load_admin_scripts' );
     add_action('restrict_manage_posts', 'filter_orders' , 20 );
-    add_action('woocommerce_order_status_failed','delete_underpayment_coupon');
-    add_action('woocommerce_order_status_cancelled', 'delete_underpayment_coupon');
     add_filter('request', 'filter_orders_by_address_or_txid' ); 
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_filter('clean_url', 'bnomics_async_scripts', 11, 1 );
@@ -97,20 +95,6 @@ function blockonomics_woocommerce_init()
     {
         $methods[] = 'WC_Gateway_Blockonomics';
         return $methods;
-    }
-    /**
-     * Delete the automatically generated coupon when order fails or gets cancelled
-     **/
-    function delete_underpayment_coupon($order_id){
-        $wc_order = wc_get_order($order_id);
-        foreach(  $wc_order->get_coupon_codes() as $coupon_code ){
-            // sample coupon string - 'bck_d658f7'
-            // delete only the coupon added automatically on underpayment
-            if (substr($coupon_code,0,4) == 'bck_' && strlen($coupon_code) == 10){
-            $coupon = new WC_Coupon($coupon_code);
-            $coupon->delete();
-            }
-    }
     }
     function load_plugin_translations()
     {
