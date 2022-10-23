@@ -572,6 +572,7 @@ class Blockonomics
                 // Display Checkout Page
                 $context['order_amount'] = $this->fix_displaying_small_values($order['satoshi']);
                 $context['payment_uri'] = $context['crypto']['uri'] . ":" . $order['address'] . "?amount=" . $context['order_amount'];
+                $context['crypto_rate'] = $order['value']/$context['order_amount'];
                 //Using svg library qrcode.php to generate QR Code in NoJS mode
                 $context['qrcode_svg_element'] = $this->generate_qrcode_svg_element($context['payment_uri']);
             }
@@ -601,6 +602,7 @@ class Blockonomics
                 'crypto_address' => $context['order']['address'],
                 'time_period' => get_option('blockonomics_timeperiod', 10),
                 'finish_order_url' => $this->get_wc_order_received_url($context['order_id']),
+                'api_url' => $this->get_wc_api_url(),
                 'payment_uri' => $context['payment_uri']
             )). "'";
         }
@@ -629,6 +631,10 @@ class Blockonomics
     public function get_wc_order_received_url($order_id){
         $wc_order = new WC_Order($order_id);
         return $wc_order->get_checkout_order_received_url();
+    }
+
+    public function get_wc_api_url(){
+        return site_url() . "/wc-api/WC_Gateway_Blockonomics";
     }
 
     // Redirect the user to the woocommerce finish order page

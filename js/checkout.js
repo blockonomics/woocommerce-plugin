@@ -31,7 +31,7 @@ class Blockonomics {
 
         this.create_bindings()
         
-        this.progress.interval = setInterval(() => this.tick(), 1000)
+        this.reset_progress()
         this._spinner_wrapper.style.display = 'none'
         this._order_panel.style.display = 'block'
         this.generate_qr()
@@ -58,8 +58,10 @@ class Blockonomics {
         this._address_copy = this.container.querySelector('#bnomics-address-copy')
 
         this._time_left = this.container.querySelector('.bnomics-time-left')
+        this._crypto_rate = this.container.querySelector('#bnomics-crypto-rate')
 
         this._try_again = this.container.querySelector('#bnomics-try-again')
+        this._refresh = this.container.querySelector('#bnomics-refresh')
         this._show_qr = this.container.querySelector('#bnomics-show-qr')
         this._qr_code_container = this.container.querySelector('.bnomics-qr-code')
         this._qr_code = this.container.querySelector('#bnomics-qr-code')
@@ -92,15 +94,24 @@ class Blockonomics {
             e.preventDefault()
             location.reload()
         })
+        
+        this._refresh.addEventListener('click', (e) => {
+            e.preventDefault()
+            this.refresh_order()
+        })
 
         this.data.time_period = Number(this.data.time_period)
+    }
 
+    reset_progress() {
         this.progress = {
             total_time: this.data.time_period * 60,
             interval: null,
             clock: this.data.time_period * 60,
             percent: 100
         }
+
+        this.progress.interval = setInterval(() => this.tick(), 1000)
     }
 
     toggle_qr() {
@@ -203,6 +214,76 @@ class Blockonomics {
 
     redirect_to_finish_order() {
         window.location.href = this.data.finish_order_url
+    }
+
+    _set_refresh_loading(loading=false) {
+        if(loading) {
+            this._refresh.querySelector('.blockonomics-icon-refresh').classList.add('spin')
+            this._refresh.setAttribute('disabled', 'disabled')
+        } else {
+            this._refresh.querySelector('.blockonomics-icon-refresh').classList.remove('spin')
+            this._refresh.removeAttribute('disabled')
+        }
+    }
+
+    refresh_order() {
+        let url = `${this.data.api_url}?get_order=${this.get_url_param('show_order')}&crypto=${this.get_url_param('crypto')}`
+
+        this._set_refresh_loading(true)
+
+        // Stop Progress Counter
+        clearInterval(this.progress.interval)
+        
+        fetch(url, {method: 'GET'}).then(
+            res => {
+                this._set_refresh_loading(false)
+                if (res.status == 200) {
+                    res.json().then(data => {
+                        this._update_order_params(data)
+                    },
+                    () => {
+                        this._fallback_refresh_order()
+                    })
+                } else {
+                    // Non 200 Status Code
+                    this._fallback_refresh_order()
+                }
+            },
+            err => {
+                // Blocked by Network Errors such as CORS, Offline, Server blocking request, etc
+                this._set_refresh_loading(false)
+                this._fallback_refresh_order()
+            }
+        )
+    }
+
+    _update_order_params(data) {
+        // Updates the Dynamic Parts of Page
+        
+        const crypto_amount = this._satoshi_to_amount(parseFloat(data.satoshi))
+        const fiat_conversion_rate = this._price_per_crypto(crypto_amount, parseFloat(data.value))
+
+        this._amount_input.value = crypto_amount
+        this._crypto_rate.innerHTML = fiat_conversion_rate
+
+        this.reset_progress()
+    }
+
+    _fallback_refresh_order() {
+        location.reload()
+    }
+
+    _satoshi_to_amount(satoshi) {
+        return satoshi/1.0e8
+    }
+
+    _price_per_crypto(crypto, fiat_amount) {
+        return Number(fiat_amount/crypto)
+    }
+
+    get_url_param(key) {
+        let params = new URLSearchParams(window.location.search)
+        return params.get(key)
     }
 }
 

@@ -289,6 +289,22 @@ svg {
   font-size: 1.5em;
 }
 
+[class^="blockonomics-icon-"].spin, [class*=" blockonomics-icon-"].spin {
+  animation-name: rotate;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .blockonomics-icon-cart::before {
   content: "\e900";
 }
@@ -338,10 +354,13 @@ svg {
   border-spacing: 0 0.5em;
 }
 
-#bnomics-try-again {
+#bnomics-try-again,
+#bnomics-refresh {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .bnomics-copy-container {

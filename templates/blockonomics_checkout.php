@@ -9,6 +9,7 @@
      * $order_amount: Crypto Amount
      * $crypto: Crypto Object (code, name, uri) e.g. (btc, Bitcoin, bitcoin)
      * $payment_uri: Crypto URI with Amount and Protocol
+     * $api_uri: URL for WC-API for Blockonomics
      * $qrcode_svg_element: Generate QR Code when NoJS mode is active.
      */
 ?>
@@ -87,10 +88,10 @@
                         </div>
 
                         <small class="bnomics-crypto-price-timer">
-                            1 <?php echo strtoupper($crypto['code']); ?> = 30,00,000 <?php echo $order['currency']; ?>, <?=__('updates in', 'blockonomics-bitcoin-payments')?> <span class="bnomics-time-left">00:00 min</span>
+                            1 <?php echo strtoupper($crypto['code']); ?> = <span id="bnomics-crypto-rate"><?php echo $crypto_rate; ?></span> <?php echo $order['currency']; ?>, <?=__('updates in', 'blockonomics-bitcoin-payments')?> <span class="bnomics-time-left">00:00 min</span>
                         </small>
 
-                        <button class="woocommerce-button button" id="bnomics-try-again">
+                        <button class="woocommerce-button button" id="bnomics-refresh">
                             <span class="blockonomics-icon-refresh"></span> <?=__('Refresh Now', 'blockonomics-bitcoin-payments')?>
                         </button>
                     </th>
