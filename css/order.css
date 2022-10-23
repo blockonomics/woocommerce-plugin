@@ -50,6 +50,10 @@
 
 .bnomics-qr-code-hint {
   text-align: center;
+  display: block;
+}
+
+.no-js .bnomics-qr-code-hint {  
   margin-bottom: 1em;
   font-size: 0.8em;
   padding: 0 20px;
@@ -286,6 +290,7 @@ svg {
 
   margin-left: 2px;
   margin-right: 2px;
+  font-size: 1.5em;
 }
 
 .blockonomics-icon-cart::before {
@@ -304,20 +309,7 @@ svg {
   content: "\e903";
 }
 
-a.blockonomics-icon {
-  text-decoration: none;
-  font-size: 1.5em;
-  color: inherit;
-  outline: none;
-}
-
 /* - Blockonomics Font Icons Ends -- */
-
-/* ----- Generic CSS ---------------*/
-.text-center {
-  text-align: center;
-}
-/* - Generic CSS End -- */
 
 #blockonomics_checkout,
 #bnomics-try-again,
@@ -389,4 +381,9 @@ a.blockonomics-icon {
   display: flex;
   justify-content: flex-end;
   align-items: center;
+}
+
+.bnomics-crypto-price-timer {
+  display: block;
+  text-align: center;
 }
