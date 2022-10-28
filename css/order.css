@@ -265,11 +265,7 @@ svg {
 
 @font-face {
   font-family: 'blockonomics-icons';
-  src:  url('../fonts/blockonomics-icons.eot?6m1shn');
-  src:  url('../fonts/blockonomics-icons.eot?6m1shn#iefix') format('embedded-opentype'),
-    url('../fonts/blockonomics-icons.ttf?6m1shn') format('truetype'),
-    url('../fonts/blockonomics-icons.woff?6m1shn') format('woff'),
-    url('../fonts/blockonomics-icons.svg?6m1shn#blockonomics-icons') format('svg');
+  src: url('../fonts/blockonomics-icons.woff?6m1shn') format('woff');
   font-weight: normal;
   font-style: normal;
   font-display: block;
