@@ -85,10 +85,6 @@
   text-align: left;
 }
 
-.bnomics-order-expired-wrapper, .bnomics-order-error-wrapper {
-  text-align: center;
-}
-
 .bnomics-amount-input, .bnomics-address-input {
   padding: 2px 4px;
   font-weight: 600;
@@ -254,7 +250,6 @@ svg {
 }
 /** Hide Panels by Default **/
 
-#blockonomics_checkout:not(.no-js) .bnomics-order-container .bnomics-order-expired-wrapper,
 #blockonomics_checkout:not(.no-js) .bnomics-order-container .bnomics-order-panel,
 #blockonomics_checkout:not(.no-js) .bnomics-order-container .bnomics-copy-amount-text,
 #blockonomics_checkout:not(.no-js) .bnomics-order-container .bnomics-copy-address-text {
@@ -330,7 +325,6 @@ svg {
 /* - Blockonomics Font Icons Ends -- */
 
 #blockonomics_checkout,
-#bnomics-try-again,
 #blockonomics_checkout h5,
 #blockonomics_checkout table {
   margin-left: auto;
@@ -354,7 +348,6 @@ svg {
   border-spacing: 0 0.5em;
 }
 
-#bnomics-try-again,
 #bnomics-refresh {
   display: flex;
   justify-content: center;

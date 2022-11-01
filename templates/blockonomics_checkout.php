@@ -27,12 +27,6 @@
             <p><?=__('Unable to render correctly, Note to Administrator: Please try enabling other modes like No Javascript or Lite mode in the Blockonomics plugin > Advanced Settings.', 'blockonomics-bitcoin-payments')?></p>
         </div>
         
-        <!-- Payment Expired -->
-        <div class="bnomics-order-expired-wrapper">
-            <h3><?=__('Payment Expired', 'blockonomics-bitcoin-payments')?></h3><br/>
-            <p><a href="#" id="bnomics-try-again"><?=__('Click here to try again', 'blockonomics-bitcoin-payments')?></a></p>
-        </div>
-
         <!-- Blockonomics Checkout Panel -->    
         <div class="bnomics-order-panel">
             <table>

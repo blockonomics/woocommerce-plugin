@@ -44,7 +44,6 @@ class Blockonomics {
     create_bindings() {
         this._spinner_wrapper = this.container.querySelector('.bnomics-spinner-wrapper')
 
-        this._order_expired_wrapper = this.container.querySelector('.bnomics-order-expired-wrapper')
         this._order_panel = this.container.querySelector('.bnomics-order-panel')
 
         this._amount_text = this.container.querySelector('.bnomics-amount-text')
@@ -60,7 +59,6 @@ class Blockonomics {
         this._time_left = this.container.querySelector('.bnomics-time-left')
         this._crypto_rate = this.container.querySelector('#bnomics-crypto-rate')
 
-        this._try_again = this.container.querySelector('#bnomics-try-again')
         this._refresh = this.container.querySelector('#bnomics-refresh')
         this._show_qr = this.container.querySelector('#bnomics-show-qr')
         this._qr_code_container = this.container.querySelector('.bnomics-qr-code')
@@ -86,13 +84,6 @@ class Blockonomics {
         this._show_qr.addEventListener('click', (e) => {
             e.preventDefault()
             this.toggle_qr()
-        })
-            
-
-        //Reload the page if user clicks try again after the order expires
-        this._try_again.addEventListener('click', (e) => {
-            e.preventDefault()
-            location.reload()
         })
         
         this._refresh.addEventListener('click', (e) => {
@@ -138,16 +129,10 @@ class Blockonomics {
         if (this.progress.clock < 0) {
             this.progress.clock = 0;
             //Order expired
-            this.order_expired()
+            this.refresh_order()
         } else {
             this._time_left.innerHTML = `${String(Math.floor(this.progress.clock/60)).padStart(2, "0")}:${String(this.progress.clock%60).padStart(2, "0")} min`
         }
-    }
-
-    order_expired() {
-        clearInterval(this.progress.interval)
-        this._order_expired_wrapper.style.display = 'block'
-        this._order_panel.style.display = 'none'
     }
 
     connect_to_ws() {
@@ -278,7 +263,7 @@ class Blockonomics {
     }
 
     _price_per_crypto(crypto, fiat_amount) {
-        return Number(fiat_amount/crypto)
+        return Number(fiat_amount/crypto).toFixed(2) // Show Fixed Decimal Points rather than rounding off
     }
 
     get_url_param(key) {
