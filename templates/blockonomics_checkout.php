@@ -14,12 +14,6 @@
 ?>
 <div id="blockonomics_checkout">
     <div class="bnomics-order-container">
-
-        <!-- Heading row -->
-        
-        <h5>
-            <?=__('Order #', 'blockonomics-bitcoin-payments')?><?php echo $order_id; ?>
-        </h5>
         
         <!-- Spinner -->
         <div class="bnomics-spinner-wrapper">
@@ -44,7 +38,9 @@
                 <tr>
                     <th class="bnomics-header">
                         <!-- Order Header -->
-                        <strong><?=__(strtolower($crypto['name']), 'blockonomics-bitcoin-payments')?></strong>
+                        <strong>
+                            <?=__('Order #', 'blockonomics-bitcoin-payments')?><?php echo $order_id; ?>
+                        </strong>
                         
                         <div>
                             <span class="blockonomics-icon-cart"></span>

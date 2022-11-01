@@ -367,6 +367,7 @@ svg {
 #blockonomics_checkout .bnomics-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 #blockonomics_checkout .bnomics-header strong {
