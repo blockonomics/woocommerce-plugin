@@ -784,6 +784,8 @@ class Blockonomics
 
         $wc_order->apply_coupon($coupon_code);
 
+        $coupon_note = "Partial payment received for " .get_woocommerce_currency()." ".sprintf('%0.2f', round($coupon->get_amount(), 2)). " and applied as a coupon.";
+        $wc_order->add_order_note(__( $coupon_note, 'blockonomics-bitcoin-payments' ));
         $wc_order->save();
 
         // Create and add new row for underpaid order to the database
