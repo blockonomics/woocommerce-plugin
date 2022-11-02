@@ -38,9 +38,9 @@
                 <tr>
                     <th class="bnomics-header">
                         <!-- Order Header -->
-                        <strong>
+                        <span class="bnomics-order-id">
                             <?=__('Order #', 'blockonomics-bitcoin-payments')?><?php echo $order_id; ?>
-                        </strong>
+                        </span>
                         
                         <div>
                             <span class="blockonomics-icon-cart"></span>
@@ -53,7 +53,7 @@
                 <tr>
                     <th>
                         <!-- Order Address -->
-                        <label class="bnomics-address-text"><?=__('To Pay, send', 'blockonomics-bitcoin-payments')?> <?php echo strtolower($crypto['name']); ?> <?=__('at this address:', 'blockonomics-bitcoin-payments')?></label>
+                        <label class="bnomics-address-text"><?=__('To pay, send', 'blockonomics-bitcoin-payments')?> <?php echo strtolower($crypto['name']); ?> <?=__('to this address:', 'blockonomics-bitcoin-payments')?></label>
                         <label class="bnomics-copy-address-text"><?=__('Copied to clipboard', 'blockonomics-bitcoin-payments')?></label>
                         <div class="bnomics-copy-container">
                             <input type="text" value="<?php echo $order['address']; ?>" id="bnomics-address-input" readonly/>
@@ -83,9 +83,7 @@
 
                         <div class="bnomics-copy-container">
                             <input type="text" value="<?php echo $order_amount; ?>" id="bnomics-amount-input" readonly/>
-                            <a href="#" id="bnomics-amount-copy" class="blockonomics-icon">
-                                <span class="blockonomics-icon-copy"></span>
-                            </a>
+                            <span id="bnomics-amount-copy" class="blockonomics-icon-copy"></span>
                         </div>
 
                         <small class="bnomics-crypto-price-timer">

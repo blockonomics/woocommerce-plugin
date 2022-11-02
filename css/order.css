@@ -68,7 +68,7 @@
   font-size: 0.8em;
 }
 
-.bnomics-order-id {
+.no-js .bnomics-order-id {
   text-align:right;
 }
 
@@ -305,6 +305,12 @@ svg {
   content: "\e903";
 }
 
+.blockonomics-icon-copy,
+.blockonomics-icon-qr,
+.blockonomics-icon-refresh {
+  cursor: pointer;
+}
+
 /* - Blockonomics Font Icons Ends -- */
 
 #blockonomics_checkout,
@@ -368,10 +374,6 @@ svg {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-#blockonomics_checkout .bnomics-header strong {
-  font-style: italic;
 }
 
 .bnomics-header div {
