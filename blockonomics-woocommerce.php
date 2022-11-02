@@ -482,6 +482,7 @@ function blockonomics_create_table() {
         currency varchar(3),
         value longtext,
         txid text,
+        timestamp int,
         PRIMARY KEY  (address),
         KEY orderkey (order_id,crypto)
     ) $charset_collate;";
@@ -500,10 +501,16 @@ function blockonomics_activation_hook() {
 }
 
 // Since WP 3.1 the activation function registered with register_activation_hook() is not called when a plugin is updated.
+// Adding timestamp column in db to handle underpayments
 function blockonomics_update_db_check() {
     global $wpdb;
     global $blockonomics_db_version;
 
+    $timestamp_column = $wpdb->get_results(  "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE table_name = 'wp_blockonomics_orders' AND column_name = 'timestamp'"  );
+    if(empty($timestamp_column)){
+        $wpdb->query("ALTER TABLE wp_blockonomics_orders ADD timestamp INT DEFAULT NULL");
+    }
     $installed_ver = get_site_option( 'blockonomics_db_version' );
     if ( $installed_ver != $blockonomics_db_version ) {
         $table_name = $wpdb->prefix . 'blockonomics_orders';
