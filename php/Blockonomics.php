@@ -521,7 +521,8 @@ class Blockonomics
                 'order_id'           => $order_id,
                 'status'             => -1,
                 'crypto'             => $crypto,
-                'address'            => $address
+                'address'            => $address,
+                'timestamp'          => time()
         );
         $order = $this->calculate_order_params($order);
         return $order;
@@ -565,10 +566,7 @@ class Blockonomics
         } else {
             $context['order'] = $order;
 
-            if ($order['status'] == -2) {
-                // Payment is Underpaid
-                $error_context = $this->get_error_context('underpaid');
-            } elseif ($order['status'] >= 0) {
+            if ($order['status'] >= 0) {
                 // Payment is Received
                 $this->redirect_finish_order($order_id);
             } else {
@@ -615,10 +613,10 @@ class Blockonomics
     public function load_checkout_template($order_id, $crypto){
         // Create or update the order
         $order = $this->process_order($order_id, $crypto);
-        
+
         // Load Checkout Context
         $context = $this->get_checkout_context($order, $crypto);
-        
+
         // Get Template to Load
         $template_name = $this->get_checkout_template($context);
 
@@ -642,14 +640,31 @@ class Blockonomics
     }
 
     // Fetch the correct crypto order linked to the order id
+    // If multiple rows exist for an order, fetch the most recent one 
     public function get_order_by_id_and_crypto($order_id, $crypto){
         global $wpdb;
-        $order = $wpdb->get_row(
-            $wpdb->prepare("SELECT * FROM ".$wpdb->prefix."blockonomics_orders WHERE order_id = %s AND crypto = %s", array($order_id, $crypto)),
+        $order = $wpdb->get_results(
+            $wpdb->prepare("SELECT * FROM ".$wpdb->prefix."blockonomics_orders WHERE order_id = %s AND crypto = %s ORDER BY timestamp DESC", array($order_id, $crypto)),
             ARRAY_A
         );
         if($order){
-            return $order;
+            return $order[0];
+        }
+        return false;
+    }
+
+// Fetch no. of rows linked to an order_id & crypto and Order Amount in the first order i.e. before any underpayment
+    public function get_no_of_order_rows_and_initial_order_amount($order_id, $crypto){
+        global $wpdb;
+        $order = $wpdb->get_results(
+            $wpdb->prepare("SELECT * FROM ".$wpdb->prefix."blockonomics_orders WHERE order_id = %s AND crypto = %s ORDER BY timestamp ASC", array($order_id, $crypto)),
+            ARRAY_A
+        );
+        if($order){
+            return array(
+                'no_of_order_rows' => sizeof($order),
+                'initial_order_amount' => $order[0]['value']
+            );
         }
         return false;
     }
@@ -728,16 +743,16 @@ class Blockonomics
     }
 
     public function save_transaction($value, $order, $wc_order){
-        if (!metadata_exists('post',$wc_order->get_id(),'blockonomics_'. $order['crypto'] .'_txid', $order['txid']) )  {
-            update_post_meta($wc_order->get_id(), 'blockonomics_'. $order['crypto'] .'_txid', $order['txid']);
-            update_post_meta($wc_order->get_id(), 'expected_'. $order['crypto'], $order['satoshi']/1.0e8);
+        $order_info = $this->get_no_of_order_rows_and_initial_order_amount($order['order_id'], $order['crypto']);
+        if (!metadata_exists('post',$wc_order->get_id(),'blockonomics_'. $order['crypto'] .'_txid_'.$order_info['no_of_order_rows'], $order['txid']) )  {
+            update_post_meta($wc_order->get_id(), 'blockonomics_'. $order['crypto'] .'_txid_'.$order_info['no_of_order_rows'], $order['txid']);
         }
     }
 
     public function update_paid_amount($status, $value, $order, $wc_order){
         $network_confirmations = get_option("blockonomics_network_confirmation",2);
-        if ($status >= $network_confirmations && !metadata_exists('post',$wc_order->get_id(),'paid_'. $order['crypto']) )  {
-          update_post_meta($wc_order->get_id(), 'paid_'. $order['crypto'], $value/1.0e8);
+        if ($status >= $network_confirmations && !metadata_exists('post',$wc_order->get_id(),'paid_to_'. $order['address']) )  {
+          update_post_meta($wc_order->get_id(), 'paid_to_'. $order['address'], $value/1.0e8);
           $status = $this->check_paid_amount($status, $value, $order, $wc_order);
           $this->update_temp_draw_amount($value);
           return $status;
@@ -747,8 +762,14 @@ class Blockonomics
 
     // Check for underpayment, overpayment or correct amount
     public function check_paid_amount($status, $value, $order, $wc_order){
+      $order_info = $this->get_no_of_order_rows_and_initial_order_amount($order['order_id'], $order['crypto']);
+      if ($order['satoshi'] < $value) {
+        $wc_order->add_order_note(__( 'Paid amount more than expected.', 'blockonomics-bitcoin-payments' ));
+        update_post_meta($wc_order->get_id(), 'paid_order_amount', $order_info['initial_order_amount']);      
+    }
       $underpayment_slack = get_option("blockonomics_underpayment_slack", 0)/100 * $order['satoshi'];
       if ($order['satoshi'] - $underpayment_slack > $value) {
+        $status = -2; //Underpaid, generate coupon, new address and add new order row with updated amount
         // calculate what % of order amount is paid to get the discount amount
         $paid_order_amount_ratio = $value/$order['satoshi'];
 
@@ -763,16 +784,24 @@ class Blockonomics
 
         $wc_order->apply_coupon($coupon_code);
 
-        $wc_order->save();            
-        
-        $status = -2; //Payment error , amount less than expected 
-        //$wc_order->update_status('failed', __('Paid amount less than expected.', 'blockonomics-bitcoin-payments'));
-      }else{
+        $wc_order->save();
+
+        // Create and add new row for underpaid order to the database
+        $order = $this->create_new_order($order['order_id'], $order['crypto']);
+            if (array_key_exists("error", $order)) {
+                // Some error in Address Generation from API, return the same array.
+                return $order;
+            }
+            if (!$this->insert_order($order)) {
+                // insert_order fails if duplicate address found. Ensures no duplicate orders in the database
+                return array("error"=>__("Duplicate Address Error. This is a Temporary error, please try again", 'blockonomics-bitcoin-payments'));
+            }
+        // update meta field paid_order_amount
+        update_post_meta($wc_order->get_id(), 'paid_order_amount', $order_info['initial_order_amount'] - $order['value']);    
+    }else{
         $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
         $wc_order->payment_complete($order['txid']);
-      }
-      if ($order['satoshi'] < $value) {
-        $wc_order->add_order_note(__( 'Paid amount more than expected.', 'blockonomics-bitcoin-payments' ));
+        update_post_meta($wc_order->get_id(), 'paid_order_amount', $order_info['initial_order_amount']);    
       }
       return $status;
     }
