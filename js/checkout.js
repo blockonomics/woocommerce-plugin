@@ -225,13 +225,7 @@ class Blockonomics {
                 if (res.status == 200) {
                     res.json().then(data => {
                         this._update_order_params(data)
-                    },
-                    () => {
-                        this._fallback_refresh_order()
                     })
-                } else {
-                    // Non 200 Status Code
-                    this._fallback_refresh_order()
                 }
             },
             err => {
