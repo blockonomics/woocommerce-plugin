@@ -1,11 +1,5 @@
 /* ----- Checkout Page Styles ------*/
 
-.no-js .bnomics-order-container {
-  margin: 5vh auto;
-  padding: 8px;
-  max-width: 700px;
-}
-
 .bnomics-order-info {
   display: flex;
 }
@@ -33,19 +27,12 @@
   flex: 2;
 }
 
-.no-js .bnomics-powered-by {
-  text-align: center;
-  margin-top: 2.6em;
-}
-
 .bnomics-qr-code {
   display: none;
 }
 
 .no-js .bnomics-qr-code {
   display: block;
-  font-size: 0.6em;
-  padding: 0;
 }
 
 .bnomics-qr-code-hint {
@@ -53,23 +40,8 @@
   display: block;
 }
 
-.no-js .bnomics-qr-code-hint {  
-  margin-bottom: 1em;
-  font-size: 0.8em;
-  padding: 0 20px;
-}
-
 .bnomics-order-number {
   text-transform: uppercase;
-}
-
-.no-js .bnomics-time-left {
-  line-height: 3;
-  font-size: 0.8em;
-}
-
-.no-js .bnomics-order-id {
-  text-align:right;
 }
 
 .bnomics-bg {
