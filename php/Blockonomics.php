@@ -637,7 +637,7 @@ class Blockonomics
     }
 
     public function get_wc_api_url(){
-        return site_url() . "/wc-api/WC_Gateway_Blockonomics";
+        return WC()->api_request_url('WC_Gateway_Blockonomics');
     }
 
     // Redirect the user to the woocommerce finish order page
