@@ -55,26 +55,43 @@ class Blockonomics {
         this._address_text = this.container.querySelector('.bnomics-address-text')
         this._copy_address_text = this.container.querySelector('.bnomics-copy-address-text')
         this._address_input = this.container.querySelector('#bnomics-address-input')
-        this._address_copy = this.container.querySelector('.bnomics-address-copy')
+        this._address_copy = this.container.querySelector('#bnomics-address-copy')
 
-        this._progress_bar = this.container.querySelector('.bnomics-progress-bar')
         this._time_left = this.container.querySelector('.bnomics-time-left')
 
         this._try_again = this.container.querySelector('#bnomics-try-again')
+        this._show_qr = this.container.querySelector('#bnomics-show-qr')
+        this._qr_code_container = this.container.querySelector('.bnomics-qr-code')
         this._qr_code = this.container.querySelector('#bnomics-qr-code')
 
         this._display_error_wrapper = this.container.querySelector(".bnomics-display-error")
 
         // Click Bindings
 
-        //Copy bitcoin address to clipboard
-        this._address_input.addEventListener('click', () => this.copy_to_clipboard("bnomics-address-copy"))
+        // Copy bitcoin address to clipboard
+        this._address_copy.addEventListener('click', (e) => {
+            e.preventDefault()
+            this.copy_to_clipboard("bnomics-address-input")
+        })
         
-        //Copy bitcoin amount to clipboard
-        this._amount_input.addEventListener('click', () => this.copy_to_clipboard("bnomics-amount-copy"))
+        // Copy bitcoin amount to clipboard
+        this._amount_copy.addEventListener('click', (e) => {
+            e.preventDefault()
+            this.copy_to_clipboard("bnomics-amount-input")
+        })
+        
+        // QR Handler
+        this._show_qr.addEventListener('click', (e) => {
+            e.preventDefault()
+            this.toggle_qr()
+        })
+            
 
         //Reload the page if user clicks try again after the order expires
-        this._try_again.addEventListener('click', () => location.reload())
+        this._try_again.addEventListener('click', (e) => {
+            e.preventDefault()
+            location.reload()
+        })
 
         this.data.time_period = Number(this.data.time_period)
 
@@ -83,6 +100,14 @@ class Blockonomics {
             interval: null,
             clock: this.data.time_period * 60,
             percent: 100
+        }
+    }
+
+    toggle_qr() {
+        if (getComputedStyle(this._qr_code_container).display == "none") {
+            this._qr_code_container.style.display = "block"
+        } else {
+            this._qr_code_container.style.display = "none"
         }
     }
 
@@ -104,7 +129,6 @@ class Blockonomics {
             //Order expired
             this.order_expired()
         } else {
-            this._progress_bar.style.width = `${this.progress.percent}%`
             this._time_left.innerHTML = `${String(Math.floor(this.progress.clock/60)).padStart(2, "0")}:${String(this.progress.clock%60).padStart(2, "0")} min`
         }
     }
@@ -156,7 +180,7 @@ class Blockonomics {
         this.select_text(divid);
 
         let $this = this
-        if (divid == "bnomics-address-copy") {
+        if (divid == "bnomics-address-input") {
             this._address_text.style.display = 'none'
             this._copy_address_text.style.display = 'block'
             setTimeout(function() {
