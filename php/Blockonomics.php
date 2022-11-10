@@ -600,12 +600,14 @@ class Blockonomics
         $script = NULL;
 
         if ($template_name === 'checkout') {
+            $order_hash = $this->encrypt_hash($context['order_id']);
+            
             $script = "const blockonomics_data = '" . json_encode( array (
                 'crypto' => $context['crypto'],
                 'crypto_address' => $context['order']['address'],
                 'time_period' => get_option('blockonomics_timeperiod', 10),
                 'finish_order_url' => $this->get_wc_order_received_url($context['order_id']),
-                'api_url' => $this->get_wc_api_url(),
+                'get_order_url' => $this->get_parameterized_wc_url(array('get_order'=>$order_hash, 'crypto'=>  $context['crypto']['code'])),
                 'payment_uri' => $context['payment_uri']
             )). "'";
         }
@@ -634,10 +636,6 @@ class Blockonomics
     public function get_wc_order_received_url($order_id){
         $wc_order = new WC_Order($order_id);
         return $wc_order->get_checkout_order_received_url();
-    }
-
-    public function get_wc_api_url(){
-        return WC()->api_request_url('WC_Gateway_Blockonomics');
     }
 
     // Redirect the user to the woocommerce finish order page

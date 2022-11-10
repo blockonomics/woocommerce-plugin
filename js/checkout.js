@@ -212,14 +212,13 @@ class Blockonomics {
     }
 
     refresh_order() {
-        let url = `${this.data.api_url}?get_order=${this.get_url_param('show_order')}&crypto=${this.get_url_param('crypto')}`
 
         this._set_refresh_loading(true)
 
         // Stop Progress Counter
         clearInterval(this.progress.interval)
         
-        fetch(url, {method: 'GET'}).then(
+        fetch(this.data.get_order_url, {method: 'GET'}).then(
             res => {
                 this._set_refresh_loading(false)
                 if (res.status == 200) {
@@ -231,7 +230,7 @@ class Blockonomics {
             err => {
                 // Blocked by Network Errors such as CORS, Offline, Server blocking request, etc
                 this._set_refresh_loading(false)
-                this._fallback_refresh_order()
+                location.reload()
             }
         )
     }
@@ -239,30 +238,13 @@ class Blockonomics {
     _update_order_params(data) {
         // Updates the Dynamic Parts of Page
         
-        const crypto_amount = this._satoshi_to_amount(parseFloat(data.satoshi))
-        const fiat_conversion_rate = this._price_per_crypto(crypto_amount, parseFloat(data.value))
+        const crypto_amount = parseFloat(data.satoshi)/1.0e8
+        const fiat_conversion_rate = Number(parseFloat(data.value)/crypto_amount).toFixed(2) // Show Fixed Decimal Points rather than rounding off
 
         this._amount_input.value = crypto_amount
         this._crypto_rate.innerHTML = fiat_conversion_rate
 
         this.reset_progress()
-    }
-
-    _fallback_refresh_order() {
-        location.reload()
-    }
-
-    _satoshi_to_amount(satoshi) {
-        return satoshi/1.0e8
-    }
-
-    _price_per_crypto(crypto, fiat_amount) {
-        return Number(fiat_amount/crypto).toFixed(2) // Show Fixed Decimal Points rather than rounding off
-    }
-
-    get_url_param(key) {
-        let params = new URLSearchParams(window.location.search)
-        return params.get(key)
     }
 }
 
