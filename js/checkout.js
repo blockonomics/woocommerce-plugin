@@ -63,6 +63,7 @@ class Blockonomics {
         this._show_qr = this.container.querySelector('#bnomics-show-qr')
         this._qr_code_container = this.container.querySelector('.bnomics-qr-code')
         this._qr_code = this.container.querySelector('#bnomics-qr-code')
+        this._qr_code_links = this.container.querySelectorAll('a.bnomics-qr-link')
 
         this._display_error_wrapper = this.container.querySelector(".bnomics-display-error")
 
@@ -218,7 +219,7 @@ class Blockonomics {
         // Stop Progress Counter
         clearInterval(this.progress.interval)
         
-        fetch(this.data.get_order_url, {method: 'GET'}).then(
+        fetch(this.data.get_order_amount_url, {method: 'GET'}).then(
             res => {
                 this._set_refresh_loading(false)
                 if (res.status == 200) {
@@ -236,13 +237,15 @@ class Blockonomics {
     }
 
     _update_order_params(data) {
-        // Updates the Dynamic Parts of Page
-        
-        const crypto_amount = parseFloat(data.satoshi)/1.0e8
-        const fiat_conversion_rate = Number(parseFloat(data.value)/crypto_amount).toFixed(2) // Show Fixed Decimal Points rather than rounding off
 
-        this._amount_input.value = crypto_amount
-        this._crypto_rate.innerHTML = fiat_conversion_rate
+        // Updates the Dynamic Parts of Page
+        this._amount_input.value = data.order_amount
+        this._crypto_rate.innerHTML = data.crypto_rate
+
+        // Update QR Code
+        this.data.payment_uri = data.payment_uri
+        this.generate_qr()
+        this._qr_code_links.forEach(ele => ele.setAttribute('href', data.payment_uri))
 
         this.reset_progress()
     }

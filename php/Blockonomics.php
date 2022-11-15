@@ -547,6 +547,14 @@ class Blockonomics
         }
     }
 
+    public function get_crypto_rate_from_params($value, $order_amount) {
+        return number_format($value/$order_amount, 2, '.', '');
+    }
+
+    public function get_crypto_payment_uri($crypto, $address, $order_amount) {
+        return $crypto['uri'] . ":" . $address . "?amount=" . $order_amount;
+    }
+
     public function get_checkout_context($order, $crypto){
         
         $context = array();
@@ -571,11 +579,11 @@ class Blockonomics
             } else {
                 // Display Checkout Page
                 $context['order_amount'] = $this->fix_displaying_small_values($order['satoshi']);
-                $context['payment_uri'] = $context['crypto']['uri'] . ":" . $order['address'] . "?amount=" . $context['order_amount'];
+                $context['payment_uri'] = $this->get_crypto_payment_uri($context['crypto'], $order['address'], $context['order_amount']);
 
                 // Crypto Rate is re-calculated here and may slightly differ from the rate provided by Blockonomics
                 // This is required to be recalculated as the rate is not stored anywhere in $order, only the converted satoshi amount is.
-                $context['crypto_rate'] = number_format($order['value']/$context['order_amount'], 2, '.', '');
+                $context['crypto_rate'] = $this->get_crypto_rate_from_params($order['value'], $context['order_amount']);
                 //Using svg library qrcode.php to generate QR Code in NoJS mode
                 $context['qrcode_svg_element'] = $this->generate_qrcode_svg_element($context['payment_uri']);
             }
@@ -607,7 +615,7 @@ class Blockonomics
                 'crypto_address' => $context['order']['address'],
                 'time_period' => get_option('blockonomics_timeperiod', 10),
                 'finish_order_url' => $this->get_wc_order_received_url($context['order_id']),
-                'get_order_url' => $this->get_parameterized_wc_url(array('get_order'=>$order_hash, 'crypto'=>  $context['crypto']['code'])),
+                'get_order_amount_url' => $this->get_parameterized_wc_url(array('get_amount'=>$order_hash, 'crypto'=>  $context['crypto']['code'])),
                 'payment_uri' => $context['payment_uri']
             )). "'";
         }
@@ -707,6 +715,24 @@ class Blockonomics
         $order = $this->process_order($order_id, $crypto);
         header("Content-Type: application/json");
         exit(json_encode($order));
+    }
+
+    // Get the order info by id and crypto
+    public function get_order_amount_info($order_id, $crypto){
+        $order = $this->process_order($order_id, $crypto);
+
+        $order_amount = $this->fix_displaying_small_values($order['satoshi']);
+        
+        $cryptos = $this->getActiveCurrencies();
+        $crypto_obj = $cryptos[$crypto];
+
+        $response = array(
+            "payment_uri" => $this->get_crypto_payment_uri($crypto_obj, $order['address'], $order_amount),
+            "order_amount" => $order_amount,
+            "crypto_rate" => $this->get_crypto_rate_from_params($order['value'], $order_amount)
+        );
+        header("Content-Type: application/json");
+        exit(json_encode($response));
     }
 
     // Get the order info by crypto address

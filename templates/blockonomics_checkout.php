@@ -58,12 +58,12 @@
                         
                         <div class="bnomics-qr-code">
                             <div class="bnomics-qr">
-                                <a href="<?php echo $payment_uri; ?>" target="_blank">
+                                <a href="<?php echo $payment_uri; ?>" target="_blank" class="bnomics-qr-link">
                                     <canvas id="bnomics-qr-code"></canvas>
                                 </a>
                             </div>
                             <small class="bnomics-qr-code-hint">
-                                <a href="<?php echo $payment_uri; ?>" target="_blank"><?=__('Open in wallet', 'blockonomics-bitcoin-payments')?></a>
+                                <a href="<?php echo $payment_uri; ?>" target="_blank" class="bnomics-qr-link"><?=__('Open in wallet', 'blockonomics-bitcoin-payments')?></a>
                             </small>
                         </div>
 
