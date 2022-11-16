@@ -88,6 +88,10 @@
                         <button class="woocommerce-button button" id="bnomics-refresh">
                             <span class="blockonomics-icon-refresh"></span> <?=__('Refresh Now', 'blockonomics-bitcoin-payments')?>
                         </button>
+
+                        <small class="bnomics-ajax-error">
+                            <?=__('Refresh Amount Failed: Please try again or contact Site Administrator.', 'blockonomics-bitcoin-payments')?>
+                        </small>
                     </th>
                 </tr>
 

@@ -398,3 +398,8 @@ svg {
   display: block;
   text-align: center;
 }
+
+.bnomics-ajax-error {
+  display: none;
+  text-align: center;
+}

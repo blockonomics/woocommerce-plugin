@@ -65,6 +65,8 @@ class Blockonomics {
         this._qr_code = this.container.querySelector('#bnomics-qr-code')
         this._qr_code_links = this.container.querySelectorAll('a.bnomics-qr-link')
 
+        this._ajax_error = this.container.querySelector('.bnomics-ajax-error')
+
         this._display_error_wrapper = this.container.querySelector(".bnomics-display-error")
 
         // Click Bindings
@@ -212,28 +214,41 @@ class Blockonomics {
         }
     }
 
+    toggle_ajax_error(show=false) {
+        this._ajax_error.style.display = show ? 'block' : 'none'
+    }
+
     refresh_order() {
 
         this._set_refresh_loading(true)
+        this.toggle_ajax_error(false)
 
         // Stop Progress Counter
         clearInterval(this.progress.interval)
         
         fetch(this.data.get_order_amount_url, {method: 'GET'}).then(
             res => {
+                // Enable the button anyways so that user can retry
                 this._set_refresh_loading(false)
-                if (res.status == 200) {
-                    res.json().then(data => {
-                        this._update_order_params(data)
-                    })
+
+                if (!res.ok) {
+                    // Show Error, do not log to console as it is a Server Issue like 404
+                    this.toggle_ajax_error(true)
+                } else {
+                    return res.json()
                 }
-            },
-            err => {
-                // Blocked by Network Errors such as CORS, Offline, Server blocking request, etc
-                this._set_refresh_loading(false)
-                location.reload()
             }
-        )
+        ).then(res => {
+            this._update_order_params(res)
+        }).catch( err => {
+            // Enable the button anyways so that user can retry
+            this._set_refresh_loading(false)
+
+            this.toggle_ajax_error(true)
+            
+            // Log to Console for Debuggin by Admin as it's probably a CORS, Network or JSON Decode Issue
+            console.log("Blockonomics AJAX Error: ", err)
+        })
     }
 
     _update_order_params(data) {
