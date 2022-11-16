@@ -31,7 +31,7 @@ class Blockonomics {
 
         this.create_bindings()
         
-        this.progress.interval = setInterval(() => this.tick(), 1000)
+        this.reset_progress()
         this._spinner_wrapper.style.display = 'none'
         this._order_panel.style.display = 'block'
         this.generate_qr()
@@ -44,7 +44,6 @@ class Blockonomics {
     create_bindings() {
         this._spinner_wrapper = this.container.querySelector('.bnomics-spinner-wrapper')
 
-        this._order_expired_wrapper = this.container.querySelector('.bnomics-order-expired-wrapper')
         this._order_panel = this.container.querySelector('.bnomics-order-panel')
 
         this._amount_text = this.container.querySelector('.bnomics-amount-text')
@@ -58,11 +57,15 @@ class Blockonomics {
         this._address_copy = this.container.querySelector('#bnomics-address-copy')
 
         this._time_left = this.container.querySelector('.bnomics-time-left')
+        this._crypto_rate = this.container.querySelector('#bnomics-crypto-rate')
 
-        this._try_again = this.container.querySelector('#bnomics-try-again')
+        this._refresh = this.container.querySelector('#bnomics-refresh')
         this._show_qr = this.container.querySelector('#bnomics-show-qr')
         this._qr_code_container = this.container.querySelector('.bnomics-qr-code')
         this._qr_code = this.container.querySelector('#bnomics-qr-code')
+        this._qr_code_links = this.container.querySelectorAll('a.bnomics-qr-link')
+
+        this._ajax_error = this.container.querySelector('.bnomics-ajax-error')
 
         this._display_error_wrapper = this.container.querySelector(".bnomics-display-error")
 
@@ -85,22 +88,24 @@ class Blockonomics {
             e.preventDefault()
             this.toggle_qr()
         })
-            
-
-        //Reload the page if user clicks try again after the order expires
-        this._try_again.addEventListener('click', (e) => {
+        
+        this._refresh.addEventListener('click', (e) => {
             e.preventDefault()
-            location.reload()
+            this.refresh_order()
         })
 
         this.data.time_period = Number(this.data.time_period)
+    }
 
+    reset_progress() {
         this.progress = {
             total_time: this.data.time_period * 60,
             interval: null,
             clock: this.data.time_period * 60,
             percent: 100
         }
+
+        this.progress.interval = setInterval(() => this.tick(), 1000)
     }
 
     toggle_qr() {
@@ -127,16 +132,10 @@ class Blockonomics {
         if (this.progress.clock < 0) {
             this.progress.clock = 0;
             //Order expired
-            this.order_expired()
+            this.refresh_order()
         } else {
             this._time_left.innerHTML = `${String(Math.floor(this.progress.clock/60)).padStart(2, "0")}:${String(this.progress.clock%60).padStart(2, "0")} min`
         }
-    }
-
-    order_expired() {
-        clearInterval(this.progress.interval)
-        this._order_expired_wrapper.style.display = 'block'
-        this._order_panel.style.display = 'none'
     }
 
     connect_to_ws() {
@@ -203,6 +202,67 @@ class Blockonomics {
 
     redirect_to_finish_order() {
         window.location.href = this.data.finish_order_url
+    }
+
+    _set_refresh_loading(loading=false) {
+        if(loading) {
+            this._refresh.querySelector('.blockonomics-icon-refresh').classList.add('spin')
+            this._refresh.setAttribute('disabled', 'disabled')
+        } else {
+            this._refresh.querySelector('.blockonomics-icon-refresh').classList.remove('spin')
+            this._refresh.removeAttribute('disabled')
+        }
+    }
+
+    toggle_ajax_error(show=false) {
+        this._ajax_error.style.display = show ? 'block' : 'none'
+    }
+
+    refresh_order() {
+
+        this._set_refresh_loading(true)
+        this.toggle_ajax_error(false)
+
+        // Stop Progress Counter
+        clearInterval(this.progress.interval)
+        
+        fetch(this.data.get_order_amount_url, {method: 'GET'}).then(
+            res => {
+                // Enable the button anyways so that user can retry
+                this._set_refresh_loading(false)
+
+                if (!res.ok) {
+                    // Show Error, do not log to console as it is a Server Issue like 404
+                    this.toggle_ajax_error(true)
+                } else {
+                    return res.json()
+                }
+            }
+        ).then(res => {
+            this._update_order_params(res)
+        }).catch( err => {
+            // Enable the button anyways so that user can retry
+            this._set_refresh_loading(false)
+
+            this.toggle_ajax_error(true)
+            
+            // Log to Console for Debuggin by Admin as it's probably a CORS, Network or JSON Decode Issue
+            console.log("Blockonomics AJAX Error: ", err)
+        })
+    }
+
+    _update_order_params(data) {
+
+        // Updates the Dynamic Parts of Page
+        this._amount_input.value = data.order_amount
+        this._crypto_rate.innerHTML = data.crypto_rate
+
+        // Update QR Code
+        this.data.payment_uri = data.payment_uri
+        this.generate_qr()
+        this._qr_code_links.forEach(ele => ele.setAttribute('href', data.payment_uri))
+
+        this.reset_progress()
     }
 }
 

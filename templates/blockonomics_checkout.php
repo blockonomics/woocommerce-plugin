@@ -9,6 +9,7 @@
      * $order_amount: Crypto Amount
      * $crypto: Crypto Object (code, name, uri) e.g. (btc, Bitcoin, bitcoin)
      * $payment_uri: Crypto URI with Amount and Protocol
+     * $crypto_rate: Conversion Rate of Crypto to Fiat. Please see comment on php/Blockonomics.php -> get_crypto_rate_from_params() on rate difference.
      * $qrcode_svg_element: Generate QR Code when NoJS mode is active.
      */
 ?>
@@ -26,12 +27,6 @@
             <p><?=__('Unable to render correctly, Note to Administrator: Please try enabling other modes like No Javascript or Lite mode in the Blockonomics plugin > Advanced Settings.', 'blockonomics-bitcoin-payments')?></p>
         </div>
         
-        <!-- Payment Expired -->
-        <div class="bnomics-order-expired-wrapper">
-            <h3><?=__('Payment Expired', 'blockonomics-bitcoin-payments')?></h3><br/>
-            <p><a href="#" id="bnomics-try-again"><?=__('Click here to try again', 'blockonomics-bitcoin-payments')?></a></p>
-        </div>
-
         <!-- Blockonomics Checkout Panel -->    
         <div class="bnomics-order-panel">
             <table>
@@ -63,12 +58,12 @@
                         
                         <div class="bnomics-qr-code">
                             <div class="bnomics-qr">
-                                <a href="<?php echo $payment_uri; ?>" target="_blank">
+                                <a href="<?php echo $payment_uri; ?>" target="_blank" class="bnomics-qr-link">
                                     <canvas id="bnomics-qr-code"></canvas>
                                 </a>
                             </div>
                             <small class="bnomics-qr-code-hint">
-                                <a href="<?php echo $payment_uri; ?>" target="_blank"><?=__('Open in wallet', 'blockonomics-bitcoin-payments')?></a>
+                                <a href="<?php echo $payment_uri; ?>" target="_blank" class="bnomics-qr-link"><?=__('Open in wallet', 'blockonomics-bitcoin-payments')?></a>
                             </small>
                         </div>
 
@@ -87,12 +82,16 @@
                         </div>
 
                         <small class="bnomics-crypto-price-timer">
-                            1 <?php echo strtoupper($crypto['code']); ?> = 30,00,000 <?php echo $order['currency']; ?>, <?=__('updates in', 'blockonomics-bitcoin-payments')?> <span class="bnomics-time-left">00:00 min</span>
+                            1 <?php echo strtoupper($crypto['code']); ?> = <span id="bnomics-crypto-rate"><?php echo $crypto_rate; ?></span> <?php echo $order['currency']; ?>, <?=__('updates in', 'blockonomics-bitcoin-payments')?> <span class="bnomics-time-left">00:00 min</span>
                         </small>
 
-                        <button class="woocommerce-button button" id="bnomics-try-again">
+                        <button class="woocommerce-button button" id="bnomics-refresh">
                             <span class="blockonomics-icon-refresh"></span> <?=__('Refresh Now', 'blockonomics-bitcoin-payments')?>
                         </button>
+
+                        <small class="bnomics-ajax-error">
+                            <?=__('Refresh Amount Failed: Please try again or contact Site Administrator.', 'blockonomics-bitcoin-payments')?>
+                        </small>
                     </th>
                 </tr>
 

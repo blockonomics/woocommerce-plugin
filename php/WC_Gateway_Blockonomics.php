@@ -102,7 +102,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $crypto = isset($_GET["crypto"]) ? sanitize_key($_GET['crypto']) : "";
         $select_crypto = isset($_GET["select_crypto"]) ? sanitize_text_field(wp_unslash($_GET['select_crypto'])) : "";
         $finish_order = isset($_GET["finish_order"]) ? sanitize_text_field(wp_unslash($_GET['finish_order'])) : "";
-        $get_order = isset($_GET['get_order']) ? sanitize_text_field(wp_unslash($_GET['get_order'])) : "";
+        $get_amount = isset($_GET['get_amount']) ? sanitize_text_field(wp_unslash($_GET['get_amount'])) : "";
         $secret = isset($_GET['secret']) ? sanitize_text_field(wp_unslash($_GET['secret'])) : "";
         $addr = isset($_GET['addr']) ? sanitize_text_field(wp_unslash($_GET['addr'])) : "";
         $status = isset($_GET['status']) ? intval($_GET['status']) : "";
@@ -123,9 +123,9 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         }else if ($finish_order) {
             $order_id = $blockonomics->decrypt_hash($finish_order);
             $blockonomics->redirect_finish_order($order_id);
-        }else if ($get_order && $crypto) {
-            $order_id = $blockonomics->decrypt_hash($get_order);
-            $blockonomics->get_order_info($order_id, $crypto);
+        }else if ($get_amount && $crypto) {
+            $order_id = $blockonomics->decrypt_hash($get_amount);
+            $blockonomics->get_order_amount_info($order_id, $crypto);
         }else if ($secret && $addr && isset($status) && $value && $txid) {
             $blockonomics->process_callback($secret, $addr, $status, $value, $txid, $rbf);
         }
