@@ -169,7 +169,7 @@ class Blockonomics {
         textarea.id = 'temp_element';
         textarea.style.height = 0;
         document.body.appendChild(textarea);
-        textarea.value = document.getElementById(divid).innerText;
+        textarea.value = document.getElementById(divid).value;
 
         var selector = document.querySelector('#temp_element');
         selector.select();
