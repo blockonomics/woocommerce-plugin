@@ -710,13 +710,6 @@ class Blockonomics
     }
 
     // Get the order info by id and crypto
-    public function get_order_info($order_id, $crypto){
-        $order = $this->process_order($order_id, $crypto);
-        header("Content-Type: application/json");
-        exit(json_encode($order));
-    }
-
-    // Get the order info by id and crypto
     public function get_order_amount_info($order_id, $crypto){
         $order = $this->process_order($order_id, $crypto);
 
