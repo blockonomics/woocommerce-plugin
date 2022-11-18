@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 3.5.7  =
+* Updated Wordpress compatability
+
 = 3.5.6  =
 * Removed angularjs dependency 
 * Updated error message to be simpler
