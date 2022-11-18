@@ -786,6 +786,11 @@ class Blockonomics
 
         $coupon_note = "Partial payment received for " .get_woocommerce_currency()." ".sprintf('%0.2f', round($coupon->get_amount(), 2)). " and applied as a coupon.";
         $wc_order->add_order_note(__( $coupon_note, 'blockonomics-bitcoin-payments' ));
+        $wc_email = WC()->mailer()->emails['WC_Email_Customer_Invoice'];
+        $wc_email->settings['subject'] = __('{site_title} - Invoice for Pending Payment of Order #{order_number}');
+        $wc_email->settings['heading'] = __('Paid amount is less than expected.'); 
+        $wc_email->trigger($order['order_id']);
+
         $wc_order->save();
 
         // Create and add new row for underpaid order to the database
