@@ -503,6 +503,19 @@ class Blockonomics
             }
             $order['satoshi'] = intval(round(1.0e8*$wc_order->get_total()/$price));
         }
+        if ( $order['status'] == -2) {
+            // Create and add new row for underpaid order to the database
+            $order = $this->create_new_order($order['order_id'], $order['crypto']);
+            if (array_key_exists("error", $order)) {
+                // Some error in Address Generation from API, return the same array.
+                return $order;
+            }
+            if (!$this->insert_order($order)) {
+                // insert_order fails if duplicate address found. Ensures no duplicate orders in the database
+                return array("error"=>__("Duplicate Address Error. This is a Temporary error, please try again", 'blockonomics-bitcoin-payments'));
+            }
+
+        }
         return $order;
     }
 
@@ -778,16 +791,6 @@ class Blockonomics
 
         $wc_order->save();
 
-        // Create and add new row for underpaid order to the database
-        $order = $this->create_new_order($order['order_id'], $order['crypto']);
-            if (array_key_exists("error", $order)) {
-                // Some error in Address Generation from API, return the same array.
-                return $order;
-            }
-            if (!$this->insert_order($order)) {
-                // insert_order fails if duplicate address found. Ensures no duplicate orders in the database
-                return array("error"=>__("Duplicate Address Error. This is a Temporary error, please try again", 'blockonomics-bitcoin-payments'));
-            }
         // update meta field paid_order_amount
         update_post_meta($wc_order->get_id(), 'paid_order_amount', $order_info['initial_order_amount'] - $order['value']);    
     }else{
