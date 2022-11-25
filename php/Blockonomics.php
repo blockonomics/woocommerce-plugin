@@ -514,14 +514,14 @@ class Blockonomics
                 // insert_order fails if duplicate address found. Ensures no duplicate orders in the database
                 return array("error"=>__("Duplicate Address Error. This is a Temporary error, please try again", 'blockonomics-bitcoin-payments'));
             }
-
+            $this->record_address($order_id, $crypto, $order['address']);
         }
         return $order;
     }
 
     // Save the new address to the WooCommerce order
     public function record_address($order_id, $crypto, $address){
-        update_post_meta($order_id, $crypto .'_address', $address);
+        add_post_meta($order_id, $crypto .'_address', $address);
     }
 
     public function create_new_order($order_id, $crypto){
