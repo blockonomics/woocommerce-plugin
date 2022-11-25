@@ -509,17 +509,13 @@ function blockonomics_update_db_check() {
     $installed_ver = get_site_option( 'blockonomics_db_version' );
     if ( $installed_ver != $blockonomics_db_version ) {
         $table_name = $wpdb->prefix . 'blockonomics_orders';
-        if ($installed_ver < 1.2) {
-            $timestamp_column = $wpdb->get_results(  "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-            WHERE table_name = 'wp_blockonomics_orders' AND column_name = 'timestamp'"  );
-            if(empty($timestamp_column)){
-                $wpdb->query("ALTER TABLE wp_blockonomics_orders ADD timestamp INT DEFAULT NULL");
-            }
-        }          
         if ($installed_ver < 1.1) {
             maybe_drop_column($table_name, "time_remaining", "ALTER TABLE $table_name DROP COLUMN time_remaining");
             maybe_drop_column($table_name, "timestamp", "ALTER TABLE $table_name DROP COLUMN timestamp");
         }
+        if ($installed_ver < 1.2) {
+            maybe_add_column($table_name, "timestamp", "ALTER TABLE $table_name ADD COLUMN timestamp INT DEFAULT NULL");
+        }          
         blockonomics_create_table();
     }
 }
