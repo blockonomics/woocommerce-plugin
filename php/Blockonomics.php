@@ -769,23 +769,11 @@ class Blockonomics
     }
       $underpayment_slack = get_option("blockonomics_underpayment_slack", 0)/100 * $order['satoshi'];
       if ($order['satoshi'] - $underpayment_slack > $value) {
-        $status = -2; //Underpaid, generate coupon, new address and add new order row with updated amount
-        // calculate what % of order amount is paid to get the discount amount
-        $paid_order_amount_ratio = $value/$order['satoshi'];
+        //Underpaid, generate and apply coupon equal to amount paid
+        $status = -2; 
 
-        //auto generate coupon equal to amount already paid and apply it for discount
-        $coupon_code = substr(str_shuffle(md5(time())),0,6);
-        $coupon_code = 'bck_' . $coupon_code;
-        $coupon = new WC_Coupon();
-        $coupon->set_code( $coupon_code ); // Coupon code
-        $coupon->set_amount($paid_order_amount_ratio * $order['value']); // Discount amount
-        $coupon->set_usage_limit(1);// limit coupon to one use
-        $coupon->save();
+        $this->add_coupon_on_underpayment($value, $order, $wc_order);
 
-        $wc_order->apply_coupon($coupon_code);
-
-        $coupon_note = "Partial payment received for " .get_woocommerce_currency()." ".sprintf('%0.2f', round($coupon->get_amount(), 2)). " and applied as a coupon.";
-        $wc_order->add_order_note(__( $coupon_note, 'blockonomics-bitcoin-payments' ));
         $wc_email = WC()->mailer()->emails['WC_Email_Customer_Invoice'];
         $wc_email->settings['subject'] = __('{site_title} - Invoice for Pending Payment of Order #{order_number}');
         $wc_email->settings['heading'] = __('Paid amount is less than expected.'); 
@@ -844,6 +832,24 @@ class Blockonomics
 
         $order['status'] = $status;
         $this->update_order($order);
+    }
+
+    // Auto generate and apply coupon on underpaid callbacks
+    public function add_coupon_on_underpayment($value, $order, $wc_order){
+        // calculate what % of order amount is paid to get the discount amount
+        $paid_order_amount_ratio = $value/$order['satoshi'];
+        //auto generate coupon equal to amount already paid and apply it for discount
+        $coupon_code = substr(str_shuffle(md5(time())),0,6);
+        $coupon_code = 'bck_' . $coupon_code;
+        $coupon = new WC_Coupon();
+        $coupon->set_code( $coupon_code ); // Coupon code
+        $coupon->set_amount($paid_order_amount_ratio * $order['value']); // Discount amount
+        $coupon->set_usage_limit(1);// limit coupon to one time use
+        $coupon->save();
+        $wc_order->apply_coupon($coupon_code);
+
+        $coupon_note = "Partial payment received for " .get_woocommerce_currency()." ".sprintf('%0.2f', round($coupon->get_amount(), 2)). " and applied as a coupon.";
+        $wc_order->add_order_note(__( $coupon_note, 'blockonomics-bitcoin-payments' ));
     }
 
     public function generate_qrcode_svg_element($data) {
