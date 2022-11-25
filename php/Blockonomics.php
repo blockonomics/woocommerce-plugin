@@ -640,15 +640,15 @@ class Blockonomics
     }
 
     // Fetch the correct crypto order linked to the order id
-    // If multiple rows exist for an order, fetch the most recent one 
+    // If multiple rows exist for an order, fetch the one with status = -1 
     public function get_order_by_id_and_crypto($order_id, $crypto){
         global $wpdb;
-        $order = $wpdb->get_results(
-            $wpdb->prepare("SELECT * FROM ".$wpdb->prefix."blockonomics_orders WHERE order_id = %s AND crypto = %s ORDER BY timestamp DESC", array($order_id, $crypto)),
+        $order = $wpdb->get_row(
+            $wpdb->prepare("SELECT * FROM ".$wpdb->prefix."blockonomics_orders WHERE order_id = %s AND status = -1",  array($order_id)),
             ARRAY_A
         );
         if($order){
-            return $order[0];
+            return $order;
         }
         return false;
     }
