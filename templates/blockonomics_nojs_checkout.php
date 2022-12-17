@@ -33,7 +33,7 @@
             <div class="bnomics-qr-code">
               <div class="bnomics-qr" style="width: 100%">
                 <a href="<?php echo $payment_uri ?>" target="_blank">
-                  <?php echo $qrcode_svg_element ?>
+                <?php echo $qrcode_svg_element ?>
                 </a>
               </div>
               <div class="bnomics-qr-code-hint"><a href="<?php echo $payment_uri ?>" target="_blank"><?=__('Open in wallet', 'blockonomics-bitcoin-payments')?></a></div>
