@@ -75,7 +75,7 @@ function blockonomics_woocommerce_init()
     function filter_orders() {
 		global $typenow;
 		if ( 'shop_order' === $typenow ) {
-            $filter_by = isset($_GET['filter_by']) ? sanitize_text_field(wp_unslash($_GET['filter_by'])) : "";
+            $filter_by = isset($_GET['filter_by']) ? esc_attr(sanitize_text_field(wp_unslash($_GET['filter_by']))) : "";
 			?>
 			<input size='26' value="<?php echo($filter_by ); ?>" type='name' placeholder='Filter by crypto address/txid' name='filter_by'>
 			<?php
