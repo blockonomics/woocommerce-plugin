@@ -550,7 +550,7 @@ class Blockonomics
     public function get_crypto_rate_from_params($value, $satoshi) {
         // Crypto Rate is re-calculated here and may slightly differ from the rate provided by Blockonomics
         // This is required to be recalculated as the rate is not stored anywhere in $order, only the converted satoshi amount is.
-        return number_format($value/$satoshi, 2, '.', '');
+        return number_format($value*1.0e8/$satoshi, 2, '.', '');
     }
 
     public function get_crypto_payment_uri($crypto, $address, $order_amount) {
@@ -582,7 +582,7 @@ class Blockonomics
                 // Display Checkout Page
                 $context['order_amount'] = $this->fix_displaying_small_values($order['satoshi']);
                 $context['payment_uri'] = $this->get_crypto_payment_uri($context['crypto'], $order['address'], $context['order_amount']);
-                $context['crypto_rate_str'] = $this->get_crypto_rate_from_params($order['value'], $context['satoshi']);
+                $context['crypto_rate_str'] = $this->get_crypto_rate_from_params($order['value'], $order['satoshi']);
                 //Using svg library qrcode.php to generate QR Code in NoJS mode
                 $context['qrcode_svg_element'] = $this->generate_qrcode_svg_element($context['payment_uri']);
             }
