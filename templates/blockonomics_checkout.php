@@ -76,18 +76,15 @@
                         <label class="bnomics-amount-text"><?=__('Amount of', 'blockonomics-bitcoin-payments')?> <?php echo strtolower($crypto['name']); ?> (<?php echo strtoupper($crypto['code']); ?>) <?=__('to send:', 'blockonomics-bitcoin-payments')?></label>
                         <label class="bnomics-copy-amount-text"><?=__('Copied to clipboard', 'blockonomics-bitcoin-payments')?></label>
 
-                        <div class="bnomics-copy-container">
+                        <div class="bnomics-copy-container" id="bnomics-amount-copy-container">
                             <input type="text" value="<?php echo $order_amount; ?>" id="bnomics-amount-input" readonly/>
                             <span id="bnomics-amount-copy" class="blockonomics-icon-copy"></span>
+                            <span id="bnomics-refresh" class="blockonomics-icon-refresh"></span>
                         </div>
 
                         <small class="bnomics-crypto-price-timer">
                             1 <?php echo strtoupper($crypto['code']); ?> = <span id="bnomics-crypto-rate"><?php echo $crypto_rate_str; ?></span> <?php echo $order['currency']; ?>, <?=__('updates in', 'blockonomics-bitcoin-payments')?> <span class="bnomics-time-left">00:00 min</span>
                         </small>
-
-                        <button class="woocommerce-button button" id="bnomics-refresh">
-                            <span class="blockonomics-icon-refresh"></span> <?=__('Refresh Now', 'blockonomics-bitcoin-payments')?>
-                        </button>
 
                         <small class="bnomics-ajax-error">
                             <?=__('Refresh Amount Failed: Please try again or contact Site Administrator.', 'blockonomics-bitcoin-payments')?>

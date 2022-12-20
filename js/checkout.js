@@ -99,9 +99,9 @@ class Blockonomics {
 
     reset_progress() {
         this.progress = {
-            total_time: this.data.time_period * 60,
+            total_time: 10, //this.data.time_period * 60,
             interval: null,
-            clock: this.data.time_period * 60,
+            clock: 10,//this.data.time_period * 60,
             percent: 100
         }
 
@@ -204,13 +204,92 @@ class Blockonomics {
         window.location.href = this.data.finish_order_url
     }
 
+    _create_loading_rectangle(ref, target) {
+        let style = window.getComputedStyle(ref)
+
+        let ele = document.createElement('div')
+        ele.classList.add('bnomics-copy-container-animation-rectangle')
+
+        let margin = {
+            left: parseFloat(style.marginLeft.replace("px", "")),
+            right: parseFloat(style.marginRight.replace("px", "")),
+            top: parseFloat(style.marginTop.replace("px", "")),
+            bottom: parseFloat(style.marginBottom.replace("px", ""))
+        }
+
+        let border = {
+            left: parseFloat(style.borderLeftWidth.replace("px", "")),
+            right: parseFloat(style.borderRightWidth.replace("px", "")),
+            top: parseFloat(style.borderTopWidth.replace("px", "")),
+            bottom: parseFloat(style.borderBottomWidth.replace("px", ""))
+        }
+
+        let height = parseFloat(style.height.replace("px", ""))
+        let width = parseFloat(style.width.replace("px", ""))
+        
+        // Initial Parameters
+        ele.style.width = 0
+        ele.style.height = (height - border.top - border.bottom) + 'px'
+        ele.style.top = (margin.top + border.top) + 'px'
+        ele.style.left = (margin.left + border.left) + 'px'
+        ele.style.borderTopLeftRadius = style.borderTopLeftRadius
+        ele.style.borderTopRightRadius = style.borderTopLeRightdius
+        ele.style.borderBottomLeftRadius = style.borderBottomLeftRadius
+        ele.style.borderBottomRightRadius = style.borderBottomRightRadius
+        ele.style.backgroundColor = window.getComputedStyle(document.body).backgroundColor
+
+        target.appendChild(ele)
+        setTimeout(() => ele.style.width = (width - border.left - border.right) + 'px', 10)
+        
+        return ele
+    }
+    
+    _remove_loading_rectangle(ele) {
+        let style = window.getComputedStyle(ele)
+        let width = parseFloat(style.width.replace("px", ""))
+        let left = parseFloat(style.left.replace("px", ""))
+
+        setTimeout(() => {ele.style.left = (width + left) + 'px', ele.style.width = '0px'}, 10)
+        setTimeout(() => ele.remove(), 600)
+    }
+
+    _animate_price_update() {
+        let parent_container = this._crypto_rate.closest('th')
+        let container = this._crypto_rate.closest('.bnomics-crypto-price-timer')
+
+        parent_container.setAttribute('data-bnomics-overflow', parent_container.style.overflow)
+        parent_container.style.overflow = 'hidden'
+
+        container.style.position = 'relative'
+        container.style.top = 0
+        setTimeout( () => container.style.top = parent_container.clientHeight + 'px', 10)
+    }
+    
+    _deanimate_price_update() {
+        let parent_container = this._crypto_rate.closest('th')
+        let container = this._crypto_rate.closest('.bnomics-crypto-price-timer')
+
+        container.style.top = "0"
+        
+        setTimeout( () => {
+            container.style.top = null
+            container.style.position = null
+            parent_container.style.overflow = parent_container.getAttribute('data-bnomics-overflow')
+            parent_container.removeAttribute('data-bnomics-overflow')
+        }, 600)
+    }
+
     _set_refresh_loading(loading=false) {
         if(loading) {
-            this._refresh.querySelector('.blockonomics-icon-refresh').classList.add('spin')
+            this._refresh.classList.add('spin')
             this._refresh.setAttribute('disabled', 'disabled')
+            this._active_loading_rect = this._create_loading_rectangle(this._amount_input, this.container.querySelector('#bnomics-amount-copy-container'))
+            this._animate_price_update()
         } else {
-            this._refresh.querySelector('.blockonomics-icon-refresh').classList.remove('spin')
+            this._refresh.classList.remove('spin')
             this._refresh.removeAttribute('disabled')
+            this._remove_loading_rectangle(this._active_loading_rect)
+            this._deanimate_price_update()
         }
     }
 
@@ -255,8 +334,8 @@ class Blockonomics {
 
         // Updates the Dynamic Parts of Page
         this._amount_input.value = data.order_amount
-        this._crypto_rate.innerHTML = data.crypto_rate
-
+        this._crypto_rate.innerHTML = data.crypto_rate_str
+        
         // Update QR Code
         this.data.payment_uri = data.payment_uri
         this.generate_qr()

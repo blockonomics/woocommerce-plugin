@@ -359,10 +359,19 @@ svg {
 .bnomics-copy-container {
   display:flex;
   align-items: center;
+  position: relative;
 }
 
 .bnomics-copy-container input {
   flex-grow: 1;
+}
+
+.bnomics-copy-container-animation-rectangle {
+  position: absolute;
+  width: 100%;
+  transition: width 500ms ease-in-out, left 500ms ease-in-out;
+  content: '';
+  background-color: #fff;
 }
 
 #blockonomics_checkout button {
@@ -397,6 +406,7 @@ svg {
 .bnomics-crypto-price-timer {
   display: block;
   text-align: center;
+  transition: 500ms all ease-in-out;
 }
 
 .bnomics-ajax-error {
