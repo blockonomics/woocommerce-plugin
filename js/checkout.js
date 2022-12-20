@@ -99,9 +99,9 @@ class Blockonomics {
 
     reset_progress() {
         this.progress = {
-            total_time: 10, //this.data.time_period * 60,
+            total_time: this.data.time_period * 60,
             interval: null,
-            clock: 10,//this.data.time_period * 60,
+            clock: this.data.time_period * 60,
             percent: 100
         }
 
