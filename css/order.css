@@ -324,6 +324,15 @@ svg {
 
 /* - Blockonomics Font Icons Ends -- */
 
+#bnomics-amount-copy, #bnomics-address-copy {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bnomics-show-qr, #bnomics-refresh {
+  padding-left: 5px;
+}
+
 #blockonomics_checkout,
 #blockonomics_checkout h5,
 #blockonomics_checkout table {
