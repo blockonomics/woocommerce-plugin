@@ -300,14 +300,12 @@ class Blockonomics {
         
         fetch(this.data.get_order_amount_url, {method: 'GET'}).then(
             res => {
-                // Enable the button anyways so that user can retry
-                this._set_refresh_loading(false)
-
                 if (!res.ok) { location.reload() } 
                 else { return res.json() }
             }
         ).then(res => {
             this._update_order_params(res)
+            this._set_refresh_loading(false)
         }).catch( err => {
             // Enable the button anyways so that user can retry
             this._set_refresh_loading(false)
