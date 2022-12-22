@@ -305,7 +305,7 @@ class Blockonomics {
             }
         ).then(res => {
             this._update_order_params(res)
-            this._set_refresh_loading(false)
+            setTimeout( () => this._set_refresh_loading(false), 500)
         }).catch( err => {
             // Enable the button anyways so that user can retry
             this._set_refresh_loading(false)
