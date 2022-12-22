@@ -581,6 +581,8 @@ class Blockonomics
             } else {
                 // Display Checkout Page
                 $context['order_amount'] = $this->fix_displaying_small_values($order['satoshi']);
+                // Payment URI is sent as part of context to provide initial Payment URI, this can be calculated using javascript
+                // but we also need the URI for NoJS Templates and it makes sense to generate it from a single location to avoid redundancy!
                 $context['payment_uri'] = $this->get_crypto_payment_uri($context['crypto'], $order['address'], $context['order_amount']);
                 $context['crypto_rate_str'] = $this->get_crypto_rate_from_params($order['value'], $order['satoshi']);
                 //Using svg library qrcode.php to generate QR Code in NoJS mode
