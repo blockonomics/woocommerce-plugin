@@ -408,8 +408,3 @@ svg {
   text-align: center;
   transition: 500ms all ease-in-out;
 }
-
-.bnomics-ajax-error {
-  display: none;
-  text-align: center;
-}
