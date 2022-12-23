@@ -378,7 +378,7 @@ svg {
 .bnomics-copy-container-animation-rectangle {
   position: absolute;
   width: 100%;
-  transition: width 500ms ease-in-out, left 500ms ease-in-out;
+  transition: width 300ms ease-in-out, left 300ms ease-in-out;
   content: '';
   background-color: #fff;
 }
@@ -415,5 +415,5 @@ svg {
 .bnomics-crypto-price-timer {
   display: block;
   text-align: center;
-  transition: 500ms all ease-in-out;
+  transition: 300ms all ease-in-out;
 }
