@@ -550,6 +550,7 @@ class Blockonomics
     public function get_crypto_rate_from_params($value, $satoshi) {
         // Crypto Rate is re-calculated here and may slightly differ from the rate provided by Blockonomics
         // This is required to be recalculated as the rate is not stored anywhere in $order, only the converted satoshi amount is.
+        // This method also helps in having a constant conversion and formatting for both JS and NoJS Templates avoiding the scientific notations.
         return number_format($value*1.0e8/$satoshi, 2, '.', '');
     }
 
