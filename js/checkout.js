@@ -205,21 +205,28 @@ class Blockonomics {
     _create_loading_rectangle(ref, target) {
         let style = window.getComputedStyle(ref)
 
+        let target_position = target.getBoundingClientRect()
+        let ref_position = ref.getBoundingClientRect()
+
+        let position_y = ref_position.y - target_position.y
+
         let ele = document.createElement('div')
         ele.classList.add('bnomics-copy-container-animation-rectangle')
 
-        let margin = {
-            left: parseFloat(style.marginLeft.replace("px", "")),
-            right: parseFloat(style.marginRight.replace("px", "")),
-            top: parseFloat(style.marginTop.replace("px", "")),
-            bottom: parseFloat(style.marginBottom.replace("px", ""))
-        }
-
+        let margin_left = parseFloat(style.marginLeft.replace("px", ""))
+        
         let border = {
             left: parseFloat(style.borderLeftWidth.replace("px", "")),
             right: parseFloat(style.borderRightWidth.replace("px", "")),
             top: parseFloat(style.borderTopWidth.replace("px", "")),
             bottom: parseFloat(style.borderBottomWidth.replace("px", ""))
+        }
+        
+        let padding = {
+            left: parseFloat(style.paddingLeft.replace("px", "")),
+            right: parseFloat(style.paddingRight.replace("px", "")),
+            top: parseFloat(style.paddingTop.replace("px", "")),
+            bottom: parseFloat(style.paddingBottom.replace("px", ""))
         }
 
         let height = parseFloat(style.height.replace("px", ""))
@@ -227,9 +234,9 @@ class Blockonomics {
         
         // Initial Parameters
         ele.style.width = 0
-        ele.style.height = (height - border.top - border.bottom) + 'px'
-        ele.style.top = (margin.top + border.top) + 'px'
-        ele.style.left = (margin.left + border.left) + 'px'
+        ele.style.height = (style.boxSizing == 'border-box' ? (height - border.top - border.bottom) : (height + padding.top + padding.bottom )) + 'px'
+        ele.style.top = (position_y + border.top) + 'px'
+        ele.style.left = (margin_left + border.left) + 'px'
         ele.style.borderTopLeftRadius = style.borderTopLeftRadius
         ele.style.borderTopRightRadius = style.borderTopLeRightdius
         ele.style.borderBottomLeftRadius = style.borderBottomLeftRadius
@@ -237,7 +244,7 @@ class Blockonomics {
         ele.style.backgroundColor = window.getComputedStyle(document.body).backgroundColor
 
         target.appendChild(ele)
-        setTimeout(() => ele.style.width = (width - border.left - border.right) + 'px', 10)
+        setTimeout(() => ele.style.width = (style.boxSizing == 'border-box' ? (width - border.left - border.right) : (width + padding.left + padding.right )) + 'px', 10)
         
         return ele
     }
