@@ -1,25 +1,9 @@
 /* ----- Checkout Page Styles ------*/
 
-.bnomics-order-container {
+.no-js .bnomics-order-container {
   margin: 5vh auto;
   padding: 8px;
   max-width: 700px;
-}
-
-.bnomics-progress-bar-container {
-  position: relative;
-  overflow: hidden;
-  width: 100%;
-  height: 4px;
-  background: #ddd;
-}
-
-.bnomics-progress-bar-container .bnomics-progress-bar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 4px;
-  background: #B9B9B9;
 }
 
 .bnomics-order-info {
@@ -49,15 +33,27 @@
   flex: 2;
 }
 
-.bnomics-powered-by {
+.no-js .bnomics-powered-by {
   text-align: center;
   margin-top: 2.6em;
+}
+
+.bnomics-qr-code {
+  display: none;
+}
+
+.no-js .bnomics-qr-code {
+  display: block;
   font-size: 0.6em;
   padding: 0;
 }
 
 .bnomics-qr-code-hint {
   text-align: center;
+  display: block;
+}
+
+.no-js .bnomics-qr-code-hint {  
   margin-bottom: 1em;
   font-size: 0.8em;
   padding: 0 20px;
@@ -67,12 +63,12 @@
   text-transform: uppercase;
 }
 
-.bnomics-time-left {
+.no-js .bnomics-time-left {
   line-height: 3;
   font-size: 0.8em;
 }
 
-.bnomics-order-id {
+.no-js .bnomics-order-id {
   text-align:right;
 }
 
@@ -87,10 +83,6 @@
   width:180px;
   margin: 0 auto;
   text-align: left;
-}
-
-.bnomics-order-expired-wrapper, .bnomics-order-error-wrapper {
-  text-align: center;
 }
 
 .bnomics-amount-input, .bnomics-address-input {
@@ -259,9 +251,170 @@ svg {
 }
 /** Hide Panels by Default **/
 
-#blockonomics_checkout:not(.no-js) .bnomics-order-container .bnomics-order-expired-wrapper,
 #blockonomics_checkout:not(.no-js) .bnomics-order-container .bnomics-order-panel,
 #blockonomics_checkout:not(.no-js) .bnomics-order-container .bnomics-copy-amount-text,
 #blockonomics_checkout:not(.no-js) .bnomics-order-container .bnomics-copy-address-text {
   display: none;
+}
+
+/* ----- Blockonomics Font Icons ----*/
+
+@font-face {
+  font-family: 'blockonomics-icons';
+  src: url('../fonts/blockonomics-icons.woff?6m1shn') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+[class^="blockonomics-icon-"], [class*=" blockonomics-icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'blockonomics-icons' !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  margin-left: 2px;
+  margin-right: 2px;
+  font-size: 1.5em;
+}
+
+[class^="blockonomics-icon-"].spin, [class*=" blockonomics-icon-"].spin {
+  animation-name: rotate;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.blockonomics-icon-cart::before {
+  content: "\e900";
+}
+
+.blockonomics-icon-qr::before {
+  content: "\e901";
+}
+
+.blockonomics-icon-copy::before {
+  content: "\e902";
+}
+
+.blockonomics-icon-refresh::before {
+  content: "\e903";
+}
+
+.blockonomics-icon-copy,
+.blockonomics-icon-qr,
+.blockonomics-icon-refresh {
+  cursor: pointer;
+}
+
+/* - Blockonomics Font Icons Ends -- */
+
+#bnomics-amount-copy, #bnomics-address-copy {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bnomics-show-qr, #bnomics-refresh {
+  padding-left: 5px;
+}
+
+#blockonomics_checkout,
+#blockonomics_checkout h5,
+#blockonomics_checkout table {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#blockonomics_checkout h5,
+#blockonomics_checkout table {
+  width: 100%;
+  max-width: 400px;
+}
+
+#blockonomics_checkout h5 {
+  text-align: left;
+}
+
+#blockonomics_checkout table {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  border-collapse: separate;
+  border-spacing: 0 0.5em;
+}
+
+#bnomics-refresh {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.bnomics-copy-container {
+  display:flex;
+  align-items: center;
+  position: relative;
+}
+
+.bnomics-copy-container input {
+  flex-grow: 1;
+}
+
+.bnomics-copy-container-animation-rectangle {
+  position: absolute;
+  width: 100%;
+  transition: width 300ms ease-in-out, left 300ms ease-in-out;
+  content: '';
+  background-color: #fff;
+}
+
+#blockonomics_checkout button {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+}
+
+#blockonomics_checkout button img {
+  margin-right: 5px;
+  height: 1rem;
+  width: auto;
+}
+
+#blockonomics_checkout .blockonomics-icon {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#blockonomics_checkout .bnomics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bnomics-header div {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.bnomics-crypto-price-timer {
+  display: block;
+  text-align: center;
+  transition: 300ms all ease-in-out;
 }
