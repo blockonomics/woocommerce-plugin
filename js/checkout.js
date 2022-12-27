@@ -102,7 +102,7 @@ class Blockonomics {
             clock: this.data.time_period * 60,
             percent: 100
         }
-
+        this._time_left.innerHTML = `${String(Math.floor(this.progress.clock/60)).padStart(2, "0")}:${String(this.progress.clock%60).padStart(2, "0")} min`
         this.progress.interval = setInterval(() => this.tick(), 1000)
     }
 
@@ -301,7 +301,7 @@ class Blockonomics {
             }
         ).then(res => {
             this._update_order_params(res)
-            setTimeout( () => this._set_refresh_loading(false), 500)
+            this._set_refresh_loading(false)
         }).catch( err => {
             // Enable the button anyways so that user can retry
             this._set_refresh_loading(false)
