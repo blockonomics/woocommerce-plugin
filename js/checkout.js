@@ -244,7 +244,7 @@ class Blockonomics {
         let left = parseFloat(style.left.replace("px", ""))
 
         setTimeout(() => {ele.style.left = (width + left) + 'px', ele.style.width = '0px'}, 10)
-        setTimeout(() => ele.remove(), 400)
+        setTimeout(() => ele.remove(), 300)
     }
 
     _animate_price_update() {
@@ -270,7 +270,7 @@ class Blockonomics {
             container.style.position = null
             parent_container.style.overflow = parent_container.getAttribute('data-bnomics-overflow')
             parent_container.removeAttribute('data-bnomics-overflow')
-        }, 400)
+        }, 300)
     }
 
     _set_refresh_loading(loading=false) {
