@@ -284,7 +284,8 @@ svg {
   font-size: 1.5em;
 }
 
-[class^="blockonomics-icon-"].spin, [class*=" blockonomics-icon-"].spin {
+[class^="blockonomics-icon-"].spin::before, [class*=" blockonomics-icon-"].spin::before {
+  display: inline-block;
   animation-name: rotate;
   animation-duration: 2s;
   animation-iteration-count: infinite;
