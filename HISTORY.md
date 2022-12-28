@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 3.5.8  =
+* Modular checkout UI 
+* Security Fixes
+
 = 3.5.7  =
 * Updated Wordpress compatability
 
