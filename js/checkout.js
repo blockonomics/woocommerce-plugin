@@ -102,7 +102,9 @@ class Blockonomics {
             clock: this.data.time_period * 60,
             percent: 100
         }
-        this._time_left.innerHTML = `${String(Math.floor(this.progress.clock/60)).padStart(2, "0")}:${String(this.progress.clock%60).padStart(2, "0")} min`
+        // Set the start time straight away
+        this.progress.clock += 1
+        this.tick()
         this.progress.interval = setInterval(() => this.tick(), 1000)
     }
 
