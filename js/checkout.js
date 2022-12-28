@@ -102,7 +102,9 @@ class Blockonomics {
             clock: this.data.time_period * 60,
             percent: 100
         }
-
+        // Set the start time straight away
+        this.progress.clock += 1
+        this.tick()
         this.progress.interval = setInterval(() => this.tick(), 1000)
     }
 
@@ -244,7 +246,7 @@ class Blockonomics {
         let left = parseFloat(style.left.replace("px", ""))
 
         setTimeout(() => {ele.style.left = (width + left) + 'px', ele.style.width = '0px'}, 10)
-        setTimeout(() => ele.remove(), 400)
+        setTimeout(() => ele.remove(), 300)
     }
 
     _animate_price_update() {
@@ -270,7 +272,7 @@ class Blockonomics {
             container.style.position = null
             parent_container.style.overflow = parent_container.getAttribute('data-bnomics-overflow')
             parent_container.removeAttribute('data-bnomics-overflow')
-        }, 400)
+        }, 300)
     }
 
     _set_refresh_loading(loading=false) {
@@ -301,7 +303,7 @@ class Blockonomics {
             }
         ).then(res => {
             this._update_order_params(res)
-            setTimeout( () => this._set_refresh_loading(false), 500)
+            this._set_refresh_loading(false)
         }).catch( err => {
             // Enable the button anyways so that user can retry
             this._set_refresh_loading(false)
