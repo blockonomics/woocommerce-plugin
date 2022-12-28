@@ -1,6 +1,6 @@
 <?php
     /** 
-     * Blockonomics Checkout Page (JS Disabled)
+     * Blockonomics Checkout Page (JS Enabled)
      * 
      * The following variables are available to be used in the template along with all WP Functions/Methods/Globals
      * 
@@ -10,61 +10,76 @@
      * $crypto: Crypto Object (code, name, uri) e.g. (btc, Bitcoin, bitcoin)
      * $payment_uri: Crypto URI with Amount and Protocol
      * $crypto_rate_str: Conversion Rate of Crypto to Fiat. Please see comment on php/Blockonomics.php -> get_crypto_rate_from_params() on rate difference.
+     * $api_uri: URL for WC-API for Blockonomics
      * $qrcode_svg_element: Generate QR Code when NoJS mode is active.
      */
 ?>
-
 <div id="blockonomics_checkout" class="no-js">
-  <div class="bnomics-order-container">
-    <!-- Heading row -->
-    <div class="bnomics-order-heading">
-      <div class="bnomics-order-heading-wrapper">
-        <div class="bnomics-order-id">
-          <span class="bnomics-order-number"><?=__('Order #', 'blockonomics-bitcoin-payments')?><?php echo $order_id ?></span>
-        </div>
-      </div>
-    </div>
-    <!-- Blockonomics Checkout Panel -->
-    <div class="bnomics-order-panel">
-      <div class="bnomics-order-info">
-        <div class="bnomics-bitcoin-pane">
-          <div class="bnomics-btc-info">
-            <!-- Left Side -->
-            <!-- QR and Open in wallet -->
-            <div class="bnomics-qr-code">
-              <div class="bnomics-qr" style="width: 100%">
-                <a href="<?php echo $payment_uri ?>" target="_blank">
-                <?php echo $qrcode_svg_element ?>
-                </a>
-              </div>
-              <div class="bnomics-qr-code-hint"><a href="<?php echo $payment_uri ?>" target="_blank"><?=__('Open in wallet', 'blockonomics-bitcoin-payments')?></a></div>
-            </div>
-            <!-- Right Side -->
-            <div class="bnomics-amount">
-              <div class="bnomics-bg">
-                <!-- Order Amounts -->
-                <div class="bnomics-amount">
-                  <div class="bnomics-amount-text"><?=__('To pay, send exactly this', 'blockonomics-bitcoin-payments')?> <?=strtoupper($crypto['code'])?></div>
-                  <input type="text" id="bnomics-amount-input" class="bnomics-amount-input" style="cursor: text;" value="<?php echo $order_amount ?>" readonly>
-                </div>
-                <!-- Order Address -->
-                <div class="bnomics-address">
-                  <div class="bnomics-address-text"><?=__('To this', 'blockonomics-bitcoin-payments')?> <?=strtolower($crypto['name'])?> <?=__('address', 'blockonomics-bitcoin-payments')?></div>
-                  <input type="text" id="bnomics-address-input" class="bnomics-address-input" style="cursor: text;" value="<?php echo $order['address']; ?>" readonly>
-                </div>
+    <div class="bnomics-order-container">
+        
+        <!-- Blockonomics Checkout Panel -->    
+        <div class="bnomics-order-panel">
+            <table>
+                <tr>
+                    <th class="bnomics-header">
+                        <!-- Order Header -->
+                        <span class="bnomics-order-id">
+                            <?=__('Order #', 'blockonomics-bitcoin-payments')?><?php echo $order_id; ?>
+                        </span>
+                        
+                        <div>
+                            <span class="blockonomics-icon-cart"></span>
+                            <?php echo $order['value'] ?> <?php echo $order['currency'] ?>
+                        </div>
+                    </th>
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <th>
+                        <!-- Order Address -->
+                        <label class="bnomics-address-text"><?=__('To pay, send', 'blockonomics-bitcoin-payments')?> <?php echo strtolower($crypto['name']); ?> <?=__('to this address:', 'blockonomics-bitcoin-payments')?></label>
+                        
+                        <div class="bnomics-copy-container">
+                          <input type="text" value="<?php echo $order['address']; ?>" id="bnomics-address-input" readonly/>
+                        </div>
+                        
+                        <div class="bnomics-qr-code">
+                            <div class="bnomics-qr">
+                                <a href="<?php echo $payment_uri; ?>" target="_blank">
+                                  <?php echo $qrcode_svg_element ?>
+                                </a>
+                            </div>
+                            <small class="bnomics-qr-code-hint">
+                                <a href="<?php echo $payment_uri; ?>" target="_blank"><?=__('Open in wallet', 'blockonomics-bitcoin-payments')?></a>
+                            </small>
+                        </div>
 
-                <div>
-                  <a href="">Click here if already paid</a>
-                </div>
-              </div>
-            </div>
-          </div>
+                    </th>
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <th>
+                        <label class="bnomics-amount-text"><?=__('Amount of', 'blockonomics-bitcoin-payments')?> <?php echo strtolower($crypto['name']); ?> (<?php echo strtoupper($crypto['code']); ?>) <?=__('to send:', 'blockonomics-bitcoin-payments')?></label>
+
+                        <div class="bnomics-copy-container">
+                          <input type="text" value="<?php echo $order_amount; ?>" id="bnomics-amount-input" readonly/>
+                        </div>
+
+                        <small class="bnomics-crypto-price-timer">
+                            1 <?php echo strtoupper($crypto['code']); ?> = <span id="bnomics-crypto-rate"><?php echo $crypto_rate; ?></span> <?php echo $order['currency']; ?>, <?=__('updates in', 'blockonomics-bitcoin-payments')?> <span class="bnomics-time-left">00:00 min</span>
+                        </small>
+
+                        <a href="">
+                          <button class="woocommerce-button button" id="bnomics-refresh">
+                              <?=__('Click here if already paid', 'blockonomics-bitcoin-payments')?>
+                          </button>
+                        </a>
+                    </th>
+                </tr>
+
+            </table>
         </div>
-      </div>
     </div>
-    <!-- Blockonomics How to pay + Credit -->
-    <div class="bnomics-powered-by">
-      <a href="https://insights.blockonomics.co/how-to-pay-a-bitcoin-invoice/" target="_blank"><?=__('How do I pay? | Check reviews of this shop', 'blockonomics-bitcoin-payments')?></a><br>
-    </div>
-  </div>
 </div>
