@@ -1,6 +1,6 @@
 <?php
     /** 
-     * Blockonomics Checkout Page (JS Enabled)
+     * Blockonomics Checkout Page (JS Disabled)
      * 
      * The following variables are available to be used in the template along with all WP Functions/Methods/Globals
      * 
