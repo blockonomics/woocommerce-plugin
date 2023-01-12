@@ -578,7 +578,7 @@ class Blockonomics
                 $error_context = $this->get_error_context('underpaid');
             } elseif ($order['status'] >= 0) {
                 // Payment is Received
-                $this->redirect_finish_order($order_id);
+                $this->redirect_finish_order($context['order_id']);
             } else {
                 // Display Checkout Page
                 $context['order_amount'] = $this->fix_displaying_small_values($order['satoshi']);
