@@ -464,7 +464,7 @@ register_activation_hook( __FILE__, 'blockonomics_activation_hook' );
 add_action('admin_notices', 'blockonomics_plugin_activation');
 
 global $blockonomics_db_version;
-$blockonomics_db_version = '1.1';
+$blockonomics_db_version = '1.2';
 
 function blockonomics_create_table() {
     // Create blockonomics_orders table
@@ -501,18 +501,44 @@ function blockonomics_activation_hook() {
 }
 
 // Since WP 3.1 the activation function registered with register_activation_hook() is not called when a plugin is updated.
+// blockonomics_update_db_check() is loaded for every PHP page by plugins_loaded hook
 function blockonomics_update_db_check() {
     global $wpdb;
     global $blockonomics_db_version;
 
     $installed_ver = get_site_option( 'blockonomics_db_version' );
-    if ( $installed_ver != $blockonomics_db_version ) {
-        $table_name = $wpdb->prefix . 'blockonomics_orders';
-        if ($installed_ver < 1.1) {
-            maybe_drop_column($table_name, "time_remaining", "ALTER TABLE $table_name DROP COLUMN time_remaining");
-            maybe_drop_column($table_name, "timestamp", "ALTER TABLE $table_name DROP COLUMN timestamp");
-        }
+
+    // blockonomics_create_table() should only be run if there is no $installed_ver, refer https://github.com/blockonomics/woocommerce-plugin/issues/296
+    if (empty($installed_ver)){
         blockonomics_create_table();
+    }
+    if (version_compare( $installed_ver, $blockonomics_db_version, '!=')) {
+        /* for db version 1.2, new table is introduced
+         status is renamed to payment_status
+         satoshi is renamed to expected_satoshi
+         value is renamed to expected_fiat & it is no longer longtext
+         2 new fields are added for logging purpose only - paid_satoshi & paid_fiat */ 
+        $table_name = $wpdb->prefix . 'blockonomics_payments';
+        $charset_collate = $wpdb->get_charset_collate();
+        $sql = "CREATE TABLE $table_name (
+            order_id int NOT NULL,
+            payment_status int NOT NULL,
+            crypto varchar(3) NOT NULL,
+            address varchar(191) NOT NULL,
+            expected_satoshi int,
+            expected_fiat double,
+            currency varchar(3),
+            paid_satoshi int,
+            paid_fiat double,
+            txid text,
+            PRIMARY KEY  (address),
+            KEY orderkey (order_id,crypto)
+        )$charset_collate;";
+
+        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+        dbDelta( $sql );
+
+        update_option( 'blockonomics_db_version', $blockonomics_db_version );
     }
 }
 
