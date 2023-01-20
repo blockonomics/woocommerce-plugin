@@ -484,9 +484,9 @@ class Blockonomics
 
     public function calculate_order_params($order){
         // Check if order is unused or new
-        if ( $order['status'] == -1) {
+        if ( $order['payment_status'] == 0) {
             $wc_order = new WC_Order($order['order_id']);
-            $order['value'] = $wc_order->get_total();
+            $order['expected_fiat'] = $wc_order->get_total();
             $order['currency'] = get_woocommerce_currency();
             if(get_woocommerce_currency() != 'BTC'){
                 $responseObj = $this->get_price($order['currency'], $order['crypto']);
@@ -498,7 +498,24 @@ class Blockonomics
             }else{
                 $price = 1;
             }
-            $order['satoshi'] = intval(round(1.0e8*$wc_order->get_total()/$price));
+            $order['expected_satoshi'] = intval(round(1.0e8*$wc_order->get_total()/$price));
+        }
+        // Check if order has confirmed payment
+        if ($order['payment_status'] == 2){
+            //check if order is underpaid
+            if ($this->is_order_underpaid($order)){
+                // Create and add new row for underpaid order to the database
+                $order = $this->create_new_order($order['order_id'], $order['crypto']);
+                if (array_key_exists("error", $order)) {
+                    // Some error in Address Generation from API, return the same array.
+                    return $order;
+                }
+                if (!$this->insert_order($order)) {
+                    // insert_order fails if duplicate address found. Ensures no duplicate orders in the database
+                    return array("error"=>__("Duplicate Address Error. This is a Temporary error, please try again", 'blockonomics-bitcoin-payments'));
+                }
+                $this->record_address($order_id, $crypto, $order['address']);
+            }
         }
         return $order;
     }
@@ -516,7 +533,7 @@ class Blockonomics
         $address = $responseObj->address;
         $order = array(
                 'order_id'           => $order_id,
-                'status'             => -1,
+                'payment_status'     => 0,
                 'crypto'             => $crypto,
                 'address'            => $address
         );
@@ -573,10 +590,10 @@ class Blockonomics
         } else {
             $context['order'] = $order;
 
-            if ($order['status'] == -2) {
+            if ($order['payment_status'] == -2) {
                 // Payment is Underpaid
                 $error_context = $this->get_error_context('underpaid');
-            } elseif ($order['status'] >= 0) {
+            } elseif ($order['payment_status'] == 1 || $order['payment_status'] == 2) {
                 // Payment is Received
                 $this->redirect_finish_order($context['order_id']);
             } else {
@@ -597,6 +614,7 @@ class Blockonomics
 
         return $context;
     }
+
 
     public function get_checkout_template($context){
         if (array_key_exists('error_msg', $context)) {
@@ -659,7 +677,7 @@ class Blockonomics
     public function get_order_by_id_and_crypto($order_id, $crypto){
         global $wpdb;
         $order = $wpdb->get_row(
-            $wpdb->prepare("SELECT * FROM ".$wpdb->prefix."blockonomics_orders WHERE order_id = %s AND crypto = %s", array($order_id, $crypto)),
+            $wpdb->prepare("SELECT * FROM ".$wpdb->prefix."blockonomics_payments WHERE order_id = %s AND crypto = %s", array($order_id, $crypto)),
             ARRAY_A
         );
         if($order){
@@ -668,21 +686,21 @@ class Blockonomics
         return false;
     }
 
-    // Inserts a new order in blockonomics_orders table
+    // Inserts a new order in blockonomics_payments table
     public function insert_order($order){
         global $wpdb;
         $wpdb->hide_errors();
-        $table_name = $wpdb->prefix . 'blockonomics_orders';
+        $table_name = $wpdb->prefix . 'blockonomics_payments';
         return $wpdb->insert( 
             $table_name, 
             $order 
         );
     }
 
-    // Updates an order in blockonomics_orders table
+    // Updates an order in blockonomics_payments table
     public function update_order($order){
         global $wpdb;
-        $table_name = $wpdb->prefix . 'blockonomics_orders';
+        $table_name = $wpdb->prefix . 'blockonomics_payments';
         $wpdb->replace( 
             $table_name, 
             $order 
@@ -715,16 +733,14 @@ class Blockonomics
     // Get the order info by id and crypto
     public function get_order_amount_info($order_id, $crypto){
         $order = $this->process_order($order_id, $crypto);
-
-        $order_amount = $this->fix_displaying_small_values($order['satoshi']);
-        
+        $order_amount = $this->fix_displaying_small_values($order['expected_satoshi']);        
         $cryptos = $this->getActiveCurrencies();
         $crypto_obj = $cryptos[$crypto];
 
         $response = array(
             "payment_uri" => $this->get_crypto_payment_uri($crypto_obj, $order['address'], $order_amount),
             "order_amount" => $order_amount,
-            "crypto_rate_str" => $this->get_crypto_rate_from_params($order['value'], $order['satoshi'])
+            "crypto_rate_str" => $this->get_crypto_rate_from_params($order['expected_fiat'], $order['expected_satoshi'])
         );
         header("Content-Type: application/json");
         exit(json_encode($response));
@@ -734,7 +750,7 @@ class Blockonomics
     public function get_order_by_address($address){
         global $wpdb;
         $order = $wpdb->get_row(
-            $wpdb->prepare("SELECT * FROM ".$wpdb->prefix."blockonomics_orders WHERE address = %s", array($address)),
+            $wpdb->prepare("SELECT * FROM ".$wpdb->prefix."blockonomics_payments WHERE address = %s", array($address)),
             ARRAY_A
         );
         if($order){
@@ -755,7 +771,7 @@ class Blockonomics
     public function save_transaction($value, $order, $wc_order){
         if (!metadata_exists('post',$wc_order->get_id(),'blockonomics_'. $order['crypto'] .'_txid', $order['txid']) )  {
             update_post_meta($wc_order->get_id(), 'blockonomics_'. $order['crypto'] .'_txid', $order['txid']);
-            update_post_meta($wc_order->get_id(), 'expected_'. $order['crypto'], $order['satoshi']/1.0e8);
+            update_post_meta($wc_order->get_id(), 'expected_'. $order['crypto'], $order['expected_satoshi']/1.0e8);
         }
     }
 
@@ -763,29 +779,41 @@ class Blockonomics
         $network_confirmations = get_option("blockonomics_network_confirmation",2);
         if ($status >= $network_confirmations && !metadata_exists('post',$wc_order->get_id(),'paid_'. $order['crypto']) )  {
           update_post_meta($wc_order->get_id(), 'paid_'. $order['crypto'], $value/1.0e8);
-          $status = $this->check_paid_amount($status, $value, $order, $wc_order);
+          $order = $this->check_paid_amount($status, $value, $order, $wc_order);
           $this->update_temp_draw_amount($value);
-          return $status;
+          return $order;
         }
-        return $status;
+        // since $status < $network_confirmations payment_status should be 1 i.e. payment in progress
+        $order['payment_status'] = 1;
+        return $order;
     }
 
     // Check for underpayment, overpayment or correct amount
     public function check_paid_amount($status, $value, $order, $wc_order){
-      $underpayment_slack = get_option("blockonomics_underpayment_slack", 0)/100 * $order['satoshi'];
-      if ($order['satoshi'] - $underpayment_slack > $value) {
-        $status = -2; //Payment error , amount less than expected 
-        $wc_order->update_status('failed', __('Paid amount less than expected.', 'blockonomics-bitcoin-payments'));
-      }else{
-        $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
-        $wc_order->payment_complete($order['txid']);
-      }
-      if ($order['satoshi'] < $value) {
-        $wc_order->add_order_note(__( 'Paid amount more than expected.', 'blockonomics-bitcoin-payments' ));
-      }
-      return $status;
+        $order['payment_status'] = 2;
+        $order['paid_satoshi'] = $value;
+        $paid_amount_ratio = $value/$order['expected_satoshi'];
+        $order['paid_fiat'] =number_format($order['expected_fiat']*$paid_amount_ratio,2,'.','');
+        if ($this->is_order_underpaid($order)) {
+            $order['payment_status'] = -2; //Payment error , amount less than expected 
+            $wc_order->update_status('failed', __('Paid amount less than expected.', 'blockonomics-bitcoin-payments'));
+        }
+        else{
+            $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
+            $wc_order->payment_complete($order['txid']);
+        }
+        if ($order['expected_satoshi'] < $value) {
+            $wc_order->add_order_note(__( 'Paid amount more than expected.', 'blockonomics-bitcoin-payments' ));
+        }
+      return $order;
     }
 
+    public function is_order_underpaid($order){
+        // Return TRUE only if there has been a payment which is less than required.
+        $underpayment_slack = get_option("blockonomics_underpayment_slack", 0)/100 * $order['expected_satoshi'];
+        $is_order_underpaid = ($order['expected_satoshi'] - $underpayment_slack > $order['paid_satoshi'] && !empty($order['paid_satoshi'])) ? TRUE : FALSE;
+        return $is_order_underpaid;
+    }
     // Keep track of funds in temp wallet
     public function update_temp_draw_amount($value){
         if(get_option('blockonomics_temp_api_key') && !get_option("blockonomics_api_key")) {
@@ -812,10 +840,9 @@ class Blockonomics
           // Unconfirmed RBF payments are easily cancelled should be ignored
           // https://insights.blockonomics.co/bitcoin-payments-can-now-easily-cancelled-a-step-forward-or-two-back/ 
           $this->save_transaction($value, $order, $wc_order);
-          $status = $this->update_paid_amount($status, $value, $order, $wc_order);
+          $order = $this->update_paid_amount($status, $value, $order, $wc_order);
         }
 
-        $order['status'] = $status;
         $this->update_order($order);
     }
 
