@@ -590,19 +590,17 @@ class Blockonomics
         } else {
             $context['order'] = $order;
 
-            if ($order['payment_status'] == -2) {
-                // Payment is Underpaid
-                $error_context = $this->get_error_context('underpaid');
-            } elseif ($order['payment_status'] == 1 || $order['payment_status'] == 2) {
-                // Payment is Received
+            if ($order['payment_status'] == 1 || ($order['payment_status'] == 2 && !$this->is_order_underpaid($order)) ) {
+                // Payment not confirmed i.e. payment in progress
+                // Redirect to order received page- dont alllow new payment until existing payments are confirmed
                 $this->redirect_finish_order($context['order_id']);
             } else {
                 // Display Checkout Page
-                $context['order_amount'] = $this->fix_displaying_small_values($order['satoshi']);
+                $context['order_amount'] = $this->fix_displaying_small_values($order['expected_satoshi']);
                 // Payment URI is sent as part of context to provide initial Payment URI, this can be calculated using javascript
                 // but we also need the URI for NoJS Templates and it makes sense to generate it from a single location to avoid redundancy!
                 $context['payment_uri'] = $this->get_crypto_payment_uri($context['crypto'], $order['address'], $context['order_amount']);
-                $context['crypto_rate_str'] = $this->get_crypto_rate_from_params($order['value'], $order['satoshi']);
+                $context['crypto_rate_str'] = $this->get_crypto_rate_from_params($order['expected_fiat'], $order['expected_satoshi']);
                 //Using svg library qrcode.php to generate QR Code in NoJS mode
                 $context['qrcode_svg_element'] = $this->generate_qrcode_svg_element($context['payment_uri']);
             }
@@ -795,8 +793,8 @@ class Blockonomics
         $paid_amount_ratio = $value/$order['expected_satoshi'];
         $order['paid_fiat'] =number_format($order['expected_fiat']*$paid_amount_ratio,2,'.','');
         if ($this->is_order_underpaid($order)) {
-            $order['payment_status'] = -2; //Payment error , amount less than expected 
-            $wc_order->update_status('failed', __('Paid amount less than expected.', 'blockonomics-bitcoin-payments'));
+            $this->add_coupon_on_underpayment($value, $order, $wc_order);
+            $wc_order->save;
         }
         else{
             $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
@@ -805,7 +803,7 @@ class Blockonomics
         if ($order['expected_satoshi'] < $value) {
             $wc_order->add_order_note(__( 'Paid amount more than expected.', 'blockonomics-bitcoin-payments' ));
         }
-      return $order;
+        return $order;
     }
 
     public function is_order_underpaid($order){
@@ -844,6 +842,24 @@ class Blockonomics
         }
 
         $this->update_order($order);
+    }
+
+    // Auto generate and apply coupon on underpaid callbacks
+    public function add_coupon_on_underpayment($value, $order, $wc_order){
+        // calculate what % of order amount is paid to get the discount amount
+        $paid_order_amount_ratio = $value/$order['expected_satoshi'];
+        //auto generate coupon equal to amount already paid and apply it for discount
+        $coupon_code = substr(str_shuffle(md5(time())),0,6);
+        $coupon_code = 'bck_' . $coupon_code;
+        $coupon = new WC_Coupon();
+        $coupon->set_code( $coupon_code ); // Coupon code
+        $coupon->set_amount($paid_order_amount_ratio * $order['expected_fiat']); // Discount amount
+        $coupon->set_usage_limit(1);// limit coupon to one time use
+        $coupon->save();
+        $wc_order->apply_coupon($coupon_code);
+
+        $coupon_note = "Partial payment received for " .get_woocommerce_currency()." ".sprintf('%0.2f', round($coupon->get_amount(), 2)). " and applied as a coupon.";
+        $wc_order->add_order_note(__( $coupon_note, 'blockonomics-bitcoin-payments' ));
     }
 
     public function generate_qrcode_svg_element($data) {
