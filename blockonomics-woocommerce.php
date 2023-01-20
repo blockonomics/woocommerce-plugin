@@ -588,6 +588,8 @@ function blockonomics_uninstall_hook() {
 
     global $wpdb;
     $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS ".$wpdb->prefix."blockonomics_orders"));
+    // if module is uninstalled, drop blockonomics_payments table as well
+    $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS ".$wpdb->prefix."blockonomics_payments"));
     delete_option("blockonomics_db_version");
 }
 
