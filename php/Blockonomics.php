@@ -514,7 +514,7 @@ class Blockonomics
                     // insert_order fails if duplicate address found. Ensures no duplicate orders in the database
                     return array("error"=>__("Duplicate Address Error. This is a Temporary error, please try again", 'blockonomics-bitcoin-payments'));
                 }
-                $this->record_address($order_id, $crypto, $order['address']);
+            $this->record_address($order['order_id'], $order['crypto'], $order['address']);
             }
         }
         return $order;
@@ -522,7 +522,13 @@ class Blockonomics
 
     // Save the new address to the WooCommerce order
     public function record_address($order_id, $crypto, $address){
-        update_post_meta($order_id, $crypto .'_address', $address);
+        $prev_address = $this->get_order_addresses($order_id);
+        if (empty($prev_address)){
+            update_post_meta($order_id, 'blockonomics_payment_addresses' , $address);
+        } else {
+            $all_address = $prev_address . $address.' ('.$crypto.')';
+            update_post_meta($order_id, 'blockonomics_payment_addresses' , $all_address);
+        }
     }
 
     public function create_new_order($order_id, $crypto){
@@ -674,12 +680,48 @@ class Blockonomics
     // Fetch the correct crypto order linked to the order id
     public function get_order_by_id_and_crypto($order_id, $crypto){
         global $wpdb;
-        $order = $wpdb->get_row(
-            $wpdb->prepare("SELECT * FROM ".$wpdb->prefix."blockonomics_payments WHERE order_id = %s AND crypto = %s", array($order_id, $crypto)),
+        $order = $wpdb->get_results(
+            $wpdb->prepare("SELECT * FROM ".$wpdb->prefix."blockonomics_payments WHERE order_id = ". $order_id." AND crypto = '". $crypto."' ORDER BY expected_satoshi ASC"),
             ARRAY_A
         );
         if($order){
-            return $order;
+            return $order[0];
+        }
+        return false;
+    }
+
+    // Fetch all previous addresses & crypto linked to an order_id 
+    // This is needed to update custom fields in case of multiple payments
+    public function get_order_addresses($order_id){
+        global $wpdb;
+        $get_prev_orders = $wpdb->get_results(
+            $wpdb->prepare("SELECT address, crypto FROM ".$wpdb->prefix."blockonomics_payments WHERE order_id = ". $order_id." AND payment_status = 2 ORDER BY expected_satoshi DESC"),
+            ARRAY_A
+        );
+        $prev_address = '';
+        foreach($get_prev_orders as $order_info){
+            $prev_address = $prev_address . $order_info['address'].' ('.$order_info['crypto'].') , ';
+        }
+        if($get_prev_orders){
+            return $prev_address;
+        }
+        return false;
+    }
+
+    // Fetch all txid & respective crypto linked to an order_id 
+    // This is needed to update custom field in case of multiple payments
+    public function get_order_txids($order_id){
+        global $wpdb;
+        $order_txids = $wpdb->get_results(
+            $wpdb->prepare("SELECT txid, crypto FROM ".$wpdb->prefix."blockonomics_payments WHERE order_id = ". $order_id." AND txid != '' ORDER BY expected_satoshi DESC"),
+            ARRAY_A
+        );
+        $prev_txids = '';
+        foreach($order_txids as $order_info){
+            $prev_txids = $prev_txids . $order_info['txid'].' ('.$order_info['crypto'].') , ';
+        }
+        if ($order_txids){
+            return $prev_txids;
         }
         return false;
     }
@@ -767,28 +809,36 @@ class Blockonomics
     }
 
     public function save_transaction($value, $order, $wc_order){
-        if (!metadata_exists('post',$wc_order->get_id(),'blockonomics_'. $order['crypto'] .'_txid', $order['txid']) )  {
-            update_post_meta($wc_order->get_id(), 'blockonomics_'. $order['crypto'] .'_txid', $order['txid']);
-            update_post_meta($wc_order->get_id(), 'expected_'. $order['crypto'], $order['expected_satoshi']/1.0e8);
+        $txid_metavalue = get_post_meta($order['order_id'], $key = 'blockonomics_payments_txid');
+        if (empty($txid_metavalue) || $txid_metavalue[0] == $order['txid']){
+            update_post_meta($wc_order->get_id(), 'blockonomics_payments_txid', $order['txid']);
+        }
+        else{
+            $all_txids_for_order = $this->get_order_txids($order['order_id']);
+            if (!strpos($txid_metavalue[0], $order['txid'])){
+                update_post_meta($wc_order->get_id(), 'blockonomics_payments_txid', $all_txids_for_order . $order['txid'] .' ('.$order['crypto'].')');
+            }
         }
     }
 
     public function update_paid_amount($status, $value, $order, $wc_order){
         $network_confirmations = get_option("blockonomics_network_confirmation",2);
-        if ($status >= $network_confirmations && !metadata_exists('post',$wc_order->get_id(),'paid_'. $order['crypto']) )  {
-          update_post_meta($wc_order->get_id(), 'paid_'. $order['crypto'], $value/1.0e8);
+        if ($status >= $network_confirmations && !metadata_exists('post',$wc_order->get_id(),'_paid_to_'. $order['address']) )  {
+          update_post_meta($wc_order->get_id(), '_paid_to_'. $order['address'], $value/1.0e8);
+          $order['payment_status'] = 2;
           $order = $this->check_paid_amount($status, $value, $order, $wc_order);
           $this->update_temp_draw_amount($value);
           return $order;
         }
-        // since $status < $network_confirmations payment_status should be 1 i.e. payment in progress
-        $order['payment_status'] = 1;
+        // since $status < $network_confirmations payment_status should be 1 i.e. payment in progress if payment is not already completed
+        if ($order['payment_status'] != 2){
+            $order['payment_status'] = 1;
+        }
         return $order;
     }
 
     // Check for underpayment, overpayment or correct amount
     public function check_paid_amount($status, $value, $order, $wc_order){
-        $order['payment_status'] = 2;
         $order['paid_satoshi'] = $value;
         $paid_amount_ratio = $value/$order['expected_satoshi'];
         $order['paid_fiat'] =number_format($order['expected_fiat']*$paid_amount_ratio,2,'.','');
@@ -837,8 +887,8 @@ class Blockonomics
         if (!$rbf){
           // Unconfirmed RBF payments are easily cancelled should be ignored
           // https://insights.blockonomics.co/bitcoin-payments-can-now-easily-cancelled-a-step-forward-or-two-back/ 
-          $this->save_transaction($value, $order, $wc_order);
           $order = $this->update_paid_amount($status, $value, $order, $wc_order);
+          $this->save_transaction($value, $order, $wc_order);
         }
 
         $this->update_order($order);
