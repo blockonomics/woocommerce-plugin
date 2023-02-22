@@ -808,7 +808,7 @@ class Blockonomics
         exit(__("Error: secret does not match", 'blockonomics-bitcoin-payments'));
     }
 
-    public function save_transaction($value, $order, $wc_order){
+    public function save_transaction($order, $wc_order){
         $txid_metavalue = get_post_meta($order['order_id'], $key = 'blockonomics_payments_txid');
         if (empty($txid_metavalue) || $txid_metavalue[0] == $order['txid']){
             update_post_meta($wc_order->get_id(), 'blockonomics_payments_txid', $order['txid']);
@@ -821,16 +821,16 @@ class Blockonomics
         }
     }
 
-    public function update_paid_amount($status, $value, $order, $wc_order){
+    public function update_paid_amount($callback_status, $paid_satoshi, $order, $wc_order){
         $network_confirmations = get_option("blockonomics_network_confirmation",2);
-        if ($status >= $network_confirmations && !metadata_exists('post',$wc_order->get_id(),'_paid_to_'. $order['address']) )  {
-          update_post_meta($wc_order->get_id(), '_paid_to_'. $order['address'], $value/1.0e8);
+        if ($callback_status >= $network_confirmations && !metadata_exists('post',$wc_order->get_id(),'_paid_to_'. $order['address']) )  {
+          update_post_meta($wc_order->get_id(), '_paid_to_'. $order['address'], $paid_satoshi/1.0e8);
           $order['payment_status'] = 2;
-          $order = $this->check_paid_amount($status, $value, $order, $wc_order);
-          $this->update_temp_draw_amount($value);
+          $order = $this->check_paid_amount($paid_satoshi, $order, $wc_order);
+          $this->update_temp_draw_amount($paid_satoshi);
           return $order;
         }
-        // since $status < $network_confirmations payment_status should be 1 i.e. payment in progress if payment is not already completed
+        // since $callback_status < $network_confirmations payment_status should be 1 i.e. payment in progress if payment is not already completed
         if ($order['payment_status'] != 2){
             $order['payment_status'] = 1;
         }
@@ -838,12 +838,12 @@ class Blockonomics
     }
 
     // Check for underpayment, overpayment or correct amount
-    public function check_paid_amount($status, $value, $order, $wc_order){
-        $order['paid_satoshi'] = $value;
-        $paid_amount_ratio = $value/$order['expected_satoshi'];
+    public function check_paid_amount($paid_satoshi, $order, $wc_order){
+        $order['paid_satoshi'] = $paid_satoshi;
+        $paid_amount_ratio = $paid_satoshi/$order['expected_satoshi'];
         $order['paid_fiat'] =number_format($order['expected_fiat']*$paid_amount_ratio,2,'.','');
         if ($this->is_order_underpaid($order)) {
-            $this->add_coupon_on_underpayment($value, $order, $wc_order);
+            $this->add_coupon_on_underpayment($paid_satoshi, $order, $wc_order);
             $this->send_email_on_underpayment($order);
             $wc_order->save;
         }
@@ -851,7 +851,7 @@ class Blockonomics
             $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
             $wc_order->payment_complete($order['txid']);
         }
-        if ($order['expected_satoshi'] < $value) {
+        if ($order['expected_satoshi'] < $paid_satoshi) {
             $wc_order->add_order_note(__( 'Paid amount more than expected.', 'blockonomics-bitcoin-payments' ));
         }
         return $order;
@@ -864,10 +864,10 @@ class Blockonomics
         return $is_order_underpaid;
     }
     // Keep track of funds in temp wallet
-    public function update_temp_draw_amount($value){
+    public function update_temp_draw_amount($paid_satoshi){
         if(get_option('blockonomics_temp_api_key') && !get_option("blockonomics_api_key")) {
             $current_temp_amount = get_option('blockonomics_temp_withdraw_amount');
-            $new_temp_amount = $current_temp_amount + $value;
+            $new_temp_amount = $current_temp_amount + $paid_satoshi;
             update_option('blockonomics_temp_withdraw_amount', $new_temp_amount);
         }
     }
@@ -889,16 +889,16 @@ class Blockonomics
           // Unconfirmed RBF payments are easily cancelled should be ignored
           // https://insights.blockonomics.co/bitcoin-payments-can-now-easily-cancelled-a-step-forward-or-two-back/ 
           $order = $this->update_paid_amount($status, $value, $order, $wc_order);
-          $this->save_transaction($value, $order, $wc_order);
+          $this->save_transaction($order, $wc_order);
         }
 
         $this->update_order($order);
     }
 
     // Auto generate and apply coupon on underpaid callbacks
-    public function add_coupon_on_underpayment($value, $order, $wc_order){
+    public function add_coupon_on_underpayment($paid_satoshi, $order, $wc_order){
         // calculate what % of order amount is paid to get the discount amount
-        $paid_order_amount_ratio = $value/$order['expected_satoshi'];
+        $paid_order_amount_ratio = $paid_satoshi/$order['expected_satoshi'];
         //auto generate coupon equal to amount already paid and apply it for discount
         $coupon_code = substr(str_shuffle(md5(time())),0,6);
         $coupon_code = 'bck_' . $coupon_code;
