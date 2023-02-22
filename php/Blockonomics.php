@@ -809,15 +809,15 @@ class Blockonomics
     }
 
     public function save_transaction($order, $wc_order){
-        $txid_metavalue = get_post_meta($order['order_id'], $key = 'blockonomics_payments_txid');
-        if (empty($txid_metavalue) || $txid_metavalue[0] == $order['txid']){
-            update_post_meta($wc_order->get_id(), 'blockonomics_payments_txid', $order['txid']);
+        $txid_meta_key = 'blockonomics_payments_txid';
+        $txid_meta_value = get_post_meta($order['order_id'], $txid_meta_key);
+        $txid = $order['txid'];
+        if (empty($txid_metavalue) || $txid_meta_value[0] == $txid){
+            update_post_meta($wc_order->get_id(), $txid_meta_key, $txid);
         }
-        else{
+        else if (!strpos($txid_meta_value[0], $txid)){
             $all_txids_for_order = $this->get_order_txids($order['order_id']);
-            if (!strpos($txid_metavalue[0], $order['txid'])){
-                update_post_meta($wc_order->get_id(), 'blockonomics_payments_txid', $all_txids_for_order . $order['txid'] .' ('.$order['crypto'].')');
-            }
+            update_post_meta($wc_order->get_id(), $txid_meta_key, $all_txids_for_order . $txid .' ('.$order['crypto'].')');
         }
     }
 
