@@ -485,7 +485,22 @@ class Blockonomics
     public function calculate_order_params($order){
         // Check if order is unused or new
         if ( $order['payment_status'] == 0) {
-            $wc_order = new WC_Order($order['order_id']);
+            return $this->calculate_new_order_params($order);
+        }
+        // Check if order has confirmed payment
+        if ($order['payment_status'] == 2){
+            //check if order is underpaid
+            if ($this->is_order_underpaid($order)){
+                // Create and add new row for underpaid order to the database
+                return $this->create_and_insert_new_order_on_underpayment($order);
+            }
+        }
+        return $order;
+    }
+
+    // Get order info for unused or new orders
+    public function calculate_new_order_params($order){
+        $wc_order = new WC_Order($order['order_id']);
             $order['expected_fiat'] = $wc_order->get_total();
             $order['currency'] = get_woocommerce_currency();
             if(get_woocommerce_currency() != 'BTC'){
@@ -499,24 +514,21 @@ class Blockonomics
                 $price = 1;
             }
             $order['expected_satoshi'] = intval(round(1.0e8*$wc_order->get_total()/$price));
+            return $order;
+    }
+    
+    // Get new addr and update amount after confirmed underpayment
+    public function create_and_insert_new_order_on_underpayment($order){
+        $order = $this->create_new_order($order['order_id'], $order['crypto']);
+        if (array_key_exists("error", $order)) {
+            // Some error in Address Generation from API, return the same array.
+            return $order;
         }
-        // Check if order has confirmed payment
-        if ($order['payment_status'] == 2){
-            //check if order is underpaid
-            if ($this->is_order_underpaid($order)){
-                // Create and add new row for underpaid order to the database
-                $order = $this->create_new_order($order['order_id'], $order['crypto']);
-                if (array_key_exists("error", $order)) {
-                    // Some error in Address Generation from API, return the same array.
-                    return $order;
-                }
-                if (!$this->insert_order($order)) {
-                    // insert_order fails if duplicate address found. Ensures no duplicate orders in the database
-                    return array("error"=>__("Duplicate Address Error. This is a Temporary error, please try again", 'blockonomics-bitcoin-payments'));
-                }
-            $this->record_address($order['order_id'], $order['crypto'], $order['address']);
-            }
+        if (!$this->insert_order($order)) {
+            // insert_order fails if duplicate address found. Ensures no duplicate orders in the database
+            return array("error"=>__("Duplicate Address Error. This is a Temporary error, please try again", 'blockonomics-bitcoin-payments'));
         }
+        $this->record_address($order['order_id'], $order['crypto'], $order['address']);
         return $order;
     }
 
