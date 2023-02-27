@@ -839,11 +839,11 @@ class Blockonomics
         if ($order['payment_status'] == 2) {
             return $order;
         }
-        if ($callback_status >= $network_confirmations && !metadata_exists('post',$wc_order->get_id(), $meta_key) ) {
-          update_post_meta($wc_order->get_id(), $meta_key, $paid_satoshi/1.0e8);
-          $order['payment_status'] = 2;
-          $order = $this->check_paid_amount($paid_satoshi, $order, $wc_order);
-          $this->update_temp_draw_amount($paid_satoshi);
+        if ($callback_status >= $network_confirmations){
+            update_post_meta($wc_order->get_id(), $meta_key, $paid_satoshi/1.0e8);
+            $order['payment_status'] = 2;
+            $order = $this->check_paid_amount($paid_satoshi, $order, $wc_order);
+            $this->update_temp_draw_amount($paid_satoshi);
         } 
         else {
             // since $callback_status < $network_confirmations payment_status should be 1 i.e. payment in progress if payment is not already completed
