@@ -510,28 +510,28 @@ function blockonomics_activation_hook() {
 // Since WP 3.1 the activation function registered with register_activation_hook() is not called when a plugin is updated.
 // blockonomics_update_db_check() is loaded for every PHP page by plugins_loaded hook
 function blockonomics_update_db_check() {
-    global $wpdb;
     global $blockonomics_db_version;
-
     $installed_ver = get_site_option( 'blockonomics_db_version' );
-
     // blockonomics_create_table() should only be run if there is no $installed_ver, refer https://github.com/blockonomics/woocommerce-plugin/issues/296
     if (empty($installed_ver)){
         blockonomics_create_table();
     } else if (version_compare( $installed_ver, $blockonomics_db_version, '!=')) {
         blockonomics_run_db_updates($installed_ver);
     }
-        update_option( 'blockonomics_db_version', $blockonomics_db_version );
 }
 
 function blockonomics_run_db_updates($installed_ver){
+    global $wpdb;
+    global $blockonomics_db_version;
     if (version_compare($installed_ver, '1.1', '<')){
+        $table_name = $wpdb->prefix . 'blockonomics_orders';
         maybe_drop_column($table_name, "time_remaining", "ALTER TABLE $table_name DROP COLUMN time_remaining");
         maybe_drop_column($table_name, "timestamp", "ALTER TABLE $table_name DROP COLUMN timestamp");
-      }
-      if (version_compare($installed_ver, '1.2', '<')){
+    }
+    if (version_compare($installed_ver, '1.2', '<')){
         blockonomics_create_table();
-      }    
+    }
+    update_option( 'blockonomics_db_version', $blockonomics_db_version );
 }
 
 add_action( 'plugins_loaded', 'blockonomics_update_db_check' );
