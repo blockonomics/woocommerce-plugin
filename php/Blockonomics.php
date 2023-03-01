@@ -534,12 +534,14 @@ class Blockonomics
 
     // Save the new address to the WooCommerce order
     public function record_address($order_id, $crypto, $address){
-        $prev_address = $this->get_order_addresses($order_id);
-        if (empty($prev_address)){
-            update_post_meta($order_id, 'blockonomics_payment_addresses' , $address);
-        } else {
-            $all_address = $prev_address . $address.' ('.$crypto.')';
-            update_post_meta($order_id, 'blockonomics_payment_addresses' , $all_address);
+        $addr_meta_key = 'blockonomics_payments_addresses';
+        $addr_meta_value = get_post_meta($order_id, $addr_meta_key);
+        if (empty($addr_meta_value)){ 
+            update_post_meta($order_id, $addr_meta_key, $address);
+        } 
+        // when address meta value is not empty and $address is not in it 
+        else if (strpos($addr_meta_value[0], $address) === false) {
+            update_post_meta($order_id, $addr_meta_key, $addr_meta_value[0]. ', '. $address);
         }
     }
 
@@ -702,41 +704,6 @@ class Blockonomics
         return false;
     }
 
-    // Fetch all previous addresses & crypto linked to an order_id 
-    // This is needed to update custom fields in case of multiple payments
-    public function get_order_addresses($order_id){
-        global $wpdb;
-        $get_prev_orders = $wpdb->get_results(
-            $wpdb->prepare("SELECT address, crypto FROM ".$wpdb->prefix."blockonomics_payments WHERE order_id = ". $order_id." AND payment_status = 2 ORDER BY expected_satoshi DESC"),
-            ARRAY_A
-        );
-        $prev_address = '';
-        foreach($get_prev_orders as $order_info){
-            $prev_address = $prev_address . $order_info['address'].' ('.$order_info['crypto'].') , ';
-        }
-        if($get_prev_orders){
-            return $prev_address;
-        }
-        return false;
-    }
-
-    // Fetch all txid & respective crypto linked to an order_id 
-    // This is needed to update custom field in case of multiple payments
-    public function get_order_txids($order_id){
-        global $wpdb;
-        $order_txids = $wpdb->get_results(
-            $wpdb->prepare("SELECT txid, crypto FROM ".$wpdb->prefix."blockonomics_payments WHERE order_id = ". $order_id." AND txid != '' ORDER BY expected_satoshi DESC"),
-            ARRAY_A
-        );
-        $prev_txids = '';
-        foreach($order_txids as $order_info){
-            $prev_txids = $prev_txids . $order_info['txid'].' ('.$order_info['crypto'].') , ';
-        }
-        if ($order_txids){
-            return $prev_txids;
-        }
-        return false;
-    }
 
     // Inserts a new order in blockonomics_payments table
     public function insert_order($order){
@@ -821,15 +788,15 @@ class Blockonomics
     }
 
     public function save_transaction($order, $wc_order){
-        $txid_meta_key = 'blockonomics_payments_txid';
+        $txid_meta_key = 'blockonomics_payments_txids';
         $txid_meta_value = get_post_meta($order['order_id'], $txid_meta_key);
         $txid = $order['txid'];
-        if (empty($txid_metavalue) || $txid_meta_value[0] == $txid){
+        if (empty($txid_meta_value)){
             update_post_meta($wc_order->get_id(), $txid_meta_key, $txid);
         }
-        else if (!strpos($txid_meta_value[0], $txid)){
-            $all_txids_for_order = $this->get_order_txids($order['order_id']);
-            update_post_meta($wc_order->get_id(), $txid_meta_key, $all_txids_for_order . $txid .' ('.$order['crypto'].')');
+        // when txid meta value is not empty and $txid is not in it 
+        else if (strpos($txid_meta_value[0], $txid) === false){
+            update_post_meta($wc_order->get_id(), $txid_meta_key, $txid_meta_value[0].', '. $txid);
         }
     }
 
