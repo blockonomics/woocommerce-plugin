@@ -802,12 +802,10 @@ class Blockonomics
 
     public function update_paid_amount($callback_status, $paid_satoshi, $order, $wc_order){
         $network_confirmations = get_option("blockonomics_network_confirmation",2);
-        $meta_key = '_paid_to_'. $order['address'];
         if ($order['payment_status'] == 2) {
             return $order;
         }
         if ($callback_status >= $network_confirmations){
-            update_post_meta($wc_order->get_id(), $meta_key, $paid_satoshi/1.0e8);
             $order['payment_status'] = 2;
             $order = $this->check_paid_amount($paid_satoshi, $order, $wc_order);
             $this->update_temp_draw_amount($paid_satoshi);
