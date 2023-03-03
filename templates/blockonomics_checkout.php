@@ -13,6 +13,21 @@
      * $qrcode_svg_element: Generate QR Code when NoJS mode is active.
      */
 ?>
+<style>
+    .how-to-pay{
+        cursor: pointer !important;
+    }
+    .how-to-pay:hover{
+        background: #000000 !important;
+    }
+    .how-to-pay ul {
+        margin:0;
+        font-size:0.8em;
+    }
+    .how-to-pay b {
+        font-weight: 800;
+    }
+</style>
 <div id="blockonomics_checkout">
     <div class="bnomics-order-container">
         
@@ -29,6 +44,27 @@
         
         <!-- Blockonomics Checkout Panel -->    
         <div class="bnomics-order-panel">
+            <table>
+                <tr>
+                    <th class="how-to-pay" onclick="howToPay()">
+                        <div>
+                            How do I pay?
+                            <div id="down-arrow" style="float:right">▼</div>
+                            <div id="up-arrow" style="float:right;display:none;">▲</div>
+                        </div>
+                        <!-- Order Header -->
+                        <div id="pay-instructions" style="display:none;margin:10px 0;">
+                        <ul>
+                            <li><b>Get a bitcoin wallet:</b> The first step is to get a bitcoin wallet. There are various types of wallets available such as software wallets, hardware wallets, and mobile wallets. Choose one that suits your needs.</li>
+                            <li><b>Add bitcoin to your wallet:</b> You can add bitcoin to your wallet by purchasing it from a cryptocurrency exchange or receiving it from someone else.</li>
+                            <li><b>Enter the bitcoin address and amount:</b> Open your bitcoin wallet and look for the option to send bitcoin. Enter the bitcoin address below and the amount to send.</li>
+                            <li><b>Review the transaction:</b> Review the transaction details and make sure they are correct. Once you are satisfied, click on the send button. The transaction will be broadcast to the bitcoin network.</li>
+                            <li><b>Wait for confirmation:</b> Bitcoin transactions usually take a few minutes to be confirmed. Once the transaction is confirmed, the order will be processed.</li>
+                        </ul>
+                        </div>
+                    </th>
+                </tr>
+            </table>
             <table>
                 <tr>
                     <th class="bnomics-header">
@@ -92,3 +128,17 @@
         </div>
     </div>
 </div>
+<script>
+    function howToPay() {
+        var x = document.getElementById("pay-instructions");
+        if (x.style.display === "none") {
+            x.style.display = "block";
+            document.getElementById("down-arrow").style.display = "none";
+            document.getElementById("up-arrow").style.display = "block";
+        } else {
+            x.style.display = "none";
+            document.getElementById("down-arrow").style.display = "block";
+            document.getElementById("up-arrow").style.display = "none";
+        }
+    }
+</script>
