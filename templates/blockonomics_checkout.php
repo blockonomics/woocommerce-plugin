@@ -32,6 +32,24 @@
             <table>
                 <tr>
                     <th class="bnomics-header">
+                        <!-- Order Logo -->
+                        <span class="bnomics-order-id">
+                            <?php
+                                $custom_logo_id = get_theme_mod( 'custom_logo' );
+                                $logo = wp_get_attachment_image_src( $custom_logo_id , 'full' );
+                                if ( has_custom_logo() ) {
+                                    echo '<img src="' . esc_url( $logo[0] ) . '" alt="' . get_bloginfo( 'name' ) . '" style="max-width: 150px;">';
+                                } else {
+                                    echo get_bloginfo('name');
+                                }
+                            ?>
+                        </span>
+                    </th>
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <th class="bnomics-header">
                         <!-- Order Header -->
                         <span class="bnomics-order-id">
                             <?=__('Order #', 'blockonomics-bitcoin-payments')?><?php echo $order_id; ?>
