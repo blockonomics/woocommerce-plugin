@@ -39,7 +39,7 @@
                         
                         <div>
                             <span class="blockonomics-icon-cart"></span>
-                            <?php echo $order['value'] ?> <?php echo $order['currency'] ?>
+                            <?php echo $order['expected_fiat'] ?> <?php echo $order['currency'] ?>
                         </div>
                     </th>
                 </tr>

@@ -464,24 +464,31 @@ register_activation_hook( __FILE__, 'blockonomics_activation_hook' );
 add_action('admin_notices', 'blockonomics_plugin_activation');
 
 global $blockonomics_db_version;
-$blockonomics_db_version = '1.1';
+$blockonomics_db_version = '1.2';
 
 function blockonomics_create_table() {
-    // Create blockonomics_orders table
+    // Create blockonomics_payments table
     // https://codex.wordpress.org/Creating_Tables_with_Plugins
     global $wpdb;
     global $blockonomics_db_version;
+    /* for db version 1.2, new table blockonomics_payments is introduced
+        status is renamed to payment_status
+        satoshi is renamed to expected_satoshi
+        value is renamed to expected_fiat & it is no longer longtext
+        2 new fields are added for logging purpose only - paid_satoshi & paid_fiat */ 
 
-    $table_name = $wpdb->prefix . 'blockonomics_orders';
+    $table_name = $wpdb->prefix . 'blockonomics_payments';
     $charset_collate = $wpdb->get_charset_collate();
     $sql = "CREATE TABLE $table_name (
         order_id int NOT NULL,
-        status int NOT NULL,
+        payment_status int NOT NULL,
         crypto varchar(3) NOT NULL,
         address varchar(191) NOT NULL,
-        satoshi int,
+        expected_satoshi bigint,
+        expected_fiat double,
         currency varchar(3),
-        value longtext,
+        paid_satoshi bigint,
+        paid_fiat double,
         txid text,
         PRIMARY KEY  (address),
         KEY orderkey (order_id,crypto)
@@ -501,19 +508,30 @@ function blockonomics_activation_hook() {
 }
 
 // Since WP 3.1 the activation function registered with register_activation_hook() is not called when a plugin is updated.
+// blockonomics_update_db_check() is loaded for every PHP page by plugins_loaded hook
 function blockonomics_update_db_check() {
+    global $blockonomics_db_version;
+    $installed_ver = get_site_option( 'blockonomics_db_version' );
+    // blockonomics_create_table() should only be run if there is no $installed_ver, refer https://github.com/blockonomics/woocommerce-plugin/issues/296
+    if (empty($installed_ver)){
+        blockonomics_create_table();
+    } else if (version_compare( $installed_ver, $blockonomics_db_version, '!=')) {
+        blockonomics_run_db_updates($installed_ver);
+    }
+}
+
+function blockonomics_run_db_updates($installed_ver){
     global $wpdb;
     global $blockonomics_db_version;
-
-    $installed_ver = get_site_option( 'blockonomics_db_version' );
-    if ( $installed_ver != $blockonomics_db_version ) {
+    if (version_compare($installed_ver, '1.1', '<')){
         $table_name = $wpdb->prefix . 'blockonomics_orders';
-        if ($installed_ver < 1.1) {
-            maybe_drop_column($table_name, "time_remaining", "ALTER TABLE $table_name DROP COLUMN time_remaining");
-            maybe_drop_column($table_name, "timestamp", "ALTER TABLE $table_name DROP COLUMN timestamp");
-        }
+        maybe_drop_column($table_name, "time_remaining", "ALTER TABLE $table_name DROP COLUMN time_remaining");
+        maybe_drop_column($table_name, "timestamp", "ALTER TABLE $table_name DROP COLUMN timestamp");
+    }
+    if (version_compare($installed_ver, '1.2', '<')){
         blockonomics_create_table();
     }
+    update_option( 'blockonomics_db_version', $blockonomics_db_version );
 }
 
 add_action( 'plugins_loaded', 'blockonomics_update_db_check' );
@@ -561,7 +579,8 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_network_confirmation');
 
     global $wpdb;
-    $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS ".$wpdb->prefix."blockonomics_orders"));
+    // if module is uninstalled, drop both tables blockonomics_orders & blockonomics_payments 
+    $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS ".$wpdb->prefix."blockonomics_orders , ".$wpdb->prefix."blockonomics_payments"));
     delete_option("blockonomics_db_version");
 }
 
