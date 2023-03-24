@@ -521,10 +521,7 @@ class Blockonomics
             // Some error in Address Generation from API, return the same array.
             return $order;
         }
-        if (!$this->insert_order($order)) {
-            // insert_order fails if duplicate address found. Ensures no duplicate orders in the database
-            return array("error"=>__("Duplicate Address Error. This is a Temporary error, please try again", 'blockonomics-bitcoin-payments'));
-        }
+        $this->insert_order($order);
         $this->record_address($order['order_id'], $order['crypto'], $order['address']);
         return $order;
     }
@@ -702,7 +699,7 @@ class Blockonomics
     }
 
 
-    // Inserts a new order in blockonomics_payments table
+    // Inserts a new row in blockonomics_payments table
     public function insert_order($order){
         global $wpdb;
         $wpdb->hide_errors();
@@ -737,10 +734,7 @@ class Blockonomics
                 // Some error in Address Generation from API, return the same array.
                 return $order;
             }
-            if (!$this->insert_order($order)) {
-                // insert_order fails if duplicate address found. Ensures no duplicate orders in the database
-                return array("error"=>__("Duplicate Address Error. This is a Temporary error, please try again", 'blockonomics-bitcoin-payments'));
-            }
+            $this->insert_order($order);
             $this->record_address($order_id, $crypto, $order['address']);
         }
         return $order;
