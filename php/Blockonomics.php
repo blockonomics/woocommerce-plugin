@@ -487,11 +487,8 @@ class Blockonomics
         if ( $order['payment_status'] == 0) {
             return $this->calculate_new_order_params($order);
         }
-        // Check if order has confirmed payment
         if ($order['payment_status'] == 2){
-            //check if order is underpaid
             if ($this->is_order_underpaid($order)){
-                // Create and add new row for underpaid order to the database
                 return $this->create_and_insert_new_order_on_underpayment($order);
             }
         }
@@ -524,10 +521,7 @@ class Blockonomics
             // Some error in Address Generation from API, return the same array.
             return $order;
         }
-        if (!$this->insert_order($order)) {
-            // insert_order fails if duplicate address found. Ensures no duplicate orders in the database
-            return array("error"=>__("Duplicate Address Error. This is a Temporary error, please try again", 'blockonomics-bitcoin-payments'));
-        }
+        $this->insert_order($order);
         $this->record_address($order['order_id'], $order['crypto'], $order['address']);
         return $order;
     }
@@ -705,7 +699,7 @@ class Blockonomics
     }
 
 
-    // Inserts a new order in blockonomics_payments table
+    // Inserts a new row in blockonomics_payments table
     public function insert_order($order){
         global $wpdb;
         $wpdb->hide_errors();
@@ -740,10 +734,7 @@ class Blockonomics
                 // Some error in Address Generation from API, return the same array.
                 return $order;
             }
-            if (!$this->insert_order($order)) {
-                // insert_order fails if duplicate address found. Ensures no duplicate orders in the database
-                return array("error"=>__("Duplicate Address Error. This is a Temporary error, please try again", 'blockonomics-bitcoin-payments'));
-            }
+            $this->insert_order($order);
             $this->record_address($order_id, $crypto, $order['address']);
         }
         return $order;
@@ -888,8 +879,7 @@ class Blockonomics
         $coupon->set_usage_limit(1);// limit coupon to one time use
         $coupon->save();
         $wc_order->apply_coupon($coupon_code);
-
-        $coupon_note = "Partial payment received for " .get_woocommerce_currency()." ".sprintf('%0.2f', round($coupon->get_amount(), 2)). " and applied as a coupon.";
+        $coupon_note = "Partial payment of " .get_woocommerce_currency()." ".sprintf('%0.2f', round($coupon->get_amount(), 2)). " received via Blockonomics and applied as a coupon. Customer has been mailed invoice to pay remaining amount";
         $wc_order->add_order_note(__( $coupon_note, 'blockonomics-bitcoin-payments' ));
     }
 
