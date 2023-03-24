@@ -523,11 +523,6 @@ function blockonomics_update_db_check() {
 function blockonomics_run_db_updates($installed_ver){
     global $wpdb;
     global $blockonomics_db_version;
-    if (version_compare($installed_ver, '1.1', '<')){
-        $table_name = $wpdb->prefix . 'blockonomics_orders';
-        maybe_drop_column($table_name, "time_remaining", "ALTER TABLE $table_name DROP COLUMN time_remaining");
-        maybe_drop_column($table_name, "timestamp", "ALTER TABLE $table_name DROP COLUMN timestamp");
-    }
     if (version_compare($installed_ver, '1.2', '<')){
         blockonomics_create_table();
     }
