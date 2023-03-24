@@ -879,8 +879,7 @@ class Blockonomics
         $coupon->set_usage_limit(1);// limit coupon to one time use
         $coupon->save();
         $wc_order->apply_coupon($coupon_code);
-
-        $coupon_note = "Partial payment received for " .get_woocommerce_currency()." ".sprintf('%0.2f', round($coupon->get_amount(), 2)). " and applied as a coupon.";
+        $coupon_note = "Partial payment of " .get_woocommerce_currency()." ".sprintf('%0.2f', round($coupon->get_amount(), 2)). " received via Blockonomics and applied as a coupon. Customer has been mailed invoice to pay remaining amount";
         $wc_order->add_order_note(__( $coupon_note, 'blockonomics-bitcoin-payments' ));
     }
 
