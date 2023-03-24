@@ -574,7 +574,8 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_network_confirmation');
 
     global $wpdb;
-    // if module is uninstalled, drop both tables blockonomics_orders & blockonomics_payments 
+    // drop blockonomics_orders & blockonomics_payments on uninstallation
+    // blockonomics_orders was the payments table before db version 1.2
     $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS ".$wpdb->prefix."blockonomics_orders , ".$wpdb->prefix."blockonomics_payments"));
     delete_option("blockonomics_db_version");
 }

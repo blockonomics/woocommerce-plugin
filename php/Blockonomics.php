@@ -487,11 +487,8 @@ class Blockonomics
         if ( $order['payment_status'] == 0) {
             return $this->calculate_new_order_params($order);
         }
-        // Check if order has confirmed payment
         if ($order['payment_status'] == 2){
-            //check if order is underpaid
             if ($this->is_order_underpaid($order)){
-                // Create and add new row for underpaid order to the database
                 return $this->create_and_insert_new_order_on_underpayment($order);
             }
         }
