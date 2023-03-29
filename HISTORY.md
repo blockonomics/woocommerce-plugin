@@ -1,6 +1,6 @@
 == Changelog ==
 
-= 3.5.9  =
+= 3.6  =
 * Underpayment support via multiple payments 
 * DB structure updates
 
