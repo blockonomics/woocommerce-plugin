@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 3.5.9  =
+* Underpayment support via multiple payments 
+* DB structure updates
+
 = 3.5.8  =
 * Modular checkout UI 
 * Security Fixes
