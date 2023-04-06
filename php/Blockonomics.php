@@ -400,6 +400,10 @@ class Blockonomics
         return get_option('blockonomics_lite', false);
     }
 
+    public function is_partial_payments_active(){
+        return get_option('blockonomics_partial_payments', false);
+    }
+
     public function is_error_template($template_name) {
         if (strpos($template_name, 'error') === 0) {
             return true;
@@ -488,7 +492,7 @@ class Blockonomics
             return $this->calculate_new_order_params($order);
         }
         if ($order['payment_status'] == 2){
-            if ($this->is_order_underpaid($order)){
+            if ($this->is_order_underpaid($order) && $this->is_partial_payments_active()){
                 return $this->create_and_insert_new_order_on_underpayment($order);
             }
         }
@@ -814,9 +818,14 @@ class Blockonomics
         $paid_amount_ratio = $paid_satoshi/$order['expected_satoshi'];
         $order['paid_fiat'] =number_format($order['expected_fiat']*$paid_amount_ratio,2,'.','');
         if ($this->is_order_underpaid($order)) {
-            $this->add_coupon_on_underpayment($paid_satoshi, $order, $wc_order);
-            $this->send_email_on_underpayment($order);
-            $wc_order->save;
+            if ($this->is_partial_payments_active()){
+                $this->add_coupon_on_underpayment($paid_satoshi, $order, $wc_order);
+                $this->send_email_on_underpayment($order);
+                $wc_order->save;
+            }
+            else {
+                $wc_order->update_status('failed', __('Paid amount less than expected.', 'blockonomics-bitcoin-payments'));
+            }
         }
         else{
             $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
