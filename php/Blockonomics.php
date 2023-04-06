@@ -612,6 +612,8 @@ class Blockonomics
                 // Payment not confirmed i.e. payment in progress
                 // Redirect to order received page- dont alllow new payment until existing payments are confirmed
                 $this->redirect_finish_order($context['order_id']);
+            } else if (($order['payment_status'] == 2 && $this->is_order_underpaid($order)) && !$this->is_partial_payments_active() ) {
+                $error_context = $this->get_error_context('underpaid');
             } else {
                 // Display Checkout Page
                 $context['order_amount'] = $this->fix_displaying_small_values($order['expected_satoshi']);
