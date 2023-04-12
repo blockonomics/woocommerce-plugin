@@ -400,6 +400,10 @@ class Blockonomics
         return get_option('blockonomics_lite', false);
     }
 
+    public function is_partial_payments_active(){
+        return get_option('blockonomics_partial_payments', true);
+    }
+
     public function is_error_template($template_name) {
         if (strpos($template_name, 'error') === 0) {
             return true;
@@ -488,7 +492,7 @@ class Blockonomics
             return $this->calculate_new_order_params($order);
         }
         if ($order['payment_status'] == 2){
-            if ($this->is_order_underpaid($order)){
+            if ($this->is_order_underpaid($order) && $this->is_partial_payments_active()){
                 return $this->create_and_insert_new_order_on_underpayment($order);
             }
         }
@@ -608,6 +612,8 @@ class Blockonomics
                 // Payment not confirmed i.e. payment in progress
                 // Redirect to order received page- dont alllow new payment until existing payments are confirmed
                 $this->redirect_finish_order($context['order_id']);
+            } else if (($order['payment_status'] == 2 && $this->is_order_underpaid($order)) && !$this->is_partial_payments_active() ) {
+                $error_context = $this->get_error_context('underpaid');
             } else {
                 // Display Checkout Page
                 $context['order_amount'] = $this->fix_displaying_small_values($order['expected_satoshi']);
@@ -814,9 +820,14 @@ class Blockonomics
         $paid_amount_ratio = $paid_satoshi/$order['expected_satoshi'];
         $order['paid_fiat'] =number_format($order['expected_fiat']*$paid_amount_ratio,2,'.','');
         if ($this->is_order_underpaid($order)) {
-            $this->add_coupon_on_underpayment($paid_satoshi, $order, $wc_order);
-            $this->send_email_on_underpayment($order);
-            $wc_order->save;
+            if ($this->is_partial_payments_active()){
+                $this->add_coupon_on_underpayment($paid_satoshi, $order, $wc_order);
+                $this->send_email_on_underpayment($order);
+                $wc_order->save;
+            }
+            else {
+                $wc_order->update_status('failed', __(get_woocommerce_currency()." ".sprintf('%0.2f', round($order['paid_fiat'], 2))." was paid via Blockonomics. Less than expected Order Amount.", 'blockonomics-bitcoin-payments'));
+            }
         }
         else{
             $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
