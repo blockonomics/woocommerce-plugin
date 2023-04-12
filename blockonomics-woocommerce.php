@@ -411,15 +411,29 @@ function blockonomics_woocommerce_init()
         $blockonomics = new Blockonomics();
         $active_cryptos = $blockonomics->getActiveCurrencies();
         foreach ($active_cryptos as $crypto) {
-            $txid = get_post_meta($order->get_id(), 'blockonomics_'.$crypto['code'].'_txid', true);
-            $address = get_post_meta($order->get_id(), $crypto['code'].'_address', true);
+            $txid = get_post_meta($order->get_id(), 'blockonomics_payments_txids', true);
+            $address = get_post_meta($order->get_id(), 'blockonomics_payments_addresses', true);
+
             if ($txid && $address) {
                 if ($crypto['code'] == 'btc') {
                     $base_url = Blockonomics::BASE_URL;
                 }else{
                     $base_url = Blockonomics::BCH_BASE_URL;
                 }
-                echo '<b>'.__('Payment Details', 'blockonomics-bitcoin-payments').'</b><p><strong>'.__('Transaction', 'blockonomics-bitcoin-payments').':</strong>  <a href =\''. $base_url ."/api/tx?txid=$txid&addr=$address'>".substr($txid, 0, 10). '</a></p>';
+                $txidArray = explode(",", $txid);
+                $addressdArray = explode(",", $address);
+                if (!empty($txidArray)) {
+                    echo '<b>'.__('Payment Details', 'blockonomics-bitcoin-payments').'</b><p><strong>'.__('Transaction', 'blockonomics-bitcoin-payments').':</strong>';
+                    for ($i = 0; $i < count($txidArray); $i++) {
+                       
+                       echo '<a href =\''. $base_url ."/api/tx?txid=$txidArray[$i]&addr=$addressdArray[$i]'>".substr($txidArray[$i], 0, 10). '</a>';
+                       if ($i < count($txidArray) - 1) {
+                          echo ', ';
+                       }
+                    }
+                    echo '</p>';
+                }
+        
                 if (!$email) {
                    echo '<p>'.__('Your order will be processed on confirmation of above transaction by the bitcoin network.', 'blockonomics-bitcoin-payments').'</p>';
                 } 
