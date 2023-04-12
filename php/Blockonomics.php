@@ -826,7 +826,7 @@ class Blockonomics
                 $wc_order->save;
             }
             else {
-                $wc_order->update_status('failed', __('Paid amount less than expected.', 'blockonomics-bitcoin-payments'));
+                $wc_order->update_status('failed', __(get_woocommerce_currency()." ".sprintf('%0.2f', round($order['paid_fiat'], 2))." was paid via Blockonomics. Less than expected Order Amount.", 'blockonomics-bitcoin-payments'));
             }
         }
         else{
