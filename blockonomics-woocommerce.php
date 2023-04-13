@@ -415,8 +415,8 @@ function blockonomics_woocommerce_init()
             return;
         }
 
-        $txidArray = explode(",", $txids);
-        $addressArray = explode(",", $addresses);
+        $txidArray = explode(", ", $txids);
+        $addressArray = explode(", ", $addresses);
         $txidCount = count($txidArray);
         $bchStartLetters = ['q', 'p'];
 
