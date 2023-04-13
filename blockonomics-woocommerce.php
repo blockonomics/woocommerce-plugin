@@ -408,38 +408,42 @@ function blockonomics_woocommerce_init()
     }
     function bnomics_display_tx_info($order, $email=false)
     {
-        $blockonomics = new Blockonomics();
-        $txid = get_post_meta($order->get_id(), 'blockonomics_payments_txids', true);
-        $address = get_post_meta($order->get_id(), 'blockonomics_payments_addresses', true);
+        $txids = get_post_meta($order->get_id(), 'blockonomics_payments_txids', true);
+        $addresses = get_post_meta($order->get_id(), 'blockonomics_payments_addresses', true);
 
-        if ($txid && $address) {
-            $txidArray = explode(",", $txid);
-            $addressdArray = explode(",", $address);
-            if (!empty($txidArray)) {
-                echo '<b>'.__('Payment Details', 'blockonomics-bitcoin-payments').'</b><p><strong>'.__('Transaction', 'blockonomics-bitcoin-payments').':</strong>';
-                    
-                for ($i = 0; $i < count($txidArray); $i++) {
-                    
-                    $bchStartLetters = ['q', 'p'];
-                    $firstCharacter = substr($addressArray[$i], 0, 1);
-                    if (in_array($firstCharacter, $bchStartLetters)) {
-                        $base_url = Blockonomics::BCH_BASE_URL;
-                    }else{
-                        $base_url = Blockonomics::BASE_URL;
-                    }
-                    echo '<a href =\''. $base_url ."/api/tx?txid=$txidArray[$i]&addr=$addressdArray[$i]'>".substr($txidArray[$i], 0, 10). '</a>';
-                    if ($i < count($txidArray) - 1) {
-                        echo ', ';
-                    }
-                }
+        if (!$txids || !$addresses) {
+            return;
+        }
 
-                echo '</p>';
+        $txidArray = explode(",", $txids);
+        $addressArray = explode(",", $addresses);
+        $txidCount = count($txidArray);
+        $bchStartLetters = ['q', 'p'];
+
+        echo '<b>'.__('Payment Details', 'blockonomics-bitcoin-payments').'</b><p><strong>'.__('Transaction', 'blockonomics-bitcoin-payments').': </strong>';
+                    
+        for ($i = 0; $i < $txidCount; $i++) {
+            $firstCharacter = substr($addressArray[$i], 0, 1);
+
+            if (in_array($firstCharacter, $bchStartLetters)) {
+                $base_url = Blockonomics::BCH_BASE_URL;
+            } else {
+                $base_url = Blockonomics::BASE_URL;
             }
-        
-            if (!$email) {
-               echo '<p>'.__('Your order will be processed on confirmation of above transaction by the bitcoin network.', 'blockonomics-bitcoin-payments').'</p>';
-            } 
-        }   
+
+            echo '<a href =\''. $base_url ."/api/tx?txid=$txidArray[$i]&addr=$addressArray[$i]'>".substr($txidArray[$i], 0, 10). '</a>';
+
+            if ($i < $txidCount - 1) {
+                echo ', ';
+            }
+        }
+
+        echo '</p>';
+            
+        if (!$email) {
+            echo '<p>'.__('Your order will be processed on confirmation of above transaction by the bitcoin network.', 'blockonomics-bitcoin-payments').'</p>';
+        } 
+         
     }
     function nolo_custom_field_display_cust_order_meta($order)
     {
