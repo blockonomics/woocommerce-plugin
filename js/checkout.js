@@ -145,10 +145,9 @@ class Blockonomics {
     }
 
     generate_qr() {
-        const data = `${this.data.payment_uri}`;
         this._qr = new QRious({
             element: this._qr_code,
-            value: data,
+            value: this.data.payment_uri,
             size: 160,
         });
     }
