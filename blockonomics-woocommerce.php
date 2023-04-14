@@ -3,7 +3,7 @@
  * Plugin Name: WordPress Bitcoin Payments - Blockonomics
  * Plugin URI: https://github.com/blockonomics/woocommerce-plugin
  * Description: Accept Bitcoin Payments on your WooCommerce-powered website with Blockonomics
- * Version: 3.6
+ * Version: 3.6.1
  * Author: Blockonomics
  * Author URI: https://www.blockonomics.co
  * License: MIT
@@ -330,12 +330,16 @@ function blockonomics_woocommerce_init()
                                         <option value="0" <?php selected(get_option('blockonomics_network_confirmation'), 0); ?>>0</option>
                                     </select></td>
                             </tr>
+                            <tr valign="top">
+                                <th scope="row"><?php echo __('Allow Partial Payments (Customer can pay order via multiple payments)', 'blockonomics-bitcoin-payments')?></th>
+                                <td><input onchange="add_asterisk('settings')" type="checkbox" name="blockonomics_partial_payments" value="1" <?php checked("1", get_option('blockonomics_partial_payments', $default_value = true)); ?> /></td>
+                            </tr>
                         </table>
                     </div>
                     <p class="submit">
                         <input type="submit" class="button-primary" value="<?php echo __("Save", 'blockonomics-bitcoin-payments')?>"/>
                         <input type="hidden" name="action" value="update" />
-                        <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated,blockonomics_underpayment_slack,blockonomics_lite,blockonomics_nojs,blockonomics_network_confirmation" />
+                        <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated,blockonomics_underpayment_slack,blockonomics_lite,blockonomics_nojs,blockonomics_network_confirmation,blockonomics_partial_payments" />
                     </p>
                 </form>
                 <form method="POST" name="generateSecretForm">
@@ -572,6 +576,7 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_lite');
     delete_option('blockonomics_nojs');
     delete_option('blockonomics_network_confirmation');
+    delete_option('blockonomics_partial_payments');
 
     global $wpdb;
     // drop blockonomics_orders & blockonomics_payments on uninstallation

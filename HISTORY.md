@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 3.6.1  =
+* Added setting to toggle Partial Payments
+
 = 3.6  =
 * Underpayment support via multiple payments 
 * DB structure updates
