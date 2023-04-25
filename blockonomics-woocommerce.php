@@ -332,7 +332,7 @@ function blockonomics_woocommerce_init()
                             </tr>
                             <tr valign="top">
                                 <th scope="row"><?php echo __('Allow Partial Payments (Customer can pay order via multiple payments)', 'blockonomics-bitcoin-payments')?></th>
-                                <td><input onchange="add_asterisk('settings')" type="checkbox" name="blockonomics_partial_payments" value="1" <?php checked("1", get_option('blockonomics_partial_payments', $default_value = true)); ?> /></td>
+                                <td><input onchange="add_asterisk('settings')" type="checkbox" name="blockonomics_partial_payments" value="1" <?php checked("1", get_option('blockonomics_partial_payments', $default_value = false)); ?> /></td>
                             </tr>
                         </table>
                     </div>
