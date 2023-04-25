@@ -821,7 +821,7 @@ class Blockonomics
         $order['paid_fiat'] =number_format($order['expected_fiat']*$paid_amount_ratio,2,'.','');
         if ($this->is_order_underpaid($order)) {
             if ($this->is_partial_payments_active()){
-                $this->add_coupon_on_underpayment($paid_satoshi, $order, $wc_order);
+                $this->add_note_on_underpayment($order, $wc_order);
                 $this->send_email_on_underpayment($order);
                 $wc_order->save;
             }
@@ -878,20 +878,10 @@ class Blockonomics
     }
 
     // Auto generate and apply coupon on underpaid callbacks
-    public function add_coupon_on_underpayment($paid_satoshi, $order, $wc_order){
-        // calculate what % of order amount is paid to get the discount amount
-        $paid_order_amount_ratio = $paid_satoshi/$order['expected_satoshi'];
-        //auto generate coupon equal to amount already paid and apply it for discount
-        $coupon_code = substr(str_shuffle(md5(time())),0,6);
-        $coupon_code = 'bck_' . $coupon_code;
-        $coupon = new WC_Coupon();
-        $coupon->set_code( $coupon_code ); // Coupon code
-        $coupon->set_amount($paid_order_amount_ratio * $order['expected_fiat']); // Discount amount
-        $coupon->set_usage_limit(1);// limit coupon to one time use
-        $coupon->save();
-        $wc_order->apply_coupon($coupon_code);
-        $coupon_note = "Partial payment of " .get_woocommerce_currency()." ".sprintf('%0.2f', round($coupon->get_amount(), 2)). " received via Blockonomics and applied as a coupon. Customer has been mailed invoice to pay remaining amount";
-        $wc_order->add_order_note(__( $coupon_note, 'blockonomics-bitcoin-payments' ));
+    public function add_note_on_underpayment($order, $wc_order){
+        $paid_amount = $order['paid_fiat'];
+        $note = "Partial payment of " .get_woocommerce_currency()." ".sprintf('%0.2f', round($paid_amount, 2)). " received via Blockonomics. Customer has been mailed invoice to pay remaining amount";
+        $wc_order->add_order_note(__( $note, 'blockonomics-bitcoin-payments' ));
     }
 
     // Send Invoice email to customer to pay remaining amount
