@@ -502,20 +502,30 @@ class Blockonomics
     // Get order info for unused or new orders
     public function calculate_new_order_params($order){
         $wc_order = new WC_Order($order['order_id']);
-            $order['expected_fiat'] = $wc_order->get_total();
-            $order['currency'] = get_woocommerce_currency();
-            if(get_woocommerce_currency() != 'BTC'){
-                $responseObj = $this->get_price($order['currency'], $order['crypto']);
-                if($responseObj->response_code != 200) {
-                    exit();
-                }
-                $price = $responseObj->price;
-                $price = $price * 100/(100+get_option('blockonomics_margin', 0));
-            }else{
-                $price = 1;
+        global $wpdb;
+        $orderss_id = $wc_order->get_id();
+        $results = array();
+        $table_name = $wpdb->prefix .'blockonomics_payments'; 
+        $query = $wpdb->prepare("SELECT expected_fiat,paid_fiat,currency FROM ". $table_name." WHERE order_id = " . $orderss_id);
+        $results = $wpdb->get_results($query,ARRAY_A);
+        $paid_fiat = 0;
+        foreach ($results as $row) {
+        $paid_fiat = $paid_fiat + (float)$row['paid_fiat'];
+        }
+        $order['expected_fiat'] = $wc_order->get_total() - $paid_fiat;
+        $order['currency'] = get_woocommerce_currency();
+        if(get_woocommerce_currency() != 'BTC'){
+            $responseObj = $this->get_price($order['currency'], $order['crypto']);
+            if($responseObj->response_code != 200) {
+                exit();
             }
-            $order['expected_satoshi'] = intval(round(1.0e8*$wc_order->get_total()/$price));
-            return $order;
+            $price = $responseObj->price;
+            $price = $price * 100/(100+get_option('blockonomics_margin', 0));
+            }else{
+             $price = 1;
+        }
+        $order['expected_satoshi'] = intval(round(1.0e8*$wc_order->get_total()/$price));
+        return $order;
     }
     
     // Get new addr and update amount after confirmed underpayment
