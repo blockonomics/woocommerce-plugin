@@ -84,8 +84,21 @@ function blockonomics_woocommerce_init()
 	function filter_orders_by_address_or_txid( $vars ) {
 		global $typenow;
 		if ( 'shop_order' === $typenow && !empty( $_GET['filter_by'])) {
-			$vars['meta_value'] = wc_clean( sanitize_text_field(wp_unslash($_GET['filter_by'])) );
-		}
+            $santized_filter = wc_clean( sanitize_text_field(wp_unslash($_GET['filter_by'])) );
+            $vars['meta_query'] = array(
+                'relation' => 'OR',
+                array(
+                    'key'     => 'blockonomics_payments_addresses',
+                    'value'   => $santized_filter,
+                    'compare' => 'LIKE'
+                ),
+                array(
+                    'key'     => 'blockonomics_payments_txids',
+                    'value'   => $santized_filter,
+                    'compare' => 'LIKE'
+                ),
+            );
+        }
 		return $vars;
 	}
     /**
