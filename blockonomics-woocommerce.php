@@ -426,7 +426,7 @@ function blockonomics_woocommerce_init()
             return;
         }
 
-        echo '<b>'.__('Payment Details', 'blockonomics-bitcoin-payments').'</b><p><strong>'.__('Transactions', 'blockonomics-bitcoin-payments').': </strong><br />';
+        echo '<b>'.__('Payment Details', 'blockonomics-bitcoin-payments').'</b><br />';
                     
         foreach ($transactions as $transaction) {
             if($transaction['crypto'] == 'btc') {
@@ -434,7 +434,7 @@ function blockonomics_woocommerce_init()
             } else {
                 $base_url = Blockonomics::BCH_BASE_URL;
             }
-            echo '<a href="' . $base_url . '/api/tx?txid=' . $transaction['txid'] . '&addr=' . $transaction['address'] . '">' . $transaction['txid'] . '</a>';
+            echo '<a style="word-wrap: break-word;" href="' . $base_url . '/api/tx?txid=' . $transaction['txid'] . '&addr=' . $transaction['address'] . '">' . $transaction['txid'] . '</a>';
             echo '<br />';
         }
 
