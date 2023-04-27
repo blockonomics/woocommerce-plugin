@@ -408,34 +408,34 @@ function blockonomics_woocommerce_init()
     }
     function bnomics_display_tx_info($order, $email=false)
     {
-        $txids = get_post_meta($order->get_id(), 'blockonomics_payments_txids', true);
-        $addresses = get_post_meta($order->get_id(), 'blockonomics_payments_addresses', true);
+        global $wpdb;
+        $order_id = $order->get_id();
+        $table_name = $wpdb->prefix .'blockonomics_payments';
+        $query = $wpdb->prepare("SELECT * FROM ". $table_name." WHERE order_id = " . $order_id);
+        $transactions = $wpdb->get_results($query,ARRAY_A);
 
-        if (!$txids || !$addresses) {
+        if (!is_array($transactions)) {
             return;
         }
 
-        $txidArray = explode(", ", $txids);
-        $addressArray = explode(", ", $addresses);
-        $txidCount = count($txidArray);
-        $bchStartLetters = ['q', 'p'];
+        $transactions = array_filter($transactions, function ($transaction) {
+            return isset($transaction['txid']) && !is_null($transaction['txid']);
+        });
 
-        echo '<b>'.__('Payment Details', 'blockonomics-bitcoin-payments').'</b><p><strong>'.__('Transaction', 'blockonomics-bitcoin-payments').': </strong>';
+        if (empty($transactions)) {
+            return;
+        }
+
+        echo '<b>'.__('Payment Details', 'blockonomics-bitcoin-payments').'</b><p><strong>'.__('Transactions', 'blockonomics-bitcoin-payments').': </strong><br />';
                     
-        for ($i = 0; $i < $txidCount; $i++) {
-            $firstCharacter = substr($addressArray[$i], 0, 1);
-
-            if (in_array($firstCharacter, $bchStartLetters)) {
-                $base_url = Blockonomics::BCH_BASE_URL;
-            } else {
+        foreach ($transactions as $transaction) {
+            if($transaction['crypto'] == 'btc') {
                 $base_url = Blockonomics::BASE_URL;
+            } else {
+                $base_url = Blockonomics::BCH_BASE_URL;
             }
-
-            echo '<a href =\''. $base_url ."/api/tx?txid=$txidArray[$i]&addr=$addressArray[$i]'>".substr($txidArray[$i], 0, 10). '</a>';
-
-            if ($i < $txidCount - 1) {
-                echo ', ';
-            }
+            echo '<a href="' . $base_url . '/api/tx?txid=' . $transaction['txid'] . '&addr=' . $transaction['address'] . '">' . $transaction['txid'] . '</a>';
+            echo '<br />';
         }
 
         echo '</p>';
