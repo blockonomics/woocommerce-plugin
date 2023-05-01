@@ -411,16 +411,8 @@ function blockonomics_woocommerce_init()
         global $wpdb;
         $order_id = $order->get_id();
         $table_name = $wpdb->prefix .'blockonomics_payments';
-        $query = $wpdb->prepare("SELECT * FROM ". $table_name." WHERE order_id = " . $order_id);
+        $query = $wpdb->prepare("SELECT * FROM ". $table_name." WHERE order_id = " . $order_id . " AND txid != ''");
         $transactions = $wpdb->get_results($query,ARRAY_A);
-
-        if (!is_array($transactions)) {
-            return;
-        }
-
-        $transactions = array_filter($transactions, function ($transaction) {
-            return isset($transaction['txid']) && !is_null($transaction['txid']);
-        });
 
         if (empty($transactions)) {
             return;
