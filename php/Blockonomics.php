@@ -524,7 +524,7 @@ class Blockonomics
             }else{
              $price = 1;
         }
-        $order['expected_satoshi'] = intval(round(1.0e8*$wc_order->get_total()/$price));
+        $order['expected_satoshi'] = intval(round(1.0e8*$order['expected_fiat']/$price));
         return $order;
     }
     
@@ -890,7 +890,7 @@ class Blockonomics
     // Auto generate and apply coupon on underpaid callbacks
     public function add_note_on_underpayment($order, $wc_order){
         $paid_amount = $order['paid_fiat'];
-        $note = "Partial payment of " .get_woocommerce_currency()." ".sprintf('%0.2f', round($paid_amount, 2)). " received via Blockonomics. Customer has been mailed invoice to pay remaining amount";
+        $note = get_woocommerce_currency()." ".sprintf('%0.2f', round($paid_amount, 2)). " paid via ".$order['crypto']. " (Blockonomics). Customer has been mailed invoice to pay the remaining amount";
         $wc_order->add_order_note(__( $note, 'blockonomics-bitcoin-payments' ));
     }
 
