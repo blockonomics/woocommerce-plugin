@@ -423,7 +423,7 @@ function blockonomics_woocommerce_init()
         </div>
     <?php
     }
-    function bnomics_display_tx_info($order, $email=false)
+    function bnomics_display_tx_info($order)
     {
         global $wpdb;
         $order_id = $order->get_id();
@@ -449,9 +449,6 @@ function blockonomics_woocommerce_init()
 
         echo '</p>';
             
-        if (!$email) {
-            echo '<p>'.__('Your order will be processed on confirmation of above transaction by the bitcoin network.', 'blockonomics-bitcoin-payments').'</p>';
-        } 
          
     }
     function nolo_custom_field_display_cust_order_meta($order)
@@ -460,7 +457,7 @@ function blockonomics_woocommerce_init()
     }
     function nolo_bnomics_woocommerce_email_customer_details($order)
     {
-        bnomics_display_tx_info($order, true);
+        bnomics_display_tx_info($order);
     }
 
     function bnomics_enqueue_stylesheets(){
