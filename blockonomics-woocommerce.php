@@ -425,23 +425,34 @@ function blockonomics_woocommerce_init()
     }
     function bnomics_display_tx_info($order, $email=false)
     {
-        $blockonomics = new Blockonomics();
-        $active_cryptos = $blockonomics->getActiveCurrencies();
-        foreach ($active_cryptos as $crypto) {
-            $txid = get_post_meta($order->get_id(), 'blockonomics_'.$crypto['code'].'_txid', true);
-            $address = get_post_meta($order->get_id(), $crypto['code'].'_address', true);
-            if ($txid && $address) {
-                if ($crypto['code'] == 'btc') {
-                    $base_url = Blockonomics::BASE_URL;
-                }else{
-                    $base_url = Blockonomics::BCH_BASE_URL;
-                }
-                echo '<b>'.__('Payment Details', 'blockonomics-bitcoin-payments').'</b><p><strong>'.__('Transaction', 'blockonomics-bitcoin-payments').':</strong>  <a href =\''. $base_url ."/api/tx?txid=$txid&addr=$address'>".substr($txid, 0, 10). '</a></p>';
-                if (!$email) {
-                   echo '<p>'.__('Your order will be processed on confirmation of above transaction by the bitcoin network.', 'blockonomics-bitcoin-payments').'</p>';
-                } 
+        global $wpdb;
+        $order_id = $order->get_id();
+        $table_name = $wpdb->prefix .'blockonomics_payments';
+        $query = $wpdb->prepare("SELECT * FROM ". $table_name." WHERE order_id = " . $order_id . " AND txid != ''");
+        $transactions = $wpdb->get_results($query,ARRAY_A);
+
+        if (empty($transactions)) {
+            return;
+        }
+
+        echo '<b>'.__('Payment Details', 'blockonomics-bitcoin-payments').'</b><br />';
+                    
+        foreach ($transactions as $transaction) {
+            if($transaction['crypto'] == 'btc') {
+                $base_url = Blockonomics::BASE_URL;
+            } else {
+                $base_url = Blockonomics::BCH_BASE_URL;
             }
-        }      
+            echo '<a style="word-wrap: break-word;" href="' . $base_url . '/api/tx?txid=' . $transaction['txid'] . '&addr=' . $transaction['address'] . '">' . $transaction['txid'] . '</a>';
+            echo '<br />';
+        }
+
+        echo '</p>';
+            
+        if (!$email) {
+            echo '<p>'.__('Your order will be processed on confirmation of above transaction by the bitcoin network.', 'blockonomics-bitcoin-payments').'</p>';
+        } 
+         
     }
     function nolo_custom_field_display_cust_order_meta($order)
     {
