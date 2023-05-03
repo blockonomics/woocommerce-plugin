@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 3.6.2  =
+* Trasnsaction details now shown in order confirmation screen
+* Bug fixes
+
 = 3.6.1  =
 * Added setting to toggle Partial Payments
 
