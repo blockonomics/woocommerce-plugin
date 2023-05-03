@@ -423,6 +423,44 @@ function blockonomics_woocommerce_init()
         </div>
     <?php
     }
+    function updateTable($order, $email=false)
+    {
+        global $wpdb;
+        $order_id = $order->get_id();
+        $results = array();
+        $table_name = $wpdb->prefix .'blockonomics_payments'; 
+        $query = $wpdb->prepare("SELECT expected_fiat,paid_fiat,currency FROM ". $table_name." WHERE order_id = " . $order_id);
+        $results = $wpdb->get_results($query,ARRAY_A);
+        if(!is_array($results) || empty($results)) {
+          return;
+        }
+        $order_data = $results[0];
+        $paid_fiat = 0;
+        foreach ($results as $row) {
+        $paid_fiat = $paid_fiat + (float)$row['paid_fiat'];
+        }
+        $expected_fiat = (float)$order->get_total();
+        if ($paid_fiat >= $expected_fiat) {
+          return;
+        }
+        $currencyCode = $order_data['currency'];
+        $formatter = NumberFormatter::create(NULL, NumberFormatter::CURRENCY);
+        $formatter->setTextAttribute(NumberFormatter::CURRENCY_CODE, $currencyCode);
+        $remaining_fiat = $expected_fiat - $paid_fiat;
+        $formatted_amount_expected_fiat = $formatter->formatCurrency($paid_fiat, $currencyCode);
+        $formatted_amount_remaining_fiat = $formatter->formatCurrency($remaining_fiat, $currencyCode);
+
+        echo '<h2 class="woocommerce-column__title">Payment details</h2>';
+        if ($email) {
+            echo '<p><b>Paid:  '. $formatted_amount_expected_fiat . '<br>';
+            echo 'Remaining  Balance:  ' . $formatted_amount_remaining_fiat . '<b></p>';
+        } else {
+            echo '<table class="woocommerce-table woocommerce-table--order-details shop_table order_details"><tfoot>'; 
+            echo '<tr><th scope="row"><b>Paid:</b></th><td>' . $formatted_amount_expected_fiat . '</td></tr>';
+            echo '<tr><th scope="row"><b>Remaining Amount:</b></th><td>' . $formatted_amount_remaining_fiat . '</td></tr>';
+            echo '</tfoot></table>';
+        }
+    }
     function bnomics_display_tx_info($order)
     {
         global $wpdb;
@@ -430,6 +468,8 @@ function blockonomics_woocommerce_init()
         $table_name = $wpdb->prefix .'blockonomics_payments';
         $query = $wpdb->prepare("SELECT * FROM ". $table_name." WHERE order_id = " . $order_id . " AND txid != ''");
         $transactions = $wpdb->get_results($query,ARRAY_A);
+
+        updateTable($order, $email);
 
         if (empty($transactions)) {
             return;
