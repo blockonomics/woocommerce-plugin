@@ -447,18 +447,11 @@ function blockonomics_woocommerce_init()
         $expected_fiat = (float)$order->get_total();
 
         if ($total_paid_fiat >= $expected_fiat) {
-          return;
+            echo '</tfoot></table>';
+            return;
         }
         $currencyCode = get_woocommerce_currency();
         $remaining_fiat = $expected_fiat - $total_paid_fiat;
-
-        // if ($email) {
-        //     echo '<tr><th scope="row"><b>Paid:</b></th><td>'. wc_price($total_paid_fiat) . '</td></tr>';
-        //     echo '<tr><th scope="row"><b>Remaining Amount:</b></th><td> ' . wc_price($remaining_fiat) . '</td></tr>';
-        // } else {
-        //     echo '<tr><th scope="row"><b>Paid:</b></th><td>' . wc_price($total_paid_fiat) . '</td></tr>';
-        //     echo '<tr><th scope="row"><b>Remaining Amount:</b></th><td>' . wc_price($remaining_fiat) . '</td></tr>';
-        // }
         
         echo '<tr><th scope="row"><b>Paid:</b></th><td>' . wc_price($total_paid_fiat) . '</td></tr>';
         echo '<tr><th scope="row"><b>Remaining Amount:</b></th><td>' . wc_price($remaining_fiat) . '</td></tr>';

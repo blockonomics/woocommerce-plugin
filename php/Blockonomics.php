@@ -890,7 +890,7 @@ class Blockonomics
     // Auto generate and apply coupon on underpaid callbacks
     public function add_note_on_underpayment($order, $wc_order){
         $paid_amount = $order['paid_fiat'];
-        $note = get_woocommerce_currency()." ".sprintf('%0.2f', round($paid_amount, 2)). " paid via ".$order['crypto']. " (Blockonomics). Customer has been mailed invoice to pay the remaining amount";
+        $note = wc_price($paid_amount). " paid via ".$order['crypto']. " (Blockonomics). Customer has been mailed invoice to pay the remaining amount";
         $wc_order->add_order_note(__( $note, 'blockonomics-bitcoin-payments' ));
     }
 
