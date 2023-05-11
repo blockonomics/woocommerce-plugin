@@ -426,6 +426,8 @@ function blockonomics_woocommerce_init()
     function bnomics_display_payment_details($order, $transactions, $email=false)
     {
         $total_paid_fiat = 0;
+
+       
         
         echo '<h2 class="woocommerce-column__title">Payment details</h2>';
         echo '<table class="woocommerce-table woocommerce-table--order-details shop_table order_details"><tfoot>'; 
@@ -441,7 +443,12 @@ function blockonomics_woocommerce_init()
             
             echo '<tr><th scope="row"><b>';
             echo '<a style="word-wrap: break-word;" href="' . $base_url . '/api/tx?txid=' . $transaction['txid'] . '&addr=' . $transaction['address'] . '">' . $transaction['txid'] . '</th></a>';
-            echo '<td>' . wc_price($transaction['paid_fiat']) . '<br /></td></tr>';
+            
+            if ($transaction['payment_status'] == '2'){
+                echo '<td>' . wc_price($transaction['paid_fiat']) . '</td></tr>'; 
+            } else{
+                echo '<td>Waiting for confirmation</td></tr>';
+            }    
         }
 
         $expected_fiat = (float)$order->get_total();
