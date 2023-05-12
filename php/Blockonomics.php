@@ -829,6 +829,11 @@ class Blockonomics
         $order['paid_satoshi'] = $paid_satoshi;
         $paid_amount_ratio = $paid_satoshi/$order['expected_satoshi'];
         $order['paid_fiat'] =number_format($order['expected_fiat']*$paid_amount_ratio,2,'.','');
+
+        // This is to update the order table before we send an email on failed and confirmed state
+        // So that the updated data is used to build the email
+        $this->update_order($order);
+
         if ($this->is_order_underpaid($order)) {
             if ($this->is_partial_payments_active()){
                 $this->add_note_on_underpayment($order, $wc_order);

@@ -441,7 +441,7 @@ function blockonomics_woocommerce_init()
                 $base_url = Blockonomics::BCH_BASE_URL;
             }
             
-            echo '<tr><th scope="row"><b>';
+            echo '<tr><th scope="row">';
             echo '<a style="word-wrap: break-word;" href="' . $base_url . '/api/tx?txid=' . $transaction['txid'] . '&addr=' . $transaction['address'] . '">' . $transaction['txid'] . '</th></a>';
             
             if ($transaction['payment_status'] == '2'){
@@ -453,15 +453,11 @@ function blockonomics_woocommerce_init()
 
         $expected_fiat = (float)$order->get_total();
 
-        if ($total_paid_fiat >= $expected_fiat) {
-            echo '</tfoot></table>';
-            return;
+        if ($total_paid_fiat < $expected_fiat) {
+            $remaining_fiat = $expected_fiat - $total_paid_fiat;
+            echo '<tr><th scope="row"><b>Paid:</b></th><td>' . wc_price($total_paid_fiat) . '</td></tr>';
+            echo '<tr><th scope="row"><b>Remaining Amount:</b></th><td>' . wc_price($remaining_fiat) . '</td></tr>';
         }
-        $currencyCode = get_woocommerce_currency();
-        $remaining_fiat = $expected_fiat - $total_paid_fiat;
-        
-        echo '<tr><th scope="row"><b>Paid:</b></th><td>' . wc_price($total_paid_fiat) . '</td></tr>';
-        echo '<tr><th scope="row"><b>Remaining Amount:</b></th><td>' . wc_price($remaining_fiat) . '</td></tr>';
         echo '</tfoot></table>';
     }
     function bnomics_display_tx_info($order,$email=false)
