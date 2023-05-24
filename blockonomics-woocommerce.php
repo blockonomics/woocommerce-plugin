@@ -39,7 +39,7 @@ if (!defined('ABSPATH')) {
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
 require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 require_once ABSPATH . 'wp-admin/install-helper.php';
-use Automattic\WooCommerce\Utilities\NumberUtil;
+
 
 /**
  * Initialize hooks needed for the payment gateway
@@ -425,46 +425,38 @@ function blockonomics_woocommerce_init()
     <?php
     }
 
-    function bnomics_calculateTotalPaidFiat($transactions) {
-        $total_paid_fiats = 0.0;
     
-        foreach ($transactions as $transaction) {
-            $total_paid_fiats += (float) $transaction['paid_fiat'];
-        }
-        
-        $rounded_total_paid_fiats = NumberUtil::round($total_paid_fiats,wc_get_price_decimals());
-         
-        return $rounded_total_paid_fiats;
-
-    }
     function bnomics_display_payment_details($order, $transactions, $email=false)
     {
         $total_paid_fiat = 0;
         $blockonomics = new Blockonomics;
         
         $output  = '<h2 class="woocommerce-column__title">Payment details</h2>';
-        $output .= '<table class="woocommerce-table woocommerce-table--order-details shop_table order_details"><tbody>'; 
-        
+        $output .= '<table class="woocommerce-table woocommerce-table--order-details shop_table order_details">'; 
+        $output .= '<tbody>';
+        $total_paid_fiat = $blockonomics->bnomics_calculateTotalPaidFiat($transactions);
         foreach ($transactions as $transaction) {
-            $total_paid_fiat = bnomics_calculateTotalPaidFiat($transactions);
+           
             $base_url = ($transaction['crypto'] === 'btc') ? Blockonomics::BASE_URL : Blockonomics::BCH_BASE_URL;
             
             $output .=  '<tr><td scope="row">';
             $output .=  '<a style="word-wrap: break-word;word-break: break-all;" href="' . $base_url . '/api/tx?txid=' . $transaction['txid'] . '&addr=' . $transaction['address'] . '">' . $transaction['txid'] . '</a></td>';
             
             $formatted_paid_fiat = ($transaction['payment_status'] == '2') ? wc_price($transaction['paid_fiat']) : 'Processing';
-            $output .= '<td>' . $formatted_paid_fiat . '</td></tr></tbody>';
+            $output .= '<td>' . $formatted_paid_fiat . '</td></tr>';
             
         }
-
+        $output .= '</tbody>';
         $expected_fiat = (float)$order->get_total();
 
         if ($blockonomics->is_partial_payments_active() && $total_paid_fiat !== 0.0 && $total_paid_fiat < $expected_fiat ) {
             $remaining_fiat = $expected_fiat - $total_paid_fiat;
-            $output .=  '<tfoot><tr><th scope="row"><b>Paid:</b></th><td>' . wc_price($total_paid_fiat) . '</td></tr>';
+            $output .= '</tfoot>';
+            $output .=  '<tr><th scope="row"><b>Paid:</b></th><td>' . wc_price($total_paid_fiat) . '</td></tr>';
             $output .=  '<tr><th scope="row"><b>Remaining Amount:</b></th><td>' . wc_price($remaining_fiat) . '</td></tr>';
+            $output .= '</tfoot>';
         }
-        $output .= '</tfoot></table>';
+        $output .= '</table>';
         echo $output;
 
     }

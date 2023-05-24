@@ -3,6 +3,7 @@
 /**
  * This class is responsible for communicating with the Blockonomics API
  */
+use Automattic\WooCommerce\Utilities\NumberUtil;
 class Blockonomics
 {
     const BASE_URL = 'https://www.blockonomics.co';
@@ -18,7 +19,23 @@ class Blockonomics
     const BCH_PRICE_URL = 'https://bch.blockonomics.co/api/price';
     const BCH_SET_CALLBACK_URL = 'https://bch.blockonomics.co/api/update_callback';
     const BCH_GET_CALLBACKS_URL = 'https://bch.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
+  
+    
+    
+   public function bnomics_calculateTotalPaidFiat($transactions) {
+        $total_paid_fiats = 0.0;
+    
+        foreach ($transactions as $transaction) {
+            $total_paid_fiats += (float) $transaction['paid_fiat'];
+        }
+        
+        $rounded_total_paid_fiats = NumberUtil::round($total_paid_fiats,wc_get_price_decimals());
+         
+        return $rounded_total_paid_fiats;
 
+    }
+    
+    
     public function __construct()
     {
         $this->api_key = $this->get_api_key();
@@ -501,16 +518,14 @@ class Blockonomics
 
     // Get order info for unused or new orders
     public function calculate_new_order_params($order){
+        $blockonomics = new Blockonomics;
         $wc_order = new WC_Order($order['order_id']);
         global $wpdb;
         $order_id = $wc_order->get_id();
         $table_name = $wpdb->prefix .'blockonomics_payments'; 
         $query = $wpdb->prepare("SELECT expected_fiat,paid_fiat,currency FROM ". $table_name." WHERE order_id = %d " , $order_id);
         $results = $wpdb->get_results($query,ARRAY_A);
-        $paid_fiat = 0;
-        foreach ($results as $row) {
-            $paid_fiat += (float)$row['paid_fiat'];
-        }
+        $paid_fiat = $blockonomics->bnomics_calculateTotalPaidFiat($results);
         $order['expected_fiat'] = $wc_order->get_total() - $paid_fiat;
         $order['currency'] = get_woocommerce_currency();
         if (get_woocommerce_currency() != 'BTC') {
