@@ -505,7 +505,7 @@ class Blockonomics
         global $wpdb;
         $order_id = $wc_order->get_id();
         $table_name = $wpdb->prefix .'blockonomics_payments'; 
-        $query = $wpdb->prepare("SELECT expected_fiat,paid_fiat,currency FROM ". $table_name." WHERE order_id = " . $order_id);
+        $query = $wpdb->prepare("SELECT expected_fiat,paid_fiat,currency FROM ". $table_name." WHERE order_id = %d " , $order_id);
         $results = $wpdb->get_results($query,ARRAY_A);
         $paid_fiat = 0;
         foreach ($results as $row) {
