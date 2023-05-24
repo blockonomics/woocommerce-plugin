@@ -22,7 +22,7 @@ class Blockonomics
   
     
     
-   public function bnomics_calculateTotalPaidFiat($transactions) {
+   public function CalculateTotalPaidFiat($transactions) {
         $total_paid_fiats = 0.0;
     
         foreach ($transactions as $transaction) {
@@ -518,14 +518,13 @@ class Blockonomics
 
     // Get order info for unused or new orders
     public function calculate_new_order_params($order){
-        $blockonomics = new Blockonomics;
         $wc_order = new WC_Order($order['order_id']);
         global $wpdb;
         $order_id = $wc_order->get_id();
         $table_name = $wpdb->prefix .'blockonomics_payments'; 
         $query = $wpdb->prepare("SELECT expected_fiat,paid_fiat,currency FROM ". $table_name." WHERE order_id = %d " , $order_id);
         $results = $wpdb->get_results($query,ARRAY_A);
-        $paid_fiat = $blockonomics->bnomics_calculateTotalPaidFiat($results);
+        $paid_fiat = $this->CalculateTotalPaidFiat($results);
         $order['expected_fiat'] = $wc_order->get_total() - $paid_fiat;
         $order['currency'] = get_woocommerce_currency();
         if (get_woocommerce_currency() != 'BTC') {

@@ -434,7 +434,7 @@ function blockonomics_woocommerce_init()
         $output  = '<h2 class="woocommerce-column__title">Payment details</h2>';
         $output .= '<table class="woocommerce-table woocommerce-table--order-details shop_table order_details">'; 
         $output .= '<tbody>';
-        $total_paid_fiat = $blockonomics->bnomics_calculateTotalPaidFiat($transactions);
+        $total_paid_fiat = $blockonomics->CalculateTotalPaidFiat($transactions);
         foreach ($transactions as $transaction) {
            
             $base_url = ($transaction['crypto'] === 'btc') ? Blockonomics::BASE_URL : Blockonomics::BCH_BASE_URL;
