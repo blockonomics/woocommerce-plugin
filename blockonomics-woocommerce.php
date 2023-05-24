@@ -450,7 +450,7 @@ function blockonomics_woocommerce_init()
 
         if ($blockonomics->is_partial_payments_active() && $total_paid_fiat !== 0.0 && $total_paid_fiat < $expected_fiat ) {
             $remaining_fiat = $expected_fiat - $total_paid_fiat;
-            $output .= '</tfoot>';
+            $output .= '<tfoot>';
             $output .=  '<tr><th scope="row"><b>Paid:</b></th><td>' . wc_price($total_paid_fiat) . '</td></tr>';
             $output .=  '<tr><th scope="row"><b>Remaining Amount:</b></th><td>' . wc_price($remaining_fiat) . '</td></tr>';
             $output .= '</tfoot>';
