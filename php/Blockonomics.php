@@ -3,7 +3,6 @@
 /**
  * This class is responsible for communicating with the Blockonomics API
  */
-use Automattic\WooCommerce\Utilities\NumberUtil;
 class Blockonomics
 {
     const BASE_URL = 'https://www.blockonomics.co';
@@ -29,7 +28,7 @@ class Blockonomics
             $total_paid_fiats += (float) $transaction['paid_fiat'];
         }
         
-        $rounded_total_paid_fiats = NumberUtil::round($total_paid_fiats,wc_get_price_decimals());
+        $rounded_total_paid_fiats = round($total_paid_fiats, wc_get_price_decimals(), PHP_ROUND_HALF_UP);
          
         return $rounded_total_paid_fiats;
 

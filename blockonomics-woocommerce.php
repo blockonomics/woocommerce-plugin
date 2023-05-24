@@ -428,7 +428,6 @@ function blockonomics_woocommerce_init()
     
     function bnomics_display_payment_details($order, $transactions, $email=false)
     {
-        $total_paid_fiat = 0;
         $blockonomics = new Blockonomics;
         
         $output  = '<h2 class="woocommerce-column__title">Payment details</h2>';
