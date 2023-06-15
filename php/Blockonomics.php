@@ -252,7 +252,10 @@ class Blockonomics
               )
           );
     }
-
+    
+     
+   
+    
     /*
      * Get list of active crypto currencies
      */
@@ -916,7 +919,7 @@ class Blockonomics
         $wc_email = WC()->mailer()->emails['WC_Email_Customer_Invoice'];
         $wc_email->settings['subject'] = __('Additional Payment Required for order #{order_number} on {site_title}');
         $wc_email->settings['heading'] = __('Use below link to pay remaining amount.'); 
-        $wc_email->settings['additional_content'] = __('<strong>Note: Your existing payment has been applied as a discount to the order</strong>'); 
+        //$wc_email->settings['additional_content'] = __('<strong>Note: Your existing payment has been applied as a discount to the order</strong>'); 
         $wc_email->trigger($order['order_id']);
     }
 
