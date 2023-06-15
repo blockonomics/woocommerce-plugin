@@ -18,7 +18,23 @@ class Blockonomics
     const BCH_PRICE_URL = 'https://bch.blockonomics.co/api/price';
     const BCH_SET_CALLBACK_URL = 'https://bch.blockonomics.co/api/update_callback';
     const BCH_GET_CALLBACKS_URL = 'https://bch.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
+  
+    
+    
+   public function calculate_total_paid_fiat($transactions) {
+        $total_paid_fiats = 0.0;
+    
+        foreach ($transactions as $transaction) {
+            $total_paid_fiats += (float) $transaction['paid_fiat'];
+        }
+        
+        $rounded_total_paid_fiats = round($total_paid_fiats, wc_get_price_decimals(), PHP_ROUND_HALF_UP);
+         
+        return $rounded_total_paid_fiats;
 
+    }
+    
+    
     public function __construct()
     {
         $this->api_key = $this->get_api_key();
@@ -502,20 +518,26 @@ class Blockonomics
     // Get order info for unused or new orders
     public function calculate_new_order_params($order){
         $wc_order = new WC_Order($order['order_id']);
-            $order['expected_fiat'] = $wc_order->get_total();
-            $order['currency'] = get_woocommerce_currency();
-            if(get_woocommerce_currency() != 'BTC'){
-                $responseObj = $this->get_price($order['currency'], $order['crypto']);
-                if($responseObj->response_code != 200) {
-                    exit();
-                }
-                $price = $responseObj->price;
-                $price = $price * 100/(100+get_option('blockonomics_margin', 0));
-            }else{
-                $price = 1;
+        global $wpdb;
+        $order_id = $wc_order->get_id();
+        $table_name = $wpdb->prefix .'blockonomics_payments'; 
+        $query = $wpdb->prepare("SELECT expected_fiat,paid_fiat,currency FROM ". $table_name." WHERE order_id = %d " , $order_id);
+        $results = $wpdb->get_results($query,ARRAY_A);
+        $paid_fiat = $this->calculate_total_paid_fiat($results);
+        $order['expected_fiat'] = $wc_order->get_total() - $paid_fiat;
+        $order['currency'] = get_woocommerce_currency();
+        if (get_woocommerce_currency() != 'BTC') {
+            $responseObj = $this->get_price($order['currency'], $order['crypto']);
+            if($responseObj->response_code != 200) {
+                exit();
             }
-            $order['expected_satoshi'] = intval(round(1.0e8*$wc_order->get_total()/$price));
-            return $order;
+            $price = $responseObj->price;
+            $price = $price * 100/(100+get_option('blockonomics_margin', 0));
+        } else {
+            $price = 1;
+        }
+        $order['expected_satoshi'] = intval(round(1.0e8*$order['expected_fiat']/$price));
+        return $order;
     }
     
     // Get new addr and update amount after confirmed underpayment
@@ -819,9 +841,14 @@ class Blockonomics
         $order['paid_satoshi'] = $paid_satoshi;
         $paid_amount_ratio = $paid_satoshi/$order['expected_satoshi'];
         $order['paid_fiat'] =number_format($order['expected_fiat']*$paid_amount_ratio,2,'.','');
+
+        // This is to update the order table before we send an email on failed and confirmed state
+        // So that the updated data is used to build the email
+        $this->update_order($order);
+
         if ($this->is_order_underpaid($order)) {
             if ($this->is_partial_payments_active()){
-                $this->add_coupon_on_underpayment($paid_satoshi, $order, $wc_order);
+                $this->add_note_on_underpayment($order, $wc_order);
                 $this->send_email_on_underpayment($order);
                 $wc_order->save;
             }
@@ -878,20 +905,10 @@ class Blockonomics
     }
 
     // Auto generate and apply coupon on underpaid callbacks
-    public function add_coupon_on_underpayment($paid_satoshi, $order, $wc_order){
-        // calculate what % of order amount is paid to get the discount amount
-        $paid_order_amount_ratio = $paid_satoshi/$order['expected_satoshi'];
-        //auto generate coupon equal to amount already paid and apply it for discount
-        $coupon_code = substr(str_shuffle(md5(time())),0,6);
-        $coupon_code = 'bck_' . $coupon_code;
-        $coupon = new WC_Coupon();
-        $coupon->set_code( $coupon_code ); // Coupon code
-        $coupon->set_amount($paid_order_amount_ratio * $order['expected_fiat']); // Discount amount
-        $coupon->set_usage_limit(1);// limit coupon to one time use
-        $coupon->save();
-        $wc_order->apply_coupon($coupon_code);
-        $coupon_note = "Partial payment of " .get_woocommerce_currency()." ".sprintf('%0.2f', round($coupon->get_amount(), 2)). " received via Blockonomics and applied as a coupon. Customer has been mailed invoice to pay remaining amount";
-        $wc_order->add_order_note(__( $coupon_note, 'blockonomics-bitcoin-payments' ));
+    public function add_note_on_underpayment($order, $wc_order){
+        $paid_amount = $order['paid_fiat'];
+        $note = wc_price($paid_amount). " paid via ".$order['crypto']. " (Blockonomics). Customer has been mailed invoice to pay the remaining amount";
+        $wc_order->add_order_note(__( $note, 'blockonomics-bitcoin-payments' ));
     }
 
     // Send Invoice email to customer to pay remaining amount

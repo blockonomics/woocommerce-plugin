@@ -40,6 +40,7 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
 require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 require_once ABSPATH . 'wp-admin/install-helper.php';
 
+
 /**
  * Initialize hooks needed for the payment gateway
  */
@@ -423,33 +424,53 @@ function blockonomics_woocommerce_init()
         </div>
     <?php
     }
-    function bnomics_display_tx_info($order)
+
+    
+    function bnomics_display_payment_details($order, $transactions, $email=false)
+    {
+        $blockonomics = new Blockonomics;
+        
+        $output  = '<h2 class="woocommerce-column__title">Payment details</h2>';
+        $output .= '<table class="woocommerce-table woocommerce-table--order-details shop_table order_details">'; 
+        $output .= '<tbody>';
+        $total_paid_fiat = $blockonomics->calculate_total_paid_fiat($transactions);
+        foreach ($transactions as $transaction) {
+           
+            $base_url = ($transaction['crypto'] === 'btc') ? Blockonomics::BASE_URL : Blockonomics::BCH_BASE_URL;
+            
+            $output .=  '<tr><td scope="row">';
+            $output .=  '<a style="word-wrap: break-word;word-break: break-all;" href="' . $base_url . '/api/tx?txid=' . $transaction['txid'] . '&addr=' . $transaction['address'] . '">' . $transaction['txid'] . '</a></td>';
+            
+            $formatted_paid_fiat = ($transaction['payment_status'] == '2') ? wc_price($transaction['paid_fiat']) : 'Processing';
+            $output .= '<td>' . $formatted_paid_fiat . '</td></tr>';
+            
+        }
+        $output .= '</tbody>';
+        $expected_fiat = (float)$order->get_total();
+
+        if ($blockonomics->is_partial_payments_active() && $total_paid_fiat !== 0.0 && $total_paid_fiat < $expected_fiat ) {
+            $remaining_fiat = $expected_fiat - $total_paid_fiat;
+            $output .= '<tfoot>';
+            $output .=  '<tr><th scope="row"><b>Paid:</b></th><td>' . wc_price($total_paid_fiat) . '</td></tr>';
+            $output .=  '<tr><th scope="row"><b>Remaining Amount:</b></th><td>' . wc_price($remaining_fiat) . '</td></tr>';
+            $output .= '</tfoot>';
+        }
+        $output .= '</table>';
+        echo $output;
+
+    }
+    function bnomics_display_tx_info($order,$email=false)
     {
         global $wpdb;
         $order_id = $order->get_id();
         $table_name = $wpdb->prefix .'blockonomics_payments';
-        $query = $wpdb->prepare("SELECT * FROM ". $table_name." WHERE order_id = " . $order_id . " AND txid != ''");
+        $query = $wpdb->prepare("SELECT * FROM ". $table_name." WHERE order_id = %d AND txid != ''", $order_id);
         $transactions = $wpdb->get_results($query,ARRAY_A);
-
+        
         if (empty($transactions)) {
             return;
         }
-
-        echo '<b>'.__('Payment Details', 'blockonomics-bitcoin-payments').'</b><br />';
-                    
-        foreach ($transactions as $transaction) {
-            if($transaction['crypto'] == 'btc') {
-                $base_url = Blockonomics::BASE_URL;
-            } else {
-                $base_url = Blockonomics::BCH_BASE_URL;
-            }
-            echo '<a style="word-wrap: break-word;" href="' . $base_url . '/api/tx?txid=' . $transaction['txid'] . '&addr=' . $transaction['address'] . '">' . $transaction['txid'] . '</a>';
-            echo '<br />';
-        }
-
-        echo '</p>';
-            
-         
+        bnomics_display_payment_details($order, $transactions, $email);
     }
     function nolo_custom_field_display_cust_order_meta($order)
     {
