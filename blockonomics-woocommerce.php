@@ -59,9 +59,39 @@ function blockonomics_woocommerce_init()
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
     add_action('admin_enqueue_scripts', 'blockonomics_load_admin_scripts' );
     add_action('restrict_manage_posts', 'filter_orders' , 20 );
+    // add_action('woocommerce_pay_order_before_submit', 'show_remaining_and_paid_fiat');
+  
+    //add_action('woocommerce_email_order_details','link_to_checkout_url');
+    add_filter('woocommerce_get_checkout_payment_url','wp_kama_woocommerce_get_checkout_payment_url_filter',10,2);
     add_filter('request', 'filter_orders_by_address_or_txid' ); 
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_filter('clean_url', 'bnomics_async_scripts', 11, 1 );
+    
+    /**
+     * Redriect to the checkout page  
+     **/
+    function wp_kama_woocommerce_get_checkout_payment_url_filter($pay_url, $order)
+    {   
+        global $wpdb;
+        $blockonomics = new Blockonomics();
+        $expected_fiat = (float)$order->get_total();
+        $order_id = $order->get_id();
+        $table_name = $wpdb->prefix .'blockonomics_payments'; 
+        $query = $wpdb->prepare("SELECT expected_fiat,paid_fiat,currency FROM ". $table_name." WHERE order_id = %d " , $order_id);
+        $results = $wpdb->get_results($query,ARRAY_A);
+        $paid_fiat = $blockonomics->calculate_total_paid_fiat($results);
+        $remain = $expected_fiat - $paid_fiat;
+        
+        if ($remain != 0)
+        {
+        
+        $url = "";
+        $url = esc_url($blockonomics->get_order_checkout_url($order_id));
+        return $url;
+        }
+        
+    }
+     
     /**
      * Add Styles to Blockonomics Admin Page
      **/
