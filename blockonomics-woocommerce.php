@@ -70,7 +70,6 @@ function blockonomics_woocommerce_init()
             wp_enqueue_style('bnomics-admin-style', plugin_dir_url(__FILE__) . "css/blockonomics_options.css", '', get_plugin_data( __FILE__ )['Version']);
         }
     }
-    
     /**
      * Adding new filter to WooCommerce orders
      **/
