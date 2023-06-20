@@ -19,9 +19,6 @@ $table_name = $wpdb->prefix . 'blockonomics_payments';
 $query = $wpdb->prepare("SELECT expected_fiat,paid_fiat,currency FROM " . $table_name . " WHERE order_id = %d ", $order_id);
 $results = $wpdb->get_results($query, ARRAY_A);
 $paid_fiat = $blockonomics->calculate_total_paid_fiat($results);
-$total = $order['expected_fiat'] + $paid_fiat;
-$remaing = $order['expected_fiat'];
-
 ?>
 
 
