@@ -13,15 +13,7 @@
  * $crypto_rate_str: Conversion Rate of Crypto to Fiat. Please see comment on php/Blockonomics.php -> get_crypto_rate_from_params() on rate difference.
  * $qrcode_svg_element: Generate QR Code when NoJS mode is active.
  */
-global $wpdb;
-$blockonomics = new Blockonomics();
-$table_name = $wpdb->prefix . 'blockonomics_payments';
-$query = $wpdb->prepare("SELECT expected_fiat,paid_fiat,currency FROM " . $table_name . " WHERE order_id = %d ", $order_id);
-$results = $wpdb->get_results($query, ARRAY_A);
-$paid_fiat = $blockonomics->calculate_total_paid_fiat($results);
 ?>
-
-
 <div id="blockonomics_checkout">
     <div class="bnomics-order-container">
 
@@ -46,9 +38,12 @@ $paid_fiat = $blockonomics->calculate_total_paid_fiat($results);
                             <?= __('Order #', 'blockonomics-bitcoin-payments') ?><?php echo $order_id; ?>
                         </span>
                         <?php
+                        $blockonomics = new Blockonomics();
+                        $order_details = $blockonomics->get_order_details($order_id);
+                        $paid_fiat = $order_details['paid_fiat'];
                         if ($paid_fiat != 0) {
                         ?>
-                            <?php echo $total ?> <?php echo $order['currency'] ?>
+                            <?php echo $total = $order['expected_fiat'] + $paid_fiat; ?> <?php echo $order['currency'] ?>
                         <?php
                         } else {
                         ?>

@@ -67,8 +67,7 @@ function blockonomics_woocommerce_init()
     /**
      * Redriect to the checkout page  
      **/
-    function  update_payment_url_on_underpayments($pay_url, $order)
-    {
+    function  update_payment_url_on_underpayments($pay_url, $order) {
         $payment_method = $order->get_payment_method();
         $is_blockonomics = ($payment_method === 'blockonomics');
         
@@ -90,11 +89,13 @@ function blockonomics_woocommerce_init()
         $query = $wpdb->prepare("SELECT expected_fiat,paid_fiat,currency FROM " . $table_name . " WHERE order_id = %d ", $order_id);
         $results = $wpdb->get_results($query, ARRAY_A);
         $paid_fiat = $blockonomics->calculate_total_paid_fiat($results);
-        if(!$paid_fiat){
+        if (!$paid_fiat){
          return $pay_url;
         }
-    
-        return esc_url($blockonomics->get_order_checkout_url($order_id));  
+        if ($order->needs_payment()) {
+            return esc_url($blockonomics->get_order_checkout_url($order_id));
+        }
+        return $pay_url;
     }
      
     /**
