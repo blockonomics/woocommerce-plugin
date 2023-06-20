@@ -90,7 +90,6 @@ function blockonomics_woocommerce_init()
         $query = $wpdb->prepare("SELECT expected_fiat,paid_fiat,currency FROM " . $table_name . " WHERE order_id = %d ", $order_id);
         $results = $wpdb->get_results($query, ARRAY_A);
         $paid_fiat = $blockonomics->calculate_total_paid_fiat($results);
-        $paid_fiat = $blockonomics->calculate_total_paid_fiat($results);
         if(!$paid_fiat){
          return $pay_url;
         }
