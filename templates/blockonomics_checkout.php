@@ -1,5 +1,4 @@
 <?php
-
 /** 
  * Blockonomics Checkout Page (JS Enabled)
  * 

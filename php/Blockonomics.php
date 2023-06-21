@@ -22,11 +22,10 @@ class Blockonomics
 
     function get_order_paid_fiat($order_id) {
         global $wpdb;
-        $blockonomics = new Blockonomics();
         $table_name = $wpdb->prefix . 'blockonomics_payments';
         $query = $wpdb->prepare("SELECT expected_fiat,paid_fiat,currency FROM " . $table_name . " WHERE order_id = %d ", $order_id);
         $results = $wpdb->get_results($query, ARRAY_A);
-        return $blockonomics->calculate_total_paid_fiat($results);
+        return $this->calculate_total_paid_fiat($results);
     }
 
    public function calculate_total_paid_fiat($transactions) {
