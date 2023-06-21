@@ -18,24 +18,16 @@ class Blockonomics
     const BCH_PRICE_URL = 'https://bch.blockonomics.co/api/price';
     const BCH_SET_CALLBACK_URL = 'https://bch.blockonomics.co/api/update_callback';
     const BCH_GET_CALLBACKS_URL = 'https://bch.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
-  
-  
-   function get_order_details($order_id) {
-    global $wpdb;
-    $blockonomics = new Blockonomics();
-    $table_name = $wpdb->prefix . 'blockonomics_payments';
-    $query = $wpdb->prepare("SELECT expected_fiat,paid_fiat,currency FROM " . $table_name . " WHERE order_id = %d ", $order_id);
-    $results = $wpdb->get_results($query, ARRAY_A);
-    $paid_fiat = $blockonomics->calculate_total_paid_fiat($results);
-    $total = $results[0]['expected_fiat'] + $paid_fiat;
-    $remaining = $results[0]['expected_fiat'];
-    
-    return array(
-        'total' => $total,
-        'paid_fiat' => $paid_fiat,
-        'remaining' => $remaining
-    );
-}
+
+
+    function get_order_paid_fiat($order_id) {
+        global $wpdb;
+        $blockonomics = new Blockonomics();
+        $table_name = $wpdb->prefix . 'blockonomics_payments';
+        $query = $wpdb->prepare("SELECT expected_fiat,paid_fiat,currency FROM " . $table_name . " WHERE order_id = %d ", $order_id);
+        $results = $wpdb->get_results($query, ARRAY_A);
+        return $blockonomics->calculate_total_paid_fiat($results);
+    }
 
    public function calculate_total_paid_fiat($transactions) {
         $total_paid_fiats = 0.0;
@@ -666,6 +658,14 @@ class Blockonomics
 
         if ($error_context != NULL) {
             $context = array_merge($context, $error_context);
+        }
+
+        $context['total'] = $order['expected_fiat'];
+        $paid_fiat = $this->get_order_paid_fiat($order['order_id']);
+
+        if ($this->is_partial_payments_active() && $paid_fiat > 0) {
+            $context['paid_fiat'] = $this->get_order_paid_fiat($order['order_id']);
+            $context['total'] = $order['expected_fiat'] + $context['paid_fiat'];
         }
 
         return $context;
