@@ -38,6 +38,7 @@
                         </span>
 
                         <div>
+                        <?php if (!$paid_fiat) { ?><span class="blockonomics-icon-cart"></span> <?php } ?>
                             <?php echo $total ?> <?php echo $order['currency'] ?>
                         </div>
                     </th>
@@ -63,8 +64,6 @@
                 </tr>
                 <?php } ?>
             </table>
-
-
             <table>
                 <tr>
                     <th>
