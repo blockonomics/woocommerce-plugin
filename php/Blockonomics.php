@@ -664,7 +664,7 @@ class Blockonomics
         $paid_fiat = $this->get_order_paid_fiat($order['order_id']);
 
         if ($this->is_partial_payments_active() && $paid_fiat > 0) {
-            $context['paid_fiat'] = $this->get_order_paid_fiat($order['order_id']);
+            $context['paid_fiat'] = $paid_fiat;
             $context['total'] = $order['expected_fiat'] + $context['paid_fiat'];
         }
 
