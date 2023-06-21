@@ -652,19 +652,19 @@ class Blockonomics
                 $context['crypto_rate_str'] = $this->get_crypto_rate_from_params($order['expected_fiat'], $order['expected_satoshi']);
                 //Using svg library qrcode.php to generate QR Code in NoJS mode
                 $context['qrcode_svg_element'] = $this->generate_qrcode_svg_element($context['payment_uri']);
+
+                $context['total'] = $order['expected_fiat'];
+                $paid_fiat = $this->get_order_paid_fiat($order['order_id']);
+
+                if ($paid_fiat > 0) {
+                    $context['paid_fiat'] = $paid_fiat;
+                    $context['total'] = $order['expected_fiat'] + $context['paid_fiat'];
+                }
             }
         }
 
         if ($error_context != NULL) {
             $context = array_merge($context, $error_context);
-        }
-
-        $context['total'] = $order['expected_fiat'];
-        $paid_fiat = $this->get_order_paid_fiat($order['order_id']);
-
-        if ($this->is_partial_payments_active() && $paid_fiat > 0) {
-            $context['paid_fiat'] = $paid_fiat;
-            $context['total'] = $order['expected_fiat'] + $context['paid_fiat'];
         }
 
         return $context;
