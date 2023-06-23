@@ -28,7 +28,7 @@ class Blockonomics
         return $this->calculate_total_paid_fiat($results);
     }
 
-   public function calculate_total_paid_fiat($transactions) {
+    public function calculate_total_paid_fiat($transactions) {
         $total_paid_fiats = 0.0;
     
         foreach ($transactions as $transaction) {
