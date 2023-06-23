@@ -33,7 +33,7 @@
                 <tr>
                     <th class="bnomics-header">
                         <!-- Order Header -->
-                        <div>
+                        <div class="bnomics-header-row">
                             <span class="bnomics-order-id">
                                 <?= __('Order #', 'blockonomics-bitcoin-payments') ?><?php echo $order_id; ?>
                             </span>
@@ -47,14 +47,14 @@
                         <?php
                             if (isset($paid_fiat)) {
                         ?>
-                            <div>
+                            <div class="bnomics-header-row">
                                 <span class="bnomics-order-id">Paid Amount :</span>
                                 <div>
                                     <?php echo $paid_fiat  ?> <?php echo $order['currency'] ?>
                                 </div>
                             </div>
 
-                            <div>
+                            <div class="bnomics-header-row">
                                 <span class="bnomics-order-id">Remaining Amount :</span>
                                 <div>
                                     <?php echo  $order['expected_fiat'] ?> <?php echo $order['currency'] ?>
