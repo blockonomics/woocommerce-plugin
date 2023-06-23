@@ -33,36 +33,36 @@
                 <tr>
                     <th class="bnomics-header">
                         <!-- Order Header -->
-                        <span class="bnomics-order-id">
-                            <?= __('Order #', 'blockonomics-bitcoin-payments') ?><?php echo $order_id; ?>
-                        </span>
+                        <div>
+                            <span class="bnomics-order-id">
+                                <?= __('Order #', 'blockonomics-bitcoin-payments') ?><?php echo $order_id; ?>
+                            </span>
 
-                        <div>
-                        <?php if (!isset($paid_fiat)) { ?><span class="blockonomics-icon-cart"></span> <?php } ?>
-                            <?php echo $total ?> <?php echo $order['currency'] ?>
+                            <div>
+                                <span class="blockonomics-icon-cart"></span>
+                                <?php echo $total ?> <?php echo $order['currency'] ?>
+                            </div>
                         </div>
+
+                        <?php
+                            if (isset($paid_fiat)) {
+                        ?>
+                            <div>
+                                <span class="bnomics-order-id">Paid Amount :</span>
+                                <div>
+                                    <?php echo $paid_fiat  ?> <?php echo $order['currency'] ?>
+                                </div>
+                            </div>
+
+                            <div>
+                                <span class="bnomics-order-id">Remaining Amount :</span>
+                                <div>
+                                    <?php echo  $order['expected_fiat'] ?> <?php echo $order['currency'] ?>
+                                </div>
+                            </div>
+                        <?php } ?>
                     </th>
                 </tr>
-                
-                <?php
-                    if (isset($paid_fiat)) {
-                ?>
-                <tr>
-                    <th class="bnomics-header">
-                        <span class="bnomics-order-id">Paid Amount :</span>
-                        <div>
-                            <?php echo $paid_fiat  ?> <?php echo $order['currency'] ?>
-                        </div>
-                    </th>
-                    <th class="bnomics-header">
-                        <span class="bnomics-order-id">Remaining Amount :</span>
-                        <div>
-                            <span class="blockonomics-icon-cart"></span> 
-                            <?php echo  $order['expected_fiat'] ?> <?php echo $order['currency'] ?>
-                        </div>
-                    </th>
-                </tr>
-                <?php } ?>
             </table>
             <table>
                 <tr>
