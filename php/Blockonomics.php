@@ -868,7 +868,9 @@ class Blockonomics
                 $wc_order->save;
             }
             else {
-                $wc_order->update_status('failed', __(get_woocommerce_currency()." ".sprintf('%0.2f', round($order['paid_fiat'], 2))." was paid via Blockonomics. Less than expected Order Amount.", 'blockonomics-bitcoin-payments'));
+                $note = wc_price($order['paid_fiat']). " paid via ".strtoupper($order['crypto'])." (Blockonomics).";
+                $wc_order->add_order_note(__( $note, 'blockonomics-bitcoin-payments' ));
+                $wc_order->update_status('failed', __( "Order Underpaid.", 'blockonomics-bitcoin-payments'));
             }
         }
         else{
@@ -922,8 +924,8 @@ class Blockonomics
     // Auto generate and apply coupon on underpaid callbacks
     public function add_note_on_underpayment($order, $wc_order){
         $paid_amount = $order['paid_fiat'];
-        $note = wc_price($paid_amount). " paid via ".$order['crypto']. " (Blockonomics). Customer has been mailed invoice to pay the remaining amount";
-        $wc_order->add_order_note(__( $note, 'blockonomics-bitcoin-payments' ));
+        $wc_order->add_order_note(__( wc_price($paid_amount). " paid via ".strtoupper($order['crypto'])." (Blockonomics).", 'blockonomics-bitcoin-payments' ));
+        $wc_order->add_order_note(__( "Customer has been mailed invoice to pay the remaining amount. You can resend invoice from Order actions.", 'blockonomics-bitcoin-payments' ));
     }
 
     // Send Invoice email to customer to pay remaining amount
