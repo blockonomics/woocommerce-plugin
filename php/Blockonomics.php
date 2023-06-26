@@ -868,13 +868,12 @@ class Blockonomics
                 $wc_order->save;
             }
             else {
-                $note = wc_price($order['paid_fiat']). " paid via ".strtoupper($order['crypto'])." (Blockonomics).";
-                $wc_order->add_order_note(__( $note, 'blockonomics-bitcoin-payments' ));
+                $wc_order->add_order_note(__(  wc_price($order['paid_fiat']). " paid via ".strtoupper($order['crypto'])." (Blockonomics).", 'blockonomics-bitcoin-payments' ));
                 $wc_order->update_status('failed', __( "Order Underpaid.", 'blockonomics-bitcoin-payments'));
             }
         }
         else{
-            $wc_order->add_order_note(__('Payment completed', 'blockonomics-bitcoin-payments'));
+            $wc_order->add_order_note(__(wc_price($order['paid_fiat']). " paid via ".strtoupper($order['crypto'])." (Blockonomics).", 'blockonomics-bitcoin-payments'));
             $wc_order->payment_complete($order['txid']);
         }
         if ($order['expected_satoshi'] < $paid_satoshi) {
