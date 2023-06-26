@@ -424,7 +424,7 @@ class Blockonomics
     }
 
     public function is_partial_payments_active(){
-        return get_option('blockonomics_partial_payments', false);
+        return get_option('blockonomics_partial_payments', true);
     }
 
     public function is_error_template($template_name) {
