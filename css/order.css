@@ -375,14 +375,21 @@ svg {
 }
 
 #blockonomics_checkout .bnomics-header {
-  display: flex;
-  justify-content: space-between;
+  display: flex;  
   align-items: center;
+  flex-direction: column;
 }
 
-.bnomics-header div {
+.bnomics-header-row {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.bnomics-header-row > div {
+  display: flex;
   align-items: center;
 }
 

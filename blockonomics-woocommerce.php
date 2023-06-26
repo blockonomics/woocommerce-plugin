@@ -59,9 +59,41 @@ function blockonomics_woocommerce_init()
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
     add_action('admin_enqueue_scripts', 'blockonomics_load_admin_scripts' );
     add_action('restrict_manage_posts', 'filter_orders' , 20 );
+    add_filter('woocommerce_get_checkout_payment_url','update_payment_url_on_underpayments',10,2);
     add_filter('request', 'filter_orders_by_address_or_txid' ); 
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_filter('clean_url', 'bnomics_async_scripts', 11, 1 );
+    
+    /**
+     * Redriect to the checkout page  
+     **/
+    function  update_payment_url_on_underpayments($pay_url, $order) {
+        $payment_method = $order->get_payment_method();
+        $is_blockonomics = ($payment_method === 'blockonomics');
+
+        if (!$is_blockonomics || !$order->needs_payment()) {
+            return $pay_url;
+        }
+
+        // Check the partial payments setting
+        $blockonomics = new Blockonomics();
+        $is_partial_payments_active = $blockonomics->is_partial_payments_active();
+
+        if (!$is_partial_payments_active) {
+            return $pay_url;
+        }
+
+        $order_id = $order->get_id();
+        $paid_fiat = $blockonomics->get_order_paid_fiat($order_id);
+
+        if (!$paid_fiat) {
+            return $pay_url;
+        }
+        
+        return esc_url($blockonomics->get_order_checkout_url($order_id));
+
+    }
+     
     /**
      * Add Styles to Blockonomics Admin Page
      **/

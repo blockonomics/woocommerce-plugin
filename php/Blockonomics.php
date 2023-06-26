@@ -18,10 +18,17 @@ class Blockonomics
     const BCH_PRICE_URL = 'https://bch.blockonomics.co/api/price';
     const BCH_SET_CALLBACK_URL = 'https://bch.blockonomics.co/api/update_callback';
     const BCH_GET_CALLBACKS_URL = 'https://bch.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
-  
-    
-    
-   public function calculate_total_paid_fiat($transactions) {
+
+
+    function get_order_paid_fiat($order_id) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'blockonomics_payments';
+        $query = $wpdb->prepare("SELECT expected_fiat,paid_fiat,currency FROM " . $table_name . " WHERE order_id = %d ", $order_id);
+        $results = $wpdb->get_results($query, ARRAY_A);
+        return $this->calculate_total_paid_fiat($results);
+    }
+
+    public function calculate_total_paid_fiat($transactions) {
         $total_paid_fiats = 0.0;
     
         foreach ($transactions as $transaction) {
@@ -645,6 +652,14 @@ class Blockonomics
                 $context['crypto_rate_str'] = $this->get_crypto_rate_from_params($order['expected_fiat'], $order['expected_satoshi']);
                 //Using svg library qrcode.php to generate QR Code in NoJS mode
                 $context['qrcode_svg_element'] = $this->generate_qrcode_svg_element($context['payment_uri']);
+
+                $context['total'] = $order['expected_fiat'];
+                $paid_fiat = $this->get_order_paid_fiat($order['order_id']);
+
+                if ($paid_fiat > 0) {
+                    $context['paid_fiat'] = $paid_fiat;
+                    $context['total'] = $order['expected_fiat'] + $context['paid_fiat'];
+                }
             }
         }
 
