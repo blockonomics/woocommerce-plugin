@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 3.6.3  =
+* Improved UX for multiples payments support 
+* Better order notes and payments information
+
 = 3.6.2  =
 * Trasnsaction details now shown in order confirmation screen
 * Bug fixes
