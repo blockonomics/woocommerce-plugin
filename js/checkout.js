@@ -35,7 +35,7 @@ class Blockonomics {
 
         this.reset_progress();
         this._spinner_wrapper.style.display = 'none';
-        this._order_panel.style.display = 'block';
+        this._order_panel.style.display = 'flex';
         this.generate_qr();
         this.connect_to_ws();
 
@@ -84,7 +84,6 @@ class Blockonomics {
         );
 
         this._refresh = this.container.querySelector('#bnomics-refresh');
-        this._show_qr = this.container.querySelector('#bnomics-show-qr');
         this._qr_code_container =
             this.container.querySelector('.bnomics-qr-code');
         this._qr_code = this.container.querySelector('#bnomics-qr-code');
@@ -109,12 +108,6 @@ class Blockonomics {
             this.copy_to_clipboard('bnomics-amount-input');
         });
 
-        // QR Handler
-        this._show_qr.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.toggle_qr();
-        });
-
         this._refresh.addEventListener('click', (e) => {
             e.preventDefault();
             this.refresh_order();
@@ -134,14 +127,6 @@ class Blockonomics {
         this.progress.clock += 1;
         this.tick();
         this.progress.interval = setInterval(() => this.tick(), 1000);
-    }
-
-    toggle_qr() {
-        if (getComputedStyle(this._qr_code_container).display == 'none') {
-            this._qr_code_container.style.display = 'block';
-        } else {
-            this._qr_code_container.style.display = 'none';
-        }
     }
 
     generate_qr() {

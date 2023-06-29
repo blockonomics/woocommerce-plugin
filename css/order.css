@@ -4,7 +4,7 @@
   display: flex;
 }
 
-.bnomics-order-info > div {
+.bnomics-order-info>div {
   padding-top: 5px;
   padding-bottom: 0;
 }
@@ -18,9 +18,22 @@
   text-align: center;
 }
 
+.bnomics-qr-code {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.bnomics-qr-block {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
 .bnomics-btc-info .bnomics-qr-code {
   flex: 1;
   padding-top: 1em;
+  padding-bottom: 1em;
 }
 
 .bnomics-btc-info .bnomics-amount {
@@ -31,13 +44,16 @@
   display: none;
 }
 
+.bnomics-order-address {
+  display: block;
+}
+
 .no-js .bnomics-qr-code {
   display: block;
 }
 
 .bnomics-qr-code-hint {
   text-align: center;
-  display: block;
 }
 
 .bnomics-order-number {
@@ -51,27 +67,28 @@
 
 .bnomics-qr {
   text-align: center !important;
-  padding: 10px 10px 5px 10px;
-  width:180px;
-  margin: 0 auto;
+  padding: 16px 8px;
+  width: 180px;
   text-align: left;
 }
 
-.bnomics-amount-input, .bnomics-address-input {
+.bnomics-amount-input,
+.bnomics-address-input {
   padding: 2px 4px;
   font-weight: 600;
   margin-top: 5px;
   margin-bottom: 10px;
   width: 100%;
-  border: 1px solid #DDD;
+  border: 1px solid #ddd;
   box-shadow: none;
   text-align: center;
-  padding:7px;
+  padding: 7px;
   cursor: pointer;
   margin-left: 0;
 }
 
-.bnomics-amount-input li, .bnomics-address-input li {
+.bnomics-amount-input li,
+.bnomics-address-input li {
   display: inline-block;
   list-style: none;
   margin-left: 5px;
@@ -79,16 +96,17 @@
 }
 
 .bnomics-grey {
-  color:grey;
+  color: grey;
 }
 
-.bnomics-address, .bnomics-amount{
+.bnomics-address,
+.bnomics-amount {
   margin-top: 10px;
 }
 
 .bnomics-display-error {
   animation: errorAnimation 0s 3s forwards;
-  height: 0; 
+  height: 0;
   width: 0;
   overflow: hidden;
   display: inline-block;
@@ -96,13 +114,18 @@
 }
 
 @keyframes errorAnimation {
-  to   { width:auto;height: auto; }
+  to {
+    width: auto;
+    height: auto;
+  }
 }
+
 /* Style for QR Code in NoJS mode */
 svg {
   width: 160px;
   margin: auto;
 }
+
 /* Mobile */
 @media screen and (max-width: 800px) {
   .bnomics-btc-info {
@@ -121,13 +144,14 @@ svg {
 /* ----- Select Crypto Styles ------*/
 @font-face {
   font-family: 'cryptos';
-  src:  url('../fonts/cryptos.woff') format('woff');
+  src: url('../fonts/cryptos.woff') format('woff');
   font-weight: normal;
   font-style: normal;
   font-display: block;
 }
 
-[class^="bnomics-icon-"], [class*=" bnomics-icon-"] {
+[class^='bnomics-icon-'],
+[class*=' bnomics-icon-'] {
   font-family: 'cryptos' !important;
   speak: never;
   font-style: normal;
@@ -145,15 +169,16 @@ svg {
 }
 
 .bnomics-icon-bch:before {
-  content: "\e900";
+  content: '\e900';
 }
+
 .bnomics-icon-btc:before {
-  content: "\e901";
+  content: '\e901';
 }
 
 .bnomics-select-options {
-  cursor:pointer;
-  width:100%;
+  cursor: pointer;
+  width: 100%;
   display: block;
   height: 4.2em;
   margin-bottom: 10px !important;
@@ -168,21 +193,21 @@ svg {
 }
 
 .bnomics-select-container {
-/*padding-top is the space above crypto options on the select crypto page*/
+  /*padding-top is the space above crypto options on the select crypto page*/
   padding-top: 10vh;
-  text-align:center;
-  max-width:400px;
-  margin:auto;
+  text-align: center;
+  max-width: 400px;
+  margin: auto;
 }
 
-.bnomics-select-container table{
+.bnomics-select-container table {
   border-collapse: separate;
   border-spacing: 10px 0px;
   border: none;
 }
 
 .vertical-line {
-  border-left: 2px solid ;
+  border-left: 2px solid;
   height: 2em;
   display: flex;
   padding-left: 5%;
@@ -202,7 +227,7 @@ svg {
   display: inline-block;
   width: 70px;
   height: 70px;
-  border: 3px solid rgba(255,255,255,.3);
+  border: 3px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
   border-top-color: #000;
   animation: spin 1s ease-in-out infinite;
@@ -210,17 +235,35 @@ svg {
 }
 
 @keyframes spin {
-  to { -webkit-transform: rotate(360deg); }
+  to {
+    -webkit-transform: rotate(360deg);
+  }
 }
+
 @-webkit-keyframes spin {
-  to { -webkit-transform: rotate(360deg); }
+  to {
+    -webkit-transform: rotate(360deg);
+  }
 }
+
 @keyframes errorAnimationSync {
-  to { height: 0; width: 0; overflow: hidden; padding: 0; }
+  to {
+    height: 0;
+    width: 0;
+    overflow: hidden;
+    padding: 0;
+  }
 }
+
 @-webkit-keyframes errorAnimationSync {
-  to { height: 0; width: 0; overflow: hidden; padding: 0; }
+  to {
+    height: 0;
+    width: 0;
+    overflow: hidden;
+    padding: 0;
+  }
 }
+
 /** Hide Panels by Default **/
 
 #blockonomics_checkout:not(.no-js) .bnomics-order-container .bnomics-order-panel,
@@ -239,7 +282,8 @@ svg {
   font-display: block;
 }
 
-[class^="blockonomics-icon-"], [class*=" blockonomics-icon-"] {
+[class^='blockonomics-icon-'],
+[class*=' blockonomics-icon-'] {
   /* use !important to prevent issues with browser extensions that change fonts */
   font-family: 'blockonomics-icons' !important;
   speak: never;
@@ -254,10 +298,11 @@ svg {
 
   margin-left: 2px;
   margin-right: 2px;
-  font-size: 1.5em;
+  font-size: 1.2em;
 }
 
-[class^="blockonomics-icon-"].spin::before, [class*=" blockonomics-icon-"].spin::before {
+[class^='blockonomics-icon-'].spin::before,
+[class*=' blockonomics-icon-'].spin::before {
   display: inline-block;
   animation-name: rotate;
   animation-duration: 2s;
@@ -269,25 +314,26 @@ svg {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
 }
 
 .blockonomics-icon-cart::before {
-  content: "\e900";
+  content: '\e900';
 }
 
 .blockonomics-icon-qr::before {
-  content: "\e901";
+  content: '\e901';
 }
 
 .blockonomics-icon-copy::before {
-  content: "\e902";
+  content: '\e902';
 }
 
 .blockonomics-icon-refresh::before {
-  content: "\e903";
+  content: '\e903';
 }
 
 .blockonomics-icon-copy,
@@ -298,13 +344,10 @@ svg {
 
 /* - Blockonomics Font Icons Ends -- */
 
-#bnomics-amount-copy, #bnomics-address-copy {
+#bnomics-amount-copy,
+#bnomics-address-copy {
   padding-left: 5px;
   padding-right: 5px;
-}
-
-#bnomics-show-qr, #bnomics-refresh {
-  padding-left: 5px;
 }
 
 #blockonomics_checkout,
@@ -317,7 +360,7 @@ svg {
 #blockonomics_checkout h5,
 #blockonomics_checkout table {
   width: 100%;
-  max-width: 400px;
+  max-width: 500px;
 }
 
 #blockonomics_checkout h5 {
@@ -325,24 +368,22 @@ svg {
 }
 
 #blockonomics_checkout table {
-  margin-top: 1em;
-  margin-bottom: 1em;
   border-collapse: separate;
-  border-spacing: 0 0.5em;
+  border: initial;
+  border-spacing: 0 1rem;
 }
 
 #bnomics-refresh {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-left: auto;
-  margin-right: auto;
+  padding-left: 5px;
 }
 
 .bnomics-copy-container {
-  display:flex;
+  display: flex;
   align-items: center;
   position: relative;
+  justify-content: space-between;
+  padding-bottom: 30px;
+  width: 100%;
 }
 
 .bnomics-copy-container input {
@@ -377,7 +418,8 @@ svg {
 #blockonomics_checkout .bnomics-header {
   display: flex;  
   align-items: center;
-  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 4px;
 }
 
 .bnomics-header-row {
@@ -397,4 +439,184 @@ svg {
   display: block;
   text-align: center;
   transition: 300ms all ease-in-out;
+}
+
+#bnomics-address-input,
+#bnomics-amount-input {
+  border: 1px solid #000;
+  padding: 5px;
+  border-radius: 4px;
+  max-width: 190%;
+}
+
+.bnomics-order-address {
+  align-items: center;
+  max-width: 580px;
+  margin-left: 8px;
+  margin-right: 8px;
+  text-align: left;
+}
+
+.bnomics-or-divider {
+  position: relative;
+  text-align: center;
+  vertical-align: middle;
+  font-size: var(--global--font-size-xs);
+  font-weight: 700;
+
+}
+
+.bnomics-or-divider::before,
+.bnomics-or-divider::after {
+  content: '';
+  display: block;
+  width: 1px;
+  background: #000;
+  height: 36%;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.bnomics-or-divider::before {
+  top: 16px;
+}
+
+.bnomics-or-divider::after {
+  bottom: 16px;
+}
+
+.bnomics-amount-text {
+  padding-top: 20%;
+}
+
+.bnomics-order-panel {
+  display: flex;
+  align-items: center;
+  
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.bnomics-header-container,
+.bnomics-footer-container {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 480px;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  border-collapse: separate;
+  font-size: 20px;
+  border-collapse: separate;
+  border-spacing: 10px 0px;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+.bnomics-footer {
+  display: flex;
+  align-items: center;
+  position: relative;
+  justify-content: space-between;
+  padding-bottom: 2px;
+  max-width: 160%;
+}
+
+.blockonomics_checkout_table {
+  margin: 0;
+}
+
+.blockonomics_checkout_table td {
+  border: 0;
+}
+
+#blockonomics_checkout .blockonomics_checkout_table {
+  border-spacing: initial;
+}
+
+.bnomics-checkout-row td {
+  border-radius: 4px;
+  padding: 0;
+}
+
+.bnomics-order-address label,
+.bnomics-qr a {
+  font-size: var(--global--font-size-xs);
+}
+
+.bnomics-footer-divider {
+  display: none;
+}
+
+
+
+@media screen and (max-width: 600px) {
+ 
+  #blockonomics_checkout table {
+    max-width: auto;
+    border: initial;
+  }
+
+  .blockonomics_checkout_table td {
+    display: block;
+  }
+
+  .bnomics-qr-block {
+    justify-content: center;
+  }
+
+  .bnomics-checkout-row td {
+    border: 0;
+  }
+
+  .blockonomics_checkout_table td {
+    border: 1px solid;
+  }
+
+  td.bnomics-or-divider {
+    border: 0;
+    line-height: 42px;
+  }
+
+  .bnomics-or-divider::before,
+  .bnomics-or-divider::after {
+    height: 1px;
+    width: 44%;
+    top: 50%;
+    left: auto;
+    transform: translateY(-50%);
+  }
+
+  .bnomics-or-divider::before {
+    left: 0;
+  }
+
+  .bnomics-or-divider::after {
+    right: 0;
+  }
+
+  .bnomics-address,
+  .bnomics-amount {
+    margin-top: 8px;
+  }
+
+  .bnomics-address-text,
+  .bnomics-amount-text {
+    text-align: left;
+  }
+
+  .bnomics-copy-container {
+    padding-bottom: 8px;
+  }
+
+  .bnomics-footer-divider {
+    display: table-row;
+  }
+
+  .bnomics-footer-divider td {
+    border: 0;
+    padding: 0;
+  }
+
 }
