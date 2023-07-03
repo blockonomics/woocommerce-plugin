@@ -369,7 +369,7 @@ svg {
 #blockonomics_checkout table {
   border-collapse: separate;
   border: initial;
-  border-spacing: 0 1rem;
+  border-spacing: 0 0.5rem;
 }
 
 #bnomics-refresh {
@@ -490,6 +490,7 @@ svg {
 
 .bnomics-order-panel {
   display: flex;
+  flex-direction: column;
   align-items: center;
   
   padding-left: 1rem;
@@ -546,6 +547,10 @@ svg {
 
 .bnomics-footer-divider {
   display: none;
+}
+
+table.blockonomics_checkout_table tbody td {
+  background-color: transparent !important;
 }
 
 
