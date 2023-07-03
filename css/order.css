@@ -370,6 +370,7 @@ svg {
   border-collapse: separate;
   border: initial;
   border-spacing: 0 1rem;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 
 #bnomics-refresh {
@@ -381,7 +382,7 @@ svg {
   align-items: center;
   position: relative;
   justify-content: space-between;
-  padding-bottom: 30px;
+  
   width: 100%;
 }
 
@@ -445,6 +446,8 @@ svg {
   padding: 5px;
   border-radius: 4px;
   max-width: 190%;
+  color: currentColor;
+  margin: 0;
 }
 
 .bnomics-order-address {
@@ -469,7 +472,7 @@ svg {
   content: '';
   display: block;
   width: 1px;
-  background: #000;
+  background: currentColor;
   height: 36%;
   position: absolute;
   left: 50%;
@@ -484,9 +487,7 @@ svg {
   bottom: 16px;
 }
 
-.bnomics-amount-text {
-  padding-top: 20%;
-}
+
 
 .bnomics-order-panel {
   display: flex;
@@ -536,6 +537,7 @@ svg {
 .bnomics-checkout-row td {
   border-radius: 4px;
   padding: 0;
+ vertical-align: middle; 
 }
 
 .bnomics-order-address label,
@@ -558,6 +560,7 @@ svg {
 
   .blockonomics_checkout_table td {
     display: block;
+    
   }
 
   .bnomics-qr-block {
