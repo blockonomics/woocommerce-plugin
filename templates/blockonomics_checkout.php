@@ -36,7 +36,7 @@
                 <tr>
                     <td class="bnomics-header-container">
                         <!-- Order Header -->
-                        <div class="bnomics-header" id="bnomics-amount-copy-container">
+                        <div class="bnomics-header">
                             <span class="bnomics-order-id">
                                 <?= __('Order #', 'blockonomics-bitcoin-payments') ?><?php echo $order_id; ?>
                             </span>
@@ -115,16 +115,19 @@
 
             <table>
                 <tr>
-                    <td class="bnomics-footer-container">
-                        <div class="bnomics-footer" id="bnomics-amount-copy-container">
-                            <small class="bnomics-crypto-price-timer">
-                                1 <?= strtoupper($crypto['code']) ?> = <span id="bnomics-crypto-rate"><?= $crypto_rate_str ?></span> <?= $order['currency'] ?>, <?= __('updates in', 'blockonomics-bitcoin-payments') ?> <span class="bnomics-time-left">00:00 min</span>
-                            </small>
-                            <span id="bnomics-refresh" class="blockonomics-icon-refresh"></span>
+                    <th class="bnomics-footer-container">
+                        <div class="bnomics-footer">
+                            <div class="bnomics-copy-container" id="bnomics-amount-copy-container">
+                                <small class="bnomics-crypto-price-timer">
+                                    1 <?php echo strtoupper($crypto['code']); ?> = <span id="bnomics-crypto-rate"><?php echo $crypto_rate_str; ?></span> <?php echo $order['currency']; ?>, <?= __('updates in', 'blockonomics-bitcoin-payments') ?> <span class="bnomics-time-left">00:00 min</span>
+                                </small>
+                                <span id="bnomics-refresh" class="blockonomics-icon-refresh"></span>
+                            </div>
                         </div>
-                    </td>
+                    </th>
                 </tr>
             </table>
+
         </div>
     </div>
 </div>
