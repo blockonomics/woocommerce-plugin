@@ -370,7 +370,6 @@ svg {
   border-collapse: separate;
   border: initial;
   border-spacing: 0 1rem;
-  -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 
 #bnomics-refresh {
