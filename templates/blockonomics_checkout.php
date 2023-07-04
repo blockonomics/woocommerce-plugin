@@ -68,7 +68,7 @@
                 </tr>
             </table>
 
-            <table>
+            <table class="blockonomics_checkout_table_outer">
                 <tr class="bnomics-checkout-row">
                     <td style="padding:0px">
                         <table class="blockonomics_checkout_table">

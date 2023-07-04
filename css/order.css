@@ -453,9 +453,7 @@ svg {
   margin: 0;
 }
 
-.blockonomics_checkout_table > tbody > tr > td {
-  border: 0;
-}
+
 
 #blockonomics_checkout .blockonomics_checkout_table {
   border-spacing: initial;
@@ -534,6 +532,10 @@ table.blockonomics_checkout_table tbody td {
     padding-bottom: 8px;
   }
 
+  .bnomics-footer-container .bnomics-copy-container {
+    padding-bottom: 0;
+  }
+
   .bnomics-footer-divider {
     display: table-row;
   }
@@ -543,4 +545,14 @@ table.blockonomics_checkout_table tbody td {
     padding: 0;
   }
 
+  .blockonomics_checkout_table_outer > tbody > tr > td {
+    border: 0;
+  }
+
+}
+
+@media screen and (min-width: 600px) {
+  .blockonomics_checkout_table > tbody > tr > td {
+    border: 0;
+  }
 }
