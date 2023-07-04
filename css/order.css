@@ -344,7 +344,6 @@ svg {
   display: flex;  
   align-items: center;
   justify-content: space-between;
-  border-radius: 4px;
 }
 
 .bnomics-header-row {
@@ -369,7 +368,6 @@ svg {
 #bnomics-address-input,
 #bnomics-amount-input {
   padding: 5px;
-  border-radius: 4px;
   max-width: 190%;
   color: currentColor;
   margin: 0;
@@ -437,7 +435,6 @@ svg {
   border-collapse: separate;
   border-spacing: 10px 0px;
   padding: 5px 10px;
-  border-radius: 4px;
 }
 
 .bnomics-footer {
@@ -460,7 +457,6 @@ svg {
 }
 
 .bnomics-checkout-row td {
-  border-radius: 4px;
   padding: 0;
  vertical-align: middle; 
 }
