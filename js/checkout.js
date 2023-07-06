@@ -41,6 +41,47 @@ class Blockonomics {
 
         // Hide Display Error
         this._display_error_wrapper.style.display = 'none';
+
+        this.processElements()
+    }
+
+    processElements = function() {
+        // Process all elements with the data-copy attribute
+        const elems = document.querySelectorAll("[data-copy]");
+        for (var i = elems.length - 1; i >= 0; i--) {
+          this.processElement(elems[i])
+        }
+    }
+
+    processElement = function(elem) {
+        // Check if already processed
+        // Checks if value exists to avoid processing elements before ng-value has set the value
+        if(elem.classList.contains("copied-value")|| (!elem.value && !elem.innerHTML)){
+          return
+        }
+        elem.classList.add("copied-value");
+    
+        // Wrap the element in the 1st div
+        const containerInner = document.createElement("div");
+        containerInner.classList.add("output-copy");
+        this.wrapElement(elem, containerInner);
+    
+        // Create the Copied overlay
+        const copied = document.createElement("span");
+        copied.classList.add("copied-overlay");
+        copied.innerHTML =
+          'Copied';
+        containerInner.appendChild(copied);
+    
+        // Wrap the element in the 2nd div
+        const containerOuter = document.createElement("div");
+        containerOuter.classList.add("output-copy-container");
+        this.wrapElement(containerInner, containerOuter);
+    }
+
+    wrapElement = function(el, wrapper) {
+        el.parentNode.insertBefore(wrapper, el);
+        wrapper.appendChild(el);
     }
 
     create_bindings() {
@@ -209,6 +250,69 @@ class Blockonomics {
         selection.addRange(div);
     }
 
+    processOverlay(divid) {
+        var parent = document.getElementById(divid).parentElement;
+        var copy_input = parent.querySelector(".output-copy");
+        var copy_value = parent.querySelector("input")
+
+        // Check if the overlay is already displayed
+        if(copy_value.style.display == 'none') {
+            return
+        }
+
+        var copied_overlay = this.createCopiedOverlay(copy_value, parent);
+        // Show copied overlay
+        this.showOverlay(copied_overlay, copy_value);
+        self = this;
+        setTimeout(function () {
+            // Hide copied overlay
+            self.hideOverlay(copied_overlay, copy_value);
+        }, 2000);
+    }
+
+    createCopiedOverlay = function(copy_value, copy_element) {
+        // Fetch existing css styles of the element
+        const boxStyles = window.getComputedStyle(copy_value);
+        var copied_overlay = copy_element.querySelector(".copied-overlay");
+        // Assign existing css styles to overlay
+        copied_overlay.style.cssText = this.addExistingStyles(boxStyles);
+        // Apply blockonomics css to the overlay
+        copied_overlay = this.addOverlayStyles(copied_overlay, boxStyles, copy_value);
+        return copied_overlay;
+    }
+
+    showOverlay = function(copied_overlay, copy_value) {
+        copied_overlay.style.display = "inline-block";
+        copy_value.style.display = "none";
+    }
+
+    hideOverlay = function(copied_overlay, copy_value) {
+        copied_overlay.style.display = "none";
+        copy_value.style.display = "inline-block";
+    }
+
+    addExistingStyles = function(boxStyles) {
+        let cssText = boxStyles.cssText;
+        if (!cssText) {
+          cssText = Array.from(boxStyles).reduce((str, property) => {
+            return `${str}${property}:${boxStyles.getPropertyValue(property)};`;
+          }, "");
+        }
+        return cssText;
+    }
+
+    addOverlayStyles = function(copied_overlay, boxStyles, copy_value) {
+        copied_overlay.style.width =
+          boxStyles.width != "auto"
+            ? boxStyles.width
+            : copy_value.getBoundingClientRect().width + "px";
+        copied_overlay.style.height = boxStyles.height;
+        copied_overlay.style.lineHeight = boxStyles.height;
+        copied_overlay.style.textAlign = "center";
+        copied_overlay.style.resize = "none";
+        return copied_overlay;
+    }
+
     copy_to_clipboard(divid) {
         var textarea = document.createElement('textarea');
         textarea.id = 'temp_element';
@@ -223,25 +327,7 @@ class Blockonomics {
 
         this.select_text(divid);
 
-        let $this = this;
-        if (divid == 'bnomics-address-input') {
-            this._address_text.style.display = 'none';
-            this._copy_address_text.style.display = 'block';
-            setTimeout(function () {
-                $this._address_text.style.display = 'block';
-                $this._copy_address_text.style.display = 'none';
-                //Close copy to clipboard message after 2 sec
-            }, 2000);
-        } else {
-            this._amount_text.style.display = 'none';
-            this._copy_amount_text.style.display = 'block';
-
-            setTimeout(function () {
-                $this._amount_text.style.display = 'block';
-                $this._copy_amount_text.style.display = 'none';
-                //Close copy to clipboard message after 2 sec
-            }, 2000);
-        }
+        this.processOverlay(divid);
     }
 
     redirect_to_finish_order() {

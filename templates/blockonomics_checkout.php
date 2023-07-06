@@ -97,7 +97,7 @@
                         <label class="bnomics-copy-amount-text"><?= __('Copied to clipboard', 'blockonomics-bitcoin-payments') ?></label>
 
                         <div class="bnomics-copy-container" id="bnomics-amount-copy-container">
-                            <input type="text" value="<?php echo $order_amount; ?>" id="bnomics-amount-input" readonly />
+                            <input type="text" value="<?php echo $order_amount; ?>" id="bnomics-amount-input" readonly data-copy />
                             <span id="bnomics-amount-copy" class="blockonomics-icon-copy"></span>
                             <span id="bnomics-refresh" class="blockonomics-icon-refresh"></span>
                         </div>

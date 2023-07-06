@@ -347,6 +347,7 @@ svg {
 
 .bnomics-copy-container input {
   flex-grow: 1;
+  width: 100%;
 }
 
 .bnomics-copy-container-animation-rectangle {
@@ -397,4 +398,41 @@ svg {
   display: block;
   text-align: center;
   transition: 300ms all ease-in-out;
+}
+
+
+.output-copy-container{
+  height: 100%;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.output-copy-container .output-copy {
+  max-width: 100% !important;
+  width: 100% !important;
+  word-break: break-all;
+}
+.output-copy-container .value {
+  display: inline-block;
+}
+.output-copy-container .copied-overlay {
+  width: 100%;
+  text-align: center;
+  display: none;
+  padding: 0 !important;
+}
+.output-copy-container .blockonomics-icon {
+  transition: transform .4s;
+  height: 21px;
+  vertical-align: text-bottom;
+  padding-left: 5px;
+}
+.output-copy .blockonomics-icon{
+  padding-left: 0px;
+}
+.output-copy-container .blockonomics-icon:hover {
+  -ms-transform: scale(1.2);
+  -webkit-transform: scale(1.2);
+  transform: scale(1.2);
+  cursor: pointer;
 }
