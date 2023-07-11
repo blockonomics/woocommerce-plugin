@@ -368,14 +368,12 @@ svg {
 #bnomics-address-input,
 #bnomics-amount-input {
   padding: 5px;
-  max-width: 190%;
   color: currentColor;
   margin: 0;
 }
 
 .bnomics-order-address {
   align-items: center;
-  max-width: 580px;
   margin-left: 8px;
   margin-right: 8px;
   text-align: left;
@@ -422,20 +420,7 @@ svg {
   padding-right: 1rem;
 }
 
-.bnomics-header-container,
-.bnomics-footer-container {
-  margin-left: auto;
-  margin-right: auto;
-  width: 100%;
-  max-width: 480px;
-  margin-top: 0.5em;
-  margin-bottom: 0.5em;
-  border-collapse: separate;
-  font-size: 20px;
-  border-collapse: separate;
-  border-spacing: 10px 0px;
-  padding: 5px 10px;
-}
+
 
 .bnomics-footer {
   display: flex;
@@ -451,14 +436,13 @@ svg {
 }
 
 
-
 #blockonomics_checkout .blockonomics_checkout_table {
   border-spacing: initial;
 }
 
 .bnomics-checkout-row td {
   padding: 0;
- vertical-align: middle; 
+  vertical-align: middle; 
 }
 
 .bnomics-order-address label,
@@ -547,7 +531,7 @@ table.blockonomics_checkout_table tbody td {
 
 }
 
-@media screen and (min-width: 600px) {
+@media screen and (min-width: 601px) {
   .blockonomics_checkout_table > tbody > tr > td {
     border: 0;
   }

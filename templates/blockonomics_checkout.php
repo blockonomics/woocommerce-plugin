@@ -70,7 +70,7 @@
 
             <table class="blockonomics_checkout_table_outer">
                 <tr class="bnomics-checkout-row">
-                    <td style="padding:0px">
+                    <td>
                         <table class="blockonomics_checkout_table">
                             <tr>
                                 <td>
@@ -115,7 +115,7 @@
 
             <table>
                 <tr>
-                    <th class="bnomics-footer-container">
+                    <td class="bnomics-footer-container">
                         <div class="bnomics-footer">
                             <div class="bnomics-copy-container" id="bnomics-amount-copy-container">
                                 <small class="bnomics-crypto-price-timer">
@@ -124,7 +124,7 @@
                                 <span id="bnomics-refresh" class="blockonomics-icon-refresh"></span>
                             </div>
                         </div>
-                    </th>
+                    </td>
                 </tr>
             </table>
 
