@@ -289,7 +289,7 @@ class Blockonomics {
     }
 
     _animate_price_update() {
-        let parent_container = this._crypto_rate.closest('th');
+        let parent_container = this._crypto_rate.closest('td');
         let container = this._crypto_rate.closest(
             '.bnomics-crypto-price-timer'
         );

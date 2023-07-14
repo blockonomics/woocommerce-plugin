@@ -363,6 +363,7 @@ svg {
   display: block;
   text-align: center;
   transition: 300ms all ease-in-out;
+  width: 100%;
 }
 
 #bnomics-address-input,
