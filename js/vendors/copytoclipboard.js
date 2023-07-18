@@ -12,20 +12,16 @@ class CopyToClipboard {
     // Allow copying of code snippets such as js script tags
     var copy_html = this.decodeHtml(copy_value);
 
-    if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(copy_html);
-    } else {
-      var textarea = document.createElement('textarea');
-      textarea.id = 'temp_element';
-      textarea.style.height = 0;
-      document.body.appendChild(textarea);
-      textarea.value = copy_html;
+    var textarea = document.createElement('textarea');
+    textarea.id = 'temp_element';
+    textarea.style.height = 0;
+    document.body.appendChild(textarea);
+    textarea.value = copy_html;
 
-      var selector = document.querySelector('#temp_element');
-      selector.select();
-      document.execCommand('copy');
-      document.body.removeChild(textarea);
-    }
+    var selector = document.querySelector('#temp_element');
+    selector.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
 
     this.processOverlay(copy_element);
   };
@@ -39,29 +35,26 @@ class CopyToClipboard {
     if (copy_value.style.display == 'none') {
       return;
     }
-    var copied_overlay = this.createCopiedOverlay(copy_value, copy_element);
+    const copied_overlay = this.createCopiedOverlay(copy_value, copy_element);
     // Show copied overlay
-    this.showOverlay(copied_overlay, copy_value);
+    this.showOverlay(copied_overlay);
     self = this;
     setTimeout(function () {
       // Hide copied overlay
-      self.hideOverlay(copied_overlay, copy_value);
-    }, 3000);
+      self.hideOverlay(copied_overlay);
+    }, 2000);
   };
 
   createCopiedOverlay = function (copy_value, copy_element) {
     // Fetch existing css styles of the element
     const boxStyles = window.getComputedStyle(copy_value);
     var copied_overlay = copy_element.querySelector('.copied-overlay');
-    // Assign existing css styles to overlay
-    copied_overlay.style.cssText = this.addExistingStyles(boxStyles);
     // Apply blockonomics css to the overlay
-    copied_overlay = this.addOverlayStyles(
+    return this.addOverlayStyles(
       copied_overlay,
       boxStyles,
       copy_value
     );
-    return copied_overlay;
   };
 
   addExistingStyles = function (boxStyles) {
@@ -75,26 +68,41 @@ class CopyToClipboard {
   };
 
   addOverlayStyles = function (copied_overlay, boxStyles, copy_value) {
+    let target_position = copy_value.getBoundingClientRect();
+    
+    let border = {
+      left: parseFloat(boxStyles.borderLeftWidth.replace('px', '')),
+      right: parseFloat(boxStyles.borderRightWidth.replace('px', '')),
+      top: parseFloat(boxStyles.borderTopWidth.replace('px', '')),
+      bottom: parseFloat(boxStyles.borderBottomWidth.replace('px', '')),
+    };
+
+    copied_overlay.style.backgroundColor = window.getComputedStyle(
+      document.body
+    ).backgroundColor;
+
     copied_overlay.style.width =
-      boxStyles.width != 'auto'
-        ? boxStyles.width
-        : copy_value.getBoundingClientRect().width + 'px';
-    copied_overlay.style.height = boxStyles.height;
-    copied_overlay.style.lineHeight = boxStyles.height;
-    copied_overlay.style.textAlign = 'center';
-    copied_overlay.style.resize = 'none';
+      target_position.width - border.left - border.right + 'px';
+    copied_overlay.style.height =
+      target_position.height - border.top - border.bottom + 'px';
+    copied_overlay.style.left = border.left + 'px';
+    copied_overlay.style.top = border.top + 'px';
+
+    copied_overlay.style.borderTopLeftRadius = boxStyles.borderTopLeftRadius;
+    copied_overlay.style.borderTopRightRadius = boxStyles.borderTopLeRightdius;
+    copied_overlay.style.borderBottomLeftRadius = boxStyles.borderBottomLeftRadius;
+    copied_overlay.style.borderBottomRightRadius = boxStyles.borderBottomRightRadius;
+
     copied_overlay.querySelector('img').style.height = '17px';
     return copied_overlay;
+  }; 
+
+  showOverlay =  async function (copied_overlay) {
+    copied_overlay.style.display = "flex";
   };
 
-  showOverlay = function (copied_overlay, copy_value) {
-    copied_overlay.style.display = 'inline-block';
-    copy_value.style.display = 'none';
-  };
-
-  hideOverlay = function (copied_overlay, copy_value) {
-    copied_overlay.style.display = 'none';
-    copy_value.style.display = 'inline-block';
+  hideOverlay = function (copied_overlay) {
+    copied_overlay.style.display = "none";
   };
 
   decodeHtml = function (html) {
@@ -118,7 +126,9 @@ class CopyToClipboard {
     }
     elem.classList.add('copied-value');
     // Check the color to use for icons
-    const iconColor = window.getComputedStyle(elem.parentElement).getPropertyValue('color');
+    const iconColor = window
+      .getComputedStyle(elem.parentElement)
+      .getPropertyValue('color');
 
     // Wrap the element in the 1st div
     const containerInner = document.createElement('div');
@@ -200,19 +210,29 @@ class CopyToClipboard {
     height: 100%;
     display: flex;
     align-items: center;
+    width: 100%;
   }
   .output-copy-container .output-copy {
     max-width: -webkit-calc(100% - 30px) !important;
     max-width:    -moz-calc(100% - 30px) !important;
     max-width:         calc(100% - 30px) !important;
     word-break: break-all;
-  }
-  .output-copy-container .value {
-    display: inline-block;
+    max-width: 100%;
+    width: 100%;
+    position: relative;
+    display: flex;
   }
   .output-copy-container .copied-overlay {
+    padding: 0;
     width: 100%;
+    height: 0%;
     text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    overflow: hidden;
     display: none;
   }
   .output-copy-container .blockonomics-icon {
@@ -249,7 +269,7 @@ class CopyToClipboard {
   
   // Fix for angularjs and other dynamically loaded pages/popups etc.
   // Watches for any DOM changes which include the data-copy attribute
-  const observer = new MutationObserver((mutations, observer) => {
+  const blockonomicsObserver = new MutationObserver((mutations) => {
     mutations.forEach(element => {
       var found_elem = element.target.querySelector('[data-copy]')
       if(found_elem){
@@ -257,7 +277,7 @@ class CopyToClipboard {
       }
     })
   });
-  observer.observe(document, {
+  blockonomicsObserver.observe(document, {
     subtree: true,
     attributes: true
   });

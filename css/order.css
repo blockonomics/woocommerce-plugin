@@ -314,6 +314,7 @@ svg {
 .bnomics-copy-container input {
   flex-grow: 1;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .bnomics-copy-container-animation-rectangle {
@@ -537,18 +538,4 @@ table.blockonomics_checkout_table tbody td {
   .blockonomics_checkout_table > tbody > tr > td {
     border: 0;
   }
-}
-
-.output-copy-container{
-  width: 100%;
-}
-.output-copy-container .output-copy {
-  max-width: 100% !important;
-  width: 100% !important;
-}
-.output-copy-container .value {
-  display: inline-block;
-}
-.output-copy-container .copied-overlay {
-  padding: 0 !important;
 }
