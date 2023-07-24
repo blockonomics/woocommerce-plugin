@@ -94,16 +94,13 @@
                                             <label class="bnomics-copy-address-text"><?= __('Copied to clipboard', 'blockonomics-bitcoin-payments') ?></label>
                                         </div>
                                         <div class="bnomics-copy-container">
-                                            <input type="text" value="<?php echo $order['address']; ?>" id="bnomics-address-input" readonly />
-                                            <span id="bnomics-address-copy" class="blockonomics-icon-copy"></span>
-
+                                            <input type="text" value="<?php echo $order['address']; ?>" id="bnomics-address-input" readonly data-copy />
                                         </div>
                                         <label class="bnomics-amount-text"><?= __('Amount of', 'blockonomics-bitcoin-payments') ?> <?php echo strtolower($crypto['name']); ?> (<?php echo strtoupper($crypto['code']); ?>) <?= __('to send:', 'blockonomics-bitcoin-payments') ?></label>
                                         <label class="bnomics-copy-amount-text"><?= __('Copied to clipboard', 'blockonomics-bitcoin-payments') ?></label>
 
                                         <div class="bnomics-copy-container" id="bnomics-amount-copy-container">
-                                            <input type="text" value="<?php echo $order_amount; ?>" id="bnomics-amount-input" readonly />
-                                            <span id="bnomics-amount-copy" class="blockonomics-icon-copy"></span>
+                                            <input type="text" value="<?php echo $order_amount; ?>" id="bnomics-amount-input" readonly data-copy />
                                         </div>
                                     </div>
                                 </td>
