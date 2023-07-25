@@ -1,4 +1,5 @@
 <?php
+
 /** 
  * Blockonomics Checkout Page (JS Enabled)
  * 
@@ -29,11 +30,13 @@
 
         <!-- Blockonomics Checkout Panel -->
         <div class="bnomics-order-panel">
+
+
             <table>
                 <tr>
-                    <th class="bnomics-header">
+                    <td class="bnomics-header-container">
                         <!-- Order Header -->
-                        <div class="bnomics-header-row">
+                        <div class="bnomics-header">
                             <span class="bnomics-order-id">
                                 <?= __('Order #', 'blockonomics-bitcoin-payments') ?><?php echo $order_id; ?>
                             </span>
@@ -45,7 +48,7 @@
                         </div>
 
                         <?php
-                            if (isset($paid_fiat)) {
+                        if (isset($paid_fiat)) {
                         ?>
                             <div class="bnomics-header-row">
                                 <span class="bnomics-order-id">Paid Amount :</span>
@@ -61,54 +64,70 @@
                                 </div>
                             </div>
                         <?php } ?>
-                    </th>
+                    </td>
                 </tr>
             </table>
+
+            <table class="blockonomics_checkout_table_outer">
+                <tr class="bnomics-checkout-row">
+                    <td>
+                        <table class="blockonomics_checkout_table">
+                            <tr>
+                                <td>
+                                    <div class="bnomics-qr-block">
+                                        <div class="bnomics-qr">
+                                            <a href="<?php echo $payment_uri; ?>" target="_blank" class="bnomics-qr-link">
+                                                <canvas id="bnomics-qr-code"></canvas>
+                                            </a>
+                                            <a href="<?php echo $payment_uri; ?>" target="_blank" class="bnomics-qr-link"><?= __('Open in wallet', 'blockonomics-bitcoin-payments') ?></a>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="bnomics-or-divider">
+                                    OR
+                                </td>
+                                <td>
+                                    <div class="bnomics-order-address">
+                                        <div class="bnomics-address">
+                                            <!-- Order Address -->
+                                            <label class="bnomics-address-text"><?= __('Send ', 'blockonomics-bitcoin-payments') ?> <?php echo strtolower($crypto['name']); ?> <?= __('to this address:', 'blockonomics-bitcoin-payments') ?></label>
+                                            <label class="bnomics-copy-address-text"><?= __('Copied to clipboard', 'blockonomics-bitcoin-payments') ?></label>
+                                        </div>
+                                        <div class="bnomics-copy-container">
+                                            <input type="text" value="<?php echo $order['address']; ?>" id="bnomics-address-input" readonly />
+                                            <span id="bnomics-address-copy" class="blockonomics-icon-copy"></span>
+
+                                        </div>
+                                        <label class="bnomics-amount-text"><?= __('Amount of', 'blockonomics-bitcoin-payments') ?> <?php echo strtolower($crypto['name']); ?> (<?php echo strtoupper($crypto['code']); ?>) <?= __('to send:', 'blockonomics-bitcoin-payments') ?></label>
+                                        <label class="bnomics-copy-amount-text"><?= __('Copied to clipboard', 'blockonomics-bitcoin-payments') ?></label>
+
+                                        <div class="bnomics-copy-container" id="bnomics-amount-copy-container">
+                                            <input type="text" value="<?php echo $order_amount; ?>" id="bnomics-amount-input" readonly />
+                                            <span id="bnomics-amount-copy" class="blockonomics-icon-copy"></span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+
             <table>
                 <tr>
-                    <th>
-                        <!-- Order Address -->
-                        <label class="bnomics-address-text"><?= __('To pay, send', 'blockonomics-bitcoin-payments') ?> <?php echo strtolower($crypto['name']); ?> <?= __('to this address:', 'blockonomics-bitcoin-payments') ?></label>
-                        <label class="bnomics-copy-address-text"><?= __('Copied to clipboard', 'blockonomics-bitcoin-payments') ?></label>
-                        <div class="bnomics-copy-container">
-                            <input type="text" value="<?php echo $order['address']; ?>" id="bnomics-address-input" readonly />
-                            <span id="bnomics-address-copy" class="blockonomics-icon-copy"></span>
-                            <span id="bnomics-show-qr" class="blockonomics-icon-qr"></span>
-                        </div>
-
-                        <div class="bnomics-qr-code">
-                            <div class="bnomics-qr">
-                                <a href="<?php echo $payment_uri; ?>" target="_blank" class="bnomics-qr-link">
-                                    <canvas id="bnomics-qr-code"></canvas>
-                                </a>
+                    <td class="bnomics-footer-container">
+                        <div class="bnomics-footer">
+                            <div class="bnomics-copy-container" id="bnomics-amount-copy-container">
+                                <small class="bnomics-crypto-price-timer">
+                                    1 <?php echo strtoupper($crypto['code']); ?> = <span id="bnomics-crypto-rate"><?php echo $crypto_rate_str; ?></span> <?php echo $order['currency']; ?>, <?= __('updates in', 'blockonomics-bitcoin-payments') ?> <span class="bnomics-time-left">00:00 min</span>
+                                </small>
+                                <span id="bnomics-refresh" class="blockonomics-icon-refresh"></span>
                             </div>
-                            <small class="bnomics-qr-code-hint">
-                                <a href="<?php echo $payment_uri; ?>" target="_blank" class="bnomics-qr-link"><?= __('Open in wallet', 'blockonomics-bitcoin-payments') ?></a>
-                            </small>
                         </div>
-
-                    </th>
+                    </td>
                 </tr>
             </table>
-            <table>
-                <tr>
-                    <th>
-                        <label class="bnomics-amount-text"><?= __('Amount of', 'blockonomics-bitcoin-payments') ?> <?php echo strtolower($crypto['name']); ?> (<?php echo strtoupper($crypto['code']); ?>) <?= __('to send:', 'blockonomics-bitcoin-payments') ?></label>
-                        <label class="bnomics-copy-amount-text"><?= __('Copied to clipboard', 'blockonomics-bitcoin-payments') ?></label>
 
-                        <div class="bnomics-copy-container" id="bnomics-amount-copy-container">
-                            <input type="text" value="<?php echo $order_amount; ?>" id="bnomics-amount-input" readonly />
-                            <span id="bnomics-amount-copy" class="blockonomics-icon-copy"></span>
-                            <span id="bnomics-refresh" class="blockonomics-icon-refresh"></span>
-                        </div>
-
-                        <small class="bnomics-crypto-price-timer">
-                            1 <?php echo strtoupper($crypto['code']); ?> = <span id="bnomics-crypto-rate"><?php echo $crypto_rate_str; ?></span> <?php echo $order['currency']; ?>, <?= __('updates in', 'blockonomics-bitcoin-payments') ?> <span class="bnomics-time-left">00:00 min</span>
-                        </small>
-                    </th>
-                </tr>
-
-            </table>
         </div>
     </div>
 </div>
