@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 3.6.4  =
+* Updated UI to show qrcode by default 
+
 = 3.6.3  =
 * Improved UX for multiples payments support 
 * Better order notes and payments information
