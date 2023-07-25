@@ -61,9 +61,6 @@ class Blockonomics {
         this._amount_input = this.container.querySelector(
             '#bnomics-amount-input'
         );
-        this._amount_copy = this.container.querySelector(
-            '#bnomics-amount-copy'
-        );
 
         this._address_text = this.container.querySelector(
             '.bnomics-address-text'
@@ -73,9 +70,6 @@ class Blockonomics {
         );
         this._address_input = this.container.querySelector(
             '#bnomics-address-input'
-        );
-        this._address_copy = this.container.querySelector(
-            '#bnomics-address-copy'
         );
 
         this._time_left = this.container.querySelector('.bnomics-time-left');
@@ -95,18 +89,6 @@ class Blockonomics {
         );
 
         // Click Bindings
-
-        // Copy bitcoin address to clipboard
-        this._address_copy.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.copy_to_clipboard('bnomics-address-input');
-        });
-
-        // Copy bitcoin amount to clipboard
-        this._amount_copy.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.copy_to_clipboard('bnomics-amount-input');
-        });
 
         this._refresh.addEventListener('click', (e) => {
             e.preventDefault();
@@ -182,51 +164,6 @@ class Blockonomics {
                 1
             );
         };
-    }
-
-    select_text(divid) {
-        var selection = window.getSelection();
-        var div = document.createRange();
-
-        div.setStartBefore(document.getElementById(divid));
-        div.setEndAfter(document.getElementById(divid));
-        selection.removeAllRanges();
-        selection.addRange(div);
-    }
-
-    copy_to_clipboard(divid) {
-        var textarea = document.createElement('textarea');
-        textarea.id = 'temp_element';
-        textarea.style.height = 0;
-        document.body.appendChild(textarea);
-        textarea.value = document.getElementById(divid).value;
-
-        var selector = document.querySelector('#temp_element');
-        selector.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-
-        this.select_text(divid);
-
-        let $this = this;
-        if (divid == 'bnomics-address-input') {
-            this._address_text.style.display = 'none';
-            this._copy_address_text.style.display = 'block';
-            setTimeout(function () {
-                $this._address_text.style.display = 'block';
-                $this._copy_address_text.style.display = 'none';
-                //Close copy to clipboard message after 2 sec
-            }, 2000);
-        } else {
-            this._amount_text.style.display = 'none';
-            this._copy_amount_text.style.display = 'block';
-
-            setTimeout(function () {
-                $this._amount_text.style.display = 'block';
-                $this._copy_amount_text.style.display = 'none';
-                //Close copy to clipboard message after 2 sec
-            }, 2000);
-        }
     }
 
     redirect_to_finish_order() {
@@ -391,3 +328,4 @@ class Blockonomics {
 
 // Automatically trigger only after DOM is loaded
 new Blockonomics();
+

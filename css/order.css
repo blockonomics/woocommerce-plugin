@@ -313,6 +313,8 @@ svg {
 
 .bnomics-copy-container input {
   flex-grow: 1;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .bnomics-copy-container-animation-rectangle {
