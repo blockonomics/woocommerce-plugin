@@ -2,7 +2,7 @@
 $blockonomics = new Blockonomics;
 $cryptos = $blockonomics->getActiveCurrencies();
 $order_id = isset($_REQUEST["select_crypto"]) ? sanitize_text_field(wp_unslash($_REQUEST["select_crypto"])) : "";
-$order_url = $blockonomics->get_parameterized_wc_url(array('show_order'=>$order_id))
+$order_url = $blockonomics->get_parameterized_wc_url('page',array('show_order'=>$order_id))
 ?>
 <div class="woocommerce bnomics-order-container">
   <div class="bnomics-select-container">
