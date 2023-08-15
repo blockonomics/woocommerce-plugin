@@ -52,7 +52,16 @@ function blockonomics_woocommerce_init()
 
     require_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'WC_Gateway_Blockonomics.php';
     include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
-    
+    include_once ABSPATH . 'wp-content/plugins/woocommerce/includes/admin/wc-admin-functions.php';
+    wc_create_page(
+        'bcheckout',
+        'woocommerce_bcheckout_page_id',
+        'Bcheckout',
+        '<!-- wp:shortcode -->[my_shortcode1]<!-- /wp:shortcode -->',
+        'checkout',
+        'publish'
+    );
+
     add_action('admin_menu', 'add_page');
     add_action('init', 'load_plugin_translations');
     add_action('woocommerce_order_details_after_order_table', 'nolo_custom_field_display_cust_order_meta', 10, 1);
@@ -63,7 +72,26 @@ function blockonomics_woocommerce_init()
     add_filter('request', 'filter_orders_by_address_or_txid' ); 
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_filter('clean_url', 'bnomics_async_scripts', 11, 1 );
-    
+    add_shortcode('my_shortcode1', 'my_custom_shortcode');
+    add_action('init', 'bnomics_enqueue_stylesheets');
+    add_action('init', 'bnomics_enqueue_scripts');
+
+    function my_custom_shortcode() {
+        $show_order = isset($_GET["show_order"]) ? sanitize_text_field(wp_unslash($_GET['show_order'])) : "";
+        $crypto = isset($_GET["crypto"]) ? sanitize_key($_GET['crypto']) : "";
+        $select_crypto = isset($_GET["select_crypto"]) ? sanitize_text_field(wp_unslash($_GET['select_crypto'])) : "";
+        $blockonomics = new Blockonomics;
+
+        if($crypto === "empty"){
+            return $blockonomics->load_blockonomics_template('no_crypto_selected');
+        }else if ($show_order && $crypto) {
+            $order_id = $blockonomics->decrypt_hash($show_order);
+            return $blockonomics->load_checkout_template($order_id, $crypto);
+        }else if ($select_crypto) {
+            return $blockonomics->load_blockonomics_template('crypto_options');
+        }
+    }
+
     /**
      * Redriect to the checkout page  
      **/
@@ -514,14 +542,14 @@ function blockonomics_woocommerce_init()
     }
 
     function bnomics_enqueue_stylesheets(){
-      wp_enqueue_style('bnomics-style', plugin_dir_url(__FILE__) . "css/order.css", '', get_plugin_data( __FILE__ )['Version']);
+        wp_register_style('bnomics-style', plugin_dir_url(__FILE__) . "css/order.css", '', get_plugin_data( __FILE__ )['Version']);
     }
 
     function bnomics_enqueue_scripts(){
-        wp_enqueue_script( 'reconnecting-websocket', plugins_url('js/vendors/reconnecting-websocket.min.js#deferload', __FILE__), array(), get_plugin_data( __FILE__ )['Version'] );
-        wp_enqueue_script( 'qrious', plugins_url('js/vendors/qrious.min.js#deferload', __FILE__), array(), get_plugin_data( __FILE__ )['Version'] );
-        wp_enqueue_script( 'bnomics-checkout', plugins_url('js/checkout.js#deferload', __FILE__), array('reconnecting-websocket', 'qrious'), get_plugin_data( __FILE__ )['Version'] );
-        wp_enqueue_script( 'copytoclipboard', plugins_url('js/vendors/copytoclipboard.js#deferload', __FILE__), array(), get_plugin_data( __FILE__ )['Version'] );
+        wp_register_script( 'reconnecting-websocket', plugins_url('js/vendors/reconnecting-websocket.min.js#deferload', __FILE__), array(), get_plugin_data( __FILE__ )['Version'] );
+        wp_register_script( 'qrious', plugins_url('js/vendors/qrious.min.js#deferload', __FILE__), array(), get_plugin_data( __FILE__ )['Version'] );
+        wp_register_script( 'bnomics-checkout', plugins_url('js/checkout.js#deferload', __FILE__), array('reconnecting-websocket', 'qrious'), get_plugin_data( __FILE__ )['Version'] );
+        wp_register_script( 'copytoclipboard', plugins_url('js/vendors/copytoclipboard.js#deferload', __FILE__), array(), get_plugin_data( __FILE__ )['Version'] );
     }
 
     // Async load

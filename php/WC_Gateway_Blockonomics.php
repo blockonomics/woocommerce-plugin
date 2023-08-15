@@ -109,11 +109,9 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
     // Sanitizes all request/input data
     public function handle_requests()
     {
-        $show_order = isset($_GET["show_order"]) ? sanitize_text_field(wp_unslash($_GET['show_order'])) : "";
-        $crypto = isset($_GET["crypto"]) ? sanitize_key($_GET['crypto']) : "";
-        $select_crypto = isset($_GET["select_crypto"]) ? sanitize_text_field(wp_unslash($_GET['select_crypto'])) : "";
         $finish_order = isset($_GET["finish_order"]) ? sanitize_text_field(wp_unslash($_GET['finish_order'])) : "";
         $get_amount = isset($_GET['get_amount']) ? sanitize_text_field(wp_unslash($_GET['get_amount'])) : "";
+        $crypto = isset($_GET["crypto"]) ? sanitize_key($_GET['crypto']) : "";
         $secret = isset($_GET['secret']) ? sanitize_text_field(wp_unslash($_GET['secret'])) : "";
         $addr = isset($_GET['addr']) ? sanitize_text_field(wp_unslash($_GET['addr'])) : "";
         $status = isset($_GET['status']) ? intval($_GET['status']) : "";
@@ -121,17 +119,10 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $txid = isset($_GET['txid']) ? sanitize_text_field(wp_unslash($_GET['txid'])) : "";
         $rbf = isset($_GET['rbf']) ? wp_validate_boolean(intval(wp_unslash($_GET['rbf']))) : "";
 
-        include_once 'Blockonomics.php';
+        include_once "Blockonomics.php";
         $blockonomics = new Blockonomics;
-
-        if($crypto === "empty"){
-            $blockonomics->load_blockonomics_template('no_crypto_selected');
-        }else if ($show_order && $crypto) {
-            $order_id = $blockonomics->decrypt_hash($show_order);
-            $blockonomics->load_checkout_template($order_id, $crypto);
-        }else if ($select_crypto) {
-            $blockonomics->load_blockonomics_template('crypto_options');
-        }else if ($finish_order) {
+        
+        if ($finish_order) {
             $order_id = $blockonomics->decrypt_hash($finish_order);
             $blockonomics->redirect_finish_order($order_id);
         }else if ($get_amount && $crypto) {
