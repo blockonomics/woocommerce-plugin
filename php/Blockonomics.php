@@ -381,15 +381,9 @@ class Blockonomics
     // Returns WC page endpoint of order adding the given extra parameters
 
     public function get_parameterized_wc_url($type, $params = array())
-    {
-        if ($type === 'page') {
-            $order_url = wc_get_page_permalink('payment');
-        } elseif ($type === 'api') {
-            $order_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-        } else {
-            return;
-        }
-
+    {   
+        $order_url = ($type === 'page') ? wc_get_page_permalink('payment') : WC()->api_request_url('WC_Gateway_Blockonomics');
+        
         if (is_array($params) && count($params) > 0) {
             foreach ($params as $param_name => $param_value) {
                 $order_url = add_query_arg($param_name, $param_value, $order_url);

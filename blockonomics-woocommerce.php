@@ -73,18 +73,15 @@ function blockonomics_woocommerce_init()
         $crypto = isset($_GET["crypto"]) ? sanitize_key($_GET['crypto']) : "";
         $select_crypto = isset($_GET["select_crypto"]) ? sanitize_text_field(wp_unslash($_GET['select_crypto'])) : "";
         $blockonomics = new Blockonomics;
-    
-            include_once __DIR__ . DIRECTORY_SEPARATOR . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
-            $blockonomics = new Blockonomics;
-           
-            if($crypto === "empty"){
-                return $blockonomics->load_blockonomics_template('no_crypto_selected');
-            }else if ($show_order && $crypto) {
-                $order_id = $blockonomics->decrypt_hash($show_order);
-                return $blockonomics->load_checkout_template($order_id, $crypto);
-            }else if ($select_crypto) {
-                return $blockonomics->load_blockonomics_template('crypto_options');
-            }
+
+        if ($crypto === "empty") {
+            return $blockonomics->load_blockonomics_template('no_crypto_selected');
+        } else if ($show_order && $crypto) {
+            $order_id = $blockonomics->decrypt_hash($show_order);
+            return $blockonomics->load_checkout_template($order_id, $crypto);
+        } else if ($select_crypto) {
+            return $blockonomics->load_blockonomics_template('crypto_options');
+        }
     }
     /**
      * Redriect to the checkout page  
@@ -566,7 +563,7 @@ register_activation_hook( __FILE__, 'blockonomics_activation_hook' );
 add_action('admin_notices', 'blockonomics_plugin_activation');
 
 global $blockonomics_db_version;
-$blockonomics_db_version = '1.2';
+$blockonomics_db_version = '1.3';
 
 function blockonomics_create_table() {
     // Create blockonomics_payments table
@@ -624,6 +621,7 @@ function blockonomics_create_payment_page()
 // Since WP 3.1 the activation function registered with register_activation_hook() is not called when a plugin is updated.
 // blockonomics_update_db_check() is loaded for every PHP page by plugins_loaded hook
 function blockonomics_update_db_check() {
+    include_once(WC()->plugin_path().'/includes/admin/wc-admin-functions.php');
     global $blockonomics_db_version;
     $installed_ver = get_site_option( 'blockonomics_db_version' );
     // blockonomics_create_table() and blockonomics_create_payment_page() should only be run if there is no $installed_ver, refer https://github.com/blockonomics/woocommerce-plugin/issues/296
@@ -640,7 +638,7 @@ function blockonomics_run_db_updates($installed_ver){
     if (version_compare($installed_ver, '1.2', '<')){
         blockonomics_create_table();
     }
-    if (version_compare($installed_ver, '1.3', '<=')){ // Plugin version should be 1.3
+    if (version_compare($installed_ver, '1.3', '<')){ // Plugin version should be 1.3
         blockonomics_create_payment_page();
     }
     update_option( 'blockonomics_db_version', $blockonomics_db_version );
