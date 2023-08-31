@@ -65,8 +65,8 @@ function blockonomics_woocommerce_init()
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_filter('clean_url', 'bnomics_async_scripts', 11, 1 );
     add_shortcode('blockonomics_payment', 'add_payment_page_shortcode');
-    add_action('init', 'bnomics_register_stylesheets');
-    add_action('init', 'bnomics_register_scripts');
+    add_action('wp_enqueue_scripts', 'bnomics_register_stylesheets');
+    add_action('wp_enqueue_scripts', 'bnomics_register_scripts');
 
     function add_payment_page_shortcode() {
         $show_order = isset($_GET["show_order"]) ? sanitize_text_field(wp_unslash($_GET['show_order'])) : "";
@@ -621,11 +621,11 @@ function blockonomics_create_payment_page()
 // Since WP 3.1 the activation function registered with register_activation_hook() is not called when a plugin is updated.
 // blockonomics_update_db_check() is loaded for every PHP page by plugins_loaded hook
 function blockonomics_update_db_check() {
-    include_once(WC()->plugin_path().'/includes/admin/wc-admin-functions.php');
     global $blockonomics_db_version;
     $installed_ver = get_site_option( 'blockonomics_db_version' );
     // blockonomics_create_table() and blockonomics_create_payment_page() should only be run if there is no $installed_ver, refer https://github.com/blockonomics/woocommerce-plugin/issues/296
     if (empty($installed_ver)){
+        include_once(WC()->plugin_path().'/includes/admin/wc-admin-functions.php');
         blockonomics_plugin_setup();
     } else if (version_compare( $installed_ver, $blockonomics_db_version, '!=')) {
         blockonomics_run_db_updates($installed_ver);
@@ -639,6 +639,7 @@ function blockonomics_run_db_updates($installed_ver){
         blockonomics_create_table();
     }
     if (version_compare($installed_ver, '1.3', '<')){ // Plugin version should be 1.3
+        include_once(WC()->plugin_path().'/includes/admin/wc-admin-functions.php');
         blockonomics_create_payment_page();
     }
     update_option( 'blockonomics_db_version', $blockonomics_db_version );
