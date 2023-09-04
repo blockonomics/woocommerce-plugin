@@ -63,6 +63,21 @@ function blockonomics_woocommerce_init()
     add_filter('request', 'filter_orders_by_address_or_txid' ); 
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_filter('clean_url', 'bnomics_async_scripts', 11, 1 );
+    add_filter( 'display_post_states', 'bnomics_add_display_post_states', 10, 2 );
+    add_filter("wp_list_pages_excludes", "bnomics_exclude_pages");
+
+    function bnomics_add_display_post_states( $post_states, $post ) {
+		if ( wc_get_page_id( 'payment' ) === $post->ID ) {
+			$post_states['wc_page_for_payment'] = __( 'Blockonomics Payment Page', 'woocommerce' );
+		}
+
+        return $post_states;
+	}
+
+    function bnomics_exclude_pages( $exclude ) {
+        $exclude[] = wc_get_page_id( 'payment' );
+        return $exclude;
+	}
     
     /**
      * Redriect to the checkout page  
