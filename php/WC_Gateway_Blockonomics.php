@@ -127,7 +127,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 
         if ($finish_order) {
             $order_id = $blockonomics->decrypt_hash($get_amount);
-            $blockonomics->redirect_finish_order($order_id, $crypto);
+            $blockonomics->redirect_finish_order($order_id);
         }else if ($get_amount && $crypto) {
             $order_id = $blockonomics->decrypt_hash($get_amount);
             $blockonomics->get_order_amount_info($order_id, $crypto);
