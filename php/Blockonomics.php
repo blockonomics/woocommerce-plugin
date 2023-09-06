@@ -421,11 +421,6 @@ class Blockonomics
         return get_option('blockonomics_nojs', false);
     }
 
-    // Check if a lite mode setting is activated
-    public function is_lite_mode_active(){
-        return get_option('blockonomics_lite', false);
-    }
-
     public function is_partial_payments_active(){
         return get_option('blockonomics_partial_payments', true);
     }

@@ -380,10 +380,6 @@ function blockonomics_woocommerce_init()
                                 <td><input onchange="add_asterisk('settings')" type="number" min="0" max="20" step="0.01" name="blockonomics_underpayment_slack" value="<?php echo esc_attr( get_option('blockonomics_underpayment_slack', 0) ); ?>" /></td>
                             </tr>
                             <tr valign="top">
-                                <th scope="row"><?php echo __('Display Payment Page in Lite Mode (Enable this if you are having problems in rendering checkout page)', 'blockonomics-bitcoin-payments')?></th>
-                                <td><input onchange="add_asterisk('settings')" type="checkbox" name="blockonomics_lite" value="1" <?php checked("1", get_option('blockonomics_lite')); ?> /></td>
-                            </tr>
-                            <tr valign="top">
                                 <th scope="row"><?php echo __('No Javascript checkout page (Enable this if you have majority customer that use tor like browser that block Javascript)', 'blockonomics-bitcoin-payments')?></th>
                                 <td><input onchange="add_asterisk('settings')" type="checkbox" name="blockonomics_nojs" value="1" <?php checked("1", get_option('blockonomics_nojs')); ?> /></td>
                             </tr>
@@ -404,7 +400,7 @@ function blockonomics_woocommerce_init()
                     <p class="submit">
                         <input type="submit" class="button-primary" value="<?php echo __("Save", 'blockonomics-bitcoin-payments')?>"/>
                         <input type="hidden" name="action" value="update" />
-                        <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated,blockonomics_underpayment_slack,blockonomics_lite,blockonomics_nojs,blockonomics_network_confirmation,blockonomics_partial_payments" />
+                        <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated,blockonomics_underpayment_slack,blockonomics_nojs,blockonomics_network_confirmation,blockonomics_partial_payments" />
                     </p>
                 </form>
                 <form method="POST" name="generateSecretForm">
@@ -690,6 +686,7 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_bch');
     delete_option('blockonomics_btc');
     delete_option('blockonomics_underpayment_slack');
+    // blockonomics_lite is only for db version below 1.3
     delete_option('blockonomics_lite');
     delete_option('blockonomics_nojs');
     delete_option('blockonomics_network_confirmation');
