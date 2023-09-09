@@ -909,6 +909,9 @@ class Blockonomics
         
         $order['txid'] = $txid;
 
+        $is_btc = $order['crypto'] === 'btc';
+        $wc_order->set_payment_method_title($is_btc ? "Bitcoin" : "Bitcoin Cash");
+
         if (!$rbf){
           // Unconfirmed RBF payments are easily cancelled should be ignored
           // https://insights.blockonomics.co/bitcoin-payments-can-now-easily-cancelled-a-step-forward-or-two-back/ 
