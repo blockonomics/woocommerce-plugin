@@ -921,6 +921,7 @@ class Blockonomics
         $blockonomics_currencies = $this->getSupportedCurrencies();
         $selected_currency = $blockonomics_currencies[$order['crypto']];
         $wc_order->set_payment_method_title($selected_currency['name']);
+        $wc_order->save();
     }
 
     // Auto generate and apply coupon on underpaid callbacks
