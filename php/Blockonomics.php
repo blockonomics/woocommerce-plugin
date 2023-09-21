@@ -436,7 +436,9 @@ class Blockonomics
     public function add_blockonomics_checkout_style($template_name, $additional_script=NULL){
         wp_enqueue_style( 'bnomics-style' );
         if ($template_name === 'checkout') {
-            wp_add_inline_script('bnomics-checkout', $additional_script, 'before');
+            add_action('wp_footer', function() use ($additional_script) {
+                printf('<script type="text/javascript">%s</script>', $additional_script);
+            });
             wp_enqueue_script( 'bnomics-checkout' );
         }
     }
