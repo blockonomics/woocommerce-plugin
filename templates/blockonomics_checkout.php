@@ -25,7 +25,7 @@
         <!-- Display Error -->
         <div class="bnomics-display-error">
             <h2><?= __('Display Error', 'blockonomics-bitcoin-payments') ?></h2>
-            <p><?= __('Unable to render correctly, Note to Administrator: Please try enabling other modes like No Javascript or Lite mode in the Blockonomics plugin > Advanced Settings.', 'blockonomics-bitcoin-payments') ?></p>
+            <p><?= __('Unable to render correctly, Note to Administrator: Please try enabling No Javascript mode from the Blockonomics plugin > Advanced Settings.', 'blockonomics-bitcoin-payments') ?></p>
         </div>
 
         <!-- Blockonomics Checkout Panel -->

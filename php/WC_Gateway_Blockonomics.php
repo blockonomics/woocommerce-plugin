@@ -59,6 +59,8 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                 'handle_requests'
             )
         );
+
+		
     }
 
     public function init_form_fields()
@@ -97,6 +99,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
     {
         include_once 'Blockonomics.php';
         $blockonomics = new Blockonomics;
+        
         $order_url = $blockonomics->get_order_checkout_url($order_id);
 
         return array(
@@ -109,9 +112,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
     // Sanitizes all request/input data
     public function handle_requests()
     {
-        $show_order = isset($_GET["show_order"]) ? sanitize_text_field(wp_unslash($_GET['show_order'])) : "";
         $crypto = isset($_GET["crypto"]) ? sanitize_key($_GET['crypto']) : "";
-        $select_crypto = isset($_GET["select_crypto"]) ? sanitize_text_field(wp_unslash($_GET['select_crypto'])) : "";
         $finish_order = isset($_GET["finish_order"]) ? sanitize_text_field(wp_unslash($_GET['finish_order'])) : "";
         $get_amount = isset($_GET['get_amount']) ? sanitize_text_field(wp_unslash($_GET['get_amount'])) : "";
         $secret = isset($_GET['secret']) ? sanitize_text_field(wp_unslash($_GET['secret'])) : "";
@@ -124,14 +125,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         include_once 'Blockonomics.php';
         $blockonomics = new Blockonomics;
 
-        if($crypto === "empty"){
-            $blockonomics->load_blockonomics_template('no_crypto_selected');
-        }else if ($show_order && $crypto) {
-            $order_id = $blockonomics->decrypt_hash($show_order);
-            $blockonomics->load_checkout_template($order_id, $crypto);
-        }else if ($select_crypto) {
-            $blockonomics->load_blockonomics_template('crypto_options');
-        }else if ($finish_order) {
+        if ($finish_order) {
             $order_id = $blockonomics->decrypt_hash($finish_order);
             $blockonomics->redirect_finish_order($order_id);
         }else if ($get_amount && $crypto) {

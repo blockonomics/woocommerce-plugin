@@ -377,15 +377,19 @@ class Blockonomics
         // No errors
         return false;
     }
-    
-    // Returns WC endpoint of order adding the given extra parameters
-    public function get_parameterized_wc_url($params = array()){
-        $order_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-        if(is_array($params) && count($params)>0){
+
+    // Returns WC page endpoint of order adding the given extra parameters
+
+    public function get_parameterized_wc_url($type, $params = array())
+    {   
+        $order_url = ($type === 'page') ? wc_get_page_permalink('payment') : WC()->api_request_url('WC_Gateway_Blockonomics');
+        
+        if (is_array($params) && count($params) > 0) {
             foreach ($params as $param_name => $param_value) {
                 $order_url = add_query_arg($param_name, $param_value, $order_url);
             }
         }
+
         return $order_url;
     }
 
@@ -395,12 +399,12 @@ class Blockonomics
         // Check if more than one crypto is activated
         $order_hash = $this->encrypt_hash($order_id);
         if (count($active_cryptos) > 1) {
-            $order_url = $this->get_parameterized_wc_url(array('select_crypto'=>$order_hash));
+            $order_url = $this->get_parameterized_wc_url('page',array('select_crypto' => $order_hash));
         } elseif (count($active_cryptos) === 1) {
-            $order_url = $this->get_parameterized_wc_url(array('show_order'=>$order_hash, 'crypto'=> array_keys($active_cryptos)[0]));
+            $order_url = $this->get_parameterized_wc_url('page',array('show_order' => $order_hash, 'crypto' => array_keys($active_cryptos)[0]));
         } else if (count($active_cryptos) === 0) {
-            $order_url = $this->get_parameterized_wc_url(array('crypto'=>'empty'));
-        } 
+            $order_url = $this->get_parameterized_wc_url('page',array('crypto' => 'empty'));
+        }
         return $order_url;
     }
     
@@ -417,11 +421,6 @@ class Blockonomics
         return get_option('blockonomics_nojs', false);
     }
 
-    // Check if a lite mode setting is activated
-    public function is_lite_mode_active(){
-        return get_option('blockonomics_lite', false);
-    }
-
     public function is_partial_payments_active(){
         return get_option('blockonomics_partial_payments', true);
     }
@@ -433,49 +432,14 @@ class Blockonomics
         return false;
     }
 
-    // Adds the header to the blockonomics page
-    public function load_blockonomics_header($template_name, $additional_script=NULL){
-        
-        // Lite mode will render without wordpress theme headers
-        if($this->is_lite_mode_active()){
-        ?>
-            <link rel="stylesheet" type="text/css" href="<?php echo plugins_url('css/order.css', dirname(__FILE__));?>">
-        <?php
-            if ($template_name === 'checkout') {
-        ?>
-            <script src="<?php echo plugins_url('js/vendors/reconnecting-websocket.min.js', dirname(__FILE__));?>" defer="defer"></script>
-            <script src="<?php echo plugins_url('js/vendors/qrious.min.js', dirname(__FILE__));?>" defer="defer"></script>
-            <script><?php echo $additional_script; ?></script>
-            <script src="<?php echo plugins_url('js/checkout.js', dirname(__FILE__));?>" defer="defer"></script>
-        <?php
-            }
-        } else {
-            add_action('wp_enqueue_scripts', 'bnomics_enqueue_stylesheets' );
-            
-            // wp_enqueue_scripts needs to be called before get_header(), but the scripts are loaded in footer as
-            // $in_footer is set to TRUE for scripts in bnomics_enqueu_scripts
-
-            if ($template_name === 'checkout') {
-                
-                add_action('wp_enqueue_scripts', 'bnomics_enqueue_scripts' );
-                
-                if (isset($additional_script)) {
-                    add_action('wp_enqueue_scripts', function () use ($additional_script) {
-                        wp_add_inline_script('bnomics-checkout', $additional_script, 'before');
-                    });
-                }
-            }
-
-            get_header();
-        }
-    }
-
-    // Adds the footer to the blockonomics page
-    public function load_blockonomics_footer($template_name){
-        
-        // Lite mode will render without wordpress theme footers
-        if(!$this->is_lite_mode_active()){
-            get_footer();
+    // Adds the style for blockonomics checkout page
+    public function add_blockonomics_checkout_style($template_name, $additional_script=NULL){
+        wp_enqueue_style( 'bnomics-style' );
+        if ($template_name === 'checkout') {
+            add_action('wp_footer', function() use ($additional_script) {
+                printf('<script type="text/javascript">%s</script>', $additional_script);
+            });
+            wp_enqueue_script( 'bnomics-checkout' );
         }
     }
 
@@ -489,23 +453,16 @@ class Blockonomics
 
     // Adds the selected template to the blockonomics page
     public function load_blockonomics_template($template_name, $context = array(), $additional_script = NULL){
-        $this->load_blockonomics_header($template_name, $additional_script);
+        $this->add_blockonomics_checkout_style($template_name, $additional_script);
 
         // Load the selected template
         $template = 'blockonomics_'.$template_name.'.php';
         // Load Template Context
-        $this->set_template_context($context);
-        
-        // Check if child theme or parent theme have overridden the template
-        if ( $overridden_template = locate_template( $template ) ) {
-            load_template( $overridden_template );
-        } else {
-            load_template( plugin_dir_path(__FILE__)."../templates/" .$template );
-        }
-
-        $this->load_blockonomics_footer($template_name);
-
-        exit();
+        extract($context);
+        // Load the checkout template
+        ob_start(); // Start buffering
+        include plugin_dir_path(__FILE__)."../templates/" .$template;
+        return ob_get_clean(); // Return the buffered content
     }
 
     public function calculate_order_params($order){
@@ -689,7 +646,7 @@ class Blockonomics
                 'crypto_address' => $context['order']['address'],
                 'time_period' => get_option('blockonomics_timeperiod', 10),
                 'finish_order_url' => $this->get_wc_order_received_url($context['order_id']),
-                'get_order_amount_url' => $this->get_parameterized_wc_url(array('get_amount'=>$order_hash, 'crypto'=>  $context['crypto']['code'])),
+                'get_order_amount_url' => $this->get_parameterized_wc_url('api',array('get_amount'=>$order_hash, 'crypto'=>  $context['crypto']['code'])),
                 'payment_uri' => $context['payment_uri']
             )). "'";
         }
@@ -712,7 +669,7 @@ class Blockonomics
         $script = $this->get_checkout_script($context, $template_name);
         
         // Load the template
-        $this->load_blockonomics_template($template_name, $context, $script);
+        return $this->load_blockonomics_template($template_name, $context, $script);
     }
 
     public function get_wc_order_received_url($order_id){
@@ -731,7 +688,11 @@ class Blockonomics
     public function get_order_by_id_and_crypto($order_id, $crypto){
         global $wpdb;
         $order = $wpdb->get_results(
-            $wpdb->prepare("SELECT * FROM ".$wpdb->prefix."blockonomics_payments WHERE order_id = ". $order_id." AND crypto = '". $crypto."' ORDER BY expected_satoshi ASC"),
+            $wpdb->prepare(
+                "SELECT * FROM " . $wpdb->prefix . "blockonomics_payments WHERE order_id = %d AND crypto = %s ORDER BY expected_satoshi ASC",
+                $order_id,
+                $crypto
+            ),
             ARRAY_A
         );
         if($order){
