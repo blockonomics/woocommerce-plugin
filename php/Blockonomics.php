@@ -688,7 +688,11 @@ class Blockonomics
     public function get_order_by_id_and_crypto($order_id, $crypto){
         global $wpdb;
         $order = $wpdb->get_results(
-            $wpdb->prepare("SELECT * FROM ".$wpdb->prefix."blockonomics_payments WHERE order_id = ". $order_id." AND crypto = '". $crypto."' ORDER BY expected_satoshi ASC"),
+            $wpdb->prepare(
+                "SELECT * FROM " . $wpdb->prefix . "blockonomics_payments WHERE order_id = %d AND crypto = %s ORDER BY expected_satoshi ASC",
+                $order_id,
+                $crypto
+            ),
             ARRAY_A
         );
         if($order){
