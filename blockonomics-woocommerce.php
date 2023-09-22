@@ -71,16 +71,16 @@ function blockonomics_woocommerce_init()
     add_filter("wp_list_pages_excludes", "bnomics_exclude_pages");
 
     function bnomics_add_display_post_states( $post_states, $post ) {
-      if ( wc_get_page_id( 'payment' ) === $post->ID ) {
-        $post_states['wc_page_for_payment'] = __( 'Blockonomics Payment Page', 'woocommerce' );
-      }
+        if ( wc_get_page_id( 'payment' ) === $post->ID ) {
+            $post_states['wc_page_for_payment'] = __( 'Blockonomics Payment Page', 'woocommerce' );
+        }
 
-          return $post_states;
+        return $post_states;
     }
 
-      function bnomics_exclude_pages( $exclude ) {
-          $exclude[] = wc_get_page_id( 'payment' );
-          return $exclude;
+    function bnomics_exclude_pages( $exclude ) {
+        $exclude[] = wc_get_page_id( 'payment' );
+        return $exclude;
     }
 
     function add_payment_page_shortcode() {
