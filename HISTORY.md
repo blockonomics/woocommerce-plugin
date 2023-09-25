@@ -1,5 +1,10 @@
 == Changelog ==
 
+= 3.6.5  =
+* Using a new internally created page as the payment page
+* This fixes most problems with divi/pag builder themes
+* Removed lite mode option
+
 = 3.6.4  =
 * Updated UI to show qrcode by default 
 
