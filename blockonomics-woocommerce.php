@@ -84,21 +84,26 @@ function blockonomics_woocommerce_init()
     }
 
     function add_payment_page_shortcode() {
+        // This is to make sure we only run the shortcode when executed to render the page.
+        // Because the shortcode can be run multiple times by other plugin like All in One SEO.
+        // Where it tries to build SEO content from the shortcode and this could lead to checkout page not loading correctly.
         $currentFilter = current_filter();
-        if ($currentFilter == 'the_content') {
-            $show_order = isset($_GET["show_order"]) ? sanitize_text_field(wp_unslash($_GET['show_order'])) : "";
-            $crypto = isset($_GET["crypto"]) ? sanitize_key($_GET['crypto']) : "";
-            $select_crypto = isset($_GET["select_crypto"]) ? sanitize_text_field(wp_unslash($_GET['select_crypto'])) : "";
-            $blockonomics = new Blockonomics;
+        if ($currentFilter != 'the_content') {
+            return;
+        }
+        
+        $show_order = isset($_GET["show_order"]) ? sanitize_text_field(wp_unslash($_GET['show_order'])) : "";
+        $crypto = isset($_GET["crypto"]) ? sanitize_key($_GET['crypto']) : "";
+        $select_crypto = isset($_GET["select_crypto"]) ? sanitize_text_field(wp_unslash($_GET['select_crypto'])) : "";
+        $blockonomics = new Blockonomics;
 
-            if ($crypto === "empty") {
-                return $blockonomics->load_blockonomics_template('no_crypto_selected');
-            } else if ($show_order && $crypto) {
-                $order_id = $blockonomics->decrypt_hash($show_order);
-                return $blockonomics->load_checkout_template($order_id, $crypto);
-            } else if ($select_crypto) {
-                return $blockonomics->load_blockonomics_template('crypto_options');
-            }
+        if ($crypto === "empty") {
+            return $blockonomics->load_blockonomics_template('no_crypto_selected');
+        } else if ($show_order && $crypto) {
+            $order_id = $blockonomics->decrypt_hash($show_order);
+            return $blockonomics->load_checkout_template($order_id, $crypto);
+        } else if ($select_crypto) {
+            return $blockonomics->load_blockonomics_template('crypto_options');
         }
     }
     /**
