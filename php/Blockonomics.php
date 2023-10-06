@@ -827,7 +827,6 @@ class Blockonomics
             if ($this->is_partial_payments_active()){
                 $this->add_note_on_underpayment($order, $wc_order);
                 $this->send_email_on_underpayment($order);
-                $wc_order->save;
             }
             else {
                 $wc_order->add_order_note(__(  wc_price($order['paid_fiat']). " paid via ".strtoupper($order['crypto'])." (Blockonomics).", 'blockonomics-bitcoin-payments' ));
@@ -880,6 +879,11 @@ class Blockonomics
         }
 
         $this->update_order($order);
+
+        $blockonomics_currencies = $this->getSupportedCurrencies();
+        $selected_currency = $blockonomics_currencies[$order['crypto']];
+        $wc_order->set_payment_method_title($selected_currency['name']);
+        $wc_order->save();
     }
 
     // Auto generate and apply coupon on underpaid callbacks
