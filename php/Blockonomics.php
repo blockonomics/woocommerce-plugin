@@ -461,7 +461,7 @@ class Blockonomics
         extract($context);
         // Load the checkout template
         ob_start(); // Start buffering
-        include plugin_dir_path(__FILE__)."../templates/" .$template;
+        include_once plugin_dir_path(__FILE__)."../templates/" .$template;
         return ob_get_clean(); // Return the buffered content
     }
 
@@ -607,7 +607,9 @@ class Blockonomics
                 $context['payment_uri'] = $this->get_crypto_payment_uri($context['crypto'], $order['address'], $context['order_amount']);
                 $context['crypto_rate_str'] = $this->get_crypto_rate_from_params($order['expected_fiat'], $order['expected_satoshi']);
                 //Using svg library qrcode.php to generate QR Code in NoJS mode
-                $context['qrcode_svg_element'] = $this->generate_qrcode_svg_element($context['payment_uri']);
+                if($this->is_nojs_active()){
+                    $context['qrcode_svg_element'] = $this->generate_qrcode_svg_element($context['payment_uri']);
+                }
 
                 $context['total'] = $order['expected_fiat'];
                 $paid_fiat = $this->get_order_paid_fiat($order['order_id']);
@@ -896,7 +898,7 @@ class Blockonomics
     }
 
     public function generate_qrcode_svg_element($data) {
-        include plugin_dir_path(__FILE__) . 'qrcode.php';
+        include_once plugin_dir_path(__FILE__) . 'qrcode.php';
         $codeText = sanitize_text_field($data);
         return QRcode::svg($codeText);
     } 
