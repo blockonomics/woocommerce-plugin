@@ -582,7 +582,7 @@ register_activation_hook( __FILE__, 'blockonomics_activation_hook' );
 add_action('admin_notices', 'blockonomics_plugin_activation');
 
 global $blockonomics_db_version;
-$blockonomics_db_version = '1.3';
+$blockonomics_db_version = '1.4';
 
 function blockonomics_create_table() {
     // Create blockonomics_payments table
@@ -627,6 +627,11 @@ function blockonomics_activation_hook() {
 // Page creation function  for the Blockonomics payement following woo-commerce page creation shortcode logic 
 function blockonomics_create_payment_page()
 {
+    global $wp_rewrite;
+
+    if ( null === $wp_rewrite ) {
+        $wp_rewrite = new \WP_Rewrite;
+    }
     wc_create_page(
         'payment',
         'woocommerce_payment_page_id',
@@ -657,7 +662,7 @@ function blockonomics_run_db_updates($installed_ver){
     if (version_compare($installed_ver, '1.2', '<')){
         blockonomics_create_table();
     }
-    if (version_compare($installed_ver, '1.3', '<')){ // Plugin version should be 1.3
+    if (version_compare($installed_ver, '1.4', '<')){ // Plugin version should be 1.4
         include_once(WC()->plugin_path().'/includes/admin/wc-admin-functions.php');
         blockonomics_create_payment_page();
     }
