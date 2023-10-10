@@ -67,16 +67,7 @@ function blockonomics_woocommerce_init()
     add_shortcode('blockonomics_payment', 'add_payment_page_shortcode');
     add_action('wp_enqueue_scripts', 'bnomics_register_stylesheets');
     add_action('wp_enqueue_scripts', 'bnomics_register_scripts');
-    add_filter( 'display_post_states', 'bnomics_add_display_post_states', 10, 2 );
     add_filter("wp_list_pages_excludes", "bnomics_exclude_pages");
-
-    function bnomics_add_display_post_states( $post_states, $post ) {
-        if ( wc_get_page_id( 'payment' ) === $post->ID ) {
-            $post_states['wc_page_for_payment'] = __( 'Blockonomics Payment Page', 'woocommerce' );
-        }
-
-        return $post_states;
-    }
 
     function bnomics_exclude_pages( $exclude ) {
         $exclude[] = wc_get_page_id( 'payment' );
@@ -582,7 +573,7 @@ register_activation_hook( __FILE__, 'blockonomics_activation_hook' );
 add_action('admin_notices', 'blockonomics_plugin_activation');
 
 global $blockonomics_db_version;
-$blockonomics_db_version = '1.3';
+$blockonomics_db_version = '1.4';
 
 function blockonomics_create_table() {
     // Create blockonomics_payments table
@@ -627,6 +618,11 @@ function blockonomics_activation_hook() {
 // Page creation function  for the Blockonomics payement following woo-commerce page creation shortcode logic 
 function blockonomics_create_payment_page()
 {
+    global $wp_rewrite;
+
+    if ( null === $wp_rewrite ) {
+        $wp_rewrite = new \WP_Rewrite;
+    }
     wc_create_page(
         'payment',
         'woocommerce_payment_page_id',
@@ -657,7 +653,7 @@ function blockonomics_run_db_updates($installed_ver){
     if (version_compare($installed_ver, '1.2', '<')){
         blockonomics_create_table();
     }
-    if (version_compare($installed_ver, '1.3', '<')){ // Plugin version should be 1.3
+    if (version_compare($installed_ver, '1.4', '<')){ // Plugin version should be 1.4
         include_once(WC()->plugin_path().'/includes/admin/wc-admin-functions.php');
         blockonomics_create_payment_page();
     }
