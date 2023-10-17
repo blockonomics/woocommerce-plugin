@@ -74,7 +74,16 @@ function blockonomics_woocommerce_init()
         return $exclude;
     }
 
-    function add_payment_page_shortcode() {        
+    function add_payment_page_shortcode() {
+        // This is to make sure we only run the shortcode when executed to render the page.
+        // Because the shortcode can be run multiple times by other plugin like All in One SEO.
+        // Where it tries to build SEO content from the shortcode and this could lead to checkout page not loading correctly.
+        $currentFilter = current_filter();
+        var_dump($currentFilter);
+        // if ($currentFilter != 'the_content') {
+        //     return;
+        // }
+        
         $show_order = isset($_GET["show_order"]) ? sanitize_text_field(wp_unslash($_GET['show_order'])) : "";
         $crypto = isset($_GET["crypto"]) ? sanitize_key($_GET['crypto']) : "";
         $select_crypto = isset($_GET["select_crypto"]) ? sanitize_text_field(wp_unslash($_GET['select_crypto'])) : "";
