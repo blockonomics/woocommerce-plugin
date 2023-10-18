@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 3.6.6  =
+* Fix plugin conflict where shortcode executed multiple times
+* Fix page creation sometimes failing on upgrade
+
 = 3.6.5  =
 * Using a new internally created page as the payment page
 * This fixes most problems with divi/pag builder themes
