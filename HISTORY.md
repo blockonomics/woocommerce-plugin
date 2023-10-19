@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 3.6.7  =
+* Fix shortcode execution with page builders
+
 = 3.6.6  =
 * Fix plugin conflict where shortcode executed multiple times
 * Fix page creation sometimes failing on upgrade
