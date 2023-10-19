@@ -79,7 +79,7 @@ function blockonomics_woocommerce_init()
         // Because the shortcode can be run multiple times by other plugin like All in One SEO.
         // Where it tries to build SEO content from the shortcode and this could lead to checkout page not loading correctly.
         $currentFilter = current_filter();
-        if ($currentFilter != 'the_content') {
+        if ($currentFilter == 'wp_head'){
             return;
         }
         
