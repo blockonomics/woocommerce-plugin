@@ -83,7 +83,86 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                 'type' => 'text',
                 'description' => __('This controls the description which the user sees during checkout.', 'blockonomics-bitcoin-payments'),
                 'default' => ''
-            )
+            ),
+
+            'wallet' => array(
+                'title' => __('Wallet', 'blockonomics-bitcoin-payments'),
+                'type' => 'text',
+                'label'=> __('Temporary Wallet', 'blockonomics-bitcoin-payments'),
+                'description' => __('Accepting temporary funds with temporary wallet you can setup a blockonomics store to your wallet', 'blockonomics-bitcoin-payments'),
+                'default' => __('Setup Store', 'blockonomics-bitcoin-payments')
+            ),
+            'store' => array(
+                'title' => __('Store', 'blockonomics-bitcoin-payments'),
+                'description' => __('1) Setup a store at Blockonomics', 'blockonomics-bitcoin-payments'),
+                'type' => 'button',
+                'default' => __('Setup Store', 'blockonomics-bitcoin-payments')
+            ),
+            'APIkey' => array(
+                'title' => __('', 'blockonomics-bitcoin-payments'),
+                'type' => 'text',  // Ensure there's a handler for this type elsewhere in your code.
+                'description' => __('2) Get API key for the store and save here ', 'blockonomics-bitcoin-payments'),
+                'default' => __(get_option('blockonomics_api_key'), 'blockonomics-bitcoin-payments'),
+            ),
+            'testsetup' => array(
+                'title' => __('', 'blockonomics-bitcoin-payments'),
+                'type' => 'button',
+                'description' => __('3) Test the setup to check it is working correctly ', 'blockonomics-bitcoin-payments'),
+                'default' => 'Test'
+            ),
+            'btc_enabled' => array(
+                'title' => __('Currencies', 'blockonomics-bitcoin-payments'),
+                'type' => 'checkbox',
+                'label' => __('Bitcoin (BTC)', 'blockonomics-bitcoin-payments'),
+                'default' => 'no'
+            ),
+            'bch_enabled' => array(
+                'title' => __('', 'blockonomics-bitcoin-payments'),
+                'type' => 'checkbox',
+                'label' => __('Bitcoin Cash (BCH)', 'blockonomics-bitcoin-payments'),
+                'default' => 'no'
+            ),
+            'extra_margin' => array(
+                'title' => __('Advanced', 'blockonomics-bitcoin-payments'),
+                'type' => 'text',
+                'description' => __('Extra Currency Rate Margin % (Increase live fiat to BTC rate by small percent)', 'blockonomics-bitcoin-payments'),
+                'default' => '0'
+            ),
+            'underpayment_slack' => array(
+                'title' => __('', 'blockonomics-bitcoin-payments'),
+                'type' => 'text',
+                'description' => __('Underpayment Slack %.Allow payments that are off by a small percentage', 'blockonomics-bitcoin-payments'),
+                'default' => "aishwarya"
+            ),
+            'no_javscript' => array(
+                'title' => __('', 'blockonomics-bitcoin-payments'),
+                'type' => 'checkbox',
+                'label' => __('No javscript checkout page', 'blockonomics-bitcoin-payments'),
+                'description' => __('Enable if majority of the customer are using tor like browser that blocks the JS ', 'blockonomics-bitcoin-payments'),
+                'default' => 'no'
+            ),
+            'partialpayment' => array(
+                'title' => __('', 'blockonomics-bitcoin-payments'),
+                'type' => 'checkbox',
+                'label' => __('Partial Payment ', 'blockonomics-bitcoin-payments'),
+                'description' => __('Allow customer to pay order via multiple payement  ', 'blockonomics-bitcoin-payments'),
+                'default' => 'no'
+            ),
+            'network_confirmation' => array(
+                'title' => __('', 'blockonomics-bitcoin-payments'),
+                'type' => 'select',  // Changed 'dropdownbox' to 'select'
+                'description' => __('Network Confirmations required for payment to complete', 'blockonomics-bitcoin-payments'),
+                // 'options'     => $this->load_shipping_method_options(),
+                'default' => __('2 Recommended', 'blockonomics-bitcoin-payments'),
+            ),
+            'callBackurl' => array(
+                'title' => __(' ', 'blockonomics-bitcoin-payments'),
+                'type' => 'text',  // Ensure there's a handler for this type elsewhere in your code.
+                'description' => __('Callback URL.You need this callback URL to setup multiple stores ', 'blockonomics-bitcoin-payments'),
+                // 'default' => __($this->get_callback_url(), 'blockonomics-bitcoin-payments'),
+                'disabled' => true
+            ),
+            
         );
     }
 
