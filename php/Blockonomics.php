@@ -794,7 +794,7 @@ class Blockonomics
         else if (strpos($txid_meta_value[0], $txid) === false){
             $wc_order->update_meta_data($txid_meta_key, $txid_meta_value[0].', '. $txid);
         }
-        $order->save();
+        $wc_order->save();
     }
 
     public function update_paid_amount($callback_status, $paid_satoshi, $order, $wc_order){
