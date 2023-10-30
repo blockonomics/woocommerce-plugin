@@ -522,8 +522,8 @@ class Blockonomics
             $wc_order->update_meta_data( $addr_meta_key, $address );
         } 
         // when address meta value is not empty and $address is not in it 
-        else if (strpos($addr_meta_value[0], $address) === false) {
-            $wc_order->update_meta_data( $addr_meta_key, $addr_meta_value[0]. ', '. $address );
+        else if (strpos($addr_meta_value, $address) === false) {
+            $wc_order->update_meta_data( $addr_meta_key, $addr_meta_value. ', '. $address );
         }
         $wc_order->save();
     }
@@ -791,8 +791,8 @@ class Blockonomics
             $wc_order->update_meta_data($txid_meta_key, $txid);
         }
         // when txid meta value is not empty and $txid is not in it 
-        else if (strpos($txid_meta_value[0], $txid) === false){
-            $wc_order->update_meta_data($txid_meta_key, $txid_meta_value[0].', '. $txid);
+        else if (strpos($txid_meta_value, $txid) === false){
+            $wc_order->update_meta_data($txid_meta_key, $txid_meta_value.', '. $txid);
         }
         $wc_order->save();
     }
