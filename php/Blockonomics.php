@@ -130,14 +130,15 @@ class Blockonomics
         return $responseObj;
     }
 
-    public function get_callbacks($crypto)
+    public function get_callbacks($crypto, $api_key)
     {
+        $api_key = isset($api_key) ? $api_key : $this->api_key;
         if ($crypto === 'btc'){
             $url = Blockonomics::GET_CALLBACKS_URL;
         }else{
             $url = Blockonomics::BCH_GET_CALLBACKS_URL;
         }
-        $response = $this->get($url, $this->api_key);
+        $response = $this->get($url, $api_key);
         return $response;
     }
     
@@ -213,9 +214,9 @@ class Blockonomics
 
 
 
-    public function check_callback_urls_or_set_one($crypto, $response) 
+    public function check_callback_urls_or_set_one($crypto, $response, $api_key) 
     {
-        $api_key = get_option("blockonomics_api_key");
+        $api_key = isset($api_key) ? $api_key : get_option("blockonomics_api_key");
         //If BCH enabled and API Key is not set: give error
         if (!$api_key && $crypto === 'bch'){
             $error_str = __('Set the API Key or disable BCH', 'blockonomics-bitcoin-payments');
@@ -361,11 +362,31 @@ class Blockonomics
         }
         return $test_results;
     }
-    
-    public function test_one_crypto($crypto)
+
+    public function testSetup_new($api_key, $btc_enabled, $bch_enabled)
     {
-        $response = $this->get_callbacks($crypto);
-        $error_str = $this->check_callback_urls_or_set_one($crypto, $response);
+        $test_results = array();
+        $active_cryptos = array();
+        $blockonomics_currencies = $this->getSupportedCurrencies();
+        foreach ($blockonomics_currencies as $code => $currency) {
+            $enabled = $code === 'btc' ? $btc_enabled : $bch_enabled;
+            if($enabled || ($code === 'btc' && $enabled === false )){
+                $active_cryptos[$code] = $currency;
+            }
+        }
+
+        foreach ($active_cryptos as $code => $crypto) {
+            $test_results[$code] = $this->test_one_crypto($code, $api_key);
+        }
+
+        header("Content-Type: application/json");
+        exit(json_encode($test_results));
+    }
+    
+    public function test_one_crypto($crypto, $api_key)
+    {
+        $response = $this->get_callbacks($crypto, $api_key);
+        $error_str = $this->check_callback_urls_or_set_one($crypto, $response, $api_key);
         if (!$error_str)
         {
             //Everything OK ! Test address generation

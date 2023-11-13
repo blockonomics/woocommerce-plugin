@@ -211,11 +211,6 @@ function blockonomics_woocommerce_init()
                 update_option("blockonomics_temp_api_key", isset($response->apikey) ? $response->apikey : '');
             }
         }
-
-        // add_options_page(
-        //     'Blockonomics', 'Blockonomics', 'manage_options',
-        //     'blockonomics_options', 'show_options'
-        // );
     }
 
     function display_admin_message($msg, $type)
