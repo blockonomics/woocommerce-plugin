@@ -368,8 +368,8 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 
         $test_setup = isset($_GET["test_setup"]) ? sanitize_text_field(wp_unslash($_GET['test_setup'])) : "";
         $api_key = isset($_GET["api_key"]) ? sanitize_text_field(wp_unslash($_GET['api_key'])) : "";
-        $btc_active = isset($_GET["btc_active"]);
-        $bch_active = isset($_GET["bch_active"]);
+        $btc_active = isset($_GET["btc_active"]) ? $_GET["btc_active"] : false;
+        $bch_active = isset($_GET["bch_active"]) ? $_GET["bch_active"] : false;
 
         include_once 'Blockonomics.php';
         $blockonomics = new Blockonomics;
@@ -383,7 +383,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         } else if ($secret && $addr && isset($status) && $value && $txid) {
             $blockonomics->process_callback($secret, $addr, $status, $value, $txid, $rbf);
         } else if ($test_setup) {
-            $blockonomics->Setting_testSetup($api_key, $btc_active, $bch_active);
+            $blockonomics->settingsTestsetup($api_key, $btc_active, $bch_active);
         }
 
         exit();

@@ -363,15 +363,15 @@ class Blockonomics
         return $test_results;
     }
 
-    public function Setting_testSetup($api_key, $btc_enabled, $bch_enabled)
+    public function settingsTestsetup($api_key, $btc_enabled, $bch_enabled)
     {
         $test_results = array();
         $active_cryptos = array();
         $blockonomics_currencies = $this->getSupportedCurrencies();
         foreach ($blockonomics_currencies as $code => $currency) {
             $enabled = $code === 'btc' ? $btc_enabled : $bch_enabled;
-            if($enabled || ($code === 'btc' && $enabled === false )){
-                $active_cryptos[$code] = $currency;
+            if($enabled === "true" || ($code === 'btc' && $enabled === "false" )){
+                $active_cryptos[$code] = $enabled;
             }
         }
 
