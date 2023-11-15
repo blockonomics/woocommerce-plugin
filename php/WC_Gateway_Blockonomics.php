@@ -64,8 +64,11 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         );
     }
 
+
     public function init_form_fields()
     {
+        $blockonomics = new Blockonomics;
+        $cryptos = $blockonomics->getActiveCurrencies();
         $this->form_fields = array(
             'enabled' => array(
                 'title' => __('Enable Blockonomics plugin', 'blockonomics-bitcoin-payments'),
@@ -77,7 +80,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                 'title' => __('Title', 'blockonomics-bitcoin-payments'),
                 'type' => 'text',
                 'description' => __('This controls the title which the user sees during checkout.', 'blockonomics-bitcoin-payments'),
-                'default' => __('Bitcoin', 'blockonomics-bitcoin-payments')
+                'default' => __('Blockonomics ', 'blockonomics-bitcoin-payments')
             ),
             'description' => array(
                 'title' => __('Description', 'blockonomics-bitcoin-payments'),
@@ -105,87 +108,79 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                 'disabled' => true,
                 'css' => 'width:100%;',
             ),
-            'btc_enabled' => array(
-                'title' => __('Currencies', 'blockonomics-bitcoin-payments'),
-                'type' => 'checkbox',
-                'label' => __('Bitcoin (BTC)', 'blockonomics-bitcoin-payments'),
-                'description' => __('To configure, click Get Started for Free on https://blockonomics.co/merchants
-                    <p class="notice notice-success btc-sucess-notice" style="display:none;width:400px;margin:0;">Success</div>
-                    <p class="notice notice-error btc-error-notice" style="width:400px;margin:0;display:none;">
+        );
+
+
+        foreach ($cryptos as $currencyCode => $crypto) {
+            $this->form_fields[$currencyCode . '_enabled'] = array(
+                'title'   => __('Enable/Disable ' . $crypto["name"] . '(' . $currencyCode . ')', 'blockonomics-bitcoin-payments'),
+                'type'    => 'checkbox',
+                'label'   => __($crypto["name"] . ' (' . $currencyCode . ')', 'blockonomics-bitcoin-payments'),
+                'default' => get_option('blockonomics_' . $currencyCode) == 1 ? 'yes' : 'no',
+                'description' => __('
+                    <p class="notice notice-success ' . $currencyCode . '-sucess-notice" style="display:none;width:400px;margin:0;">Success</div>
+                    <p class="notice notice-error ' . $currencyCode . '-error-notice" style="width:400px;margin:0;display:none;">
                         <span class="errorText"></span><br />
                         Please consult <a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank">this troubleshooting article</a>.
                     </p>
                 '),
-                'default' => get_option('blockonomics_btc') == 1 ? 'yes' : 'no',
+            );
+        }
+
+        $this->form_fields['currency'] = array(
+            'id'    => 'currency',
+            'type'  => 'currency',
+            'title' => __('Currency', 'blockonomics-bitcoin-payments'),
+        );
+        $this->form_fields['timeperiod'] = array(
+            'title' => __('Advanced', 'blockonomics-bitcoin-payments'),
+            'type' => 'select',
+            'description' => __('Time period of countdown timer on payment page (in minutes)', 'blockonomics-bitcoin-payments'),
+            'default' => get_option('blockonomics_timeperiod'),
+            'options' => array(
+                '10' => __('10', 'blockonomics-bitcoin-payments'),
+                '15' => __('15', 'blockonomics-bitcoin-payments'),
+                '20' => __('20', 'blockonomics-bitcoin-payments'),
+                '25' => __('25', 'blockonomics-bitcoin-payments'),
+                '30' => __('30', 'blockonomics-bitcoin-payments'),
             ),
-            'bch_enabled' => array(
-                'title' => __('', 'blockonomics-bitcoin-payments'),
-                'type' => 'checkbox',
-                'label' => __('Bitcoin Cash (BCH)', 'blockonomics-bitcoin-payments'),
-                'description' => __('To configure, click Get Started for Free on https://blockonomics.co/merchants
-                    <p class="notice notice-success bch-sucess-notice" style="width:400px;margin:0;">Success</div>
-                    <p class="notice notice-error bch-error-notice" style="width:400px;margin:0;display:none;">
-                        <span class="errorText"></span><br />
-                        Please consult <a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank">this troubleshooting article</a>.
-                    </p>
-                '),
-                'default' => get_option('blockonomics_bch') == 1 ? 'yes' : 'no',
-            ),
-            'currency' => array(
-                'id'    => 'currency',
-                'type'  => 'currency',
-                'title' => __('Currency', 'blockonomics-bitcoin-payments'),
-            ),
-            'timeperiod' => array(
-                'title' => __('Advanced', 'blockonomics-bitcoin-payments'),
-                'type' => 'select',
-                'description' => __('Time period of countdown timer on payment page (in minutes)', 'blockonomics-bitcoin-payments'),
-                'default' => get_option('blockonomics_timeperiod'),
-                'options' => array(
-                    '10' => __('10', 'blockonomics-bitcoin-payments'),
-                    '15' => __('15', 'blockonomics-bitcoin-payments'),
-                    '20' => __('20', 'blockonomics-bitcoin-payments'),
-                    '25' => __('25', 'blockonomics-bitcoin-payments'),
-                    '30' => __('30', 'blockonomics-bitcoin-payments'),
-                ),
-            ),
-            'extra_margin' => array(
-                'title' => __(' ', 'blockonomics-bitcoin-payments'),
-                'type' => 'text',
-                'description' => __('Extra Currency Rate Margin % (Increase live fiat to BTC rate by small percent)', 'blockonomics-bitcoin-payments'),
-                'default' => get_option('blockonomics_margin'),
-            ),
-            'underpayment_slack' => array(
-                'title' => __('', 'blockonomics-bitcoin-payments'),
-                'type' => 'text',
-                'label' => __('Under Payment', 'blockonomics-bitcoin-payments'),
-                'description' => __('Underpayment Slack %.Allow payments that are off by a small percentage', 'blockonomics-bitcoin-payments'),
-                'default' => get_option('blockonomics_underpayment_slack'),
-            ),
-            'no_javascript' => array(
-                'title' => __('', 'blockonomics-bitcoin-payments'),
-                'type' => 'checkbox',
-                'label' => __('No JS ', 'blockonomics-bitcoin-payments'),
-                'description' => __('To get your API Key, click Get Started for Free on https://blockonomics.co/merchants', 'blockonomics-bitcoin-payments'),
-                'default' => get_option('blockonomics_nojs') == 1 ? 'yes' : 'no',
-            ),
-            'partialpayment' => array(
-                'title' => __('', 'blockonomics-bitcoin-payments'),
-                'type' => 'checkbox',
-                'label' => __('Partial Payment ', 'blockonomics-bitcoin-payments'),
-                'description' => __('Allow customer to pay order via multiple payement  ', 'blockonomics-bitcoin-payments'),
-                'default' => get_option('blockonomics_partial_payments') == 1 ? 'yes' : 'no',
-            ),
-            'network_confirmation' => array(
-                'title' => __('', 'blockonomics-bitcoin-payments'),
-                'type' => 'select',
-                'description' => __('Network Confirmations required for payment to complete', 'blockonomics-bitcoin-payments'),
-                'default' => __(get_option('blockonomics_network_confirmation'), 'blockonomics-bitcoin-payments'),
-                'options' => array(
-                    '2' => __('2(Recommended)', 'blockonomics-bitcoin-payments'),
-                    '1' => __('1', 'blockonomics-bitcoin-payments'),
-                    '0' => __('0', 'blockonomics-bitcoin-payments'),
-                ),
+        );
+        $this->form_fields['extra_margin'] = array(
+            'title' => __(' ', 'blockonomics-bitcoin-payments'),
+            'type' => 'text',
+            'description' => __('Extra Currency Rate Margin % (Increase live fiat to BTC rate by small percent)', 'blockonomics-bitcoin-payments'),
+            'default' => get_option('blockonomics_margin'),
+        );
+        $this->form_fields['underpayment_slack'] = array(
+            'title' => __('', 'blockonomics-bitcoin-payments'),
+            'type' => 'text',
+            'label' => __('Under Payment', 'blockonomics-bitcoin-payments'),
+            'description' => __('Underpayment Slack %.Allow payments that are off by a small percentage', 'blockonomics-bitcoin-payments'),
+            'default' => get_option('blockonomics_underpayment_slack'),
+        );
+        $this->form_fields['no_javascript'] = array(
+            'title' => __('', 'blockonomics-bitcoin-payments'),
+            'type' => 'checkbox',
+            'label' => __('No JS ', 'blockonomics-bitcoin-payments'),
+            'description' => __('To get your API Key, click Get Started for Free on https://blockonomics.co/merchants', 'blockonomics-bitcoin-payments'),
+            'default' => get_option('blockonomics_nojs') == 1 ? 'yes' : 'no',
+        );
+        $this->form_fields['partialpayment'] = array(
+            'title' => __('', 'blockonomics-bitcoin-payments'),
+            'type' => 'checkbox',
+            'label' => __('Partial Payment ', 'blockonomics-bitcoin-payments'),
+            'description' => __('Allow customer to pay order via multiple payement  ', 'blockonomics-bitcoin-payments'),
+            'default' => get_option('blockonomics_partial_payments') == 1 ? 'yes' : 'no',
+        );
+        $this->form_fields['network_confirmation'] = array(
+            'title' => __('', 'blockonomics-bitcoin-payments'),
+            'type' => 'select',
+            'description' => __('Network Confirmations required for payment to complete', 'blockonomics-bitcoin-payments'),
+            'default' => __(get_option('blockonomics_network_confirmation'), 'blockonomics-bitcoin-payments'),
+            'options' => array(
+                '2' => __('2(Recommended)', 'blockonomics-bitcoin-payments'),
+                '1' => __('1', 'blockonomics-bitcoin-payments'),
+                '0' => __('0', 'blockonomics-bitcoin-payments'),
             ),
         );
     }
@@ -220,21 +215,29 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
     public function generate_currency_html($key, $value)
     {
         ob_start();
+        $blockonomics = new Blockonomics();
+        $cryptos = $blockonomics->getActiveCurrencies();
 
-        ?>
+?>
         <style>
             .test-spinner {
                 border: 4px solid rgba(255, 255, 255, 0.3);
                 border-radius: 50%;
-                border-top: 4px solid #007bff; /* Blue color */
+                border-top: 4px solid #007bff;
+                /* Blue color */
                 width: 20px;
                 height: 20px;
                 animation: spin 2s linear infinite;
             }
 
             @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
+                0% {
+                    transform: rotate(0deg);
+                }
+
+                100% {
+                    transform: rotate(360deg);
+                }
             }
         </style>
         <tr valign="top">
@@ -269,44 +272,52 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                     button.disabled = true;
 
                     const apikey = document.getElementById('woocommerce_blockonomics_apikey').value;
-                    const btcChecked = document.getElementById('woocommerce_blockonomics_btc_enabled').checked;
-                    const bchChecked = document.getElementById('woocommerce_blockonomics_bch_enabled').checked;
                     const baseUrl = "<?php echo WC()->api_request_url('WC_Gateway_Blockonomics'); ?>";
+                    const activeCurrencies = <?php echo json_encode($cryptos); ?>;
 
-
-                    const res = await fetch(`${baseUrl}?${new URLSearchParams({
+                    const payload = {
                         test_setup: true,
                         api_key: apikey,
-                        bch_active: bchChecked,
-                        btc_active: btcChecked
-                    })}`);
+                    };
 
-                    const errorResults = await res.json();
-
-                    spinner.style.display = 'none';
-                    button.disabled = false;
-
-                    if (!errorResults.btc) {
-                        document.querySelector('.btc-sucess-notice').style.display = 'block';
-                        document.querySelector('.btc-error-notice').style.display = 'none';
-                    } else {
-                        document.querySelector('.btc-sucess-notice').style.display = 'none';
-                        document.querySelector('.btc-error-notice').style.display = 'block';
-                        document.querySelector('.btc-error-notice .errorText').innerText = errorResults.btc;
+                    for (let currencyCode in activeCurrencies) {
+                        const node = document.getElementById(`woocommerce_blockonomics_${currencyCode}_enabled`);
+                        const checked = node ? node.checked : false;
+                        payload[`${currencyCode}_active`] = checked;
                     }
 
-                    if (!errorResults.bch) {
-                        document.querySelector('.bch-sucess-notice').style.display = 'block';
-                        document.querySelector('.bch-error-notice').style.display = 'none';
-                    } else {
-                        document.querySelector('.bch-sucess-notice').style.display = 'none';
-                        document.querySelector('.bch-error-notice').style.display = 'block';
-                        document.querySelector('.bch-error-notice .errorText').innerText = errorResults.bch;
+                    let errorResults = {};
+
+                    try {
+                        const res = await fetch(`${baseUrl}?${new URLSearchParams(payload)}`);
+                        if (!res.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        errorResults = await res.json();
+                    } catch (error) {
+                        console.error('Error:', error);
+                    } finally {
+                        spinner.style.display = 'none';
+                        button.disabled = false;
+
+                        for (let code in errorResults) {
+
+                            const result = errorResults[code];
+
+                            if (!result) {
+                                document.querySelector(`.${code}-sucess-notice`).style.display = 'block';
+                                document.querySelector(`.${code}-error-notice`).style.display = 'none';
+                            } else {
+                                document.querySelector(`.${code}-sucess-notice`).style.display = 'none';
+                                document.querySelector(`.${code}-error-notice`).style.display = 'block';
+                                document.querySelector(`.${code}-error-notice .errorText`).innerText = result;
+                            }
+                        }
                     }
                 });
             });
         </script>
-        <?php
+<?php
         return ob_get_clean();
     }
 
@@ -372,7 +383,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         } else if ($secret && $addr && isset($status) && $value && $txid) {
             $blockonomics->process_callback($secret, $addr, $status, $value, $txid, $rbf);
         } else if ($test_setup) {
-            $blockonomics->testSetup_new($api_key, $btc_active, $bch_active);
+            $blockonomics->Setting_testSetup($api_key, $btc_active, $bch_active);
         }
 
         exit();

@@ -363,7 +363,7 @@ class Blockonomics
         return $test_results;
     }
 
-    public function testSetup_new($api_key, $btc_enabled, $bch_enabled)
+    public function Setting_testSetup($api_key, $btc_enabled, $bch_enabled)
     {
         $test_results = array();
         $active_cryptos = array();
