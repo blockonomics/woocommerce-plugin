@@ -366,7 +366,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         }
 
         update_option('blockonomics_timeperiod', parent::get_option('timeperiod'));
-        update_option('blockonomics_margin', parent::get_option('extra_margin'));
+        update_option('blockonomics_margin', (int)parent::get_option('extra_margin'));
         update_option('blockonomics_underpayment_slack', parent::get_option('underpayment_slack'));
         update_option('blockonomics_partial_payments', parent::get_option('partialpayment') == 'yes' ? 1 : 0);
         update_option('blockonomics_api_key', parent::get_option('apikey'));
