@@ -88,11 +88,10 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                 'description' => __('This controls the description which the user sees during checkout.', 'blockonomics-bitcoin-payments'),
                 'default' => ''
             ),
-            'tempwallet' => array(
-                'title' => __('Temporary Wallet', 'blockonomics-bitcoin-payments'),
-                'type' => 'text',
-                'description' => __('Accepting funds with temporary wallet.you can setup a Blockonomics store to use your own wallet.', 'blockonomics-bitcoin-payments'),
-                'default' => __($this->temp_wallet_amount(), 'blockonomics-bitcoin-payments')
+            'tempwallet2' => array(
+                'id'    => 'tempwallet2',
+                'type'  => 'tempwallet2',
+                'title' => __('Wallet', 'blockonomics-bitcoin-payments'),
             ),
             'apikey' => array(
                 'title' => __('API Key', 'blockonomics-bitcoin-payments'),
@@ -132,6 +131,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             'type'  => 'currency',
             'title' => __('Currency', 'blockonomics-bitcoin-payments'),
         );
+
         $this->form_fields['timeperiod'] = array(
             'title' => __('Advanced', 'blockonomics-bitcoin-payments'),
             'type' => 'select',
@@ -211,7 +211,46 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $callback_url = add_query_arg('secret', $callback_secret, $callback_url);
         return $callback_url;
     }
+    public function generate_tempwallet2_html(){
+        $btc_enabled = get_option("blockonomics_btc");
+        $total_received_formatted = 00;
 
+        // If BTC is enabled or the 'blockonomics_btc' option has never been set (which returns false), proceed.
+        if ($btc_enabled || $btc_enabled === false) {
+            // Fetch the amount in the smallest unit from the database and convert to BTC
+            $temp_withdraw_amount = get_option('blockonomics_temp_withdraw_amount', 0); // Default to 0 if the option doesn't exist
+            $total_received = $temp_withdraw_amount / 1.0e8;
+
+            // Format the total received to ensure consistent decimal places (e.g., "0.00")
+            $total_received_formatted = number_format($total_received, 8, '.', '');
+            $total_received_formatted = 00;
+            // Update the 'tempwallet' option with the formatted total received amount
+            update_option("tempwallet", $total_received_formatted);
+        }
+
+        ob_start();
+        ?>   
+        <tr valign="top">
+			<th scope="row" class="titledesc">
+				<label>Wallet</label>
+			</th>
+			<td class="forminp" style="display: flex;align-items: flex-start;">
+                <div style="width: 300px;">
+                    <div style="font-size: 18px; margin-bottom: 10px;">Temporary Wallet</div>
+                    <div style="font-size: 14px; margin-bottom: 20px;">
+                        Accepting fund with temporary wallet. You can setup a
+                        Blockonomics store to use your own wallet.
+                    </div>
+                    <a href="#" style="color: #0000EE; text-decoration: none; font-size: 14px;">Learn More</a>
+                </div>
+
+                <input type="text" style="width: 200px; margin-left:50px;text-align:right;"value="<?php echo __($total_received_formatted, 'blockonomics-bitcoin-payments') ?> BTC" readonly>
+
+			</td>
+		</tr>
+        <?php
+        return ob_get_clean();
+    }
     public function generate_currency_html($key, $value)
     {
         ob_start();
@@ -320,6 +359,8 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 <?php
         return ob_get_clean();
     }
+     
+    
 
     public function process_admin_options()
     {
