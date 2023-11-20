@@ -371,7 +371,8 @@ function blockonomics_woocommerce_init()
                         <table class="form-table">
                             <tr valign="top"><th scope="row"><?php echo __('Time period of countdown timer on payment page (in minutes)', 'blockonomics-bitcoin-payments')?></th>
                                 <td>
-                                    <select onchange="add_asterisk('settings')" name="blockonomics_timeperiod" />
+                                    <select onchange="add_asterisk('settings')" name="blockonomics_timeperiod" >
+                                        <option value=" ">-- Select --</option>
                                         <option value="10" <?php selected(get_option('blockonomics_timeperiod'), 10); ?>>10</option>
                                         <option value="15" <?php selected(get_option('blockonomics_timeperiod'), 15); ?>>15</option>
                                         <option value="20" <?php selected(get_option('blockonomics_timeperiod'), 20); ?>>20</option>

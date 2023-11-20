@@ -202,9 +202,8 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             $temp_withdraw_amount = get_option('blockonomics_temp_withdraw_amount', 0); // Default to 0 if the option doesn't exist
             $total_received = $temp_withdraw_amount / 1.0e8;
 
-            // Format the total received to ensure consistent decimal places (e.g., "0.00")
+            // // Format the total received to ensure consistent decimal places (e.g., "0.00")
             $total_received_formatted = number_format($total_received, 8, '.', '');
-            $total_received_formatted = 00;
             // Update the 'tempwallet' option with the formatted total received amount
             update_option("tempwallet", $total_received_formatted);
         }
@@ -365,9 +364,9 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             update_option($optionName, $isEnabled);
         }
 
-        update_option('blockonomics_timeperiod', parent::get_option('timeperiod'));
+        update_option('blockonomics_timeperiod', (int)parent::get_option('timeperiod'));
         update_option('blockonomics_margin', (int)parent::get_option('extra_margin'));
-        update_option('blockonomics_underpayment_slack', parent::get_option('underpayment_slack'));
+        update_option('blockonomics_underpayment_slack', (int)parent::get_option('underpayment_slack'));
         update_option('blockonomics_partial_payments', parent::get_option('partialpayment') == 'yes' ? 1 : 0);
         update_option('blockonomics_api_key', parent::get_option('apikey'));
         update_option('blockonomics_nojs', parent::get_option('no_javascript') == 'yes' ? 1 : 0);
