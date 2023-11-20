@@ -68,7 +68,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
     public function init_form_fields()
     {
         $blockonomics = new Blockonomics;
-        $cryptos = $blockonomics->getActiveCurrencies();
+        $cryptos = $blockonomics->getSupportedCurrencies();
         $this->form_fields = array(
             'enabled' => array(
                 'title' => __('Enable Blockonomics plugin', 'blockonomics-bitcoin-payments'),
@@ -185,25 +185,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         );
     }
 
-    function temp_wallet_amount()
-    {
-        $btc_enabled = get_option("blockonomics_btc");
-
-        // If BTC is enabled or the 'blockonomics_btc' option has never been set (which returns false), proceed.
-        if ($btc_enabled || $btc_enabled === false) {
-            // Fetch the amount in the smallest unit from the database and convert to BTC
-            $temp_withdraw_amount = get_option('blockonomics_temp_withdraw_amount', 0); // Default to 0 if the option doesn't exist
-            $total_received = $temp_withdraw_amount / 1.0e8;
-
-            // Format the total received to ensure consistent decimal places (e.g., "0.00")
-            $total_received_formatted = number_format($total_received, 8, '.', '');
-            $total_received_formatted = 00;
-            // Update the 'tempwallet' option with the formatted total received amount
-            update_option("tempwallet", $total_received_formatted);
-
-            return $total_received_formatted;
-        }
-    }
     private function get_callback_url()
     {
         $callback_secret = get_option('blockonomics_callback_secret');
@@ -255,15 +236,13 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
     {
         ob_start();
         $blockonomics = new Blockonomics();
-        $cryptos = $blockonomics->getActiveCurrencies();
-
-?>
+        $cryptos = $blockonomics->getSupportedCurrencies();
+        ?>
         <style>
             .test-spinner {
                 border: 4px solid rgba(255, 255, 255, 0.3);
                 border-radius: 50%;
                 border-top: 4px solid #007bff;
-                /* Blue color */
                 width: 20px;
                 height: 20px;
                 animation: spin 2s linear infinite;
@@ -293,36 +272,45 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         </tr>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                // Getting the button element by ID
-                var button = document.getElementById('test-setup-btn');
-                var spinner = document.querySelector('.test-spinner');
+                const cryptoDOM = {};
 
-                document.querySelector('.btc-sucess-notice').style.display = 'none';
-                document.querySelector('.btc-error-notice').style.display = 'none';
-                document.querySelector('.bch-sucess-notice').style.display = 'none';
-                document.querySelector('.bch-error-notice').style.display = 'none';
+                const testSetupBtn = document.getElementById('test-setup-btn');
+                const spinner = document.querySelector('.test-spinner');
+                const apikey = document.getElementById('woocommerce_blockonomics_apikey').value;
 
-                // Adding click event listener to the button
-                button.addEventListener('click', async function(event) {
-                    // Prevent the default form submit action
+                const baseUrl = "<?php echo WC()->api_request_url('WC_Gateway_Blockonomics'); ?>";
+                const activeCurrencies = <?php echo json_encode($cryptos); ?>;
+
+
+                for (let code in activeCurrencies) {
+                    cryptoDOM[code] = {
+                        checkbox: document.getElementById(`woocommerce_blockonomics_${code}_enabled`),
+                        success: document.querySelector(`.${code}-sucess-notice`),
+                        error: document.querySelector(`.${code}-error-notice`),
+                        errorText: document.querySelector(`.${code}-error-notice .errorText`)
+                    };
+
+                    cryptoDOM[code].success.style.display = 'none';
+                    cryptoDOM[code].error.style.display = 'none';
+
+                    cryptoDOM[code].checkbox.addEventListener('change', (event) => {
+                        cryptoDOM[code].success.style.display = 'none';
+                        cryptoDOM[code].error.style.display = 'none';
+                    });
+                }
+
+                testSetupBtn.addEventListener('click', async function(event) {
                     event.preventDefault();
 
                     spinner.style.display = 'block';
-                    button.disabled = true;
+                    testSetupBtn.disabled = true;
+                    
+                    const payload = { test_setup: true, api_key: apikey };
 
-                    const apikey = document.getElementById('woocommerce_blockonomics_apikey').value;
-                    const baseUrl = "<?php echo WC()->api_request_url('WC_Gateway_Blockonomics'); ?>";
-                    const activeCurrencies = <?php echo json_encode($cryptos); ?>;
-
-                    const payload = {
-                        test_setup: true,
-                        api_key: apikey,
-                    };
-
-                    for (let currencyCode in activeCurrencies) {
-                        const node = document.getElementById(`woocommerce_blockonomics_${currencyCode}_enabled`);
+                    for (let code in activeCurrencies) {
+                        const node = cryptoDOM[code].checkbox;
                         const checked = node ? node.checked : false;
-                        payload[`${currencyCode}_active`] = checked;
+                        payload[`${code}_active`] = checked;
                     }
 
                     let errorResults = {};
@@ -337,26 +325,26 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                         console.error('Error:', error);
                     } finally {
                         spinner.style.display = 'none';
-                        button.disabled = false;
+                        testSetupBtn.disabled = false;
 
                         for (let code in errorResults) {
 
                             const result = errorResults[code];
 
                             if (!result) {
-                                document.querySelector(`.${code}-sucess-notice`).style.display = 'block';
-                                document.querySelector(`.${code}-error-notice`).style.display = 'none';
+                                cryptoDOM[code].success.style.display = 'block';
+                                cryptoDOM[code].error.style.display = 'none';
                             } else {
-                                document.querySelector(`.${code}-sucess-notice`).style.display = 'none';
-                                document.querySelector(`.${code}-error-notice`).style.display = 'block';
-                                document.querySelector(`.${code}-error-notice .errorText`).innerText = result;
+                                cryptoDOM[code].success.style.display = 'none';
+                                cryptoDOM[code].error.style.display = 'block';
+                                cryptoDOM[code].errorText.innerText = result;
                             }
                         }
                     }
                 });
             });
         </script>
-<?php
+        <?php
         return ob_get_clean();
     }
      
@@ -367,8 +355,16 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         if (!parent::process_admin_options()) {
             return false;
         }
-        update_option('blockonomics_bch', parent::get_option('bch_enabled') == 'yes' ? 1 : 0);
-        update_option('blockonomics_btc', parent::get_option('btc_enabled') == 'yes' ? 1 : 0);
+
+        $blockonomics = new Blockonomics;
+        $activeCurrencies = $blockonomics->getSupportedCurrencies();
+
+        foreach ($activeCurrencies as $code => $currency) {
+            $optionName = 'blockonomics_' . strtolower($code);
+            $isEnabled = parent::get_option($code . '_enabled') == 'yes' ? 1 : 0;
+            update_option($optionName, $isEnabled);
+        }
+
         update_option('blockonomics_timeperiod', parent::get_option('timeperiod'));
         update_option('blockonomics_margin', parent::get_option('extra_margin'));
         update_option('blockonomics_underpayment_slack', parent::get_option('underpayment_slack'));
