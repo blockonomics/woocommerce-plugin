@@ -68,10 +68,33 @@ function blockonomics_woocommerce_init()
     add_action('wp_enqueue_scripts', 'bnomics_register_stylesheets');
     add_action('wp_enqueue_scripts', 'bnomics_register_scripts');
     add_filter("wp_list_pages_excludes", "bnomics_exclude_pages");
+    add_action( 'admin_enqueue_scripts', 'wpdocs_enqueue_custom_admin_style' ); 
 
     function bnomics_exclude_pages( $exclude ) {
         $exclude[] = wc_get_page_id( 'payment' );
         return $exclude;
+    }
+
+    function wpdocs_enqueue_custom_admin_style() {
+        if (
+            isset($_GET['tab']) &&
+            'checkout' === $_GET['tab'] &&
+            isset($_GET['section']) &&
+            'blockonomics' === $_GET['section']
+        ) {
+            wp_register_style('blockonomics-admin-style', plugin_dir_url(__FILE__) . "css/admin.css", '', get_plugin_data( __FILE__ )['Version']);
+		    wp_enqueue_style( 'blockonomics-admin-style' );
+
+            wp_register_script( 'blockonomics-admin-scripts', plugins_url('js/admin.js#deferload', __FILE__), array(), get_plugin_data( __FILE__ )['Version'] );
+
+            $blockonomics_url = WC()->api_request_url('WC_Gateway_Blockonomics');
+    
+            wp_localize_script('blockonomics-admin-scripts', 'blockonomics_params', array(
+                'api_url' => $blockonomics_url
+            ));
+
+            wp_enqueue_script( 'blockonomics-admin-scripts' );
+        }
     }
 
     function add_payment_page_shortcode() {

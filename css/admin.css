@@ -1,0 +1,42 @@
+.forminp {
+    background-color: white;
+}
+
+.form-table {
+    width: 900px;
+}
+
+.test-spinner {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top: 4px solid #007bff;
+    width: 20px;
+    height: 20px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+#temp-wallet-notification-box {
+    border: 1px solid #8FBC8F;
+    background-color: #F0FFF0;
+    color: #006400;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    display: none;
+}
+
+#temp-wallet-input {
+    cursor: pointer;
+}
