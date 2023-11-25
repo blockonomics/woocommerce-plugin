@@ -14,6 +14,10 @@
     height: 20px;
     animation: spin 2s linear infinite;
 }
+.block-title-desc {
+    font-weight: normal;
+}
+
 
 @keyframes spin {
     0% {

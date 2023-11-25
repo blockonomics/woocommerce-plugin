@@ -109,17 +109,22 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             'tempwallet2' => array(
                 'id'    => 'tempwallet2',
                 'type'  => 'tempwallet2',
-                'title' => __('Wallet', 'blockonomics-bitcoin-payments')
+                'title' => __('Wallet<p class="block-title-desc">Wallet receving payment</p>', 'blockonomics-bitcoin-payments'),
+                'description' => __('Wallet receving payement ', 'blockonomics-bitcoin-payments'),
             ),
             'api-divider' => array(
                 'id'    => 'api-divider',
                 'type'  => 'divider'
             ),
             'apikey' => array(
-                'title' => __('Store', 'blockonomics-bitcoin-payments'),
+                'title' => __('
+                    Store
+                    <p class="block-title-desc">To use your own wallet and start withdrawing fund,you can setup a Blockonomics store</p>
+                    ', 'blockonomics-bitcoin-payments'),
                 'type' => 'text',
                 'description' => __('Setup Store on <a href= "https://blockonomics.co/merchants" style="color: green;">Blockonomics</a> and paste API Key here', 'blockonomics-bitcoin-payments'),
-                'default' => get_option('blockonomics_api_key')
+                'default' => get_option('blockonomics_api_key'),
+                
             )
         );
 
@@ -131,7 +136,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 
         $firstItem = true;
         foreach ($cryptos as $currencyCode => $crypto) {
-            $title = $firstItem ? __('Currencies', 'blockonomics-bitcoin-payments') : '';
+            $title = $firstItem ? __('Currencies<p class="block-title-desc">Setting and testing currencies accepted </p>', 'blockonomics-bitcoin-payments') : '';
             $this->form_fields[$currencyCode . '_enabled'] = array(
                 'title'   => $title,
                 'type'    => 'checkbox',
@@ -153,6 +158,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             'id'    => 'currency',
             'type'  => 'currency',
             'title' => __('Currency', 'blockonomics-bitcoin-payments'),
+            
         );
 
         $this->form_fields['advanced-divider'] = array(
@@ -161,11 +167,12 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         );
 
         $this->form_fields['extra_margin'] = array(
-            'title' => __('Advanced', 'blockonomics-bitcoin-payments'),
+            'title' => __('Advanced<p class="block-title-desc">Setting for advanced control</p>', 'blockonomics-bitcoin-payments'),
             'type' => 'text',
             'description' => __('Extra Currency Rate Margin % (Increase live fiat to BTC rate by small percent)', 'blockonomics-bitcoin-payments'),
             'default' => get_option('blockonomics_margin'),
-            'placeholder' => __("Extra Margin %", 'blockonomics-bitcoin-payments')
+            'placeholder' => __("Extra Margin %", 'blockonomics-bitcoin-payments'),
+            'desc_tip'=> true
         );
         $this->form_fields['underpayment_slack'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),
@@ -262,7 +269,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                 </div>
                 <div style="display: flex;align-items: flex-start;">
                     <div>
-                        <div style="font-size: 14px; font-weight: bold;margin-bottom: 10px;">Temporary Wallet</div>
+                        <div style="font-size: 14px; font-weight: bold;margin-bottom: 10px;">Store Wallet</div>
                         <div style="font-size: 14px; color: #646970; margin-bottom: 10px;">
                             Accepting fund with temporary wallet. You can setup a
                             Blockonomics store to use your own wallet.
