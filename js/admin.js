@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const testSetupBtn = document.getElementById('test-setup-btn');
     const spinner = document.querySelector('.test-spinner');
-    const apikey = document.getElementById('woocommerce_blockonomics_apikey').value;
     const tempWalletInput = document.getElementById('temp-wallet-input');
     const tempWalletNotification = document.getElementById('temp-wallet-notification-box');
 
@@ -30,6 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     testSetupBtn.addEventListener('click', async function(event) {
         event.preventDefault();
+        const apikey = document.getElementById('woocommerce_blockonomics_apikey').value;
 
         spinner.style.display = 'block';
         testSetupBtn.disabled = true;

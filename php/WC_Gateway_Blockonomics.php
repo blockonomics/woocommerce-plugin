@@ -118,7 +118,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             'apikey' => array(
                 'title' => __('Store', 'blockonomics-bitcoin-payments'),
                 'type' => 'text',
-                'description' => __('To get your API Key, click Get Started for Free on https://blockonomics.co/merchants', 'blockonomics-bitcoin-payments'),
+                'description' => __('Setup Store on <a href= "https://blockonomics.co/merchants" style="color: green;">Blockonomics</a> and paste API Key here', 'blockonomics-bitcoin-payments'),
                 'default' => get_option('blockonomics_api_key')
             )
         );
@@ -138,6 +138,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                 'label'   => __($crypto["name"] . ' (' . strtoupper($currencyCode) . ')', 'blockonomics-bitcoin-payments'),
                 'default' => get_option('blockonomics_' . $currencyCode) == 1 ? 'yes' : 'no',
                 'description' => __('
+                    <p style="font-size: 14px; color: #646970;">Enable accepting '.$crypto["name"] .'</p>
                     <p class="notice notice-success ' . $currencyCode . '-sucess-notice" style="display:none;width:400px;margin:0;">Success</div>
                     <p class="notice notice-error ' . $currencyCode . '-error-notice" style="width:400px;margin:0;display:none;">
                         <span class="errorText"></span><br />
@@ -164,26 +165,27 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             'type' => 'text',
             'description' => __('Extra Currency Rate Margin % (Increase live fiat to BTC rate by small percent)', 'blockonomics-bitcoin-payments'),
             'default' => get_option('blockonomics_margin'),
+            'placeholder' => __("Extra Margin %", 'blockonomics-bitcoin-payments')
         );
         $this->form_fields['underpayment_slack'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),
             'type' => 'text',
             'label' => __('Under Payment', 'blockonomics-bitcoin-payments'),
-            'description' => __('Underpayment Slack %.Allow payments that are off by a small percentage', 'blockonomics-bitcoin-payments'),
+            'description' => __('Allow payments that are off by a small percentage', 'blockonomics-bitcoin-payments'),
             'default' => get_option('blockonomics_underpayment_slack'),
-            'placeholder' => __("placeholder", 'blockonomics-bitcoin-payments')
+            'placeholder' => __("Underpayment Slack %", 'blockonomics-bitcoin-payments')
         );
         $this->form_fields['no_javascript'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),
             'type' => 'checkbox',
-            'label' => __('No JS ', 'blockonomics-bitcoin-payments'),
-            'description' => __('To get your API Key, click Get Started for Free on https://blockonomics.co/merchants', 'blockonomics-bitcoin-payments'),
+            'label' => __('No Javascript checkout page', 'blockonomics-bitcoin-payments'),
+            'description' => __('Enable this if you have majority customer that uses tor like browser that blocks JS', 'blockonomics-bitcoin-payments'),
             'default' => get_option('blockonomics_nojs') == 1 ? 'yes' : 'no',
         );
         $this->form_fields['partialpayment'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),
             'type' => 'checkbox',
-            'label' => __('Partial Payment ', 'blockonomics-bitcoin-payments'),
+            'label' => __('Partial Payments ', 'blockonomics-bitcoin-payments'),
             'description' => __('Allow customer to pay order via multiple payement  ', 'blockonomics-bitcoin-payments'),
             'default' => get_option('blockonomics_partial_payments') == 1 ? 'yes' : 'no',
         );
@@ -201,7 +203,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $this->form_fields['callBackurls'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),
             'type' => 'text',
-            'description' => __('Callback URL.You need this callback URL to setup multiple stores ', 'blockonomics-bitcoin-payments'),
+            'description' => __('Callback URL:You need this callback URL to setup multiple stores ', 'blockonomics-bitcoin-payments'),
             'default' => __($this->get_callback_url(), 'blockonomics-bitcoin-payments'),
             'disabled' => true,
             'css' => 'width:100%;',
@@ -265,7 +267,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                             Accepting fund with temporary wallet. You can setup a
                             Blockonomics store to use your own wallet.
                         </div>
-                        <a href="#" style="color: #0000EE; text-decoration: none; font-size: 14px;">Learn More</a>
+                        <a href="#" style="color: green; text-decoration: none; font-size: 14px;">Learn More</a>
                     </div>
 
                     <input id="temp-wallet-input" type="text" style="width: 200px; margin-left:50px;text-align:right;"value="<?php echo __($total_received_formatted, 'blockonomics-bitcoin-payments') ?> BTC" readonly>
@@ -284,7 +286,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             <td class="forminp">
                 <div class="bnomics-options-small-margin-top">
                     <div style="display:flex;">
-                        <input type="button" id="test-setup-btn" class="button-primary" value="<?php echo __("Test Setup", 'blockonomics-bitcoin-payments') ?>" />
+                        <input type="button" id="test-setup-btn" class="button-primary" style ="background-color: green;color:white;" value="<?php echo __("Test Setup", 'blockonomics-bitcoin-payments') ?>" />
                         <div class="test-spinner" style="display: none;margin-left:10px;"></div>
                     </div>
                 </div>
