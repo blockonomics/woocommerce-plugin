@@ -172,7 +172,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             'description' => __('Extra Currency Rate Margin % (Increase live fiat to BTC rate by small percent)', 'blockonomics-bitcoin-payments'),
             'default' => get_option('blockonomics_margin'),
             'placeholder' => __("Extra Margin %", 'blockonomics-bitcoin-payments'),
-            'desc_tip'=> true
+            
         );
         $this->form_fields['underpayment_slack'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),
