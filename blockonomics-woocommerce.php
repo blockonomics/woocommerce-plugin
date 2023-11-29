@@ -85,7 +85,7 @@ function blockonomics_woocommerce_init()
             wp_register_style('blockonomics-admin-style', plugin_dir_url(__FILE__) . "css/admin.css", '', get_plugin_data( __FILE__ )['Version']);
 		    wp_enqueue_style( 'blockonomics-admin-style' );
 
-            wp_register_script( 'blockonomics-admin-scripts', plugins_url('js/admin.js#deferload', __FILE__), array(), get_plugin_data( __FILE__ )['Version'] );
+            wp_register_script( 'blockonomics-admin-scripts', plugins_url('js/admin.js', __FILE__), array(), get_plugin_data( __FILE__ )['Version'], array( 'strategy' => 'defer' ) );
 
             $blockonomics_url = WC()->api_request_url('WC_Gateway_Blockonomics');
     

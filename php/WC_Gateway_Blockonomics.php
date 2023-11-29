@@ -276,8 +276,9 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                         </div>
                         <a href="#" style="color: green; text-decoration: none; font-size: 14px;">Learn More</a>
                     </div>
-
+                    <?php if ($total_received_formatted != '0.00000000'): ?>
                     <input id="temp-wallet-input" type="text" style="width: 200px; margin-left:50px;text-align:right;"value="<?php echo __($total_received_formatted, 'blockonomics-bitcoin-payments') ?> BTC" readonly>
+                    <?php endif; ?>
                 </div>
 			</td>
 		</tr>
