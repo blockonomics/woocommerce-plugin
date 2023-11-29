@@ -86,8 +86,8 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                 'label' => __('Show bitcoin as an option to customers during checkout?', 'blockonomics-bitcoin-payments'),
                 'default' => 'yes'
             ),
-            'title-divider' => array(
-                'id'    => 'title-divider',
+            'title_divider' => array(
+                'id'    => 'title_divider',
                 'type'  => 'divider'
             ),
             'title' => array(
@@ -102,21 +102,21 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                 'description' => __('This controls the description which the user sees during checkout.', 'blockonomics-bitcoin-payments'),
                 'default' => ''
             ),
-            'wallet-divider' => array(
-                'id'    => 'wallet-divider',
+            'wallet_divider' => array(
+                'id'    => 'wallet_divider',
                 'type'  => 'divider'
             ),
-            'tempwallet2' => array(
-                'id'    => 'tempwallet2',
-                'type'  => 'tempwallet2',
+            'temp_wallet' => array(
+                'id'    => 'temp_wallet',
+                'type'  => 'temp_wallet',
                 'title' => __('Wallet<p class="block-title-desc">Wallet receving payment</p>', 'blockonomics-bitcoin-payments'),
                 'description' => __('Wallet receving payement ', 'blockonomics-bitcoin-payments'),
             ),
-            'api-divider' => array(
-                'id'    => 'api-divider',
+            'api_divider' => array(
+                'id'    => 'api_divider',
                 'type'  => 'divider'
             ),
-            'apikey' => array(
+            'api_key' => array(
                 'title' => __('
                     Store
                     <p class="block-title-desc">To use your own wallet and start withdrawing fund,you can setup a Blockonomics store</p>
@@ -128,11 +128,10 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             )
         );
 
-        $this->form_fields['currency-divider'] = array(
-            'id'    => 'currency-divider',
+        $this->form_fields['currency_divider'] = array(
+            'id'    => 'currency_divider',
             'type'  => 'divider'
         );
-
 
         $firstItem = true;
         foreach ($cryptos as $currencyCode => $crypto) {
@@ -161,8 +160,8 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             
         );
 
-        $this->form_fields['advanced-divider'] = array(
-            'id'    => 'advanced-divider',
+        $this->form_fields['advanced_divider'] = array(
+            'id'    => 'advanced_divider',
             'type'  => 'divider'
         );
 
@@ -189,7 +188,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             'description' => __('Enable this if you have majority customer that uses tor like browser that blocks JS', 'blockonomics-bitcoin-payments'),
             'default' => get_option('blockonomics_nojs') == 1 ? 'yes' : 'no',
         );
-        $this->form_fields['partialpayment'] = array(
+        $this->form_fields['partial_payment'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),
             'type' => 'checkbox',
             'label' => __('Partial Payments ', 'blockonomics-bitcoin-payments'),
@@ -207,7 +206,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                 '0' => __('0', 'blockonomics-bitcoin-payments'),
             ),
         );
-        $this->form_fields['callBackurls'] = array(
+        $this->form_fields['call_backurls'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),
             'type' => 'text',
             'description' => __('Callback URL:You need this callback URL to setup multiple stores ', 'blockonomics-bitcoin-payments'),
@@ -237,7 +236,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         return ob_get_clean();
     }
 
-    public function generate_tempwallet2_html($key, $data){
+    public function generate_temp_wallet_html($key, $data){
 
         $field_key = $this->get_field_key( $key );
         $btc_enabled = get_option("blockonomics_btc");
@@ -320,15 +319,13 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             $isEnabled = parent::get_option($code . '_enabled') == 'yes' ? 1 : 0;
             update_option($optionName, $isEnabled);
         }
-
-        update_option('blockonomics_timeperiod', (int)parent::get_option('timeperiod'));
         update_option('blockonomics_margin', (int)parent::get_option('extra_margin'));
         update_option('blockonomics_underpayment_slack', (int)parent::get_option('underpayment_slack'));
-        update_option('blockonomics_partial_payments', parent::get_option('partialpayment') == 'yes' ? 1 : 0);
-        update_option('blockonomics_api_key', parent::get_option('apikey'));
+        update_option('blockonomics_partial_payments', parent::get_option('partial_payment') == 'yes' ? 1 : 0);
+        update_option('blockonomics_api_key', parent::get_option('api_key'));
         update_option('blockonomics_nojs', parent::get_option('no_javascript') == 'yes' ? 1 : 0);
 
-        parent::update_option('callBackurls', $this->get_callback_url());
+        parent::update_option('call_backurls', $this->get_callback_url());
     }
 
     // Woocommerce process payment, runs during the checkout
@@ -376,7 +373,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         } else if ($secret && $addr && isset($status) && $value && $txid) {
             $blockonomics->process_callback($secret, $addr, $status, $value, $txid, $rbf);
         } else if ($test_setup) {
-            $blockonomics->settingsTestsetup($api_key, $btc_active, $bch_active);
+            $blockonomics->settings_Test_setup($api_key, $btc_active, $bch_active);
         }
 
         exit();

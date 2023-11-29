@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     testSetupBtn.addEventListener('click', async function(event) {
         event.preventDefault();
-        const apikey = document.getElementById('woocommerce_blockonomics_apikey').value;
+        const apikey = document.getElementById('woocommerce_blockonomics_api_key').value;
 
         spinner.style.display = 'block';
         testSetupBtn.disabled = true;
