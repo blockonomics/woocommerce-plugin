@@ -457,7 +457,9 @@ class Blockonomics
     public function add_blockonomics_checkout_style($template_name, $additional_script=NULL){
         wp_enqueue_style( 'bnomics-style' );
         if ($template_name === 'checkout') {
-            wp_add_inline_script('bnomics-checkout', $additional_script, 'before');
+            add_action('wp_footer', function() use ($additional_script) {
+                printf('<script type="text/javascript">%s</script>', $additional_script);
+            });
             wp_enqueue_script( 'bnomics-checkout' );
         }
     }
@@ -536,15 +538,17 @@ class Blockonomics
 
     // Save the new address to the WooCommerce order
     public function record_address($order_id, $crypto, $address){
+        $wc_order = wc_get_order( $order_id );
         $addr_meta_key = 'blockonomics_payments_addresses';
-        $addr_meta_value = get_post_meta($order_id, $addr_meta_key);
+        $addr_meta_value = $wc_order->get_meta($addr_meta_key);
         if (empty($addr_meta_value)){ 
-            update_post_meta($order_id, $addr_meta_key, $address);
+            $wc_order->update_meta_data( $addr_meta_key, $address );
         } 
         // when address meta value is not empty and $address is not in it 
-        else if (strpos($addr_meta_value[0], $address) === false) {
-            update_post_meta($order_id, $addr_meta_key, $addr_meta_value[0]. ', '. $address);
+        else if (strpos($addr_meta_value, $address) === false) {
+            $wc_order->update_meta_data( $addr_meta_key, $addr_meta_value. ', '. $address );
         }
+        $wc_order->save();
     }
 
     public function create_new_order($order_id, $crypto){
@@ -804,15 +808,16 @@ class Blockonomics
 
     public function save_transaction($order, $wc_order){
         $txid_meta_key = 'blockonomics_payments_txids';
-        $txid_meta_value = get_post_meta($order['order_id'], $txid_meta_key);
+        $txid_meta_value = $wc_order->get_meta($txid_meta_key);
         $txid = $order['txid'];
         if (empty($txid_meta_value)){
-            update_post_meta($wc_order->get_id(), $txid_meta_key, $txid);
+            $wc_order->update_meta_data($txid_meta_key, $txid);
         }
         // when txid meta value is not empty and $txid is not in it 
-        else if (strpos($txid_meta_value[0], $txid) === false){
-            update_post_meta($wc_order->get_id(), $txid_meta_key, $txid_meta_value[0].', '. $txid);
+        else if (strpos($txid_meta_value, $txid) === false){
+            $wc_order->update_meta_data($txid_meta_key, $txid_meta_value.', '. $txid);
         }
+        $wc_order->save();
     }
 
     public function update_paid_amount($callback_status, $paid_satoshi, $order, $wc_order){

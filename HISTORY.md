@@ -1,5 +1,11 @@
 == Changelog ==
 
+= 3.6.9  =
+* Fixed issues with Block Themes
+
+= 3.6.8  =
+* Made plugin Woocommerce HPOS compatible
+
 = 3.6.7  =
 * Fix shortcode execution with page builders
 
