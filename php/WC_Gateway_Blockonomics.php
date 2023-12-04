@@ -373,7 +373,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         } else if ($secret && $addr && isset($status) && $value && $txid) {
             $blockonomics->process_callback($secret, $addr, $status, $value, $txid, $rbf);
         } else if ($test_setup) {
-            $blockonomics->settings_Test_setup($api_key, $btc_active, $bch_active);
+            $blockonomics->settings_test_setup($api_key, $btc_active, $bch_active);
         }
 
         exit();
