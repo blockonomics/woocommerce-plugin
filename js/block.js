@@ -7,9 +7,26 @@ const settings = window.wc.wcSettings.getSetting( 'blockonomics_data', {} );
 const defaultLabel = __( 'Bitcoin', 'blockonomics-bitcoin-payments' );
 const label = decodeEntities( settings.title ) || defaultLabel;
 
+const getIcons = () => {
+	return Object.entries( settings?.icons ?? {} ).map(
+		( [ id, { src, alt } ] ) => {
+			return {
+				id,
+				src,
+				alt,
+			};
+		}
+	);
+};
+
 const Label = ( props ) => {
-	const { PaymentMethodLabel } = props.components;
-	return <PaymentMethodLabel text={ label } />;
+	const { PaymentMethodLabel, PaymentMethodIcons } = props.components;
+	return (
+		<>
+			<PaymentMethodLabel text={ label } />
+			<PaymentMethodIcons icons={getIcons()} />
+		</>
+	);
 };
 
 const Content = () => {
@@ -20,13 +37,16 @@ const canMakePayment = () => {
 	return true;
 };
 
+console.log(settings);
+
 const blockonomicsPaymentMethod = {
     name: 'blockonomics',
     label: <Label />,
 	content: <Content />,
 	edit: <Content />,
 	canMakePayment,
-	ariaLabel: label
+	ariaLabel: label,
+	icons: getIcons(),
 }
 
 registerPaymentMethod( blockonomicsPaymentMethod );

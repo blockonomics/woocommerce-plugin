@@ -36,8 +36,8 @@ final class WC_Blockonomics_Blocks_Support extends AbstractPaymentMethodType {
         wp_register_script(
             'bnomics-blocks-integration',
             plugins_url('../build/block.js', __FILE__),
-            array(),
-            get_plugin_data( __FILE__ )['Version'],
+            $dependencies,
+            $version,
             true
         );
 
@@ -50,7 +50,30 @@ final class WC_Blockonomics_Blocks_Support extends AbstractPaymentMethodType {
 			'description'              => $this->get_setting( 'description' ),
 			'enableForVirtual'         => $this->get_enable_for_virtual(),
 			'supports'                 => $this->get_supported_features(),
+			'icons'				       => $this->get_icons()
 		];
+	}
+
+	private function get_icons() {
+		include_once 'Blockonomics.php';
+        $blockonomics = new Blockonomics;
+        $active_cryptos = $blockonomics->getActiveCurrencies();
+
+		if (isset($active_cryptos['btc'])) {
+            $icons_src['btc'] = [
+				'src' => plugins_url('../img/bitcoin-icon.png', __FILE__),
+				'alt' => __( 'Bitcoin', 'blockonomics-bitcoin-payments' ),
+			];
+        }
+		
+		if (isset($active_cryptos['bch'])) {
+            $icons_src['bch'] = [
+				'src' => plugins_url('../img/bch-icon.png', __FILE__),
+				'alt' => __( 'Bitcoin Cash', 'blockonomics-bitcoin-payments' ),
+			];
+        }
+
+		return $icons_src;
 	}
 }
 
