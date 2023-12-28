@@ -125,7 +125,14 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                 'description' => __('Setup Store on <a href= "https://blockonomics.co/merchants" style="color: green;">Blockonomics</a> and paste API Key here', 'blockonomics-bitcoin-payments'),
                 'default' => get_option('blockonomics_api_key'),
                 
+            ),
+            'currency' => array(
+                'id'    => 'currency',
+                'type'  => 'currency',
+                'title' => __('Currency', 'blockonomics-bitcoin-payments'),
+                
             )
+
         );
 
         $this->form_fields['currency_divider'] = array(
@@ -153,12 +160,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             $firstItem = false;
         }
 
-        $this->form_fields['currency'] = array(
-            'id'    => 'currency',
-            'type'  => 'currency',
-            'title' => __('Currency', 'blockonomics-bitcoin-payments'),
-            
-        );
 
         $this->form_fields['advanced_divider'] = array(
             'id'    => 'advanced_divider',
@@ -268,7 +269,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                 </div>
                 <div style="display: flex;align-items: flex-start;">
                     <div>
-                        <div style="font-size: 14px; font-weight: bold;margin-bottom: 10px;">Store Wallet</div>
+                        <div style="font-size: 14px; font-weight: bold;margin-bottom: 10px;">Temporary Wallet</div>
                         <div style="font-size: 14px; color: #646970; margin-bottom: 10px;">
                             Accepting fund with temporary wallet. You can setup a
                             Blockonomics store to use your own wallet.
