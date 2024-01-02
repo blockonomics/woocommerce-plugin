@@ -17,7 +17,11 @@
 .block-title-desc {
     font-weight: normal;
 }
-
+.form-table td {
+    
+    padding: 6px 10px;
+   
+}
 
 @keyframes spin {
     0% {

@@ -109,7 +109,10 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             'temp_wallet' => array(
                 'id'    => 'temp_wallet',
                 'type'  => 'temp_wallet',
-                'title' => __('Wallet<p class="block-title-desc">Wallet receving payment</p>', 'blockonomics-bitcoin-payments'),
+                'title' => __(
+                    'Wallet<p class="block-title-desc">Wallet receving payment</p>',
+                    'blockonomics-bitcoin-payments'
+                ),
                 'description' => __('Wallet receving payement ', 'blockonomics-bitcoin-payments'),
             ),
             'api_divider' => array(
@@ -170,17 +173,16 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             'title' => __('Advanced<p class="block-title-desc">Setting for advanced control</p>', 'blockonomics-bitcoin-payments'),
             'type' => 'text',
             'description' => __('Extra Currency Rate Margin % (Increase live fiat to BTC rate by small percent)', 'blockonomics-bitcoin-payments'),
-            'default' => get_option('blockonomics_margin'),
-            'placeholder' => __("Extra Margin %", 'blockonomics-bitcoin-payments'),
+            'default' => 0,
+            
             
         );
         $this->form_fields['underpayment_slack'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),
             'type' => 'text',
             'label' => __('Under Payment', 'blockonomics-bitcoin-payments'),
-            'description' => __('Allow payments that are off by a small percentage', 'blockonomics-bitcoin-payments'),
-            'default' => get_option('blockonomics_underpayment_slack'),
-            'placeholder' => __("Underpayment Slack %", 'blockonomics-bitcoin-payments')
+            'description' => __('Underpayment Slack% :Allow payments that are off by a small percentage', 'blockonomics-bitcoin-payments'),
+            'default' => 0,
         );
         $this->form_fields['no_javascript'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),
@@ -194,7 +196,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             'type' => 'checkbox',
             'label' => __('Partial Payments ', 'blockonomics-bitcoin-payments'),
             'description' => __('Allow customer to pay order via multiple payement  ', 'blockonomics-bitcoin-payments'),
-            'default' => get_option('blockonomics_partial_payments') == 1 ? 'yes' : 'no',
+            'default' => $blockonomics->is_partial_payments_active() ? 'yes' : 'no',
         );
         $this->form_fields['network_confirmation'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),
@@ -242,6 +244,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $field_key = $this->get_field_key( $key );
         $btc_enabled = get_option("blockonomics_btc");
         $total_received_formatted = 00;
+        $apikey = get_option('blockonomics_api_key');
 
         // If BTC is enabled or the 'blockonomics_btc' option has never been set (which returns false), proceed.
         if ($btc_enabled || $btc_enabled === false) {
@@ -269,7 +272,9 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                 </div>
                 <div style="display: flex;align-items: flex-start;">
                     <div>
-                        <div style="font-size: 14px; font-weight: bold;margin-bottom: 10px;">Temporary Wallet</div>
+                        <div style="font-size: 14px; font-weight: bold;margin-bottom: 10px;">
+                            <?php echo $apikey ? "Store wallet": "Temporary Wallet"; ?>
+                        </div>
                         <div style="font-size: 14px; color: #646970; margin-bottom: 10px;">
                             Accepting fund with temporary wallet. You can setup a
                             Blockonomics store to use your own wallet.
