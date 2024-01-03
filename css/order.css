@@ -1,11 +1,12 @@
 /* ----- Checkout Page Styles ------*/
 
 .bnomics-qr-block {
-  display: flex;
   align-items: center;
   justify-content: flex-end;
 }
-
+.bnomics-order-address-container {
+  height: 1px;
+}
 .bnomics-qr-code {
   display: none;
 }
@@ -30,8 +31,6 @@
 
 .bnomics-qr {
   text-align: center !important;
-  padding: 16px 8px;
-  width: 180px;
   text-align: left;
 }
 
@@ -63,7 +62,7 @@ svg {
   .bnomics-btc-info {
     display: block !important;
   }
-
+  
   .bnomics-order-container {
     text-align: center;
   }
@@ -378,8 +377,8 @@ svg {
 .bnomics-order-address {
   align-items: center;
   margin-left: 8px;
-  margin-right: 8px;
   text-align: left;
+  height: 100%;
 }
 
 .bnomics-or-divider {
@@ -446,6 +445,7 @@ svg {
 .bnomics-checkout-row td {
   padding: 0;
   vertical-align: middle; 
+  border:0;
 }
 
 .bnomics-order-address label,
@@ -468,6 +468,16 @@ table.blockonomics_checkout_table tbody td {
   #blockonomics_checkout table {
     max-width: auto;
     border: initial;
+  }
+ .border-title-container {
+  margin-bottom: 20px;
+ }
+  .bnomics-order-address-container{
+    height:auto;
+  }
+
+  .bnomics-order-address {
+    margin-left: 0;
   }
 
   .blockonomics_checkout_table td {
@@ -538,4 +548,43 @@ table.blockonomics_checkout_table tbody td {
   .blockonomics_checkout_table > tbody > tr > td {
     border: 0;
   }
+}
+
+.border-title-container {
+  position: relative; 
+  border: 1px solid black; 
+  padding: 10px; 
+  display:flex;
+  flex-direction: column;
+}
+
+.border-title-container::before {
+  content: 'Scan'; 
+  position: absolute;
+  top: 0px; 
+  left: 10px; 
+  padding: 0 4px; 
+  font-weight: bold;
+  background: var(--global--color-background);
+  font-size: var(--global--font-size-xs);
+  transform: translateY(-50%);
+}
+
+.border-address-container {
+  position: relative; 
+  border: 1px solid black; 
+  padding: 10px; 
+  height: 100%;
+}
+
+.border-address-container::before {
+  content: 'Copy'; 
+  position: absolute;
+  top: 0px; 
+  left: 10px; 
+  font-weight: bold; 
+  padding: 0 4px; 
+  background: var(--global--color-background);
+  font-size: var(--global--font-size-xs);
+  transform: translateY(-50%);
 }

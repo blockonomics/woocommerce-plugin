@@ -75,19 +75,20 @@
                             <tr>
                                 <td>
                                     <div class="bnomics-qr-block">
-                                        <div class="bnomics-qr">
+                                     <div class="bnomics-qr">
+                                        <div class="border-title-container">
                                             <a href="<?php echo $payment_uri; ?>" target="_blank" class="bnomics-qr-link">
                                                 <canvas id="bnomics-qr-code"></canvas>
                                             </a>
                                             <a href="<?php echo $payment_uri; ?>" target="_blank" class="bnomics-qr-link"><?= __('Open in wallet', 'blockonomics-bitcoin-payments') ?></a>
                                         </div>
+                                     </div>
                                     </div>
                                 </td>
-                                <td class="bnomics-or-divider">
-                                    OR
-                                </td>
-                                <td>
+    
+                                <td class="bnomics-order-address-container">
                                     <div class="bnomics-order-address">
+                                      <div class="border-address-container">
                                         <div class="bnomics-address">
                                             <!-- Order Address -->
                                             <label class="bnomics-address-text"><?= __('Send ', 'blockonomics-bitcoin-payments') ?> <?php echo strtolower($crypto['name']); ?> <?= __('to this address:', 'blockonomics-bitcoin-payments') ?></label>
@@ -102,6 +103,7 @@
                                         <div class="bnomics-copy-container" id="bnomics-amount-copy-container">
                                             <input type="text" value="<?php echo $order_amount; ?>" id="bnomics-amount-input" readonly data-copy />
                                         </div>
+                                      </div> 
                                     </div>
                                 </td>
                             </tr>
