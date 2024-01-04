@@ -11,7 +11,7 @@ final class WC_Blockonomics_Blocks_Support extends AbstractPaymentMethodType {
 	}
 
     public function is_active() {
-		return filter_var( $this->get_setting( 'enabled', false ), FILTER_VALIDATE_BOOLEAN );
+		return filter_var( $this->get_setting( 'enabled', true ), FILTER_VALIDATE_BOOLEAN );
 	}
 
     private function get_enable_for_virtual() {
