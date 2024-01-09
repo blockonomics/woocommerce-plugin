@@ -313,7 +313,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                                 Accepting fund with temporary wallet. You can setup a
                                 Blockonomics store to use your own wallet.
                             </div>
-                            <a href="#" style="color: green; text-decoration: none; font-size: 14px;">Learn More</a>
+                            <a href="https://help.blockonomics.co/support/solutions/articles/33000248575-wordpress-woocommerce-integration-faq-" target="_blank" style="color: green; text-decoration: none; font-size: 14px;">Learn More</a>
                         <?php endif; ?>
                     </div>
                     <?php if (floatval($total_received_formatted) > 0): ?>
