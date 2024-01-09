@@ -1,8 +1,9 @@
 import { __ } from '@wordpress/i18n';
 import { decodeEntities } from '@wordpress/html-entities';
+import { getSetting } from '@woocommerce/settings';
+import { registerPaymentMethod } from '@woocommerce/blocks-registry';
 
-const { registerPaymentMethod } = window.wc.wcBlocksRegistry;
-const settings = window.wc.wcSettings.getSetting( 'blockonomics_data', {} );
+const settings = getSetting( 'blockonomics_data', {} );
 
 const defaultLabel = __( 'Bitcoin', 'blockonomics-bitcoin-payments' );
 const label = decodeEntities( settings.title ) || defaultLabel;
