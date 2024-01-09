@@ -1,14 +1,13 @@
 {
   "name": "blockonomics-bitcoin-payments",
   "version": "1.0.0",
-  "description": "**Contributors:** juhasiivikko, darrenwestwood, blockonomics **Tags:** bitcoin, accept bitcoin, bitcoin woocommerce, bitcoin wordpress plugin, bitcoin payments  **Requires at least:** 3.0.1  **Tested up to:** 6.3.1 **Stable tag:** 3.6.9 **License:** MIT  **License URI:** http://opensource.org/licenses/MIT",
+  "description": "**Development scripts to compile, bundle, lint, format and minify the plugin js using wp-scripts.",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "wp-scripts build js/block.js"
   },
   "devDependencies": {
-    "@woocommerce/settings": "^1.0.0",
     "@wordpress/scripts": "^26.18.0",
-    "copy-webpack-plugin": "^11.0.0"
+    "@woocommerce/dependency-extraction-webpack-plugin": "^2.2.0"
   }
 }

@@ -37,7 +37,7 @@ const canMakePayment = () => {
 	return true;
 };
 
-console.log(settings);
+
 
 const blockonomicsPaymentMethod = {
     name: 'blockonomics',
