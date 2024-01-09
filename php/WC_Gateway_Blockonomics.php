@@ -17,7 +17,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 
         $this->id   = 'blockonomics';
         $this->method_title = __( 'Blockonomics Bitcoin', 'blockonomics-bitcoin-payments' );
-        $this->method_description = __( 'Blockonomics Bitcoin Description', 'blockonomics-bitcoin-payments' );
+        $this->method_description = __( 'Secure and user-friendly Bitcoin payment gateway for direct merchant transactions.', 'blockonomics-bitcoin-payments' );
 
         include_once 'Blockonomics.php';
         $blockonomics = new Blockonomics;
@@ -62,14 +62,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             array(
                 $this,
                 'handle_requests'
-            )
-        );
-
-        add_action(
-            'admin_init',
-            array(
-                $this,
-                'initialise_warnings'
             )
         );
     }
@@ -121,13 +113,12 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             ),
             'api_key' => array(
                 'title' => __('
-                    Store
-                    <p class="block-title-desc">To use your own wallet and start withdrawing fund,you can setup a Blockonomics store</p>
+                    API Key
+                    <p class="block-title-desc">Securely Connect Your Store to Blockonomics</p>
                     ', 'blockonomics-bitcoin-payments'),
-                'type' => 'text',
-                'description' => __('Setup Store on <a href= "https://blockonomics.co/merchants" style="color: green;">Blockonomics</a> and paste API Key here', 'blockonomics-bitcoin-payments'),
+                'type' => 'apikey',
+                'description' => __('Setup Store on <a href="https://blockonomics.co/merchants" target="_blank" style="color: green;">Blockonomics</a> and paste API Key here', 'blockonomics-bitcoin-payments'),
                 'default' => get_option('blockonomics_api_key'),
-                
             ),
             'currency' => array(
                 'id'    => 'currency',
@@ -153,16 +144,10 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                 'default' => get_option('blockonomics_' . $currencyCode) == 1 ? 'yes' : 'no',
                 'description' => __('
                     <p style="font-size: 14px; color: #646970;">Enable accepting '.$crypto["name"] .'</p>
-                    <p class="notice notice-success ' . $currencyCode . '-sucess-notice" style="display:none;width:400px;margin:0;">Success</div>
-                    <p class="notice notice-error ' . $currencyCode . '-error-notice" style="width:400px;margin:0;display:none;">
-                        <span class="errorText"></span><br />
-                        Please consult <a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank">this troubleshooting article</a>.
-                    </p>
                 '),
             );
             $firstItem = false;
         }
-
 
         $this->form_fields['advanced_divider'] = array(
             'id'    => 'advanced_divider',
@@ -172,29 +157,29 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $this->form_fields['extra_margin'] = array(
             'title' => __('Advanced<p class="block-title-desc">Setting for advanced control</p>', 'blockonomics-bitcoin-payments'),
             'type' => 'text',
-            'description' => __('Extra Currency Rate Margin % (Increase live fiat to BTC rate by small percent)', 'blockonomics-bitcoin-payments'),
+            'description' => __('Increase live fiat to BTC rate by small percent', 'blockonomics-bitcoin-payments'),
+            'subtitle' => __('Extra Currency Rate Margin %', 'blockonomics-bitcoin-payments'),
             'default' => 0,
-            
-            
         );
         $this->form_fields['underpayment_slack'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),
             'type' => 'text',
             'label' => __('Under Payment', 'blockonomics-bitcoin-payments'),
-            'description' => __('Underpayment Slack% :Allow payments that are off by a small percentage', 'blockonomics-bitcoin-payments'),
+            'description' => __('Allow payments that are off by a small percentage', 'blockonomics-bitcoin-payments'),
+            'subtitle' => __('Underpayment Slack %', 'blockonomics-bitcoin-payments'),
             'default' => 0,
         );
         $this->form_fields['no_javascript'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),
             'type' => 'checkbox',
-            'label' => __('No Javascript checkout page', 'blockonomics-bitcoin-payments'),
+            'label' => __('<strong>No Javascript checkout page</strong>', 'blockonomics-bitcoin-payments'),
             'description' => __('Enable this if you have majority customer that uses tor like browser that blocks JS', 'blockonomics-bitcoin-payments'),
             'default' => get_option('blockonomics_nojs') == 1 ? 'yes' : 'no',
         );
         $this->form_fields['partial_payment'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),
             'type' => 'checkbox',
-            'label' => __('Partial Payments ', 'blockonomics-bitcoin-payments'),
+            'label' => __('<strong>Partial Payments</strong>', 'blockonomics-bitcoin-payments'),
             'description' => __('Allow customer to pay order via multiple payement  ', 'blockonomics-bitcoin-payments'),
             'default' => $blockonomics->is_partial_payments_active() ? 'yes' : 'no',
         );
@@ -212,7 +197,8 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $this->form_fields['call_backurls'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),
             'type' => 'text',
-            'description' => __('Callback URL:You need this callback URL to setup multiple stores ', 'blockonomics-bitcoin-payments'),
+            'description' => __('You need this callback URL to setup multiple stores', 'blockonomics-bitcoin-payments'),
+            'subtitle' => __('Callback URL :', 'blockonomics-bitcoin-payments'),
             'default' => __($this->get_callback_url(), 'blockonomics-bitcoin-payments'),
             'disabled' => true,
             'css' => 'width:100%;',
@@ -238,6 +224,48 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         <?php
         return ob_get_clean();
     }
+
+    public function generate_text_html( $key, $data ) {
+		$field_key = $this->get_field_key( $key );
+		$defaults  = array(
+			'title'             => '',
+			'disabled'          => false,
+			'class'             => '',
+			'css'               => '',
+			'placeholder'       => '',
+			'type'              => 'text',
+			'desc_tip'          => false,
+			'description'       => '',
+			'custom_attributes' => array(),
+		);
+
+		$data = wp_parse_args( $data, $defaults );
+
+		ob_start();
+		?>
+		<tr valign="top">
+			<th scope="row" class="titledesc">
+				<label for="<?php echo esc_attr( $field_key ); ?>"><?php echo wp_kses_post( $data['title'] ); ?> <?php echo $this->get_tooltip_html( $data ); // WPCS: XSS ok. ?></label>
+			</th>
+			<td class="forminp">
+				<fieldset>
+                    <?php if ( ! empty( $data['subtitle'] ) ) : ?>
+                        <p style="margin-bottom: 8px;">
+                            <strong>
+                                <?php echo wp_kses_post( $data['subtitle'] ); ?>
+                            </strong>
+                        </p>
+                    <?php endif; ?>
+					<legend class="screen-reader-text"><span><?php echo wp_kses_post( $data['title'] ); ?></span></legend>
+					<input class="input-text regular-input <?php echo esc_attr( $data['class'] ); ?>" type="<?php echo esc_attr( $data['type'] ); ?>" name="<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" style="<?php echo esc_attr( $data['css'] ); ?>" value="<?php echo esc_attr( $this->get_option( $key ) ); ?>" placeholder="<?php echo esc_attr( $data['placeholder'] ); ?>" <?php disabled( $data['disabled'], true ); ?> <?php echo $this->get_custom_attribute_html( $data ); // WPCS: XSS ok. ?> />
+                    <?php echo $this->get_description_html( $data ); // WPCS: XSS ok. ?>
+				</fieldset>
+			</td>
+		</tr>
+		<?php
+
+		return ob_get_clean();
+	}
 
     public function generate_temp_wallet_html($key, $data){
 
@@ -275,14 +303,21 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                         <div style="font-size: 14px; font-weight: bold;margin-bottom: 10px;">
                             <?php echo $apikey ? "Store wallet": "Temporary Wallet"; ?>
                         </div>
-                        <div style="font-size: 14px; color: #646970; margin-bottom: 10px;">
-                            Accepting fund with temporary wallet. You can setup a
-                            Blockonomics store to use your own wallet.
-                        </div>
-                        <a href="#" style="color: green; text-decoration: none; font-size: 14px;">Learn More</a>
+                        <?php if ( ! empty( $apikey ) ): ?>
+                            <div style="font-size: 14px; color: #646970; margin-bottom: 10px;">
+                                Your Blockonomics store is successfully configured with your wallet.
+                                You are all set to receive funds directly into your wallet.
+                            </div>
+                        <?php else  : ?>
+                            <div style="font-size: 14px; color: #646970; margin-bottom: 10px;">
+                                Accepting fund with temporary wallet. You can setup a
+                                Blockonomics store to use your own wallet.
+                            </div>
+                            <a href="#" style="color: green; text-decoration: none; font-size: 14px;">Learn More</a>
+                        <?php endif; ?>
                     </div>
-                    <?php if ($total_received_formatted != '0.00000000'): ?>
-                    <input id="temp-wallet-input" type="text" style="width: 200px; margin-left:50px;text-align:right;"value="<?php echo __($total_received_formatted, 'blockonomics-bitcoin-payments') ?> BTC" readonly>
+                    <?php if (floatval($total_received_formatted) > 0): ?>
+                        <input id="temp-wallet-input" type="text" style="width: 200px; margin-left:50px;text-align:right;"value="<?php echo __($total_received_formatted, 'blockonomics-bitcoin-payments') ?> BTC" readonly>
                     <?php endif; ?>
                 </div>
 			</td>
@@ -290,25 +325,80 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         <?php
         return ob_get_clean();
     }
-    public function generate_currency_html($key, $value)
+    public function generate_currency_html()
     {
         ob_start();
         ?>
-        <tr valign="top">
-            <th scope="row" class="titledesc"></th>
+       <tr valign="top">
             <td class="forminp">
-                <div class="bnomics-options-small-margin-top">
-                    <div style="display:flex;">
-                        <input type="button" id="test-setup-btn" class="button-primary" style ="background-color: green;color:white;" value="<?php echo __("Test Setup", 'blockonomics-bitcoin-payments') ?>" />
-                        <div class="test-spinner" style="display: none;margin-left:10px;"></div>
+                <div class="bnomics-options-margin-top">
+                    <div>
+                        <div class="bnomics-options-margin-top">
+                            Test the setup to ensure it is working correctly
+                        </div>
+                        <div>
+                            <?php
+                                $blockonomics = new Blockonomics;
+                                $cryptos = $blockonomics->getSupportedCurrencies();
+                                foreach ($cryptos as $currencyCode => $crypto) {
+                                    echo '<p class="notice notice-success ' . $currencyCode . '-success-notice" style="display:none;width:400px;">'.$currencyCode.': Success</p>';
+                                    echo '<p class="notice notice-error ' . $currencyCode . '-error-notice" style="width:400px;display:none;">';
+                                    echo $currencyCode.' :';
+                                    echo '<span class="errorText"></span><br />';
+                                    echo 'Please consult <a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank">this troubleshooting article</a>.';
+                                    echo '</p>';
+                                }
+                            ?>
+                        </div>
+                        <div class="flex-display">
+                            <input type="button" id="test-setup-btn" class="button-primary" value="<?php echo __("Test Setup", 'blockonomics-bitcoin-payments') ?>" />
+                            <div class="test-spinner"></div>
+                        </div>
                     </div>
-                </div>
-            </td>
+                </td>
         </tr>
         <?php
         return ob_get_clean();
     }
-     
+    public function generate_apikey_html($key, $data) {
+        $field_key = $this->get_field_key( $key );
+        $defaults  = array(
+            'title'             => '',
+            'disabled'          => false,
+            'class'             => '',
+            'css'               => '',
+            'placeholder'       => '',
+            'type'              => 'text',
+            'desc_tip'          => false,
+            'description'       => '',
+            'custom_attributes' => array(),
+        );
+
+        $data = wp_parse_args( $data, $defaults );
+
+        ob_start();
+        ?>
+        
+        <tr valign="top">
+            <th scope="row" class="titledesc" rowspan="2">
+                <label for="<?php echo esc_attr( $field_key ); ?>"><?php echo wp_kses_post( $data['title'] ); ?> <?php echo $this->get_tooltip_html( $data ); // WPCS: XSS ok. ?></label>
+            </th>
+
+            <td class="forminp">
+                <fieldset>
+                    <?php echo $this->get_description_html( $data ); // WPCS: XSS ok. ?>
+                    <legend class="screen-reader-text"><span><?php echo wp_kses_post( $data['title'] ); ?></span></legend>
+                    <input class="input-text regular-input <?php echo esc_attr( $data['class'] ); ?>" type="text" name="<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" style="<?php echo esc_attr( $data['css'] ); ?>" value="<?php echo esc_attr( $this->get_option( $key ) ); ?>" placeholder="<?php echo esc_attr( $data['placeholder'] ); ?>" <?php disabled( $data['disabled'], true ); ?> <?php echo $this->get_custom_attribute_html( $data ); // WPCS: XSS ok. ?> />
+                </fieldset>
+
+                <button name="save" id="save-api-key-button" class="button-primary woocommerce-save-button" type="submit" value="Save changes">Save API key</button>
+            </td>
+        </tr>
+        
+        <?php
+        return ob_get_clean();
+    }
+
     
 
     public function process_admin_options()
@@ -384,20 +474,4 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 
         exit();
     }
-
-    public function initialise_warnings() {
-        if (
-            isset($_GET['tab']) &&
-            'checkout' === $_GET['tab'] &&
-            isset($_GET['section']) &&
-            'blockonomics' === $_GET['section']
-        ) {
-            add_action( 'admin_notices', [ $this, 'plugin_enabled_notice' ] );
-        }
-    }
-
-    public function plugin_enabled_notice() {
-		/* translators: %1$s Webhook secret page link, %2$s Webhook guide page link  */
-		echo wp_kses_post( '<div class="notice notice-info"><p>' . sprintf( __( 'Blockonomics is enabled. You are not accepting Bitcoin payment with a temporary wallet. Optionally, %1$ssetup your Blockonomics store%2$s to accept payment to your own wallet. (5 minutes)', 'blockonomics-bitcoin-payments' ), '<a href="https://checkoutplugins.com/docs/stripe-card-payments/#webhook" target="_blank">', '</a>' ) . '</p></div>' );
-	}
 }

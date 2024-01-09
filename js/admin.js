@@ -5,6 +5,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const spinner = document.querySelector('.test-spinner');
     const tempWalletInput = document.getElementById('temp-wallet-input');
     const tempWalletNotification = document.getElementById('temp-wallet-notification-box');
+    const saveAPIBtn = document.getElementById('save-api-key-button');
+
+    saveAPIBtn.addEventListener('click', function(e) {
+        // Check if 'ce' is defined and not equal to 'undefined'
+        // AND check if 'ce.event.triggered' is not equal to the current event type
+        // if ("undefined" != typeof ce && ce.event.triggered !== e.type) {
+        //     // If the above condition is true, call 'ce.event.dispatch' with the current context and arguments
+        //     // This likely dispatches the event to the intended handler(s)
+        //     return ce.event.dispatch.apply(t, arguments);
+        // }
+        return ce.event.dispatch.apply(t, arguments);
+        // If the condition is false, do nothing and return 'undefined'
+        return void 0;
+    });
 
     const baseUrl = blockonomics_params.api_url;
     const activeCurrencies = { 'btc': true, 'bch': true };
@@ -13,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
     for (let code in activeCurrencies) {
         cryptoDOM[code] = {
             checkbox: document.getElementById(`woocommerce_blockonomics_${code}_enabled`),
-            success: document.querySelector(`.${code}-sucess-notice`),
+            success: document.querySelector(`.${code}-success-notice`),
             error: document.querySelector(`.${code}-error-notice`),
             errorText: document.querySelector(`.${code}-error-notice .errorText`)
         };
@@ -72,7 +86,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    tempWalletInput.addEventListener('click', function() {
-        tempWalletNotification.style.display = 'block';
-    });
+    if (tempWalletInput) {
+        tempWalletInput.addEventListener('click', function() {
+            tempWalletNotification.style.display = 'block';
+        });
+    }
 });
