@@ -73,26 +73,25 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $cryptos = $blockonomics->getSupportedCurrencies();
         $this->form_fields = array(
             'enabled' => array(
-                'title' => __('Enable Blockonomics plugin', 'blockonomics-bitcoin-payments'),
+                'title' => __('Checkout<p class="block-title-desc">Payment method settings for the woocomerce checkout page</p>', 'blockonomics-bitcoin-payments'),
+                'subtitle' => __('Enable Blockonomics plugin', 'blockonomics-bitcoin-payments'),
                 'type' => 'checkbox',
-                'label' => __('Show bitcoin as an option to customers during checkout?', 'blockonomics-bitcoin-payments'),
+                'label' => __('Enable Blockonomics as a payment method during checkout', 'blockonomics-bitcoin-payments'),
                 'default' => 'yes'
             ),
-            'title_divider' => array(
-                'id'    => 'title_divider',
-                'type'  => 'divider'
-            ),
             'title' => array(
-                'title' => __('Title', 'blockonomics-bitcoin-payments'),
+                'subtitle' => __('Title', 'blockonomics-bitcoin-payments'),
                 'type' => 'text',
-                'description' => __('This controls the title which the user sees during checkout.', 'blockonomics-bitcoin-payments'),
-                'default' => __('Blockonomics ', 'blockonomics-bitcoin-payments')
+                'description' => __('Payment method <i>title</i> displayed to the user during checkout.', 'blockonomics-bitcoin-payments'),
+                'default' => __('Blockonomics ', 'blockonomics-bitcoin-payments'),
+                'placeholder' => __('Title', 'blockonomics-bitcoin-payments')
             ),
             'description' => array(
-                'title' => __('Description', 'blockonomics-bitcoin-payments'),
+                'subtitle' => __('Description', 'blockonomics-bitcoin-payments'),
                 'type' => 'text',
-                'description' => __('This controls the description which the user sees during checkout.', 'blockonomics-bitcoin-payments'),
-                'default' => ''
+                'description' => __('Payment method <i>description</i> displayed to the user during checkout.', 'blockonomics-bitcoin-payments'),
+                'default' => '',
+                'placeholder' => __('Desciption', 'blockonomics-bitcoin-payments')
             ),
             'wallet_divider' => array(
                 'id'    => 'wallet_divider',
@@ -113,20 +112,19 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             ),
             'api_key' => array(
                 'title' => __('
-                    API Key
-                    <p class="block-title-desc">Securely Connect Your Store to Blockonomics</p>
+                    Store
+                    <p class="block-title-desc">To use your own wallet and start withdrawing fund,you can setup a Blockonomics store</p>
                     ', 'blockonomics-bitcoin-payments'),
+                'subtitle' => __('API Key', 'blockonomics-bitcoin-payments'),
                 'type' => 'apikey',
                 'description' => __('Setup Store on <a href="https://blockonomics.co/merchants" target="_blank" style="color: green;">Blockonomics</a> and paste API Key here', 'blockonomics-bitcoin-payments'),
                 'default' => get_option('blockonomics_api_key'),
+                'placeholder' => __('API key', 'blockonomics-bitcoin-payments')
             ),
-            'currency' => array(
-                'id'    => 'currency',
-                'type'  => 'currency',
-                'title' => __('Currency', 'blockonomics-bitcoin-payments'),
-                
+            'testsetup' => array(
+                'id'    => 'testsetup',
+                'type'  => 'testsetup',
             )
-
         );
 
         $this->form_fields['currency_divider'] = array(
@@ -140,11 +138,9 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             $this->form_fields[$currencyCode . '_enabled'] = array(
                 'title'   => $title,
                 'type'    => 'checkbox',
-                'label'   => __($crypto["name"] . ' (' . strtoupper($currencyCode) . ')', 'blockonomics-bitcoin-payments'),
+                'subtitle'   => __($crypto["name"] . ' (' . strtoupper($currencyCode) . ')', 'blockonomics-bitcoin-payments'),
+                'label'   => __('Enable accepting '.$crypto["name"]),
                 'default' => get_option('blockonomics_' . $currencyCode) == 1 ? 'yes' : 'no',
-                'description' => __('
-                    <p style="font-size: 14px; color: #646970;">Enable accepting '.$crypto["name"] .'</p>
-                '),
             );
             $firstItem = false;
         }
@@ -156,35 +152,38 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 
         $this->form_fields['extra_margin'] = array(
             'title' => __('Advanced<p class="block-title-desc">Setting for advanced control</p>', 'blockonomics-bitcoin-payments'),
-            'type' => 'text',
+            'type' => 'number',
             'description' => __('Increase live fiat to BTC rate by small percent', 'blockonomics-bitcoin-payments'),
             'subtitle' => __('Extra Currency Rate Margin %', 'blockonomics-bitcoin-payments'),
             'default' => 0,
+            'placeholder' => __('Extra Currency Rate Margin %', 'blockonomics-bitcoin-payments')
         );
         $this->form_fields['underpayment_slack'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),
-            'type' => 'text',
+            'type' => 'number',
             'label' => __('Under Payment', 'blockonomics-bitcoin-payments'),
             'description' => __('Allow payments that are off by a small percentage', 'blockonomics-bitcoin-payments'),
             'subtitle' => __('Underpayment Slack %', 'blockonomics-bitcoin-payments'),
             'default' => 0,
+            'placeholder' => __('Underpayment Slack %', 'blockonomics-bitcoin-payments')
         );
         $this->form_fields['no_javascript'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),
             'type' => 'checkbox',
-            'label' => __('<strong>No Javascript checkout page</strong>', 'blockonomics-bitcoin-payments'),
-            'description' => __('Enable this if you have majority customer that uses tor like browser that blocks JS', 'blockonomics-bitcoin-payments'),
+            'subtitle' => __('No Javascript checkout page', 'blockonomics-bitcoin-payments'),
+            'label' => __('Enable this if you have majority customer that uses tor like browser that blocks JS', 'blockonomics-bitcoin-payments'),
             'default' => get_option('blockonomics_nojs') == 1 ? 'yes' : 'no',
         );
         $this->form_fields['partial_payment'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),
             'type' => 'checkbox',
-            'label' => __('<strong>Partial Payments</strong>', 'blockonomics-bitcoin-payments'),
-            'description' => __('Allow customer to pay order via multiple payement  ', 'blockonomics-bitcoin-payments'),
+            'subtitle' => __('Partial Payments', 'blockonomics-bitcoin-payments'),
+            'label' => __('Allow customer to pay order via multiple payement  ', 'blockonomics-bitcoin-payments'),
             'default' => $blockonomics->is_partial_payments_active() ? 'yes' : 'no',
         );
         $this->form_fields['network_confirmation'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),
+            'subtitle' => __('Network Confirmations', 'blockonomics-bitcoin-payments'),
             'type' => 'select',
             'description' => __('Network Confirmations required for payment to complete', 'blockonomics-bitcoin-payments'),
             'default' => __(get_option('blockonomics_network_confirmation'), 'blockonomics-bitcoin-payments'),
@@ -267,6 +266,115 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 		return ob_get_clean();
 	}
 
+    public function generate_checkbox_html( $key, $data ) {
+		$field_key = $this->get_field_key( $key );
+		$defaults  = array(
+			'title'             => '',
+			'label'             => '',
+			'disabled'          => false,
+			'class'             => '',
+			'css'               => '',
+			'type'              => 'text',
+			'desc_tip'          => false,
+			'description'       => '',
+			'custom_attributes' => array(),
+		);
+
+		$data = wp_parse_args( $data, $defaults );
+
+		if ( ! $data['label'] ) {
+			$data['label'] = $data['title'];
+		}
+
+		ob_start();
+		?>
+		<tr valign="top">
+			<th scope="row" class="titledesc">
+				<label for="<?php echo esc_attr( $field_key ); ?>"><?php echo wp_kses_post( $data['title'] ); ?> <?php echo $this->get_tooltip_html( $data ); // WPCS: XSS ok. ?></label>
+			</th>
+			<td class="forminp">
+				<fieldset>
+                    <?php if ( ! empty( $data['subtitle'] ) ) : ?>
+                        <p style="margin-bottom: 8px;">
+                            <strong>
+                                <?php echo wp_kses_post( $data['subtitle'] ); ?>
+                            </strong>
+                        </p>
+                    <?php endif; ?>
+					<legend class="screen-reader-text"><span><?php echo wp_kses_post( $data['title'] ); ?></span></legend>
+					<label for="<?php echo esc_attr( $field_key ); ?>">
+					<input <?php disabled( $data['disabled'], true ); ?> class="<?php echo esc_attr( $data['class'] ); ?>" type="checkbox" name="<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" style="<?php echo esc_attr( $data['css'] ); ?>" value="1" <?php checked( $this->get_option( $key ), 'yes' ); ?> <?php echo $this->get_custom_attribute_html( $data ); // WPCS: XSS ok. ?> /> <?php echo wp_kses_post( $data['label'] ); ?></label><br/>
+					<?php echo $this->get_description_html( $data ); // WPCS: XSS ok. ?>
+				</fieldset>
+			</td>
+		</tr>
+		<?php
+
+		return ob_get_clean();
+	}
+
+    public function generate_select_html( $key, $data ) {
+		$field_key = $this->get_field_key( $key );
+		$defaults  = array(
+			'title'             => '',
+			'disabled'          => false,
+			'class'             => '',
+			'css'               => '',
+			'placeholder'       => '',
+			'type'              => 'text',
+			'desc_tip'          => false,
+			'description'       => '',
+			'custom_attributes' => array(),
+			'options'           => array(),
+		);
+
+		$data  = wp_parse_args( $data, $defaults );
+		$value = $this->get_option( $key );
+
+		ob_start();
+		?>
+		<tr valign="top">
+			<th scope="row" class="titledesc">
+				<label for="<?php echo esc_attr( $field_key ); ?>"><?php echo wp_kses_post( $data['title'] ); ?> <?php echo $this->get_tooltip_html( $data ); // WPCS: XSS ok. ?></label>
+			</th>
+			<td class="forminp">
+				<fieldset>
+                    <?php if ( ! empty( $data['subtitle'] ) ) : ?>
+                        <p style="margin-bottom: 8px;">
+                            <strong>
+                                <?php echo wp_kses_post( $data['subtitle'] ); ?>
+                            </strong>
+                        </p>
+                    <?php endif; ?>
+					<legend class="screen-reader-text"><span><?php echo wp_kses_post( $data['title'] ); ?></span></legend>
+					<select class="select <?php echo esc_attr( $data['class'] ); ?>" name="<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" style="<?php echo esc_attr( $data['css'] ); ?>" <?php disabled( $data['disabled'], true ); ?> <?php echo $this->get_custom_attribute_html( $data ); // WPCS: XSS ok. ?>>
+						<?php foreach ( (array) $data['options'] as $option_key => $option_value ) : ?>
+							<?php if ( is_array( $option_value ) ) : ?>
+								<optgroup label="<?php echo esc_attr( $option_key ); ?>">
+									<?php foreach ( $option_value as $option_key_inner => $option_value_inner ) : ?>
+										<option value="<?php echo esc_attr( $option_key_inner ); ?>" <?php selected( (string) $option_key_inner, esc_attr( $value ) ); ?>><?php echo esc_html( $option_value_inner ); ?></option>
+									<?php endforeach; ?>
+								</optgroup>
+							<?php else : ?>
+								<option value="<?php echo esc_attr( $option_key ); ?>" <?php selected( (string) $option_key, esc_attr( $value ) ); ?>><?php echo esc_html( $option_value ); ?></option>
+							<?php endif; ?>
+						<?php endforeach; ?>
+					</select>
+					<?php echo $this->get_description_html( $data ); // WPCS: XSS ok. ?>
+				</fieldset>
+			</td>
+		</tr>
+		<?php
+
+		return ob_get_clean();
+	}
+
+    public function generate_number_html( $key, $data ) {
+		$data['type'] = 'number';
+		return $this->generate_text_html( $key, $data );
+	}
+
+
     public function generate_temp_wallet_html($key, $data){
 
         $field_key = $this->get_field_key( $key );
@@ -325,14 +433,18 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         <?php
         return ob_get_clean();
     }
-    public function generate_currency_html()
-    {
+    public function generate_testsetup_html() {
         ob_start();
         ?>
        <tr valign="top">
             <td class="forminp">
                 <div class="bnomics-options-margin-top">
                     <div>
+                        <p style="margin-bottom: 8px;">
+                            <strong>
+                                Test Setup
+                            </strong>
+                        </p>
                         <div class="bnomics-options-margin-top">
                             Test the setup to ensure it is working correctly
                         </div>
@@ -386,6 +498,13 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 
             <td class="forminp">
                 <fieldset>
+                    <?php if ( ! empty( $data['subtitle'] ) ) : ?>
+                        <p style="margin-bottom: 8px;">
+                            <strong>
+                                <?php echo wp_kses_post( $data['subtitle'] ); ?>
+                            </strong>
+                        </p>
+                    <?php endif; ?>
                     <?php echo $this->get_description_html( $data ); // WPCS: XSS ok. ?>
                     <legend class="screen-reader-text"><span><?php echo wp_kses_post( $data['title'] ); ?></span></legend>
                     <input class="input-text regular-input <?php echo esc_attr( $data['class'] ); ?>" type="text" name="<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" style="<?php echo esc_attr( $data['css'] ); ?>" value="<?php echo esc_attr( $this->get_option( $key ) ); ?>" placeholder="<?php echo esc_attr( $data['placeholder'] ); ?>" <?php disabled( $data['disabled'], true ); ?> <?php echo $this->get_custom_attribute_html( $data ); // WPCS: XSS ok. ?> />
@@ -452,11 +571,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $txid = isset($_GET['txid']) ? sanitize_text_field(wp_unslash($_GET['txid'])) : "";
         $rbf = isset($_GET['rbf']) ? wp_validate_boolean(intval(wp_unslash($_GET['rbf']))) : "";
 
-        $test_setup = isset($_GET["test_setup"]) ? sanitize_text_field(wp_unslash($_GET['test_setup'])) : "";
-        $api_key = isset($_GET["api_key"]) ? sanitize_text_field(wp_unslash($_GET['api_key'])) : "";
-        $btc_active = isset($_GET["btc_active"]) ? $_GET["btc_active"] : false;
-        $bch_active = isset($_GET["bch_active"]) ? $_GET["bch_active"] : false;
-
         include_once 'Blockonomics.php';
         $blockonomics = new Blockonomics;
 
@@ -468,8 +582,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             $blockonomics->get_order_amount_info($order_id, $crypto);
         } else if ($secret && $addr && isset($status) && $value && $txid) {
             $blockonomics->process_callback($secret, $addr, $status, $value, $txid, $rbf);
-        } else if ($test_setup) {
-            $blockonomics->settings_test_setup($api_key, $btc_active, $bch_active);
         }
 
         exit();

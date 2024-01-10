@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return void 0;
     });
 
-    const baseUrl = blockonomics_params.api_url;
+    const baseUrl = blockonomics_params.ajaxurl;
     const activeCurrencies = { 'btc': true, 'bch': true };
 
 
@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
         spinner.style.display = 'block';
         testSetupBtn.disabled = true;
         
-        const payload = { test_setup: true, api_key: apikey };
+        const payload = { api_key: apikey, action: "test_setup" };
 
         for (let code in activeCurrencies) {
             const node = cryptoDOM[code].checkbox;

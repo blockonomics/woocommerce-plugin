@@ -68,14 +68,15 @@ function blockonomics_woocommerce_init()
     add_action('wp_enqueue_scripts', 'bnomics_register_stylesheets');
     add_action('wp_enqueue_scripts', 'bnomics_register_scripts');
     add_filter("wp_list_pages_excludes", "bnomics_exclude_pages");
-    add_action( 'admin_enqueue_scripts', 'wpdocs_enqueue_custom_admin_style' ); 
+    add_action( 'admin_enqueue_scripts', 'blockonomics_enqueue_custom_admin_style' );
+    add_action( 'wp_ajax_test_setup', 'blockonomics_test_setup' );
 
     function bnomics_exclude_pages( $exclude ) {
         $exclude[] = wc_get_page_id( 'payment' );
         return $exclude;
     }
 
-    function wpdocs_enqueue_custom_admin_style() {
+    function blockonomics_enqueue_custom_admin_style() {
         if (
             isset($_GET['tab']) &&
             'checkout' === $_GET['tab'] &&
@@ -86,15 +87,26 @@ function blockonomics_woocommerce_init()
 		    wp_enqueue_style( 'blockonomics-admin-style' );
 
             wp_register_script( 'blockonomics-admin-scripts', plugins_url('js/admin.js', __FILE__), array(), get_plugin_data( __FILE__ )['Version'], array( 'strategy' => 'defer' ) );
-
-            $blockonomics_url = WC()->api_request_url('WC_Gateway_Blockonomics');
     
             wp_localize_script('blockonomics-admin-scripts', 'blockonomics_params', array(
-                'api_url' => $blockonomics_url
+                'ajaxurl' => admin_url( 'admin-ajax.php' )
             ));
 
             wp_enqueue_script( 'blockonomics-admin-scripts' );
         }
+    }
+
+    function blockonomics_test_setup() {
+        include_once 'Blockonomics.php';
+        $blockonomics = new Blockonomics;
+
+        $api_key = isset($_GET["api_key"]) ? sanitize_text_field(wp_unslash($_GET['api_key'])) : "";
+        $btc_active = isset($_GET["btc_active"]) ? $_GET["btc_active"] : false;
+        $bch_active = isset($_GET["bch_active"]) ? $_GET["bch_active"] : false;
+
+        $result = $blockonomics->settings_test_setup($api_key, $btc_active, $bch_active);
+        wp_send_json($result);
+        wp_die();
     }
 
     function add_payment_page_shortcode() {
