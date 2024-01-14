@@ -539,3 +539,10 @@ table.blockonomics_checkout_table tbody td {
     border: 0;
   }
 }
+
+
+/** Woocommerce Multi Currency Support (CURCY) **/
+
+.woocommerce-multi-currency {
+  display: none!important;
+}
