@@ -77,6 +77,7 @@
                                     <div class="bnomics-qr-block">
                                      <div class="bnomics-qr">
                                         <div class="border-title-container">
+                                            <span class="scan-title">&nbsp;Scan&nbsp;</span>
                                             <a href="<?php echo $payment_uri; ?>" target="_blank" class="bnomics-qr-link">
                                                 <canvas id="bnomics-qr-code"></canvas>
                                             </a>
@@ -89,6 +90,7 @@
                                 <td class="bnomics-order-address-container">
                                     <div class="bnomics-order-address">
                                       <div class="border-address-container">
+                                      <span class="copy-title">&nbsp;Copy&nbsp;</span>
                                         <div class="bnomics-address">
                                             <!-- Order Address -->
                                             <label class="bnomics-address-text"><?= __('Send ', 'blockonomics-bitcoin-payments') ?> <?php echo strtolower($crypto['name']); ?> <?= __('to this address:', 'blockonomics-bitcoin-payments') ?></label>
