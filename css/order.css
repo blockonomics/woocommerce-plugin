@@ -32,6 +32,14 @@
 .bnomics-qr {
   text-align: center !important;
   text-align: left;
+  position: relative; 
+  border: 1px solid black;
+  border-top: 0px;
+  padding: 10px;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 
@@ -62,7 +70,6 @@ svg {
   .bnomics-btc-info {
     display: block !important;
   }
-  
   .bnomics-order-container {
     text-align: center;
   }
@@ -379,6 +386,15 @@ svg {
   margin-left: 8px;
   text-align: left;
   height: 100%;
+  position: relative; 
+  border: 1px solid black;
+  border-top: 0px;
+  padding: 10px;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .bnomics-or-divider {
@@ -459,16 +475,6 @@ svg {
 
 table.blockonomics_checkout_table tbody td {
   background-color: transparent !important;
-}
-
-
-.border-title-container {
-  position: relative; 
-  border: 1px solid black; 
-  padding: 10px; 
-  display:flex;
-  flex-direction: column;
-  border-top: 0px; 
 }
 
 .border-address-container {

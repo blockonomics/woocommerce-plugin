@@ -76,20 +76,17 @@
                                 <td>
                                     <div class="bnomics-qr-block">
                                      <div class="bnomics-qr">
-                                        <div class="border-title-container">
                                             <span class="scan-title">&nbsp;Scan&nbsp;</span>
                                             <a href="<?php echo $payment_uri; ?>" target="_blank" class="bnomics-qr-link">
                                                 <canvas id="bnomics-qr-code"></canvas>
                                             </a>
                                             <a href="<?php echo $payment_uri; ?>" target="_blank" class="bnomics-qr-link"><?= __('Open in wallet', 'blockonomics-bitcoin-payments') ?></a>
-                                        </div>
                                      </div>
                                     </div>
                                 </td>
     
                                 <td class="bnomics-order-address-container">
                                     <div class="bnomics-order-address">
-                                      <div class="border-address-container">
                                       <span class="copy-title">&nbsp;Copy&nbsp;</span>
                                         <div class="bnomics-address">
                                             <!-- Order Address -->
@@ -105,7 +102,6 @@
                                         <div class="bnomics-copy-container" id="bnomics-amount-copy-container">
                                             <input type="text" value="<?php echo $order_amount; ?>" id="bnomics-amount-input" readonly data-copy />
                                         </div>
-                                      </div> 
                                     </div>
                                 </td>
                             </tr>
