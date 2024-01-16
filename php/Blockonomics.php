@@ -378,9 +378,8 @@ class Blockonomics
         foreach ($active_cryptos as $code => $crypto) {
             $test_results[$code] = $this->test_one_crypto($code, $api_key);
         }
-
-        header("Content-Type: application/json");
-        exit(json_encode($test_results));
+        
+        return $test_results;
     }
     
     public function test_one_crypto($crypto, $api_key)
