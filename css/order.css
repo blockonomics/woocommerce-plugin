@@ -551,6 +551,7 @@ table.blockonomics_checkout_table tbody td {
 
   .bnomics-qr-block {
     justify-content: center;
+    margin-bottom: 15px;
   }
 
   td.bnomics-or-divider {
