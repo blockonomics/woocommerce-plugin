@@ -68,6 +68,12 @@
                 </tr>
             </table>
 
+            <table>
+                <tr>
+                    <td><button id="connect-wallet">Connect wallet</button></td>
+                </tr>
+            </table>
+
             <table class="blockonomics_checkout_table_outer">
                 <tr class="bnomics-checkout-row">
                     <td>
