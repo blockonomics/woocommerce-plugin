@@ -17,7 +17,7 @@ class FormFields {
             'title' => array(
                 'subtitle' => __('Title', 'blockonomics-bitcoin-payments'),
                 'type' => 'text',
-                'description' => __('Payment method <i>title</i> displayed to the user during checkout.', 'blockonomics-bitcoin-payments'),
+                'description' => __('Payment method for <i>bitcoin</i> displayed to the user during checkout.', 'blockonomics-bitcoin-payments'),
                 'default' => __('Blockonomics ', 'blockonomics-bitcoin-payments'),
                 'placeholder' => __('Title', 'blockonomics-bitcoin-payments')
             ),
@@ -89,7 +89,7 @@ class FormFields {
             'type' => 'number',
             'description' => __('Increase live fiat to BTC rate by small percent', 'blockonomics-bitcoin-payments'),
             'subtitle' => __('Extra Currency Rate Margin %', 'blockonomics-bitcoin-payments'),
-            'default' => 0,
+            'default' => get_option('blockonomics_extra_margin', 0),
             'placeholder' => __('Extra Currency Rate Margin %', 'blockonomics-bitcoin-payments')
         );
         $form_fields['underpayment_slack'] = array(
@@ -98,7 +98,7 @@ class FormFields {
             'label' => __('Under Payment', 'blockonomics-bitcoin-payments'),
             'description' => __('Allow payments that are off by a small percentage', 'blockonomics-bitcoin-payments'),
             'subtitle' => __('Underpayment Slack %', 'blockonomics-bitcoin-payments'),
-            'default' => 0,
+            'default' =>  get_option('blockonomics_underpayment_slack', 0),
             'placeholder' => __('Underpayment Slack %', 'blockonomics-bitcoin-payments')
         );
         $form_fields['no_javascript'] = array(
@@ -120,7 +120,7 @@ class FormFields {
             'subtitle' => __('Network Confirmations', 'blockonomics-bitcoin-payments'),
             'type' => 'select',
             'description' => __('Network Confirmations required for payment to complete', 'blockonomics-bitcoin-payments'),
-            'default' => __(get_option('blockonomics_network_confirmation'), 'blockonomics-bitcoin-payments'),
+            'default' => __(get_option('blockonomics_network_confirmation', 2), 'blockonomics-bitcoin-payments'),
             'options' => array(
                 '2' => __('2(Recommended)', 'blockonomics-bitcoin-payments'),
                 '1' => __('1', 'blockonomics-bitcoin-payments'),

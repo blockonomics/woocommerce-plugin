@@ -4,10 +4,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const testSetupBtn = document.getElementById('test-setup-btn');
         const spinner = document.querySelector('.test-spinner');
-        const tempWalletInput = document.getElementById('temp-wallet-input');
-        const tempWalletNotification = document.getElementById('temp-wallet-notification-box');
 
         const baseUrl = blockonomics_params.ajaxurl;
+        const apikey = blockonomics_params.apikey || "";
         const activeCurrencies = { 'btc': true, 'bch': true };
 
 
@@ -39,8 +38,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (testSetupBtn) {
             testSetupBtn.addEventListener('click', async function(event) {
                 event.preventDefault();
-                const apikeyElement = document.getElementById('woocommerce_blockonomics_api_key');
-                const apikey = apikeyElement ? apikeyElement.value : "";
 
                 if (spinner) {
                     spinner.style.display = 'block';
@@ -85,11 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-        if (tempWalletInput) {
-            tempWalletInput.addEventListener('click', function() {
-                tempWalletNotification.style.display = 'block';
-            });
-        }
+       
     } catch (e) {
         console.log("Error in admin settings", e);
     }

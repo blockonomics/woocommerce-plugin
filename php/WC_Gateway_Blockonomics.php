@@ -17,7 +17,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 
         $this->id   = 'blockonomics';
         $this->method_title = __( 'Blockonomics Bitcoin', 'blockonomics-bitcoin-payments' );
-        $this->method_description = __( 'Secure and user-friendly Bitcoin payment gateway for direct merchant transactions.', 'blockonomics-bitcoin-payments' );
+        $this->method_description = __( 'Accept Bitcoin & Bitcoin Cash payments. Payments go directly to your wallet.', 'blockonomics-bitcoin-payments' );
 
         include_once 'Blockonomics.php';
         $blockonomics = new Blockonomics;
@@ -250,18 +250,18 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $total_received_formatted = 00;
         $apikey = get_option('blockonomics_api_key');
 
+        
+
         // If BTC is enabled or the 'blockonomics_btc' option has never been set (which returns false), proceed.
         if ($btc_enabled || $btc_enabled === false) {
             // Fetch the amount in the smallest unit from the database and convert to BTC
             $temp_withdraw_amount = get_option('blockonomics_temp_withdraw_amount', 0); // Default to 0 if the option doesn't exist
             $total_received = $temp_withdraw_amount / 1.0e8;
 
-            // // Format the total received to ensure consistent decimal places (e.g., "0.00")
+            // Format the total received to ensure consistent decimal places (e.g., "0.00")
             $total_received_formatted = number_format($total_received, 8, '.', '');
-            // Update the 'tempwallet' option with the formatted total received amount
-            update_option("tempwallet", $total_received_formatted);
         }
-
+       
         $data = wp_parse_args( $data, array() );
 
         ob_start();
@@ -271,30 +271,36 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                 <label for="<?php echo esc_attr( $field_key ); ?>"><?php echo wp_kses_post( $data['title'] ); ?></label>
 			</th>
 			<td class="forminp">
-                <div id="temp-wallet-notification-box">
-                    <span class="text">You have received fund in your temporary wallet. To withdraw the fund, set up your Blockonomics store.</span>
-                </div>
+                <?php if (floatval($total_received_formatted) > 0): ?>
+                    <div id="temp-wallet-notification-box">
+                        <span class="text">You have received funds in your temporary wallet. To withdraw the funds, set up your Blockonomics Store.</span>
+                    </div>
+                <?php endif; ?>
                 <div style="display: flex;align-items: flex-start;">
                     <div>
                         <div style="font-size: 14px; font-weight: bold;margin-bottom: 10px;">
                             <?php echo $apikey ? "Store wallet": "Temporary Wallet"; ?>
                         </div>
+                        
+                       
+
                         <?php if ( ! empty( $apikey ) ): ?>
                             <div style="font-size: 14px; color: #646970; margin-bottom: 10px;">
                                 Your Blockonomics store is successfully configured with your wallet.
                                 You are all set to receive funds directly into your wallet.
                             </div>
                         <?php else  : ?>
+                            <input id="temp-wallet-input" type="text" style="width: 200px; margin-bottom:10px;"value="<?php echo __($total_received_formatted, 'blockonomics-bitcoin-payments') ?> BTC" readonly>
                             <div style="font-size: 14px; color: #646970; margin-bottom: 10px;">
-                                Accepting fund with temporary wallet. You can setup a
-                                Blockonomics store to use your own wallet.
+                            Accepting funds with a temporary wallet. You can set up a 
+                            Blockonomics Store to use your own wallet.
                             </div>
                             <a href="https://help.blockonomics.co/support/solutions/articles/33000248575-wordpress-woocommerce-integration-faq-" target="_blank" style="color: green; text-decoration: none; font-size: 14px;">Learn More</a>
                         <?php endif; ?>
+                        
                     </div>
-                    <?php if (floatval($total_received_formatted) > 0): ?>
-                        <input id="temp-wallet-input" type="text" style="width: 200px; margin-left:50px;text-align:right;"value="<?php echo __($total_received_formatted, 'blockonomics-bitcoin-payments') ?> BTC" readonly>
-                    <?php endif; ?>
+                    
+                    
                 </div>
 			</td>
 		</tr>
@@ -321,9 +327,10 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                                 $blockonomics = new Blockonomics;
                                 $cryptos = $blockonomics->getSupportedCurrencies();
                                 foreach ($cryptos as $currencyCode => $crypto) {
-                                    echo '<p class="notice notice-success ' . $currencyCode . '-success-notice" style="display:none;width:400px;">'.$currencyCode.': Success</p>';
+        
+                                    echo '<p class="notice notice-success ' . $currencyCode . '-success-notice" style="display:none;width:400px;">'.strtoupper($currencyCode).' - Success</p>';
                                     echo '<p class="notice notice-error ' . $currencyCode . '-error-notice" style="width:400px;display:none;">';
-                                    echo $currencyCode.' :';
+                                    echo strtoupper($currencyCode).' - ';
                                     echo '<span class="errorText"></span><br />';
                                     echo 'Please consult <a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank">this troubleshooting article</a>.';
                                     echo '</p>';
@@ -399,7 +406,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 
         foreach ($activeCurrencies as $code => $currency) {
             $optionName = 'blockonomics_' . strtolower($code);
-            $isEnabled = parent::get_option($code . '_enabled') == 'yes' ? 1 : 0;
+            $isEnabled = $this->get_option($code . '_enabled') == 'yes' ? 1 : 0;
             update_option($optionName, $isEnabled);
         }
         update_option('blockonomics_margin', (int)parent::get_option('extra_margin'));
@@ -407,8 +414,8 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         update_option('blockonomics_partial_payments', parent::get_option('partial_payment') == 'yes' ? 1 : 0);
         update_option('blockonomics_api_key', parent::get_option('api_key'));
         update_option('blockonomics_nojs', parent::get_option('no_javascript') == 'yes' ? 1 : 0);
-
-        parent::update_option('call_backurls', $this->get_callback_url());
+        update_option('blockonomics_network_confirmation', parent::get_option('network_confirmation'));
+        $this->update_option('call_backurls', $this->get_callback_url());
     }
 
     // Woocommerce process payment, runs during the checkout
