@@ -1,5 +1,10 @@
 == Changelog ==
 
+= 3.7.0  =
+* Fix JS defer bug
+* Fix bitcoin currency decimals issue
+* Add support for Woocommerce Checkout Block
+
 = 3.6.9  =
 * Fixed issues with Block Themes
 

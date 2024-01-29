@@ -2,8 +2,8 @@
 **Contributors:** juhasiivikko, darrenwestwood, blockonomics
 **Tags:** bitcoin, accept bitcoin, bitcoin woocommerce, bitcoin wordpress plugin, bitcoin payments 
 **Requires at least:** 3.0.1 
-**Tested up to:** 6.3.1
-**Stable tag:** 3.6.9
+**Tested up to:** 6.4.2
+**Stable tag:** 3.7.0
 **License:** MIT 
 **License URI:** http://opensource.org/licenses/MIT 
 

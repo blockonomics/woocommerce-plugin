@@ -3,13 +3,13 @@
  * Plugin Name: WordPress Bitcoin Payments - Blockonomics
  * Plugin URI: https://github.com/blockonomics/woocommerce-plugin
  * Description: Accept Bitcoin Payments on your WooCommerce-powered website with Blockonomics
- * Version: 3.6.9
+ * Version: 3.7.0
  * Author: Blockonomics
  * Author URI: https://www.blockonomics.co
  * License: MIT
  * Text Domain: blockonomics-bitcoin-payments
  * Domain Path: /languages/
- * WC tested up to: 7.8.1
+ * WC tested up to: 8.4.0
  */
 
 /*  Copyright 2017 Blockonomics Inc.
@@ -63,7 +63,6 @@ function blockonomics_woocommerce_init()
     add_filter('woocommerce_get_checkout_payment_url','update_payment_url_on_underpayments',10,2);
     add_filter('request', 'filter_orders_by_address_or_txid' ); 
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
-    add_filter('clean_url', 'bnomics_async_scripts', 11, 1 );
     add_shortcode('blockonomics_payment', 'add_payment_page_shortcode');
     add_action('wp_enqueue_scripts', 'bnomics_register_stylesheets');
     add_action('wp_enqueue_scripts', 'bnomics_register_scripts');
@@ -357,22 +356,10 @@ function blockonomics_woocommerce_init()
     }
 
     function bnomics_register_scripts(){
-        wp_register_script( 'reconnecting-websocket', plugins_url('js/vendors/reconnecting-websocket.min.js#deferload', __FILE__), array(), get_plugin_data( __FILE__ )['Version'] );
-        wp_register_script( 'qrious', plugins_url('js/vendors/qrious.min.js#deferload', __FILE__), array(), get_plugin_data( __FILE__ )['Version'] );
-        wp_register_script( 'copytoclipboard', plugins_url('js/vendors/copytoclipboard.js#deferload', __FILE__), array(), get_plugin_data( __FILE__ )['Version'] );
-        wp_register_script( 'bnomics-checkout', plugins_url('js/checkout.js#deferload', __FILE__), array('reconnecting-websocket', 'qrious','copytoclipboard'), get_plugin_data( __FILE__ )['Version'], array('in_footer' => true  ) );  
-    }
-
-
-    // Async load
-    function bnomics_async_scripts($url)
-    {
-        if ( strpos( $url, '#deferload') === false )
-            return $url;
-        else if ( is_admin() )
-            return str_replace( '#deferload', '', $url );
-        else
-        return str_replace( '#deferload', '', $url )."' defer='defer"; 
+        wp_register_script( 'reconnecting-websocket', plugins_url('js/vendors/reconnecting-websocket.min.js', __FILE__), array(), get_plugin_data( __FILE__ )['Version'], array( 'strategy' => 'defer' ) );
+        wp_register_script( 'qrious', plugins_url('js/vendors/qrious.min.js', __FILE__), array(), get_plugin_data( __FILE__ )['Version'], array( 'strategy' => 'defer' ) );
+        wp_register_script( 'copytoclipboard', plugins_url('js/vendors/copytoclipboard.js', __FILE__), array(), get_plugin_data( __FILE__ )['Version'], array( 'strategy' => 'defer' ) );
+        wp_register_script( 'bnomics-checkout', plugins_url('js/checkout.js', __FILE__), array('reconnecting-websocket', 'qrious','copytoclipboard'), get_plugin_data( __FILE__ )['Version'], array('in_footer' => true, 'strategy' => 'defer'  ) );  
     }
 }
 
@@ -544,3 +531,32 @@ function blockonomics_plugin_add_settings_link( $links ) {
 }
 $plugin = plugin_basename( __FILE__ );
 add_filter( "plugin_action_links_$plugin", 'blockonomics_plugin_add_settings_link' );
+
+add_action( 'woocommerce_blocks_loaded', 'woocommerce_gateway_blockonomics_woocommerce_block_support' );
+
+function woocommerce_gateway_blockonomics_woocommerce_block_support() {
+	if ( class_exists( 'Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType' ) ) {
+        require_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'class-wc-blockonomics-blocks-support.php';
+		// priority is important here because this ensures this integration is
+		// registered before the WooCommerce Blocks built-in blockonomics registration.
+		// Blocks code has a check in place to only register if 'blockonomics' is not
+		// already registered.
+		add_action(
+			'woocommerce_blocks_payment_method_type_registration',
+			function( Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry ) {
+				$container = Automattic\WooCommerce\Blocks\Package::container();
+				// registers as shared instance.
+				$container->register(
+					WC_Blockonomics_Blocks_Support::class,
+					function() {
+						return new WC_Blockonomics_Blocks_Support();
+					}
+				);
+				$payment_method_registry->register(
+					$container->get( WC_Blockonomics_Blocks_Support::class )
+				);
+			},
+			5
+		);
+	}
+}
