@@ -8,7 +8,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const baseUrl = blockonomics_params.ajaxurl;
         const apikey = blockonomics_params.apikey || "";
         const activeCurrencies = { 'btc': true, 'bch': true };
-
+       
+        window.addEventListener('beforeunload', function(event) {
+            event.stopImmediatePropagation();
+        });
 
         for (let code in activeCurrencies) {
             cryptoDOM[code] = {
