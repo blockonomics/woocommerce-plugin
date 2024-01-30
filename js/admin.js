@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     try {
         const cryptoDOM = {};
+        const withdrawDOM = document.querySelector('.withdraw-notice');
 
         const testSetupBtn = document.getElementById('test-setup-btn');
         const spinner = document.querySelector('.test-spinner');
@@ -55,31 +56,47 @@ document.addEventListener('DOMContentLoaded', function() {
                     payload[`${code}_active`] = checked;
                 }
 
-                let errorResults = {};
+                let result = {};
 
                 try {
                     const res = await fetch(`${baseUrl}?${new URLSearchParams(payload)}`);
                     if (!res.ok) {
                         throw new Error('Network response was not ok');
                     }
-                    errorResults = await res.json();
+                    result = await res.json();
                 } catch (error) {
                     console.error('Error:', error);
                 } finally {
                     spinner.style.display = 'none';
                     testSetupBtn.disabled = false;
 
-                    for (let code in errorResults) {
-                        const result = errorResults[code];
+                    for (let code in result.crypto) {
+                        const cryptoResult = result[code];
 
-                        if (!result) {
+                        if (!cryptoResult) {
                             cryptoDOM[code].success.style.display = 'block';
                             cryptoDOM[code].error.style.display = 'none';
                         } else {
                             cryptoDOM[code].success.style.display = 'none';
                             cryptoDOM[code].error.style.display = 'block';
-                            cryptoDOM[code].errorText.innerText = result;
+                            cryptoDOM[code].errorText.innerText = cryptoResult;
                         }
+                    }
+
+                    if (result.withdraw_requested) {
+                        withdrawDOM.style.display = 'block';
+                        if (result.withdraw_requested[1] === 'success') {
+                            withdrawDOM.classList.add('notice-success');
+                            withdrawDOM.classList.remove('notice-error');
+                        } else {
+                            withdrawDOM.classList.remove('notice-success');
+                            withdrawDOM.classList.add('notice-error');
+                        }
+                        withdrawDOM.innerText = result.withdraw_requested[0];
+                    } else {
+                        withdrawDOM.style.display = 'none';
+                        withdrawDOM.classList.remove('notice-success');
+                        withdrawDOM.classList.remove('notice-error');
                     }
                 }
             });

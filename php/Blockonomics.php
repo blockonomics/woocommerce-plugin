@@ -275,9 +275,9 @@ class Blockonomics
         return $active_currencies;
     }
 
-    public function make_withdraw()
+    public function make_withdraw($api_key)
     {
-        $api_key = $this->api_key;
+        $api_key = isset($api_key) ? $api_key : $this->api_key;
         $temp_api_key = get_option('blockonomics_temp_api_key');
         if (!$api_key || !$temp_api_key || $temp_api_key == $api_key) {
             return null;

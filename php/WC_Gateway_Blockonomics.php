@@ -335,6 +335,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                                     echo 'Please consult <a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank">this troubleshooting article</a>.';
                                     echo '</p>';
                                 }
+                                echo '<p class="notice withdraw-notice" style="display:none;width:400px;"></p>';
                             ?>
                         </div>
                         <div class="flex-display">

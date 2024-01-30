@@ -99,12 +99,15 @@ function blockonomics_woocommerce_init()
     function blockonomics_test_setup() {
         include_once 'Blockonomics.php';
         $blockonomics = new Blockonomics;
+        $result = array();
 
         $api_key = isset($_GET["api_key"]) ? sanitize_text_field(wp_unslash($_GET['api_key'])) : "";
         $btc_active = isset($_GET["btc_active"]) ? $_GET["btc_active"] : false;
         $bch_active = isset($_GET["bch_active"]) ? $_GET["bch_active"] : false;
 
-        $result = $blockonomics->settings_test_setup($api_key, $btc_active, $bch_active);
+        $result['crypto'] = $blockonomics->settings_test_setup($api_key, $btc_active, $bch_active);
+        $result['withdraw_requested'] = $blockonomics->make_withdraw($api_key);
+
         wp_send_json($result);
         wp_die();
     }
