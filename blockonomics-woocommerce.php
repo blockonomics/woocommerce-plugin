@@ -101,12 +101,8 @@ function blockonomics_woocommerce_init()
         $blockonomics = new Blockonomics;
         $result = array();
 
-        $api_key = isset($_GET["api_key"]) ? sanitize_text_field(wp_unslash($_GET['api_key'])) : "";
-        $btc_active = isset($_GET["btc_active"]) ? $_GET["btc_active"] : false;
-        $bch_active = isset($_GET["bch_active"]) ? $_GET["bch_active"] : false;
-
-        $result['crypto'] = $blockonomics->settings_test_setup($api_key, $btc_active, $bch_active);
-        $result['withdraw_requested'] = $blockonomics->make_withdraw($api_key);
+        $result['crypto'] = $blockonomics->testSetup();
+        $result['withdraw_requested'] = $blockonomics->make_withdraw();
 
         wp_send_json($result);
         wp_die();
@@ -517,11 +513,15 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_nojs');
     delete_option('blockonomics_network_confirmation');
     delete_option('blockonomics_partial_payments');
+    delete_option('woocommerce_blockonomics_settings');
+
     global $wpdb;
     // drop blockonomics_orders & blockonomics_payments on uninstallation
     // blockonomics_orders was the payments table before db version 1.2
     $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS ".$wpdb->prefix."blockonomics_orders , ".$wpdb->prefix."blockonomics_payments"));
     delete_option("blockonomics_db_version");
+    
+
 
     // Remove the custom page and shortcode added for payment
     remove_shortcode('blockonomics_payment');

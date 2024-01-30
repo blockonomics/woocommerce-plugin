@@ -48,13 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 testSetupBtn.disabled = true;
                 
-                const payload = { api_key: apikey, action: "test_setup" };
-
-                for (let code in activeCurrencies) {
-                    const node = cryptoDOM[code].checkbox;
-                    const checked = node ? node.checked : false;
-                    payload[`${code}_active`] = checked;
-                }
+                const payload = { action: "test_setup" };
 
                 let result = {};
 

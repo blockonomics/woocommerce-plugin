@@ -383,7 +383,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                     <?php endif; ?>
                     <?php echo $this->get_description_html( $data ); // WPCS: XSS ok. ?>
                     <legend class="screen-reader-text"><span><?php echo wp_kses_post( $data['title'] ); ?></span></legend>
-                    <input class="input-text regular-input <?php echo esc_attr( $data['class'] ); ?>" type="text" name="<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" style="<?php echo esc_attr( $data['css'] ); ?>" value="<?php echo esc_attr( $this->get_option( $key ) ); ?>" placeholder="<?php echo esc_attr( $data['placeholder'] ); ?>" <?php disabled( $data['disabled'], true ); ?> <?php echo $this->get_custom_attribute_html( $data ); // WPCS: XSS ok. ?> />
+                    <input required class="input-text regular-input <?php echo esc_attr( $data['class'] ); ?>" type="text" name="<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" style="<?php echo esc_attr( $data['css'] ); ?>" value="<?php echo esc_attr( $this->get_option( $key ) ); ?>" placeholder="<?php echo esc_attr( $data['placeholder'] ); ?>" <?php disabled( $data['disabled'], true ); ?> <?php echo $this->get_custom_attribute_html( $data ); // WPCS: XSS ok. ?> />
                 </fieldset>
 
                 <button name="save" id="save-api-key-button" class="button-primary woocommerce-save-button" type="submit" value="Save changes">Save API key</button>
@@ -410,12 +410,12 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             $isEnabled = $this->get_option($code . '_enabled') == 'yes' ? 1 : 0;
             update_option($optionName, $isEnabled);
         }
-        update_option('blockonomics_margin', (int)parent::get_option('extra_margin'));
-        update_option('blockonomics_underpayment_slack', (int)parent::get_option('underpayment_slack'));
-        update_option('blockonomics_partial_payments', parent::get_option('partial_payment') == 'yes' ? 1 : 0);
-        update_option('blockonomics_api_key', parent::get_option('api_key'));
-        update_option('blockonomics_nojs', parent::get_option('no_javascript') == 'yes' ? 1 : 0);
-        update_option('blockonomics_network_confirmation', parent::get_option('network_confirmation'));
+        update_option('blockonomics_margin', (int)$this->get_option('extra_margin'));
+        update_option('blockonomics_underpayment_slack', (int)$this->get_option('underpayment_slack'));
+        update_option('blockonomics_partial_payments', $this->get_option('partial_payment') == 'yes' ? 1 : 0);
+        update_option('blockonomics_api_key', $this->get_option('api_key'));
+        update_option('blockonomics_nojs',$this->get_option('no_javascript') == 'yes' ? 1 : 0);
+        update_option('blockonomics_network_confirmation', $this->get_option('network_confirmation'));
         $this->update_option('call_backurls', $this->get_callback_url());
     }
 

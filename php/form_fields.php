@@ -54,7 +54,7 @@ class FormFields {
                 'type' => 'apikey',
                 'description' => __('Setup Store on <a href="https://blockonomics.co/merchants" target="_blank" style="color: green;">Blockonomics</a> and paste API Key here', 'blockonomics-bitcoin-payments'),
                 'default' => get_option('blockonomics_api_key'),
-                'placeholder' => __('API key', 'blockonomics-bitcoin-payments')
+                'placeholder' => __('API key', 'blockonomics-bitcoin-payments'),
             ),
             'testsetup' => array(
                 'id'    => 'testsetup',
@@ -120,7 +120,7 @@ class FormFields {
             'subtitle' => __('Network Confirmations', 'blockonomics-bitcoin-payments'),
             'type' => 'select',
             'description' => __('Network Confirmations required for payment to complete', 'blockonomics-bitcoin-payments'),
-            'default' => __(get_option('blockonomics_network_confirmation', 2), 'blockonomics-bitcoin-payments'),
+            'default' => get_option('blockonomics_network_confirmation', 2),
             'options' => array(
                 '2' => __('2(Recommended)', 'blockonomics-bitcoin-payments'),
                 '1' => __('1', 'blockonomics-bitcoin-payments'),
@@ -132,7 +132,7 @@ class FormFields {
             'type' => 'text',
             'description' => __('You need this callback URL to setup multiple stores', 'blockonomics-bitcoin-payments'),
             'subtitle' => __('Callback URL :', 'blockonomics-bitcoin-payments'),
-            'default' => __($callback_url, 'blockonomics-bitcoin-payments'),
+            'default' => $callback_url,
             'disabled' => true,
             'css' => 'width:100%;',
         );
