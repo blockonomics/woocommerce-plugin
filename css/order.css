@@ -33,7 +33,7 @@
   text-align: center !important;
   text-align: left;
   position: relative; 
-  border: 1px solid black;
+  
   border-top: 0px;
   padding: 10px;
   height: 100%;
@@ -387,7 +387,7 @@ svg {
   text-align: left;
   height: 100%;
   position: relative; 
-  border: 1px solid black;
+  
   border-top: 0px;
   padding: 10px;
   height: 100%;
@@ -479,7 +479,6 @@ table.blockonomics_checkout_table tbody td {
 
 .border-address-container {
   position: relative; 
-  border: 1px solid black; 
   padding: 10px; 
   height: 100%;
   border-top: 0px; 
