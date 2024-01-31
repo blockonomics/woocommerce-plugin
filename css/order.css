@@ -458,7 +458,7 @@ svg {
   border-spacing: initial;
 }
 
-.bnomics-checkout-row td {
+.blockonomics_checkout_table td {
   padding: 0;
   vertical-align: middle; 
   border:0;
@@ -511,7 +511,6 @@ table.blockonomics_checkout_table tbody td {
   position: absolute;
   top:50%;
   height: 1px;
-  background: black;
   vertical-align: middle;
 }
 
@@ -600,10 +599,6 @@ table.blockonomics_checkout_table tbody td {
   .bnomics-footer-divider td {
     border: 0;
     padding: 0;
-  }
-
-  .blockonomics_checkout_table_outer > tbody > tr > td {
-    border: 0;
   }
 
 }
