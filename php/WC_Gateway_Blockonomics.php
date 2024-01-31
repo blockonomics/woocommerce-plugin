@@ -282,8 +282,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                             <?php echo $apikey ? "Store wallet": "Temporary Wallet"; ?>
                         </div>
                         
-                       
-
                         <?php if ( ! empty( $apikey ) ): ?>
                             <div style="font-size: 14px; color: #646970; margin-bottom: 10px;">
                                 Your Blockonomics store is successfully configured with your wallet.
@@ -341,6 +339,11 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                         <div class="flex-display">
                             <input type="button" id="test-setup-btn" class="button-primary" value="<?php echo __("Test Setup", 'blockonomics-bitcoin-payments') ?>" />
                             <div class="test-spinner"></div>
+                        </div>
+                        <div id="test-setup-notification-box">
+                            <span class="text">
+                                Settings have not been saved, please save the changes before testing the setup.
+                            </span>
                         </div>
                     </div>
                 </td>

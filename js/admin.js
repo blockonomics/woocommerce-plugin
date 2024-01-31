@@ -6,6 +6,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const testSetupBtn = document.getElementById('test-setup-btn');
         const spinner = document.querySelector('.test-spinner');
 
+        const apikeyInput = document.querySelector('input[name="woocommerce_blockonomics_api_key"]');
+        const testSetupNotificationDOM = document.getElementById('test-setup-notification-box');
+
         const baseUrl = blockonomics_params.ajaxurl;
         const apikey = blockonomics_params.apikey || "";
         const activeCurrencies = { 'btc': true, 'bch': true };
@@ -42,6 +45,19 @@ document.addEventListener('DOMContentLoaded', function() {
         if (testSetupBtn) {
             testSetupBtn.addEventListener('click', async function(event) {
                 event.preventDefault();
+
+                if ((apikeyInput && apikeyInput.defaultValue !== apikeyInput.value) ||
+                    Object.values(cryptoDOM).some(({checkbox}) => 
+                        checkbox && checkbox.defaultChecked !== checkbox.checked
+                )) {
+                    if (testSetupNotificationDOM) {
+                        testSetupNotificationDOM.style.display = 'block';
+                    }
+                    return;
+                }
+                if (testSetupNotificationDOM) {
+                    testSetupNotificationDOM.style.display = 'none';
+                }
 
                 if (spinner) {
                     spinner.style.display = 'block';
