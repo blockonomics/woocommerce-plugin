@@ -370,7 +370,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         ob_start();
         ?>
         
-        <tr valign="top">
+        <tr valign="top" id="apikey-row">
             <th scope="row" class="titledesc" rowspan="2">
                 <label for="<?php echo esc_attr( $field_key ); ?>"><?php echo wp_kses_post( $data['title'] ); ?> <?php echo $this->get_tooltip_html( $data ); // WPCS: XSS ok. ?></label>
             </th>
@@ -386,10 +386,15 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                     <?php endif; ?>
                     <?php echo $this->get_description_html( $data ); // WPCS: XSS ok. ?>
                     <legend class="screen-reader-text"><span><?php echo wp_kses_post( $data['title'] ); ?></span></legend>
-                    <input required class="input-text regular-input <?php echo esc_attr( $data['class'] ); ?>" type="text" name="<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" style="<?php echo esc_attr( $data['css'] ); ?>" value="<?php echo esc_attr( $this->get_option( $key ) ); ?>" placeholder="<?php echo esc_attr( $data['placeholder'] ); ?>" <?php disabled( $data['disabled'], true ); ?> <?php echo $this->get_custom_attribute_html( $data ); // WPCS: XSS ok. ?> />
+                    <input class="input-text regular-input <?php echo esc_attr( $data['class'] ); ?>" type="text" name="<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" style="<?php echo esc_attr( $data['css'] ); ?>" value="<?php echo esc_attr( $this->get_option( $key ) ); ?>" placeholder="<?php echo esc_attr( $data['placeholder'] ); ?>" <?php disabled( $data['disabled'], true ); ?> <?php echo $this->get_custom_attribute_html( $data ); // WPCS: XSS ok. ?> />
                 </fieldset>
 
                 <button name="save" id="save-api-key-button" class="button-primary woocommerce-save-button" type="submit" value="Save changes">Save API key</button>
+                <div id="api-key-notification-box">
+                    <span class="text">
+                        Please enter a valid API key.
+                    </span>
+                </div>
             </td>
         </tr>
         

@@ -26,7 +26,7 @@ class FormFields {
                 'type' => 'text',
                 'description' => __('Payment method <i>description</i> displayed to the user during checkout.', 'blockonomics-bitcoin-payments'),
                 'default' => '',
-                'placeholder' => __('Desciption', 'blockonomics-bitcoin-payments')
+                'placeholder' => __('Description', 'blockonomics-bitcoin-payments')
             ),
             'wallet_divider' => array(
                 'id'    => 'wallet_divider',
@@ -69,12 +69,13 @@ class FormFields {
         $firstItem = true;
         foreach ($cryptos as $currencyCode => $crypto) {
             $title = $firstItem ? 'Currencies<p class="block-title-desc">Setting and testing currencies accepted </p>' : '';
+            $default = $currencyCode === 'btc' ? 1 : 0;
             $form_fields[$currencyCode . '_enabled'] = array(
                 'title'   => $title,
                 'type'    => 'checkbox',
                 'subtitle'   => $crypto["name"] . ' (' . strtoupper($currencyCode) . ')',
                 'label'   => __('Enable accepting '.$crypto["name"]),
-                'default' => get_option('blockonomics_' . $currencyCode) == 1 ? 'yes' : 'no',
+                'default' => get_option('blockonomics_' . $currencyCode, $default) == 1 ? 'yes' : 'no',
             );
             $firstItem = false;
         }

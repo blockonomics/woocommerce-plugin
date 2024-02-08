@@ -12,9 +12,28 @@ document.addEventListener('DOMContentLoaded', function() {
         const baseUrl = blockonomics_params.ajaxurl;
         const apikey = blockonomics_params.apikey || "";
         const activeCurrencies = { 'btc': true, 'bch': true };
+
+        let formChanged = false;
+        const form = document.getElementById("mainform");
        
-        window.addEventListener('beforeunload', function(event) {
+       
+        window.addEventListener('beforeunload', (event) => {
             event.stopImmediatePropagation();
+        });
+        
+        form.addEventListener("input", () => {
+            formChanged = true;
+        });
+
+        form.addEventListener("submit",function(e){
+            if(apikeyInput.defaultValue !== '' && apikeyInput.value === '') {
+                document.getElementById("api-key-notification-box").style.display = 'block';
+                document.getElementById("apikey-row").scrollIntoView();
+                window.scrollBy(0, -100);
+                e.preventDefault();
+                return;
+            }
+            document.getElementById("api-key-notification-box").style.display = 'none';
         });
 
         for (let code in activeCurrencies) {
@@ -41,15 +60,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 cryptoDOM[code].error.style.display = 'none';
             });
         }
+       
 
         if (testSetupBtn) {
             testSetupBtn.addEventListener('click', async function(event) {
                 event.preventDefault();
 
-                if ((apikeyInput && apikeyInput.defaultValue !== apikeyInput.value) ||
-                    Object.values(cryptoDOM).some(({checkbox}) => 
-                        checkbox && checkbox.defaultChecked !== checkbox.checked
-                )) {
+                if (formChanged) {
                     if (testSetupNotificationDOM) {
                         testSetupNotificationDOM.style.display = 'block';
                     }

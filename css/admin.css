@@ -47,7 +47,7 @@
     align-items: center;
 }
 
-#test-setup-notification-box {
+#test-setup-notification-box, #api-key-notification-box {
     border: 1px solid #bc9f8f;
     background-color: #fff3f0;
     color: #643500;
