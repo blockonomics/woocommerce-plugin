@@ -80,18 +80,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         return $callback_url;
     }
 
-    public function generate_divider_html() {
-        ob_start();
-        ?>
-
-        <tr valign="top">
-            <td colspan="2"><hr /></td>
-        </tr>
-
-        <?php
-        return ob_get_clean();
-    }
-
     public function generate_text_html( $key, $data ) {
 		$field_key = $this->get_field_key( $key );
 		$defaults  = array(
@@ -155,7 +143,12 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 		}
 
 		ob_start();
-		?>
+        if (isset($data['add_divider']) && $data['add_divider']) {
+        ?>
+            <tr valign="top">
+                <td colspan="2"><hr /></td>
+            </tr>
+        <?php } ?>
 		<tr valign="top">
 			<th scope="row" class="titledesc">
 				<label for="<?php echo esc_attr( $field_key ); ?>"><?php echo wp_kses_post( $data['title'] ); ?> <?php echo $this->get_tooltip_html( $data ); // WPCS: XSS ok. ?></label>
@@ -239,7 +232,18 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 
     public function generate_number_html( $key, $data ) {
 		$data['type'] = 'number';
-		return $this->generate_text_html( $key, $data );
+
+        $divider_html = '';
+        if (isset($data['add_divider']) && $data['add_divider']) {
+            ob_start();
+            ?>
+            <tr valign="top">
+                <td colspan="2"><hr /></td>
+            </tr>
+            <?php
+            $divider_html = ob_get_clean();
+        }
+		return $divider_html . $this->generate_text_html( $key, $data );
 	}
 
 
@@ -265,7 +269,10 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $data = wp_parse_args( $data, array() );
 
         ob_start();
-        ?>   
+        ?>
+        <tr valign="top">
+            <td colspan="2"><hr /></td>
+        </tr>
         <tr valign="top">
 			<th scope="row" class="titledesc">
                 <label for="<?php echo esc_attr( $field_key ); ?>"><?php echo wp_kses_post( $data['title'] ); ?></label>
@@ -369,6 +376,10 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 
         ob_start();
         ?>
+
+        <tr valign="top">
+            <td colspan="2"><hr /></td>
+        </tr>
         
         <tr valign="top" id="apikey-row">
             <th scope="row" class="titledesc" rowspan="2">

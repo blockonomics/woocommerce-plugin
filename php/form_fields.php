@@ -28,10 +28,6 @@ class FormFields {
                 'default' => '',
                 'placeholder' => __('Description', 'blockonomics-bitcoin-payments')
             ),
-            'wallet_divider' => array(
-                'id'    => 'wallet_divider',
-                'type'  => 'divider'
-            ),
             'temp_wallet' => array(
                 'id'    => 'temp_wallet',
                 'type'  => 'temp_wallet',
@@ -40,10 +36,6 @@ class FormFields {
                     'blockonomics-bitcoin-payments'
                 ),
                 'description' => __('Wallet receving payement ', 'blockonomics-bitcoin-payments'),
-            ),
-            'api_divider' => array(
-                'id'    => 'api_divider',
-                'type'  => 'divider'
             ),
             'api_key' => array(
                 'title' => __('
@@ -59,10 +51,6 @@ class FormFields {
             'testsetup' => array(
                 'id'    => 'testsetup',
                 'type'  => 'testsetup',
-            ),
-            'currency_divider' => array(
-                'id'    => 'currency_divider',
-                'type'  => 'divider'
             )
         );
 
@@ -76,14 +64,10 @@ class FormFields {
                 'subtitle'   => $crypto["name"] . ' (' . strtoupper($currencyCode) . ')',
                 'label'   => __('Enable accepting '.$crypto["name"]),
                 'default' => get_option('blockonomics_' . $currencyCode, $default) == 1 ? 'yes' : 'no',
+                'add_divider' => $firstItem
             );
             $firstItem = false;
         }
-
-        $form_fields['advanced_divider'] = array(
-            'id'    => 'advanced_divider',
-            'type'  => 'divider'
-        );
 
         $form_fields['extra_margin'] = array(
             'title' => __('Advanced<p class="block-title-desc">Setting for advanced control</p>', 'blockonomics-bitcoin-payments'),
@@ -91,7 +75,8 @@ class FormFields {
             'description' => __('Increase live fiat to BTC rate by small percent', 'blockonomics-bitcoin-payments'),
             'subtitle' => __('Extra Currency Rate Margin %', 'blockonomics-bitcoin-payments'),
             'default' => get_option('blockonomics_extra_margin', 0),
-            'placeholder' => __('Extra Currency Rate Margin %', 'blockonomics-bitcoin-payments')
+            'placeholder' => __('Extra Currency Rate Margin %', 'blockonomics-bitcoin-payments'),
+            'add_divider' => true
         );
         $form_fields['underpayment_slack'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),
