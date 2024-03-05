@@ -199,12 +199,15 @@ function blockonomics_woocommerce_init()
 	}
 
     function filter_orders_by_address_or_txid_hpos( $pieces, $args ) {
+        global $wpdb;
         $filter_by = $_GET['filter_by'];
 
         if ( isset( $filter_by ) && !empty( $filter_by ) ) {
             $sanitized_filter = wc_clean( sanitize_text_field(wp_unslash($filter_by)) );
 
-            $pieces['join'] .= " LEFT JOIN wp_wc_orders_meta AS wom ON wp_wc_orders.id = wom.order_id ";
+            $orders_meta_table = $wpdb->prefix . 'wc_orders_meta';
+
+            $pieces['join'] .= " LEFT JOIN $orders_meta_table AS wom ON wp_wc_orders.id = wom.order_id ";
 
             $pieces['where'] .= " AND ( 
                 (wom.meta_key = 'blockonomics_payments_addresses' AND wom.meta_value LIKE '%$sanitized_filter%')
