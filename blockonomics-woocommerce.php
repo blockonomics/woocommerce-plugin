@@ -40,6 +40,20 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
 require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 require_once ABSPATH . 'wp-admin/install-helper.php';
 
+use Automattic\WooCommerce\Utilities\OrderUtil;
+
+function is_HPOS_active() {
+    if ( ! class_exists( 'Automattic\WooCommerce\Utilities\OrderUtil' ) ) {
+        return false;
+    }
+
+    if ( OrderUtil::custom_orders_table_usage_is_enabled() ) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 
 /**
  * Initialize hooks needed for the payment gateway
@@ -59,14 +73,20 @@ function blockonomics_woocommerce_init()
     add_action('woocommerce_order_details_after_order_table', 'nolo_custom_field_display_cust_order_meta', 10, 1);
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
     add_action('admin_enqueue_scripts', 'blockonomics_load_admin_scripts' );
-    add_action('restrict_manage_posts', 'filter_orders' , 20 );
     add_filter('woocommerce_get_checkout_payment_url','update_payment_url_on_underpayments',10,2);
-    add_filter('request', 'filter_orders_by_address_or_txid' ); 
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_shortcode('blockonomics_payment', 'add_payment_page_shortcode');
     add_action('wp_enqueue_scripts', 'bnomics_register_stylesheets');
     add_action('wp_enqueue_scripts', 'bnomics_register_scripts');
     add_filter("wp_list_pages_excludes", "bnomics_exclude_pages");
+
+    if ( is_HPOS_active()) {
+        add_action('woocommerce_order_list_table_restrict_manage_orders', 'filter_orders_hpos' , 20 );
+        add_filter('woocommerce_orders_table_query_clauses', 'filter_orders_by_address_or_txid_hpos', 10, 2 );
+    } else {
+        add_action('restrict_manage_posts', 'filter_orders' , 20 );
+        add_filter('request', 'filter_orders_by_address_or_txid' );
+    }
 
     function bnomics_exclude_pages( $exclude ) {
         $exclude[] = wc_get_page_id( 'payment' );
@@ -146,6 +166,17 @@ function blockonomics_woocommerce_init()
 			<?php
 		}
 	}
+
+    function filter_orders_hpos() {
+        $screen = get_current_screen();
+        if( !in_array( $screen->id, array( 'edit-shop_order', 'woocommerce_page_wc-orders' ) ) ) return;
+
+        $filter_by = isset($_GET['filter_by']) ? esc_attr(sanitize_text_field(wp_unslash($_GET['filter_by']))) : "";
+        ?>
+        <input size='26' value="<?php echo($filter_by ); ?>" type='name' placeholder='Filter by crypto address/txid' name='filter_by'>
+        <?php
+	}
+
 	function filter_orders_by_address_or_txid( $vars ) {
 		global $typenow;
 		if ( 'shop_order' === $typenow && !empty( $_GET['filter_by'])) {
@@ -165,6 +196,24 @@ function blockonomics_woocommerce_init()
             );
         }
 		return $vars;
+	}
+
+    function filter_orders_by_address_or_txid_hpos( $pieces, $args ) {
+        $filter_by = $_GET['filter_by'];
+
+        if ( isset( $filter_by ) && !empty( $filter_by ) ) {
+            $sanitized_filter = wc_clean( sanitize_text_field(wp_unslash($filter_by)) );
+
+            $pieces['join'] .= " LEFT JOIN wp_wc_orders_meta AS wom ON wp_wc_orders.id = wom.order_id ";
+
+            $pieces['where'] .= " AND ( 
+                (wom.meta_key = 'blockonomics_payments_addresses' AND wom.meta_value LIKE '%$sanitized_filter%')
+                OR 
+                (wom.meta_key = 'blockonomics_payments_txids' AND wom.meta_value LIKE '%$sanitized_filter%')
+            )";
+        }
+		
+        return $pieces;
 	}
     /**
      * Add this Gateway to WooCommerce
