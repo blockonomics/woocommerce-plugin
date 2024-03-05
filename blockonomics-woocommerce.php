@@ -205,9 +205,10 @@ function blockonomics_woocommerce_init()
         if ( isset( $filter_by ) && !empty( $filter_by ) ) {
             $sanitized_filter = wc_clean( sanitize_text_field(wp_unslash($filter_by)) );
 
+            $orders_table = $wpdb->prefix . 'wc_orders';
             $orders_meta_table = $wpdb->prefix . 'wc_orders_meta';
 
-            $pieces['join'] .= " LEFT JOIN $orders_meta_table AS wom ON wp_wc_orders.id = wom.order_id ";
+            $pieces['join'] .= " LEFT JOIN $orders_meta_table AS wom ON `{$orders_table}`.id = wom.order_id ";
 
             $pieces['where'] .= " AND ( 
                 (wom.meta_key = 'blockonomics_payments_addresses' AND wom.meta_value LIKE '%$sanitized_filter%')
