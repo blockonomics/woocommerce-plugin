@@ -81,12 +81,13 @@ function blockonomics_woocommerce_init()
     add_filter("wp_list_pages_excludes", "bnomics_exclude_pages");
 
     if ( is_HPOS_active()) {
-        add_action('woocommerce_order_list_table_restrict_manage_orders', 'filter_orders_hpos' , 20 );
-        add_filter('woocommerce_orders_table_query_clauses', 'filter_orders_by_address_or_txid_hpos', 10, 2 );
+        add_action('woocommerce_order_list_table_restrict_manage_orders', 'filter_orders' , 20 );
+        add_filter('woocommerce_shop_order_list_table_prepare_items_query_args', 'filter_orders_by_address_or_txid');
     } else {
         add_action('restrict_manage_posts', 'filter_orders' , 20 );
         add_filter('request', 'filter_orders_by_address_or_txid' );
     }
+    
 
     function bnomics_exclude_pages( $exclude ) {
         $exclude[] = wc_get_page_id( 'payment' );
@@ -157,29 +158,20 @@ function blockonomics_woocommerce_init()
     /**
      * Adding new filter to WooCommerce orders
      **/
-    function filter_orders() {
-		global $typenow;
-		if ( 'shop_order' === $typenow ) {
-            $filter_by = isset($_GET['filter_by']) ? esc_attr(sanitize_text_field(wp_unslash($_GET['filter_by']))) : "";
-			?>
-			<input size='26' value="<?php echo($filter_by ); ?>" type='name' placeholder='Filter by crypto address/txid' name='filter_by'>
-			<?php
-		}
-	}
-
-    function filter_orders_hpos() {
+    
+     function filter_orders() {
         $screen = get_current_screen();
-        if( !in_array( $screen->id, array( 'edit-shop_order', 'woocommerce_page_wc-orders' ) ) ) return;
-
-        $filter_by = isset($_GET['filter_by']) ? esc_attr(sanitize_text_field(wp_unslash($_GET['filter_by']))) : "";
-        ?>
-        <input size='26' value="<?php echo($filter_by ); ?>" type='name' placeholder='Filter by crypto address/txid' name='filter_by'>
-        <?php
-	}
-
-	function filter_orders_by_address_or_txid( $vars ) {
-		global $typenow;
-		if ( 'shop_order' === $typenow && !empty( $_GET['filter_by'])) {
+        if ( in_array( $screen->id, array( 'edit-shop_order', 'woocommerce_page_wc-orders' ) )) {
+            $filter_by = isset($_GET['filter_by']) ? esc_attr(sanitize_text_field(wp_unslash($_GET['filter_by']))) : "";
+            ?>
+            <input size='26' value="<?php echo($filter_by ); ?>" type='name' placeholder='Filter by crypto address/txid' name='filter_by'>
+            <?php
+        }
+    }
+    
+    function filter_orders_by_address_or_txid( $vars ) {
+        $screen = get_current_screen();
+        if (!empty( $_GET['filter_by']) && in_array( $screen->id, array( 'edit-shop_order', 'woocommerce_page_wc-orders' ) )) {
             $santized_filter = wc_clean( sanitize_text_field(wp_unslash($_GET['filter_by'])) );
             $vars['meta_query'] = array(
                 'relation' => 'OR',
@@ -195,30 +187,9 @@ function blockonomics_woocommerce_init()
                 ),
             );
         }
-		return $vars;
-	}
-
-    function filter_orders_by_address_or_txid_hpos( $pieces, $args ) {
-        global $wpdb;
-        $filter_by = $_GET['filter_by'];
-
-        if ( isset( $filter_by ) && !empty( $filter_by ) ) {
-            $sanitized_filter = wc_clean( sanitize_text_field(wp_unslash($filter_by)) );
-
-            $orders_table = $wpdb->prefix . 'wc_orders';
-            $orders_meta_table = $wpdb->prefix . 'wc_orders_meta';
-
-            $pieces['join'] .= " LEFT JOIN $orders_meta_table AS wom ON `{$orders_table}`.id = wom.order_id ";
-
-            $pieces['where'] .= " AND ( 
-                (wom.meta_key = 'blockonomics_payments_addresses' AND wom.meta_value LIKE '%$sanitized_filter%')
-                OR 
-                (wom.meta_key = 'blockonomics_payments_txids' AND wom.meta_value LIKE '%$sanitized_filter%')
-            )";
-        }
-		
-        return $pieces;
-	}
+        return $vars;
+    }
+    
     /**
      * Add this Gateway to WooCommerce
      **/
