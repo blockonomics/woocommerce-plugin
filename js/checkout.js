@@ -41,6 +41,20 @@ class Blockonomics {
 
         // Hide Display Error
         this._display_error_wrapper.style.display = 'none';
+
+        this.wallet();
+    }
+
+    async wallet() {
+        const connectBtn = document.getElementById('connect-wallet');
+
+        connectBtn.addEventListener('click', async () => {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const signer = provider.getSigner();
+
+            const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+            const activeChainId = await ethereum.request({ method: 'eth_chainId' });
+        });
     }
 
     create_bindings() {
