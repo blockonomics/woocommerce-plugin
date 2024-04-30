@@ -210,30 +210,8 @@ function blockonomics_woocommerce_init()
         $blockonomics = new Blockonomics;
 
         $nonce = isset($_REQUEST['_wpnonce']) ? wp_verify_nonce( sanitize_text_field(wp_unslash($_REQUEST['_wpnonce'])), 'update-options' ) : "";
-        if (isset($_POST['generateSecret']) && $nonce)
-        {
-            generate_secret(true);
-        }
-
-        $api_key = $blockonomics->get_api_key();        
-        // get_api_key() will return api key or temp api key
-        // if both are null, generate new blockonomics guest account with temporary wallet
-        // temp wallet will be used with temp api key
-        if (!$api_key)
-        {
-            generate_secret();
-            $callback_url = get_callback_url();
-            $response = $blockonomics->get_temp_api_key($callback_url);
-            if ($response->response_code != 200)
-            {
-                $message = __('Error while generating temporary APIKey: '. isset($response->message) ? $response->message : '', 'blockonomics-bitcoin-payments');
-                display_admin_message($message, 'error');
-            }
-            else
-            {
-                update_option("blockonomics_temp_api_key", isset($response->apikey) ? $response->apikey : '');
-            }
-        }
+        $force_generate = isset($_POST['generateSecret']) && $nonce ? true : false;
+        generate_secret($force_generate);
 
         add_options_page(
             'Blockonomics', 'Blockonomics', 'manage_options',
@@ -301,9 +279,6 @@ function blockonomics_woocommerce_init()
         {
             $blockonomics = new Blockonomics;
             $setup_errors = $blockonomics->testSetup();
-            $btc_error = isset($setup_errors['btc']) ? $setup_errors['btc'] : 'false';
-            $bch_error = isset($setup_errors['bch']) ? $setup_errors['bch'] : 'false';
-            $withdraw_requested = $blockonomics->make_withdraw();
         }
         ?>
         <script type="text/javascript">
@@ -365,16 +340,6 @@ function blockonomics_woocommerce_init()
         </script>
         <div class="wrap">
             <h1><?php echo __('Blockonomics', 'blockonomics-bitcoin-payments')?></h1>
-            <?php 
-                if (isset($withdraw_requested)):?>
-                <div class="bnomics-width-withdraw">
-                    <td colspan='2' class="bnomics-options-no-padding bnomics-width">
-                        <p class='notice notice-<?php echo $withdraw_requested[1]?>'>
-                            <?php echo $withdraw_requested[0].'.' ?> 
-                        </p>
-                    </td>
-                </div>
-            <?php endif; ?>
             <form method="post" name="myform" id="myform" onsubmit="return validateBlockonomicsForm()" action="options.php">
                 <h2 class="nav-tab-wrapper">
                     <a onclick="check_form('settings')" id='settings_nav_bar'  class="nav-tab <?php echo $active_tab == 'settings' ? 'nav-tab-active' : ''; ?>"><?php echo __('Settings', 'blockonomics-bitcoin-payments')?></a>
@@ -450,6 +415,13 @@ function blockonomics_woocommerce_init()
                     <?php
                     break;
                 case 'currencies' :?>
+                    <table width="100%" cellspacing="0" cellpadding="0" class="form-table bnomics-width">
+                        <?php 
+                        if (isset($setup_errors['api'])){
+                            error_message($setup_errors['api']);
+                        }
+                         ?>
+                    </table>
                     <table width="100%" cellspacing="0" cellpadding="0" class="form-table bnomics-options-intendation bnomics-width">
                         <h2>
                             <input onchange="add_asterisk('currencies')" type="checkbox" name="blockonomics_btc" value="1"<?php checked("1", get_option('blockonomics_btc', true)); ?>" />
@@ -458,26 +430,14 @@ function blockonomics_woocommerce_init()
                         <?php 
                         get_started_message();
                         $btc_enabled = get_option("blockonomics_btc");
-                        if ($btc_enabled || get_option("blockonomics_btc") === false):  
-                            $total_received = get_option('blockonomics_temp_withdraw_amount') / 1.0e8;
-                            $api_key = get_option("blockonomics_api_key");
-                            $temp_api_key = get_option("blockonomics_temp_api_key");
-                            if ($temp_api_key): ?>
-                                <th class="blockonomics-narrow-th" scope="row"><b><?php echo __('Temporary Destination', 'blockonomics-bitcoin-payments')?></b></th>
-                                <td colspan="2" class="bnomics-options-no-padding">
-                                    <label><b><?php echo __("Blockonomics Wallet (Balance: $total_received BTC)", 'blockonomics-bitcoin-payments')?></b></label>
-                                    <label><?php echo __("Our temporary wallet receives your payments until your configure your own wallet. Withdraw to your wallet is triggered automatically when configuration is done", 'blockonomics-bitcoin-payments')?></label>
-                                </td>
-                            </tr>
-                            <?php endif; 
-                        endif; 
-                        if (get_option('blockonomics_btc') == '1' && isset($btc_error)):
-                            if ($btc_error):
-                                error_message($btc_error);
-                            else:
+                        if ($btc_enabled == '1' && isset($setup_errors['btc'])){
+                            if ($setup_errors['btc']){
+                                error_message($setup_errors['btc']);
+                            }else{
                                 success_message();
-                            endif;
-                        endif; ?>
+                            }
+                        }
+                        ?>
                     </table>
                     <table class="form-table bnomics-options-intendation bnomics-width">
                         <h2>
@@ -487,13 +447,14 @@ function blockonomics_woocommerce_init()
                         <?php 
                         get_started_message('bch.');
                         $bch_enabled = get_option("blockonomics_bch");
-                        if ($bch_enabled == '1' && isset($bch_error)):
-                            if ($bch_error):
-                                error_message($bch_error);
-                            else:
+                        if ($bch_enabled == '1' && isset($setup_errors['bch'])){
+                            if ($setup_errors['bch']){
+                                error_message($setup_errors['bch']);
+                            }else{
                                 success_message();
-                            endif; 
-                        endif; ?>
+                            }
+                        }
+                        ?>
                     </table>
                     <div class="bnomics-options-small-margin-top">
                         <input type="submit" class="button-primary" value="<?php echo __("Test Setup", 'blockonomics-bitcoin-payments')?>" />
@@ -714,8 +675,6 @@ register_uninstall_hook( __FILE__, 'blockonomics_uninstall_hook' );
 function blockonomics_uninstall_hook() {
     delete_option('blockonomics_callback_secret');
     delete_option('blockonomics_api_key');
-    delete_option('blockonomics_temp_api_key');
-    delete_option('blockonomics_temp_withdraw_amount');
     delete_option('blockonomics_margin');
     delete_option('blockonomics_timeperiod');
     delete_option('blockonomics_api_updated');
