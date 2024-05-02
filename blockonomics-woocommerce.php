@@ -417,10 +417,20 @@ function blockonomics_woocommerce_init()
                 case 'currencies' :?>
                     <table width="100%" cellspacing="0" cellpadding="0" class="form-table bnomics-width">
                         <?php 
+                        $total_received = get_option('blockonomics_temp_withdraw_amount', 0);
+                        if ($total_received) {
+                            $formatted_total_received = ($total_received < 10000) ? rtrim(number_format($total_received/1.0e8, 8),0) : ($total_received / 1.0e8);
+                            ?>
+                            <td colspan="2" class="notice notice-info">
+                                <?php echo __("You have $formatted_total_received BTC in your temporary wallet.<br>Please submit a ticket to <a href='https://help.blockonomics.co/support/tickets/new'>Blockonomics Support</a> to withdraw the funds.", 'blockonomics-bitcoin-payments'); ?>
+                            </td>
+                            <?php 
+                        }
+
                         if (isset($setup_errors['api'])){
                             error_message($setup_errors['api']);
                         }
-                         ?>
+                        ?>
                     </table>
                     <table width="100%" cellspacing="0" cellpadding="0" class="form-table bnomics-options-intendation bnomics-width">
                         <h2>
