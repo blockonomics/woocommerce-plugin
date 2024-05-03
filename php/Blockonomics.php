@@ -304,14 +304,6 @@ class Blockonomics
     public function testSetup()
     {
         $test_results = array();
-
-        $api_key = get_option("blockonomics_api_key");
-        //If API Key is not set: give error
-        if (!$api_key){
-            $test_results['api'] = __('Set your Blockonomics API Key', 'blockonomics-bitcoin-payments');
-            return $test_results;
-        }
-        
         $active_cryptos = $this->getActiveCurrencies();
         foreach ($active_cryptos as $code => $crypto) {
             $test_results[$code] = $this->test_one_crypto($code);
@@ -321,6 +313,12 @@ class Blockonomics
     
     public function test_one_crypto($crypto)
     {
+        $api_key = get_option("blockonomics_api_key");
+        //If API Key is not set: give error
+        if (!$api_key){
+            return __('Set your Blockonomics API Key', 'blockonomics-bitcoin-payments');
+        }
+
         $response = $this->get_callbacks($crypto);
         $error_str = $this->check_callback_urls_or_set_one($crypto, $response);
         if (!$error_str)

@@ -428,10 +428,6 @@ function blockonomics_woocommerce_init()
                             </td>
                             <?php 
                         }
-
-                        if (isset($setup_errors['api'])){
-                            error_message($setup_errors['api']);
-                        }
                         ?>
                     </table>
                     <table width="100%" cellspacing="0" cellpadding="0" class="form-table bnomics-options-intendation bnomics-width">
