@@ -279,6 +279,8 @@ function blockonomics_woocommerce_init()
         {
             $blockonomics = new Blockonomics;
             $setup_errors = $blockonomics->testSetup();
+            $btc_error = isset($setup_errors['btc']) ? $setup_errors['btc'] : 'false';
+            $bch_error = isset($setup_errors['bch']) ? $setup_errors['bch'] : 'false';
         }
         ?>
         <script type="text/javascript">
@@ -439,15 +441,13 @@ function blockonomics_woocommerce_init()
                         </h2>
                         <?php 
                         get_started_message();
-                        $btc_enabled = get_option("blockonomics_btc");
-                        if ($btc_enabled == '1' && isset($setup_errors['btc'])){
-                            if ($setup_errors['btc']){
-                                error_message($setup_errors['btc']);
-                            }else{
+                        if (get_option('blockonomics_btc') == '1' && isset($btc_error)):
+                            if ($btc_error):
+                                error_message($btc_error);
+                            else:
                                 success_message();
-                            }
-                        }
-                        ?>
+                            endif;
+                        endif; ?>
                     </table>
                     <table class="form-table bnomics-options-intendation bnomics-width">
                         <h2>
@@ -457,14 +457,13 @@ function blockonomics_woocommerce_init()
                         <?php 
                         get_started_message('bch.');
                         $bch_enabled = get_option("blockonomics_bch");
-                        if ($bch_enabled == '1' && isset($setup_errors['bch'])){
-                            if ($setup_errors['bch']){
-                                error_message($setup_errors['bch']);
-                            }else{
+                        if ($bch_enabled == '1' && isset($bch_error)):
+                            if ($bch_error):
+                                error_message($bch_error);
+                            else:
                                 success_message();
-                            }
-                        }
-                        ?>
+                            endif; 
+                        endif; ?>
                     </table>
                     <div class="bnomics-options-small-margin-top">
                         <input type="submit" class="button-primary" value="<?php echo __("Test Setup", 'blockonomics-bitcoin-payments')?>" />
