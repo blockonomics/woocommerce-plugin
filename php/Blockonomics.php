@@ -233,17 +233,24 @@ class Blockonomics
                     'code' => 'bch',
                     'name' => 'Bitcoin Cash',
                     'uri' => 'bitcoincash'
-              )
+              ),
+              'usdt' => array(
+                'code' => 'usdt',
+                'name' => 'USDT',
+                'uri' => 'USDT' 
+            )
           );
     }  
     /*
      * Get list of active crypto currencies
      */
     public function getActiveCurrencies() {
-        $active_currencies = array();
         $blockonomics_currencies = $this->getSupportedCurrencies();
         foreach ($blockonomics_currencies as $code => $currency) {
             $enabled = get_option('blockonomics_'.$code);
+            if ($code === 'usdt') {
+                $enabled = true;
+            }
             if($enabled || ($code === 'btc' && $enabled === false )){
                 $active_currencies[$code] = $currency;
             }
@@ -548,6 +555,7 @@ class Blockonomics
         if (array_key_exists('error', $order)) {
             $error_context = $this->get_error_context('generic');
         } else {
+
             $context['order'] = $order;
 
             if ($order['payment_status'] == 1 || ($order['payment_status'] == 2 && !$this->is_order_underpaid($order)) ) {
@@ -557,6 +565,12 @@ class Blockonomics
             } else if (($order['payment_status'] == 2 && $this->is_order_underpaid($order)) && !$this->is_partial_payments_active() ) {
                 $error_context = $this->get_error_context('underpaid');
             } else {
+
+                if ($crypto === 'usdt') {
+                
+                }
+
+
                 // Display Checkout Page
                 $context['order_amount'] = $this->fix_displaying_small_values($order['expected_satoshi']);
                 // Payment URI is sent as part of context to provide initial Payment URI, this can be calculated using javascript
