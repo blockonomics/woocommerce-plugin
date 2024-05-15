@@ -226,6 +226,7 @@ class CopyToClipboard {
     top: 0;
     overflow: hidden;
     display: none;
+    
   }
   .output-copy-container .blockonomics-icon {
     transition: transform .4s;
