@@ -34,9 +34,6 @@
   text-align: center !important;
   text-align: left;
   position: relative; 
-  
-  border-top: 0px;
-  /* padding: 10px; */
   height: 100%;
   box-sizing: border-box;
   display: flex;
@@ -384,51 +381,17 @@ svg {
 
 .bnomics-order-address {
   align-items: center;
-  /* margin-left: 8px; */
   text-align: left;
   height: 100%;
   position: relative; 
   
   border-top: 0px;
-  /* padding: 10px; */
   height: 100%;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
-
-.bnomics-or-divider {
-  position: relative;
-  text-align: center;
-  vertical-align: middle;
-  font-size: var(--global--font-size-xs);
-  font-weight: 700;
-  opacity: 0.5;
-
-}
-
-.bnomics-or-divider::before,
-.bnomics-or-divider::after {
-  content: '';
-  display: block;
-  width: 1px;
-  background: currentColor;
-  height: 36%;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.bnomics-or-divider::before {
-  top: 16px;
-}
-
-.bnomics-or-divider::after {
-  bottom: 16px;
-}
-
-
 
 .bnomics-order-panel {
   display: flex;
@@ -438,8 +401,6 @@ svg {
   padding-left: 1rem;
   padding-right: 1rem;
 }
-
-
 
 .bnomics-footer {
   display: flex;
@@ -454,15 +415,8 @@ svg {
   margin: 0;
 }
 
-
 #blockonomics_checkout .blockonomics_checkout_table {
   border-spacing: initial;
-}
-
-.blockonomics_checkout_table td {
-  padding: 0;
-  vertical-align: middle; 
-  border:0;
 }
 
 .bnomics-order-address label,
@@ -472,10 +426,6 @@ svg {
 
 .bnomics-footer-divider {
   display: none;
-}
-
-table.blockonomics_checkout_table tbody td {
-  background-color: transparent !important;
 }
 
 .border-address-container {
@@ -493,29 +443,6 @@ table.blockonomics_checkout_table tbody td {
   text-align: left;
   width:100%;
 }
-/* 
-.scan-title::after,
-.copy-title::after,
-.scan-title::before,
-.copy-title::before {
-  content:"";
-  display: inline-block;
-  position: absolute;
-  top:50%;
-  height: 1px;
-  vertical-align: middle;
-}
-
-.scan-title::before,
-.copy-title::before {
-  left:0px;
-  width: 20px;
-}
-
-.scan-title::after,
-.copy-title::after {
-  width: 100%;
-} */
 
 .bnomics-address,
 .bnomics-amount {
@@ -543,36 +470,9 @@ table.blockonomics_checkout_table tbody td {
     margin-left: 0;
   }
 
-  .blockonomics_checkout_table td {
-    display: block;
-    
-  }
-
   .bnomics-qr-block {
     justify-content: center;
     margin-bottom: 15px;
-  }
-
-  td.bnomics-or-divider {
-    border: 0;
-    line-height: 42px;
-  }
-
-  .bnomics-or-divider::before,
-  .bnomics-or-divider::after {
-    height: 1px;
-    width: 44%;
-    top: 50%;
-    left: auto;
-    transform: translateY(-50%);
-  }
-
-  .bnomics-or-divider::before {
-    left: 0;
-  }
-
-  .bnomics-or-divider::after {
-    right: 0;
   }
 
   .bnomics-address,
@@ -597,15 +497,5 @@ table.blockonomics_checkout_table tbody td {
     display: table-row;
   }
 
-  .bnomics-footer-divider td {
-    border: 0;
-    padding: 0;
-  }
-
 }
 
-@media screen and (min-width: 601px) {
-  .blockonomics_checkout_table > tbody > tr > td {
-    border: 0;
-  }
-}
