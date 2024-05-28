@@ -28,15 +28,6 @@ class FormFields {
                 'default' => '',
                 'placeholder' => __('Description', 'blockonomics-bitcoin-payments')
             ),
-            'temp_wallet' => array(
-                'id'    => 'temp_wallet',
-                'type'  => 'temp_wallet',
-                'title' => __(
-                    'Wallet<p class="block-title-desc">Wallet receving payment</p>',
-                    'blockonomics-bitcoin-payments'
-                ),
-                'description' => __('Wallet receving payement ', 'blockonomics-bitcoin-payments'),
-            ),
             'api_key' => array(
                 'title' => __('
                     Store

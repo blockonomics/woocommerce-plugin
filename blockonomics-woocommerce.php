@@ -102,7 +102,6 @@ function blockonomics_woocommerce_init()
         $result = array();
 
         $result['crypto'] = $blockonomics->testSetup();
-        $result['withdraw_requested'] = $blockonomics->make_withdraw();
 
         wp_send_json($result);
         wp_die();

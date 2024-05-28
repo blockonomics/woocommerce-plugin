@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     try {
         const cryptoDOM = {};
-        const withdrawDOM = document.querySelector('.withdraw-notice');
 
         const testSetupBtn = document.getElementById('test-setup-btn');
         const spinner = document.querySelector('.test-spinner');
@@ -10,7 +9,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const testSetupNotificationDOM = document.getElementById('test-setup-notification-box');
 
         const baseUrl = blockonomics_params.ajaxurl;
-        const apikey = blockonomics_params.apikey || "";
         const activeCurrencies = { 'btc': true, 'bch': true };
 
         let formChanged = false;
@@ -108,22 +106,6 @@ document.addEventListener('DOMContentLoaded', function() {
                             cryptoDOM[code].error.style.display = 'block';
                             cryptoDOM[code].errorText.innerText = cryptoResult;
                         }
-                    }
-
-                    if (result.withdraw_requested) {
-                        withdrawDOM.style.display = 'block';
-                        if (result.withdraw_requested[1] === 'success') {
-                            withdrawDOM.classList.add('notice-success');
-                            withdrawDOM.classList.remove('notice-error');
-                        } else {
-                            withdrawDOM.classList.remove('notice-success');
-                            withdrawDOM.classList.add('notice-error');
-                        }
-                        withdrawDOM.innerText = result.withdraw_requested[0];
-                    } else {
-                        withdrawDOM.style.display = 'none';
-                        withdrawDOM.classList.remove('notice-success');
-                        withdrawDOM.classList.remove('notice-error');
                     }
                 }
             });

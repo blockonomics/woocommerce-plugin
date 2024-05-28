@@ -246,72 +246,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 		return $divider_html . $this->generate_text_html( $key, $data );
 	}
 
-
-    public function generate_temp_wallet_html($key, $data){
-
-        $field_key = $this->get_field_key( $key );
-        $btc_enabled = get_option("blockonomics_btc");
-        $total_received_formatted = 00;
-        $apikey = get_option('blockonomics_api_key');
-
-        
-
-        // If BTC is enabled or the 'blockonomics_btc' option has never been set (which returns false), proceed.
-        if ($btc_enabled || $btc_enabled === false) {
-            // Fetch the amount in the smallest unit from the database and convert to BTC
-            $temp_withdraw_amount = get_option('blockonomics_temp_withdraw_amount', 0); // Default to 0 if the option doesn't exist
-            $total_received = $temp_withdraw_amount / 1.0e8;
-
-            // Format the total received to ensure consistent decimal places (e.g., "0.00")
-            $total_received_formatted = number_format($total_received, 8, '.', '');
-        }
-       
-        $data = wp_parse_args( $data, array() );
-
-        ob_start();
-        ?>
-        <tr valign="top">
-            <td colspan="2"><hr /></td>
-        </tr>
-        <tr valign="top">
-			<th scope="row" class="titledesc">
-                <label for="<?php echo esc_attr( $field_key ); ?>"><?php echo wp_kses_post( $data['title'] ); ?></label>
-			</th>
-			<td class="forminp">
-                <?php if (floatval($total_received_formatted) > 0): ?>
-                    <div id="temp-wallet-notification-box">
-                        <span class="text">You have received funds in your temporary wallet. To withdraw the funds, set up your Blockonomics Store.</span>
-                    </div>
-                <?php endif; ?>
-                <div style="display: flex;align-items: flex-start;">
-                    <div>
-                        <div style="font-size: 14px; font-weight: bold;margin-bottom: 10px;">
-                            <?php echo $apikey ? "Store wallet": "Temporary Wallet"; ?>
-                        </div>
-                        
-                        <?php if ( ! empty( $apikey ) ): ?>
-                            <div style="font-size: 14px; color: #646970; margin-bottom: 10px;">
-                                Your Blockonomics store is successfully configured with your wallet.
-                                You are all set to receive funds directly into your wallet.
-                            </div>
-                        <?php else  : ?>
-                            <input id="temp-wallet-input" type="text" style="width: 200px; margin-bottom:10px;"value="<?php echo __($total_received_formatted, 'blockonomics-bitcoin-payments') ?> BTC" readonly>
-                            <div style="font-size: 14px; color: #646970; margin-bottom: 10px;">
-                            Accepting funds with a temporary wallet. You can set up a 
-                            Blockonomics Store to use your own wallet.
-                            </div>
-                            <a href="https://help.blockonomics.co/support/solutions/articles/33000248575-wordpress-woocommerce-integration-faq-" target="_blank" style="color: green; text-decoration: none; font-size: 14px;">Learn More</a>
-                        <?php endif; ?>
-                        
-                    </div>
-                    
-                    
-                </div>
-			</td>
-		</tr>
-        <?php
-        return ob_get_clean();
-    }
     public function generate_testsetup_html() {
         ob_start();
         ?>
@@ -340,7 +274,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                                     echo 'Please consult <a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank">this troubleshooting article</a>.';
                                     echo '</p>';
                                 }
-                                echo '<p class="notice withdraw-notice" style="display:none;width:400px;"></p>';
                             ?>
                         </div>
                         <div class="flex-display">
