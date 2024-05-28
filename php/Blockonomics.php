@@ -10,6 +10,8 @@ class Blockonomics
     const PRICE_URL = 'https://www.blockonomics.co/api/price';
     const SET_CALLBACK_URL = 'https://www.blockonomics.co/api/update_callback';
     const GET_CALLBACKS_URL = 'https://www.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
+    const TEMP_API_KEY_URL = 'https://www.blockonomics.co/api/temp_wallet';
+    const TEMP_WITHDRAW_URL = 'https://www.blockonomics.co/api/temp_withdraw_request';
 
     const BCH_BASE_URL = 'https://bch.blockonomics.co';
     const BCH_NEW_ADDRESS_URL = 'https://bch.blockonomics.co/api/new_address';
@@ -228,6 +230,18 @@ class Blockonomics
         return $error_str;
     }
 
+
+    public function get_temp_api_key($callback_url)
+    {
+
+        $url = Blockonomics::TEMP_API_KEY_URL;
+        $body = json_encode(array('callback' => $callback_url));
+        $response = $this->post($url, '', $body);
+        $responseObj = json_decode(wp_remote_retrieve_body($response));
+        $responseObj->{'response_code'} = wp_remote_retrieve_response_code($response);
+        return $responseObj;
+    }
+
     /*
      * Get list of crypto currencies supported by Blockonomics
      */
@@ -258,6 +272,34 @@ class Blockonomics
             }
         }
         return $active_currencies;
+    }
+
+   public function make_withdraw()
+   {
+       $api_key = $this->api_key;
+       $temp_api_key = get_option('blockonomics_temp_api_key');
+       if (!$api_key || !$temp_api_key || $temp_api_key == $api_key) {
+           return null;
+       }
+       if (get_option('blockonomics_temp_withdraw_amount') > 0)
+       {
+
+           $url = Blockonomics::TEMP_WITHDRAW_URL.'?tempkey='.$temp_api_key;
+           $response = $this->post($url, $api_key);
+           $responseObj = json_decode(wp_remote_retrieve_body($response));
+           $response_code = wp_remote_retrieve_response_code($response);
+           if ($response_code != 200)
+           {
+               $message = __('Error while making withdraw: '.$responseObj->message, 'blockonomics-bitcoin-payments');
+               return [$message, 'error'];
+          }
+           update_option("blockonomics_temp_api_key", null);
+           update_option('blockonomics_temp_withdraw_amount', 0);
+           $message = __('Your funds withdraw request has been submitted. Please check your Blockonomics registered emailid for details', 'blockonomics-bitcoin-payments');
+           return [$message, 'success'];
+        }
+        update_option("blockonomics_temp_api_key", null);
+        return null;
     }
 
     private function get($url, $api_key = '')

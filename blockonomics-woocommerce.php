@@ -481,11 +481,11 @@ function blockonomics_plugin_activation() {
       $html .= '</div>';
       echo $html;
   }
-  if( get_transient( 'blockonomics_activation_hook_transient' ) ){
+  if( get_transient( 'blockonomics_activation_hook_transient' ) || get_option('blockonomics_api_key') == '' ){
 
-    $html = '<div class="updated">';
+    $html = '<div class="notice notice-warning is-dismissible">';
     $html .= '<p>';
-    $html .= __( 'Congrats, you are now accepting BTC payments! You can configure Blockonomics <a href="options-general.php?page=blockonomics_options">on this page</a>.', 'blockonomics-bitcoin-payments' );
+    $html .= __( 'Blockonomics is almost ready. To get started, connect your account <a href="admin.php?page=wc-settings&tab=checkout&section=blockonomics">on the Account setup page</a>.', 'blockonomics-bitcoin-payments' );
     $html .= '</p>';
     $html .= '</div>';
 
