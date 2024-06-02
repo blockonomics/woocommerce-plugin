@@ -68,11 +68,10 @@
                 </tr>
             </table>
 
-
-            <table class="blockonomics_checkout_table">
-                <tr>
-                    <td>
-                        <div class="blockonomics-body-container">
+            <div class="blockonomics-body-container">
+            <table class="blockonomics_checkout_table qr-table">
+                    <tr>
+                        <td>
                             <div class="bnomics-qr-block">
                                 <div class="bnomics-qr">
                                     <span class="scan-title">Scan</span>
@@ -82,7 +81,13 @@
                                     <a href="<?php echo $payment_uri; ?>" target="_blank" class="bnomics-qr-link"><?= __('Open in wallet', 'blockonomics-bitcoin-payments') ?></a>
                                 </div>
                             </div>
-                            
+                        </td>
+                    </tr>
+                </table>
+
+                <table class="blockonomics_checkout_table">
+                    <tr>
+                        <td> 
                             <div class="bnomics-order-address">
                                 <span class="copy-title">Copy</span>
                                 <div class="bnomics-address">
@@ -103,10 +108,10 @@
                                     <input type="text" value="<?php echo $order_amount; ?>" id="bnomics-amount-input" readonly data-copy />
                                 </div>
                             </div>
-                        </div>
-                    </td>
-                </tr>
-            </table>
+                        </td>
+                    </tr>
+                </table>
+            </div>
 
 
             <table>
