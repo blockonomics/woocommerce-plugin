@@ -238,6 +238,9 @@ class Blockonomics
         $body = json_encode(array('callback' => $callback_url));
         $response = $this->post($url, '', $body);
         $responseObj = json_decode(wp_remote_retrieve_body($response));
+        if (is_null($responseObj)) {
+            $responseObj = new stdClass();
+        }
         $responseObj->{'response_code'} = wp_remote_retrieve_response_code($response);
         return $responseObj;
     }

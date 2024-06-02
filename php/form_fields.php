@@ -31,7 +31,7 @@ class FormFields {
             'api_key' => array(
                 'title' => __('
                     Store
-                    <p class="block-title-desc">To use your own wallet and start withdrawing fund,you can setup a Blockonomics store</p>
+                    <p class="block-title-desc">Setup a Blockonomics store to start accepting payments in your wallet</p>
                     ', 'blockonomics-bitcoin-payments'),
                 'subtitle' => __('API Key', 'blockonomics-bitcoin-payments'),
                 'type' => 'apikey',

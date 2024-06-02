@@ -96,9 +96,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     testSetupBtn.disabled = false;
 
                     for (let code in result.crypto) {
-                        const cryptoResult = result[code];
+                        const cryptoResult = result.crypto[code];
 
-                        if (!cryptoResult) {
+                        if (cryptoResult === false) {
                             cryptoDOM[code].success.style.display = 'block';
                             cryptoDOM[code].error.style.display = 'none';
                         } else {

@@ -97,7 +97,7 @@ function blockonomics_woocommerce_init()
     }
 
     function blockonomics_test_setup() {
-        include_once 'Blockonomics.php';
+        include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
         $blockonomics = new Blockonomics;
         $result = array();
 
@@ -236,7 +236,8 @@ function blockonomics_woocommerce_init()
             $response = $blockonomics->get_temp_api_key($callback_url);
             if ($response->response_code != 200)
             {
-                $message = __('Error while generating temporary APIKey: '. isset($response->message) ? $response->message : '', 'blockonomics-bitcoin-payments');
+                $error_message = isset($response->message) ? $response->message : '';
+                $message = __('Error while generating temporary APIKey: '. $error_message, 'blockonomics-bitcoin-payments');
                 display_admin_message($message, 'error');
             }
             else
