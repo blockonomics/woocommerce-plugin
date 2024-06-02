@@ -241,16 +241,9 @@ function blockonomics_woocommerce_init()
     // Add entry in the settings menu
     function add_page()
     {
-        $blockonomics = new Blockonomics;
-
         $nonce = isset($_REQUEST['_wpnonce']) ? wp_verify_nonce( sanitize_text_field(wp_unslash($_REQUEST['_wpnonce'])), 'update-options' ) : "";
         $force_generate = isset($_POST['generateSecret']) && $nonce ? true : false;
         generate_secret($force_generate);
-
-        add_options_page(
-            'Blockonomics', 'Blockonomics', 'manage_options',
-            'blockonomics_options', 'show_options'
-        );
     }
 
     function display_admin_message($msg, $type)
