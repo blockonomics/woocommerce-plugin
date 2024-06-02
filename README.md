@@ -3,7 +3,7 @@
 **Tags:** bitcoin, accept bitcoin, bitcoin woocommerce, bitcoin wordpress plugin, bitcoin payments 
 **Requires at least:** 3.0.1 
 **Tested up to:** 6.4.2
-**Stable tag:** 3.7.0
+**Stable tag:** 3.7.2
 **License:** MIT 
 **License URI:** http://opensource.org/licenses/MIT 
 
@@ -38,14 +38,7 @@ Blockonomics is the only Bitcoin payment gateway that enables full decentralizat
 
 ## Installation ## 
 
-You can operate the plugin in two different modes:  
-
-### Default Mode  ###
-- There is **no installation** procedure required. Blockonomics automatically starts working in this mode on activation of plugin 
-- Bitcoin payments go to a Blockonomics temporary wallet   
-- To withdraw received funds, user has to change to *Direct to Wallet* mode
-
-### Direct to Wallet Mode (Recommended)  ### 
+### Direct to Wallet  ### 
 [Video Tutorial](https://www.youtube.com/watch?v=lNFBAk2x6ns) | [Blog Tutorial](https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62)  
  
 - Click on **Get Started For Free** on [Blockonomics > Merchants](https://www.blockonomics.co/merchants) and proceed to complete merchant wizard. 

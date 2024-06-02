@@ -10,8 +10,6 @@ class Blockonomics
     const PRICE_URL = 'https://www.blockonomics.co/api/price';
     const SET_CALLBACK_URL = 'https://www.blockonomics.co/api/update_callback';
     const GET_CALLBACKS_URL = 'https://www.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
-    const TEMP_API_KEY_URL = 'https://www.blockonomics.co/api/temp_wallet';
-    const TEMP_WITHDRAW_URL = 'https://www.blockonomics.co/api/temp_withdraw_request';
 
     const BCH_BASE_URL = 'https://bch.blockonomics.co';
     const BCH_NEW_ADDRESS_URL = 'https://bch.blockonomics.co/api/new_address';
@@ -50,10 +48,6 @@ class Blockonomics
     public function get_api_key()
     {
         $api_key = get_option("blockonomics_api_key");
-        if (!$api_key)
-        {
-            $api_key = get_option("blockonomics_temp_api_key");
-        }
         return $api_key;
     }
 
@@ -215,12 +209,6 @@ class Blockonomics
 
     public function check_callback_urls_or_set_one($crypto, $response) 
     {
-        $api_key = get_option("blockonomics_api_key");
-        //If BCH enabled and API Key is not set: give error
-        if (!$api_key && $crypto === 'bch'){
-            $error_str = __('Set the API Key or disable BCH', 'blockonomics-bitcoin-payments');
-            return $error_str;
-        }
         //chek the current callback and detect any potential errors
         $error_str = $this->check_get_callbacks_response_code($response, $crypto);
         if(!$error_str){
@@ -230,20 +218,6 @@ class Blockonomics
         return $error_str;
     }
 
-
-    public function get_temp_api_key($callback_url)
-    {
-
-        $url = Blockonomics::TEMP_API_KEY_URL;
-        $body = json_encode(array('callback' => $callback_url));
-        $response = $this->post($url, '', $body);
-        $responseObj = json_decode(wp_remote_retrieve_body($response));
-        if (is_null($responseObj)) {
-            $responseObj = new stdClass();
-        }
-        $responseObj->{'response_code'} = wp_remote_retrieve_response_code($response);
-        return $responseObj;
-    }
 
     /*
      * Get list of crypto currencies supported by Blockonomics
@@ -275,34 +249,6 @@ class Blockonomics
             }
         }
         return $active_currencies;
-    }
-
-    public function make_withdraw()
-    {
-        $api_key = $this->api_key;
-        $temp_api_key = get_option('blockonomics_temp_api_key');
-        if (!$api_key || !$temp_api_key || $temp_api_key == $api_key) {
-            return null;
-        }
-        if (get_option('blockonomics_temp_withdraw_amount') > 0)
-        {
-
-            $url = Blockonomics::TEMP_WITHDRAW_URL.'?tempkey='.$temp_api_key;
-            $response = $this->post($url, $api_key);
-            $responseObj = json_decode(wp_remote_retrieve_body($response));
-            $response_code = wp_remote_retrieve_response_code($response);
-            if ($response_code != 200)
-            {
-                $message = __('Error while making withdraw: '.$responseObj->message, 'blockonomics-bitcoin-payments');
-                return [$message, 'error'];
-            }
-            update_option("blockonomics_temp_api_key", null);
-            update_option('blockonomics_temp_withdraw_amount', 0);
-            $message = __('Your funds withdraw request has been submitted. Please check your Blockonomics registered emailid for details', 'blockonomics-bitcoin-payments');
-            return [$message, 'success'];
-        }
-        update_option("blockonomics_temp_api_key", null);
-        return null;
     }
 
     private function get($url, $api_key = '')
@@ -367,6 +313,12 @@ class Blockonomics
     
     public function test_one_crypto($crypto)
     {
+        $api_key = get_option("blockonomics_api_key");
+        //If API Key is not set: give error
+        if (!$api_key){
+            return __('Set your Blockonomics API Key', 'blockonomics-bitcoin-payments');
+        }
+
         $response = $this->get_callbacks($crypto);
         $error_str = $this->check_callback_urls_or_set_one($crypto, $response);
         if (!$error_str)
@@ -810,7 +762,6 @@ class Blockonomics
         if ($callback_status >= $network_confirmations){
             $order['payment_status'] = 2;
             $order = $this->check_paid_amount($paid_satoshi, $order, $wc_order);
-            $this->update_temp_draw_amount($paid_satoshi);
         } 
         else {
             // since $callback_status < $network_confirmations payment_status should be 1 i.e. payment in progress if payment is not already completed
@@ -854,14 +805,6 @@ class Blockonomics
         $underpayment_slack = get_option("blockonomics_underpayment_slack", 0)/100 * $order['expected_satoshi'];
         $is_order_underpaid = ($order['expected_satoshi'] - $underpayment_slack > $order['paid_satoshi'] && !empty($order['paid_satoshi'])) ? TRUE : FALSE;
         return $is_order_underpaid;
-    }
-    // Keep track of funds in temp wallet
-    public function update_temp_draw_amount($paid_satoshi){
-        if(get_option('blockonomics_temp_api_key') && !get_option("blockonomics_api_key")) {
-            $current_temp_amount = get_option('blockonomics_temp_withdraw_amount');
-            $new_temp_amount = $current_temp_amount + $paid_satoshi;
-            update_option('blockonomics_temp_withdraw_amount', $new_temp_amount);
-        }
     }
 
     // Process the blockonomics callback
