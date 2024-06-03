@@ -1,5 +1,11 @@
 == Changelog ==
 
+= 3.7.2  =
+* Removed temp wallet support
+
+= 3.7.1  =
+* Fix search order by address/txid if HPOS active
+
 = 3.7.0  =
 * Fix JS defer bug
 * Fix bitcoin currency decimals issue
