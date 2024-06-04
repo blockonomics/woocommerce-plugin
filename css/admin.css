@@ -36,17 +36,6 @@
     }
 }
 
-#temp-wallet-notification-box {
-    border: 1px solid #8FBC8F;
-    background-color: #F0FFF0;
-    color: #006400;
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-}
-
 #test-setup-notification-box, #api-key-notification-box {
     border: 1px solid #bc9f8f;
     background-color: #fff3f0;
@@ -57,10 +46,6 @@
     display: flex;
     align-items: center;
     display: none;
-}
-
-#temp-wallet-input {
-    cursor: pointer;
 }
 
 #save-api-key-button {
