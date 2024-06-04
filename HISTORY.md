@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 3.7.3  =
+* Fix warnings from wp-cli 
+
 = 3.7.2  =
 * Removed temp wallet support
 
