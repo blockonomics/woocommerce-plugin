@@ -38,7 +38,6 @@ if (!defined('ABSPATH')) {
 
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
 require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-require_once ABSPATH . 'wp-admin/install-helper.php';
 
 use Automattic\WooCommerce\Utilities\OrderUtil;
 
