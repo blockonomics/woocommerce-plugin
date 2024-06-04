@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         form.addEventListener("submit",function(e){
-            if(apikeyInput.defaultValue !== '' && apikeyInput.value === '') {
+            if(apikeyInput.value === '') {
                 document.getElementById("api-key-notification-box").style.display = 'block';
                 document.getElementById("apikey-row").scrollIntoView();
                 window.scrollBy(0, -100);
