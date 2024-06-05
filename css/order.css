@@ -9,6 +9,8 @@
   justify-content: space-between;
   max-width: 500px;
   width: 100%;
+  margin: 20px 0;
+    gap: 20px;
 }
 .bnomics-qr-code {
   display: none;
@@ -274,6 +276,9 @@ svg {
 }
 
 /* - Blockonomics Font Icons Ends -- */
+#blockonomics_checkout table {
+  margin: 0;
+}
 
 #bnomics-amount-copy,
 #bnomics-address-copy {
