@@ -3,7 +3,7 @@
  * Plugin Name: WordPress Bitcoin Payments - Blockonomics
  * Plugin URI: https://github.com/blockonomics/woocommerce-plugin
  * Description: Accept Bitcoin Payments on your WooCommerce-powered website with Blockonomics
- * Version: 3.7.0
+ * Version: 3.7.2
  * Author: Blockonomics
  * Author URI: https://www.blockonomics.co
  * License: MIT
@@ -40,6 +40,20 @@ require_once ABSPATH . 'wp-admin/includes/plugin.php';
 require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 require_once ABSPATH . 'wp-admin/install-helper.php';
 
+use Automattic\WooCommerce\Utilities\OrderUtil;
+
+function is_HPOS_active() {
+    if ( ! class_exists( 'Automattic\WooCommerce\Utilities\OrderUtil' ) ) {
+        return false;
+    }
+
+    if ( OrderUtil::custom_orders_table_usage_is_enabled() ) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 
 /**
  * Initialize hooks needed for the payment gateway
@@ -59,14 +73,21 @@ function blockonomics_woocommerce_init()
     add_action('woocommerce_order_details_after_order_table', 'nolo_custom_field_display_cust_order_meta', 10, 1);
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
     add_action('admin_enqueue_scripts', 'blockonomics_load_admin_scripts' );
-    add_action('restrict_manage_posts', 'filter_orders' , 20 );
     add_filter('woocommerce_get_checkout_payment_url','update_payment_url_on_underpayments',10,2);
-    add_filter('request', 'filter_orders_by_address_or_txid' ); 
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_shortcode('blockonomics_payment', 'add_payment_page_shortcode');
     add_action('wp_enqueue_scripts', 'bnomics_register_stylesheets');
     add_action('wp_enqueue_scripts', 'bnomics_register_scripts');
     add_filter("wp_list_pages_excludes", "bnomics_exclude_pages");
+
+    if ( is_HPOS_active()) {
+        add_action('woocommerce_order_list_table_restrict_manage_orders', 'filter_orders' , 20 );
+        add_filter('woocommerce_shop_order_list_table_prepare_items_query_args', 'filter_orders_by_address_or_txid');
+    } else {
+        add_action('restrict_manage_posts', 'filter_orders' , 20 );
+        add_filter('request', 'filter_orders_by_address_or_txid' );
+    }
+    
 
     function bnomics_exclude_pages( $exclude ) {
         $exclude[] = wc_get_page_id( 'payment' );
@@ -137,18 +158,20 @@ function blockonomics_woocommerce_init()
     /**
      * Adding new filter to WooCommerce orders
      **/
-    function filter_orders() {
-		global $typenow;
-		if ( 'shop_order' === $typenow ) {
+    
+     function filter_orders() {
+        $screen = get_current_screen();
+        if ( in_array( $screen->id, array( 'edit-shop_order', 'woocommerce_page_wc-orders' ) )) {
             $filter_by = isset($_GET['filter_by']) ? esc_attr(sanitize_text_field(wp_unslash($_GET['filter_by']))) : "";
-			?>
-			<input size='26' value="<?php echo($filter_by ); ?>" type='name' placeholder='Filter by crypto address/txid' name='filter_by'>
-			<?php
-		}
-	}
-	function filter_orders_by_address_or_txid( $vars ) {
-		global $typenow;
-		if ( 'shop_order' === $typenow && !empty( $_GET['filter_by'])) {
+            ?>
+            <input size='26' value="<?php echo($filter_by ); ?>" type='name' placeholder='Filter by crypto address/txid' name='filter_by'>
+            <?php
+        }
+    }
+    
+    function filter_orders_by_address_or_txid( $vars ) {
+        $screen = get_current_screen();
+        if (!empty( $_GET['filter_by']) && in_array( $screen->id, array( 'edit-shop_order', 'woocommerce_page_wc-orders' ) )) {
             $santized_filter = wc_clean( sanitize_text_field(wp_unslash($_GET['filter_by'])) );
             $vars['meta_query'] = array(
                 'relation' => 'OR',
@@ -164,8 +187,9 @@ function blockonomics_woocommerce_init()
                 ),
             );
         }
-		return $vars;
-	}
+        return $vars;
+    }
+    
     /**
      * Add this Gateway to WooCommerce
      **/
@@ -186,30 +210,8 @@ function blockonomics_woocommerce_init()
         $blockonomics = new Blockonomics;
 
         $nonce = isset($_REQUEST['_wpnonce']) ? wp_verify_nonce( sanitize_text_field(wp_unslash($_REQUEST['_wpnonce'])), 'update-options' ) : "";
-        if (isset($_POST['generateSecret']) && $nonce)
-        {
-            generate_secret(true);
-        }
-
-        $api_key = $blockonomics->get_api_key();        
-        // get_api_key() will return api key or temp api key
-        // if both are null, generate new blockonomics guest account with temporary wallet
-        // temp wallet will be used with temp api key
-        if (!$api_key)
-        {
-            generate_secret();
-            $callback_url = get_callback_url();
-            $response = $blockonomics->get_temp_api_key($callback_url);
-            if ($response->response_code != 200)
-            {
-                $message = __('Error while generating temporary APIKey: '. isset($response->message) ? $response->message : '', 'blockonomics-bitcoin-payments');
-                display_admin_message($message, 'error');
-            }
-            else
-            {
-                update_option("blockonomics_temp_api_key", isset($response->apikey) ? $response->apikey : '');
-            }
-        }
+        $force_generate = isset($_POST['generateSecret']) && $nonce ? true : false;
+        generate_secret($force_generate);
 
         add_options_page(
             'Blockonomics', 'Blockonomics', 'manage_options',
@@ -279,7 +281,6 @@ function blockonomics_woocommerce_init()
             $setup_errors = $blockonomics->testSetup();
             $btc_error = isset($setup_errors['btc']) ? $setup_errors['btc'] : 'false';
             $bch_error = isset($setup_errors['bch']) ? $setup_errors['bch'] : 'false';
-            $withdraw_requested = $blockonomics->make_withdraw();
         }
         ?>
         <script type="text/javascript">
@@ -341,16 +342,6 @@ function blockonomics_woocommerce_init()
         </script>
         <div class="wrap">
             <h1><?php echo __('Blockonomics', 'blockonomics-bitcoin-payments')?></h1>
-            <?php 
-                if (isset($withdraw_requested)):?>
-                <div class="bnomics-width-withdraw">
-                    <td colspan='2' class="bnomics-options-no-padding bnomics-width">
-                        <p class='notice notice-<?php echo $withdraw_requested[1]?>'>
-                            <?php echo $withdraw_requested[0].'.' ?> 
-                        </p>
-                    </td>
-                </div>
-            <?php endif; ?>
             <form method="post" name="myform" id="myform" onsubmit="return validateBlockonomicsForm()" action="options.php">
                 <h2 class="nav-tab-wrapper">
                     <a onclick="check_form('settings')" id='settings_nav_bar'  class="nav-tab <?php echo $active_tab == 'settings' ? 'nav-tab-active' : ''; ?>"><?php echo __('Settings', 'blockonomics-bitcoin-payments')?></a>
@@ -433,20 +424,18 @@ function blockonomics_woocommerce_init()
                         </h2>
                         <?php 
                         get_started_message();
-                        $btc_enabled = get_option("blockonomics_btc");
-                        if ($btc_enabled || get_option("blockonomics_btc") === false):  
-                            $total_received = get_option('blockonomics_temp_withdraw_amount') / 1.0e8;
-                            $api_key = get_option("blockonomics_api_key");
-                            $temp_api_key = get_option("blockonomics_temp_api_key");
-                            if ($temp_api_key): ?>
-                                <th class="blockonomics-narrow-th" scope="row"><b><?php echo __('Temporary Destination', 'blockonomics-bitcoin-payments')?></b></th>
-                                <td colspan="2" class="bnomics-options-no-padding">
-                                    <label><b><?php echo __("Blockonomics Wallet (Balance: $total_received BTC)", 'blockonomics-bitcoin-payments')?></b></label>
-                                    <label><?php echo __("Our temporary wallet receives your payments until your configure your own wallet. Withdraw to your wallet is triggered automatically when configuration is done", 'blockonomics-bitcoin-payments')?></label>
+                        $total_received = get_option('blockonomics_temp_withdraw_amount', 0);
+                        if ($total_received) {
+                            $formatted_total_received = ($total_received < 10000) ? rtrim(number_format($total_received/1.0e8, 8),0) : ($total_received / 1.0e8);
+                            ?>
+                            <tr>
+                                <td colspan="2" class="notice notice-info">
+                                    <?php echo __("You have $formatted_total_received BTC in your temporary wallet.<br>Please submit a ticket to <a href='https://help.blockonomics.co/support/tickets/new'>Blockonomics Support</a> to withdraw the funds.", 'blockonomics-bitcoin-payments'); ?>
                                 </td>
-                            </tr>
-                            <?php endif; 
-                        endif; 
+                            <tr>
+                            <?php 
+                        }
+
                         if (get_option('blockonomics_btc') == '1' && isset($btc_error)):
                             if ($btc_error):
                                 error_message($btc_error);
@@ -690,8 +679,6 @@ register_uninstall_hook( __FILE__, 'blockonomics_uninstall_hook' );
 function blockonomics_uninstall_hook() {
     delete_option('blockonomics_callback_secret');
     delete_option('blockonomics_api_key');
-    delete_option('blockonomics_temp_api_key');
-    delete_option('blockonomics_temp_withdraw_amount');
     delete_option('blockonomics_margin');
     delete_option('blockonomics_timeperiod');
     delete_option('blockonomics_api_updated');
