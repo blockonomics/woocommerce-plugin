@@ -89,7 +89,7 @@ class FormFields {
             'title' => __('', 'blockonomics-bitcoin-payments'),
             'type' => 'checkbox',
             'subtitle' => __('Partial Payments', 'blockonomics-bitcoin-payments'),
-            'label' => __('Allow customer to pay order via multiple payement  ', 'blockonomics-bitcoin-payments'),
+            'label' => __('Allow customer to pay order via multiple payment  ', 'blockonomics-bitcoin-payments'),
             'default' => $blockonomics->is_partial_payments_active() ? 'yes' : 'no',
         );
         $form_fields['network_confirmation'] = array(
@@ -108,7 +108,7 @@ class FormFields {
             'title' => __('', 'blockonomics-bitcoin-payments'),
             'type' => 'text',
             'description' => __('You need this callback URL to setup multiple stores', 'blockonomics-bitcoin-payments'),
-            'subtitle' => __('Callback URL :', 'blockonomics-bitcoin-payments'),
+            'subtitle' => __('Callback URL', 'blockonomics-bitcoin-payments'),
             'default' => $callback_url,
             'disabled' => true,
             'css' => 'width:100%;',
