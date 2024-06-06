@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
             formChanged = true;
         });
 
-        form.addEventListener("submit",function(e){
+        form.addEventListener("submit",function(e){ 
             if(apikeyInput.value === '') {
                 document.getElementById("api-key-notification-box").style.display = 'block';
                 document.getElementById("apikey-row").scrollIntoView();
@@ -31,7 +31,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.preventDefault();
                 return;
             }
+            document.getElementById('woocommerce_blockonomics_enabled').checked = true;
             document.getElementById("api-key-notification-box").style.display = 'none';
+  
         });
 
         for (let code in activeCurrencies) {
