@@ -26,13 +26,13 @@ jobs:
     - name: Setup PHP, with Composer and extensions
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '7.4'
+        php-version: '8.1'  # Ensuring PHP 8.1 is used
         extensions: mbstring, xml, curl, pdo_mysql
         coverage: pcov
         tools: composer:v2
 
     - name: Install dependencies
-      run: composer install --prefer-dist --no-progress --no-suggest
+      run: composer install --prefer-dist --no-progress
 
     - name: Start MySQL
       run: sudo /etc/init.d/mysql start
