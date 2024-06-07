@@ -1,11 +1,17 @@
 /* ----- Checkout Page Styles ------*/
 
 .bnomics-qr-block {
-  display: flex;
   align-items: center;
   justify-content: flex-end;
 }
-
+.blockonomics-body-container {
+  display: flex;
+  justify-content: space-between;
+  max-width: 500px;
+  width: 100%;
+  margin: 20px 0;
+    gap: 20px;
+}
 .bnomics-qr-code {
   display: none;
 }
@@ -30,9 +36,12 @@
 
 .bnomics-qr {
   text-align: center !important;
-  padding: 16px 8px;
-  width: 180px;
   text-align: left;
+  position: relative; 
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 
@@ -63,7 +72,6 @@ svg {
   .bnomics-btc-info {
     display: block !important;
   }
-
   .bnomics-order-container {
     text-align: center;
   }
@@ -268,6 +276,9 @@ svg {
 }
 
 /* - Blockonomics Font Icons Ends -- */
+#blockonomics_checkout table {
+  margin: 0;
+}
 
 #bnomics-amount-copy,
 #bnomics-address-copy {
@@ -290,12 +301,6 @@ svg {
 
 #blockonomics_checkout h5 {
   text-align: left;
-}
-
-#blockonomics_checkout table {
-  border-collapse: separate;
-  border: initial;
-  border-spacing: 0 0.5rem;
 }
 
 #bnomics-refresh {
@@ -377,42 +382,17 @@ svg {
 
 .bnomics-order-address {
   align-items: center;
-  margin-left: 8px;
-  margin-right: 8px;
   text-align: left;
+  height: 100%;
+  position: relative; 
+  
+  border-top: 0px;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
-
-.bnomics-or-divider {
-  position: relative;
-  text-align: center;
-  vertical-align: middle;
-  font-size: var(--global--font-size-xs);
-  font-weight: 700;
-  opacity: 0.5;
-
-}
-
-.bnomics-or-divider::before,
-.bnomics-or-divider::after {
-  content: '';
-  display: block;
-  width: 1px;
-  background: currentColor;
-  height: 36%;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.bnomics-or-divider::before {
-  top: 16px;
-}
-
-.bnomics-or-divider::after {
-  bottom: 16px;
-}
-
-
 
 .bnomics-order-panel {
   display: flex;
@@ -423,8 +403,6 @@ svg {
   padding-right: 1rem;
 }
 
-
-
 .bnomics-footer {
   display: flex;
   align-items: center;
@@ -434,18 +412,16 @@ svg {
   max-width: 160%;
 }
 
-.blockonomics_checkout_table {
-  margin: 0;
+#blockonomics_checkout .blockonomics_checkout_table.qr-table {
+  max-width: 180px;
 }
 
+.blockonomics_checkout_table td {
+  vertical-align: top;
+}
 
 #blockonomics_checkout .blockonomics_checkout_table {
   border-spacing: initial;
-}
-
-.bnomics-checkout-row td {
-  padding: 0;
-  vertical-align: middle; 
 }
 
 .bnomics-order-address label,
@@ -457,48 +433,51 @@ svg {
   display: none;
 }
 
-table.blockonomics_checkout_table tbody td {
-  background-color: transparent !important;
+.border-address-container {
+  position: relative; 
+  padding: 10px; 
+  height: 100%;
+  border-top: 0px; 
+  box-sizing: border-box;
 }
 
+.scan-title,
+.copy-title { 
+  font-weight: bold;
+  font-size: var(--global--font-size-xs);
+  text-align: left;
+  width:100%;
+}
 
+.bnomics-address,
+.bnomics-amount {
+  width: 100%;
+}
 
 @media screen and (max-width: 600px) {
- 
-  #blockonomics_checkout table {
-    max-width: auto;
-    border: initial;
+
+  .blockonomics-body-container {
+    flex-direction: column;
   }
 
-  .blockonomics_checkout_table td {
-    display: block;
-    
+  #blockonomics_checkout .blockonomics_checkout_table.qr-table {
+    max-width: 100%;
+  }
+ 
+ .border-title-container {
+  margin-bottom: 20px;
+ }
+  .bnomics-order-address-container{
+    height:auto;
+  }
+
+  .bnomics-order-address {
+    margin-left: 0;
   }
 
   .bnomics-qr-block {
     justify-content: center;
-  }
-
-  td.bnomics-or-divider {
-    border: 0;
-    line-height: 42px;
-  }
-
-  .bnomics-or-divider::before,
-  .bnomics-or-divider::after {
-    height: 1px;
-    width: 44%;
-    top: 50%;
-    left: auto;
-    transform: translateY(-50%);
-  }
-
-  .bnomics-or-divider::before {
-    left: 0;
-  }
-
-  .bnomics-or-divider::after {
-    right: 0;
+    margin-bottom: 15px;
   }
 
   .bnomics-address,
@@ -523,19 +502,5 @@ table.blockonomics_checkout_table tbody td {
     display: table-row;
   }
 
-  .bnomics-footer-divider td {
-    border: 0;
-    padding: 0;
-  }
-
-  .blockonomics_checkout_table_outer > tbody > tr > td {
-    border: 0;
-  }
-
 }
 
-@media screen and (min-width: 601px) {
-  .blockonomics_checkout_table > tbody > tr > td {
-    border: 0;
-  }
-}
