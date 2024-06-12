@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const apikeyInput = document.querySelector('input[name="woocommerce_blockonomics_api_key"]');
         const testSetupNotificationDOM = document.getElementById('test-setup-notification-box');
         const blockonomicsPluginEnabledDOM = document.getElementById('woocommerce_blockonomics_enabled');
-        let hasBlockonomicsPluginEnabledChanged = false;
+        let hasBlockonomicsApiKeyChanged = false;
 
         const baseUrl = blockonomics_params.ajaxurl;
         const activeCurrencies = { 'btc': true, 'bch': true };
@@ -25,8 +25,8 @@ document.addEventListener('DOMContentLoaded', function() {
             formChanged = true;
         });
 
-        blockonomicsPluginEnabledDOM.addEventListener('change', () => {
-            hasBlockonomicsPluginEnabledChanged = true;
+        apikeyInput.addEventListener('change', () => {
+            hasBlockonomicsApiKeyChanged = true;
         });
 
         form.addEventListener("submit",function(e){ 
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.preventDefault();
                 return;
             }
-            if (!hasBlockonomicsPluginEnabledChanged) {
+            if (hasBlockonomicsApiKeyChanged) {
                 blockonomicsPluginEnabledDOM.checked = true;
             }
             document.getElementById("api-key-notification-box").style.display = 'none';
