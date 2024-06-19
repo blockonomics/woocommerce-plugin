@@ -16,7 +16,7 @@ class BlockonomicsTest extends TestCase {
         parent::setUp();
         wp::setUp();
         // $this->blockonomics = new TestableBlockonomics();
-        $this->blockonomics = m::mock('TestableBlockonomics')->makePartial();
+        $this->blockonomics = m::mock(TestableBlockonomics::class, ['ZJ4PNtTnKqWxeMCQ6smlMBvj3i3KAtt2hwLSGuk9Lyk'])->makePartial();
         // Mock WordPress get_option function
         wp::userFunction('get_option', [
             'return' => function($option_name) {
@@ -42,7 +42,33 @@ class BlockonomicsTest extends TestCase {
         ]);
         wp::userFunction('wp_remote_retrieve_body', [
             'return' => function($response) {
-                return json_encode(isset($response['response']['body']) ? $response['response']['body'] : []);
+                return isset($response['body']) ? $response['body'] : [];
+            }
+        ]);
+        // Mock WC() function
+        wp::userFunction('WC', [
+            'return' => function() {
+                return new class{
+                    public function api_request_url($endpoint) {
+                        return "https://localhost:8888/wordpress/wc-api/WC_Gateway_Blockonomics/";
+                        //TODO: look for variations in http cases
+                    }
+                    };
+            }
+        ]);
+
+        // Mock add_query_arg function i.e. appends query arguments to a URL
+        wp::userFunction('add_query_arg', [
+            'return' => function($args, $url) {
+                if (!is_array($args)) {
+                    $args = [];
+                }
+                return $url . '?' . http_build_query($args);
+            }
+        ]);
+        wp::userFunction('is_wp_error', [
+            'return' => function($thing) {
+                return ($thing instanceof \WP_Error);
             }
         ]);
     }
@@ -169,7 +195,23 @@ class BlockonomicsTest extends TestCase {
                         'code' => 200,
                         'message' => 'OK'
                     ],
-                    'body' => json_encode([])  // Simulate no stores added
+                    'body' => json_encode([])  // no stores added
+                ];
+            case 'one_store_different_callback':
+                return [
+                    'response' => [
+                        'code' => 200,
+                        'message' => 'OK'
+                    ],
+                    'body' => json_encode([['address' => 'zpub6o4sVoUnjZ8qWRtWUFHL9TWKfStSo2rquV6LsHJWNDbrEP5L2CAG849xpXJXzsm4iNTbKGS6Q4gxK6mYQqfd1JCP3KKYco2DBxTrjpywWxt', 'tag' => 't_shirt_store_wordpress', 'callback' => 'http://localhost:8888/wordpress/wc-api/WC_Gateway_Blockonomics/?secret=30d8ea3494a820e37ffb46c801a6cce96cc2023e']])
+                ];
+            case 'one_store_no_callback':
+                return [
+                    'response' => [
+                        'code' => 200,
+                        'message' => 'OK'
+                    ],
+                    'body' => json_encode([['address' => 'zpub6o4sVoUnjZ8qWRtWUFHL9TWKfStSo2rquV6LsHJWNDbrEP5L2CAG849xpXJXzsm4iNTbKGS6Q4gxK6mYQqfd1JCP3KKYco2DBxTrjpywWxt', 'tag' => 't_shirt_store_wordpress', 'callback' => '']])
                 ];
             default:
                 return [
@@ -188,6 +230,17 @@ class BlockonomicsTest extends TestCase {
                 ->with($crypto)
                 ->andReturn($mockedResponse);
         }
+    }
+    private function mockUpdateCallbackResponse() {
+        wp::userFunction('wp_remote_post', [
+            'return' => [
+                'response' => [
+                    'code' => 200,
+                    'message' => 'OK'
+                ],
+                'body' => ''
+            ]
+        ]);
     }
 
     // Testing Test Setup functionality
@@ -262,6 +315,108 @@ class BlockonomicsTest extends TestCase {
         $result = $this->blockonomics->testSetup();
         // Assert that the error message for no store added is returned for both BTC and BCH
         $this->assertEquals(['btc' => 'Please add a new store on blockonomics website', 'bch' => 'Please add a new store on blockonomics website'], $result);
+    }
+
+    // API key is correct, 1 xpub is added and callback url is not set
+    public function testBTCWithOneStoreNoCallback() {
+        // Mock active currencies to return only BTC
+        $this->mockActiveCurrencies(['btc']);
+
+        // Simulate the response where one store is added without any callback URL
+        $this->blockonomics->shouldReceive('get_callbacks')
+            ->with('btc')
+            ->andReturn($this->getMockResponse('one_store_no_callback'));
+
+        // Mock the update callback response
+        $this->mockUpdateCallbackResponse();
+
+        // Execute testSetup and capture the results
+        $result = $this->blockonomics->testSetup();
+
+        // Assert that no errors are returned
+        $this->assertFalse($result['btc']);
+    }
+
+    public function testBCHWithOneStoreNoCallback() {
+        // Mock active currencies to return only BCH
+        $this->mockActiveCurrencies(['bch']);
+
+        // Simulate the response where one store is added without any callback URL
+        $this->blockonomics->shouldReceive('get_callbacks')
+            ->with('bch')
+            ->andReturn($this->getMockResponse('one_store_no_callback'));
+
+        // Mock the update callback response
+        $this->mockUpdateCallbackResponse();
+
+        // Execute testSetup and capture the results
+        $result = $this->blockonomics->testSetup();
+
+        // Assert that no errors are returned
+        $this->assertFalse($result['bch']);
+    }
+
+    public function testBTCandBCHWithOneStoreNoCallback() {
+        // Mock active currencies to return only BTC
+        $this->mockActiveCurrencies(['btc','bch']);
+
+        // Simulate the response where one store is added without any callback URL
+        $this->blockonomics->shouldReceive('get_callbacks')
+            ->with('btc')
+            ->andReturn($this->getMockResponse('one_store_no_callback'));
+
+        $this->blockonomics->shouldReceive('get_callbacks')
+            ->with('bch')
+            ->andReturn($this->getMockResponse('one_store_no_callback'));
+
+        // Mock the update callback response
+        $this->mockUpdateCallbackResponse();
+
+        // Execute testSetup and capture the results
+        $result = $this->blockonomics->testSetup();
+
+        // Assert that no errors are returned
+        $this->assertFalse($result['btc']);
+        $this->assertFalse($result['bch']);
+    }
+
+    public function testBTCWithOneStoreDifferentCallback() {
+        // Mock active currencies to return only BTC
+        $this->mockActiveCurrencies(['btc']);
+
+        // Simulate the response where one store is added with a different callback URL
+        $this->blockonomics->shouldReceive('get_callbacks')
+            ->with('btc')
+            ->andReturn($this->getMockResponse('one_store_different_callback'));
+
+        // Mock the update callback response to capture its input parameters
+        $callbackUrl = null;
+        $crypto = null;
+        $xpub = null;
+
+        $this->blockonomics->shouldReceive('update_callback')
+            ->with(m::on(function($arg) use (&$callbackUrl) {
+                $callbackUrl = $arg;
+                return true;
+            }), m::on(function($arg) use (&$crypto) {
+                $crypto = $arg;
+                return true;
+            }), m::on(function($arg) use (&$xpub) {
+                $xpub = $arg;
+                return true;
+            }))
+            ->andReturn((object)[
+                'response_code' => 200,
+                'response_message' => 'OK'
+            ]);
+
+        // Execute testSetup and capture the results
+        $result = $this->blockonomics->testSetup();
+        error_log("Result from testSetup: " . print_r($result, true));
+
+        // Assert that the expected error message is returned
+        $this->assertEquals('Please add a new store on blockonomics website', $result['btc']);
+
     }
 
     protected function tearDown(): void {
