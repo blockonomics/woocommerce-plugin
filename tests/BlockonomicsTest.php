@@ -439,63 +439,42 @@ class BlockonomicsTest extends TestCase {
         $this->assertEquals(500, $result->response_code);
     }
 
-    // public function testExamineServerCallbackUrls() {
-    //     $callbackSecret = 'secret123';
-    //     $apiUrl = 'https://example.com/wc-api/WC_Gateway_Blockonomics';
-    //     $wordpressCallbackUrl = $apiUrl . '?secret=' . $callbackSecret;
-    //     $responseBody = [
-    //         (object) ['callback' => '', 'address' => 'xpub1'],
-    //         (object) ['callback' => $wordpressCallbackUrl, 'address' => 'xpub2'],
-    //         (object) ['callback' => 'https://otherurl.com', 'address' => 'xpub3']
-    //     ];
-    //     $crypto = 'btc';
-    //     wp::userFunction('get_option', [
-    //         'args' => ['blockonomics_callback_secret'],
-    //         'return' => $callbackSecret,
-    //     ]);
-    //     wp::userFunction('WC', [
-    //         'return' => (object)['api_request_url' => function() use ($apiUrl) {
-    //             return $apiUrl;
-    //         }]
-    //     ]);
-    //     wp::userFunction('add_query_arg', [
-    //         'args' => ['secret', $callbackSecret, $apiUrl],
-    //         'return' => $wordpressCallbackUrl,
-    //     ]);
-    //     wp::userFunction('wp_remote_retrieve_body', [
-    //         'args' => [Mockery::type('array')],
-    //         'return' => json_encode($responseBody),
-    //     ]);
-    //     $decodedResponseBody = json_decode(json_encode($responseBody));
-    //     $result = $this->blockonomics->examine_server_callback_urls($decodedResponseBody, $crypto);
-    //     $this->assertEquals('', $result);
-    // }
+    public function testExamineServerCallbackUrlsNoMatchNoEmptyCallback() {
+        $callbackSecret = 'secret123';
+        $apiUrl = 'https://example.com/wc-api/WC_Gateway_Blockonomics';
+        $wordpressCallbackUrl = $apiUrl . '?secret=' . $callbackSecret;
+        $responseBody = [
+            (object) ['callback' => 'https://anotherurl.com', 'address' => 'xpub1'],
+            (object) ['callback' => 'https://otherurl.com', 'address' => 'xpub2']
+        ];
 
-    // public function testExamineServerCallbackUrlsWithPartialMatch() {
-    //     $callbackSecret = 'secret123';
-    //     $apiUrl = 'https://example.com/wc-api/WC_Gateway_Blockonomics';
-    //     $wordpressCallbackUrl = $apiUrl . '?secret=' . $callbackSecret;
-    //     $responseBody = [
-    //         (object) ['callback' => 'https://example.com/wc-api/WC_Gateway_Blockonomics?secret=oldsecret', 'address' => 'xpub1'],
-    //         (object) ['callback' => 'https://example.com/wc-api/WC_Gateway_Blockonomics', 'address' => 'xpub2'] // Ensure partial match
-    //     ];
-    //     $crypto = 'btc';
-    //     wp::userFunction('get_option', [
-    //         'args' => ['blockonomics_callback_secret'],
-    //         'return' => $callbackSecret,
-    //     ]);
-    //     wp::userFunction('WC', [
-    //         'return' => (object)['api_request_url' => function() use ($apiUrl) {
-    //             return $apiUrl;
-    //         }]
-    //     ]);
-    //     wp::userFunction('add_query_arg', [
-    //         'args' => ['secret', $callbackSecret, $apiUrl],
-    //         'return' => $wordpressCallbackUrl,
-    //     ]);
-    //     $result = $this->blockonomics->examine_server_callback_urls($responseBody, $crypto);
-    //     $this->assertEquals('', $result);
-    // }
+        $crypto = 'btc';
+
+        // Mock WordPress get_option function
+        wp::userFunction('get_option', [
+            'args' => ['blockonomics_callback_secret'],
+            'return' => $callbackSecret,
+        ]);
+
+        // Mock WordPress WC function
+        wp::userFunction('WC', [
+            'return' => (object)['api_request_url' => function() use ($apiUrl) {
+                return $apiUrl;
+            }]
+        ]);
+
+        // Mock WordPress add_query_arg function
+        wp::userFunction('add_query_arg', [
+            'args' => ['secret', $callbackSecret, $apiUrl],
+            'return' => $wordpressCallbackUrl,
+        ]);
+
+        // Directly call the examine_server_callback_urls function
+        $result = $this->blockonomics->examine_server_callback_urls($responseBody, $crypto);
+
+        // Assert the expected error
+        $this->assertEquals('Please add a new store on blockonomics website', $result);
+    }
 
     public function testExamineServerCallbackUrlsWithNoMatch() {
         $callbackSecret = 'secret123';
