@@ -87,10 +87,44 @@ function blockonomics_woocommerce_init()
         add_filter('request', 'filter_orders_by_address_or_txid' );
     }
     
+    add_action( 'admin_enqueue_scripts', 'blockonomics_enqueue_custom_admin_style' );
+    add_action( 'wp_ajax_test_setup', 'blockonomics_test_setup' );
 
     function bnomics_exclude_pages( $exclude ) {
         $exclude[] = wc_get_page_id( 'payment' );
         return $exclude;
+    }
+
+    function blockonomics_enqueue_custom_admin_style() {
+        if (
+            isset($_GET['tab']) &&
+            'checkout' === $_GET['tab'] &&
+            isset($_GET['section']) &&
+            'blockonomics' === $_GET['section']
+        ) {
+            wp_register_style('blockonomics-admin-style', plugin_dir_url(__FILE__) . "css/admin.css", '', get_plugin_data( __FILE__ )['Version']);
+		    wp_enqueue_style( 'blockonomics-admin-style' );
+
+            wp_register_script( 'blockonomics-admin-scripts', plugins_url('js/admin.js', __FILE__), array(), get_plugin_data( __FILE__ )['Version'], array( 'strategy' => 'defer' ) );
+    
+            wp_localize_script('blockonomics-admin-scripts', 'blockonomics_params', array(
+                'ajaxurl' => admin_url( 'admin-ajax.php' ),
+                'apikey'  => get_option('blockonomics_api_key')
+            ));
+
+            wp_enqueue_script( 'blockonomics-admin-scripts' );
+        }
+    }
+
+    function blockonomics_test_setup() {
+        include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
+        $blockonomics = new Blockonomics;
+        $result = array();
+
+        $result['crypto'] = $blockonomics->testSetup();
+
+        wp_send_json($result);
+        wp_die();
     }
 
     function add_payment_page_shortcode() {
@@ -206,16 +240,9 @@ function blockonomics_woocommerce_init()
     // Add entry in the settings menu
     function add_page()
     {
-        $blockonomics = new Blockonomics;
-
         $nonce = isset($_REQUEST['_wpnonce']) ? wp_verify_nonce( sanitize_text_field(wp_unslash($_REQUEST['_wpnonce'])), 'update-options' ) : "";
         $force_generate = isset($_POST['generateSecret']) && $nonce ? true : false;
         generate_secret($force_generate);
-
-        add_options_page(
-            'Blockonomics', 'Blockonomics', 'manage_options',
-            'blockonomics_options', 'show_options'
-        );
     }
 
     function display_admin_message($msg, $type)
@@ -264,213 +291,6 @@ function blockonomics_woocommerce_init()
         $callback_url = WC()->api_request_url('WC_Gateway_Blockonomics');
         $callback_url = add_query_arg('secret', $callback_secret, $callback_url);
         return $callback_url;
-    }
-
-    function show_options()
-    {
-        if( isset( $_GET[ 'tab' ] ) ) {
-            $active_tab = sanitize_key($_GET[ 'tab' ]);
-        } else {
-            $active_tab = 'settings';
-        }
-        $settings_updated = isset($_GET['settings-updated']) ? wp_validate_boolean(sanitize_text_field(wp_unslash($_GET['settings-updated']))) : "";
-        if ($active_tab == "currencies" && $settings_updated == 'true')
-        {
-            $blockonomics = new Blockonomics;
-            $setup_errors = $blockonomics->testSetup();
-            $btc_error = isset($setup_errors['btc']) ? $setup_errors['btc'] : 'false';
-            $bch_error = isset($setup_errors['bch']) ? $setup_errors['bch'] : 'false';
-        }
-        ?>
-        <script type="text/javascript">
-            function gen_secret() {
-                document.generateSecretForm.submit();
-            }
-            function check_form(tab) {
-                const urlParams = new URLSearchParams(window.location.href);
-                const currentTab = urlParams.get('tab') ?? 'settings';
-                if (currentTab == tab){
-                    return;
-                }
-                if (document.getElementById('blockonomics_form_updated').value == 'true' || document.getElementById('blockonomics_api_updated').value == 'true'){
-                    if(validateBlockonomicsForm()){
-                        save_form_then_redirect(tab);
-                    }
-                } else {
-                    window.location.href = "options-general.php?page=blockonomics_options&tab="+tab;
-                }
-            }
-            function save_form_then_redirect(tab) {
-                const xhr = new XMLHttpRequest();
-                xhr.open("POST", "options.php"); 
-                xhr.onload = function(event){ 
-                    window.location.href = "options-general.php?page=blockonomics_options&tab="+tab;
-                }; 
-                const formData = new FormData(document.myform); 
-                xhr.send(formData);
-                document.getElementById('myform').innerHTML = "Saving Settings...";
-            }
-            function value_changed() {
-                document.getElementById('blockonomics_api_updated').value = 'true';
-                add_asterisk("settings");
-            }
-            function add_asterisk(tab) {
-                document.getElementById('blockonomics_form_updated').value = 'true';
-                document.getElementById(tab+'_nav_bar').style.background = "#e6d9cb";
-                document.getElementById(tab+'_nav_bar').textContent = tab.charAt(0).toUpperCase() + tab.slice(1)+"*";
-            }
-            function validateBlockonomicsForm() {
-                if(document.getElementById("blockonomics_api_key")){
-                    newApiKey = document.getElementById("blockonomics_api_key").value;
-                    apiKeyChanged = newApiKey != "<?php echo get_option("blockonomics_api_key")?>";
-                    if (apiKeyChanged && newApiKey.length != 43) {
-                        alert("ERROR: Invalid APIKey");
-                        return false
-                    }
-                }
-                return true;
-            }
-            function show_advanced() {
-                document.getElementById("advanced_title").style.display = 'none';
-                document.getElementById("advanced_window").style.display = 'block';
-            }
-            function show_basic() {
-                document.getElementById("advanced_title").style.display = 'block';
-                document.getElementById("advanced_window").style.display = 'none';
-            }
-        </script>
-        <div class="wrap">
-            <h1><?php echo __('Blockonomics', 'blockonomics-bitcoin-payments')?></h1>
-            <form method="post" name="myform" id="myform" onsubmit="return validateBlockonomicsForm()" action="options.php">
-                <h2 class="nav-tab-wrapper">
-                    <a onclick="check_form('settings')" id='settings_nav_bar'  class="nav-tab <?php echo $active_tab == 'settings' ? 'nav-tab-active' : ''; ?>"><?php echo __('Settings', 'blockonomics-bitcoin-payments')?></a>
-                    <a onclick="check_form('currencies')" id='currencies_nav_bar' class="nav-tab <?php echo $active_tab == 'currencies' ? 'nav-tab-active' : ''; ?>"><?php echo __('Currencies', 'blockonomics-bitcoin-payments')?></a>
-                </h2>
-                <input type="hidden" name="blockonomics_form_updated" id="blockonomics_form_updated" value="false">
-                <input type="hidden" name="blockonomics_api_updated" id="blockonomics_api_updated" value="false">
-                <?php wp_nonce_field('update-options');
-                switch ( $active_tab ){
-                case 'settings' :?>
-                <div class="bnomics-width">
-                    <h4><?php echo __('API Key', 'blockonomics-bitcoin-payments')?></h4>
-                    <input class="bnomics-options-input" onchange="value_changed()" size="130" type="text" id="blockonomics_api_key" name="blockonomics_api_key" value="<?php echo get_option('blockonomics_api_key'); ?>" />
-                    <?php get_started_message('', '', 'To get your API Key');?>
-                    <h4><?php echo __('Callback URL', 'blockonomics-bitcoin-payments')?>
-                        <a href="javascript:gen_secret()" id="generate-callback" class="bnomics-options-callback-icon" title="Generate New Callback URL">&#xf463;</a>
-                    </h4>
-                    <input class="bnomics-options-input" size="130" type="text" value="<?php echo get_callback_url();?>" disabled/>
-                    <p id="advanced_title" class="bnomics-options-bold"><a href="javascript:show_advanced()"><?php echo __('Advanced Settings', 'blockonomics-bitcoin-payments')?> &#9660;</a></p>
-                    <div id="advanced_window" style="display:none">
-                        <p class="bnomics-options-bold"><a href="javascript:show_basic()"><?php echo __('Advanced Settings', 'blockonomics-bitcoin-payments')?> &#9650;</a></p>
-                        <table class="form-table">
-                            <tr valign="top"><th scope="row"><?php echo __('Time period of countdown timer on payment page (in minutes)', 'blockonomics-bitcoin-payments')?></th>
-                                <td>
-                                    <select onchange="add_asterisk('settings')" name="blockonomics_timeperiod" />
-                                        <option value="10" <?php selected(get_option('blockonomics_timeperiod'), 10); ?>>10</option>
-                                        <option value="15" <?php selected(get_option('blockonomics_timeperiod'), 15); ?>>15</option>
-                                        <option value="20" <?php selected(get_option('blockonomics_timeperiod'), 20); ?>>20</option>
-                                        <option value="25" <?php selected(get_option('blockonomics_timeperiod'), 25); ?>>25</option>
-                                        <option value="30" <?php selected(get_option('blockonomics_timeperiod'), 30); ?>>30</option>
-                                    </select>
-                                </td>
-                            </tr>
-                            <tr valign="top">
-                                <th scope="row"><?php echo __('Extra Currency Rate Margin % (Increase live fiat to BTC rate by small percent)', 'blockonomics-bitcoin-payments')?></th>
-                                <td><input onchange="add_asterisk('settings')" type="number" min="0" max="20" step="0.01" name="blockonomics_margin" value="<?php echo esc_attr( get_option('blockonomics_margin', 0) ); ?>" /></td>
-                            </tr>
-                            <tr valign="top">
-                                <th scope="row"><?php echo __('Underpayment Slack % (Allow payments that are off by a small percentage)', 'blockonomics-bitcoin-payments')?></th>
-                                <td><input onchange="add_asterisk('settings')" type="number" min="0" max="20" step="0.01" name="blockonomics_underpayment_slack" value="<?php echo esc_attr( get_option('blockonomics_underpayment_slack', 0) ); ?>" /></td>
-                            </tr>
-                            <tr valign="top">
-                                <th scope="row"><?php echo __('No Javascript checkout page (Enable this if you have majority customer that use tor like browser that block Javascript)', 'blockonomics-bitcoin-payments')?></th>
-                                <td><input onchange="add_asterisk('settings')" type="checkbox" name="blockonomics_nojs" value="1" <?php checked("1", get_option('blockonomics_nojs')); ?> /></td>
-                            </tr>
-                            <tr valign="top">
-                                <th scope="row"><?php echo __('Network Confirmations required for payment to complete)', 'blockonomics-bitcoin-payments')?></th>
-                                <td><select onchange="add_asterisk('settings')" name="blockonomics_network_confirmation">
-                                        <option value="2" <?php selected(get_option('blockonomics_network_confirmation'), 2); ?>><?php echo __('2 (Recommended)', 'blockonomics-bitcoin-payments')?></option>
-                                        <option value="1" <?php selected(get_option('blockonomics_network_confirmation'), 1); ?>>1</option>
-                                        <option value="0" <?php selected(get_option('blockonomics_network_confirmation'), 0); ?>>0</option>
-                                    </select></td>
-                            </tr>
-                            <tr valign="top">
-                                <th scope="row"><?php echo __('Allow Partial Payments (Customer can pay order via multiple payments)', 'blockonomics-bitcoin-payments')?></th>
-                                <td><input onchange="add_asterisk('settings')" type="checkbox" name="blockonomics_partial_payments" value="1" <?php checked("1", get_option('blockonomics_partial_payments', $default_value = true)); ?> /></td>
-                            </tr>
-                        </table>
-                    </div>
-                    <p class="submit">
-                        <input type="submit" class="button-primary" value="<?php echo __("Save", 'blockonomics-bitcoin-payments')?>"/>
-                        <input type="hidden" name="action" value="update" />
-                        <input type="hidden" name="page_options" value="blockonomics_api_key,blockonomics_timeperiod,blockonomics_margin,blockonomics_gen_callback,blockonomics_api_updated,blockonomics_underpayment_slack,blockonomics_nojs,blockonomics_network_confirmation,blockonomics_partial_payments" />
-                    </p>
-                </form>
-                <form method="POST" name="generateSecretForm">
-                    <p class="submit">
-                        <?php wp_nonce_field('update-options');?>
-                        <input type="hidden" name="generateSecret" value="true">
-                    </p>
-                </form>
-                </div>
-                    <?php
-                    break;
-                case 'currencies' :?>
-                    <table width="100%" cellspacing="0" cellpadding="0" class="form-table bnomics-options-intendation bnomics-width">
-                        <h2>
-                            <input onchange="add_asterisk('currencies')" type="checkbox" name="blockonomics_btc" value="1"<?php checked("1", get_option('blockonomics_btc', true)); ?>" />
-                            <?php echo __('Bitcoin (BTC)', 'blockonomics-bitcoin-payments')?>
-                        </h2>
-                        <?php 
-                        get_started_message();
-                        $total_received = get_option('blockonomics_temp_withdraw_amount', 0);
-                        if ($total_received) {
-                            $formatted_total_received = ($total_received < 10000) ? rtrim(number_format($total_received/1.0e8, 8),0) : ($total_received / 1.0e8);
-                            ?>
-                            <tr>
-                                <td colspan="2" class="notice notice-info">
-                                    <?php echo __("You have $formatted_total_received BTC in your temporary wallet.<br>Please submit a ticket to <a href='https://help.blockonomics.co/support/tickets/new'>Blockonomics Support</a> to withdraw the funds.", 'blockonomics-bitcoin-payments'); ?>
-                                </td>
-                            <tr>
-                            <?php 
-                        }
-
-                        if (get_option('blockonomics_btc') == '1' && isset($btc_error)):
-                            if ($btc_error):
-                                error_message($btc_error);
-                            else:
-                                success_message();
-                            endif;
-                        endif; ?>
-                    </table>
-                    <table class="form-table bnomics-options-intendation bnomics-width">
-                        <h2>
-                            <input onchange="add_asterisk('currencies')" type="checkbox" name="blockonomics_bch" value="1"<?php checked("1", get_option('blockonomics_bch')); ?>" />
-                            <?php echo __("Bitcoin Cash (BCH)", 'blockonomics-bitcoin-payments')?>
-                        </h2>
-                        <?php 
-                        get_started_message('bch.');
-                        $bch_enabled = get_option("blockonomics_bch");
-                        if ($bch_enabled == '1' && isset($bch_error)):
-                            if ($bch_error):
-                                error_message($bch_error);
-                            else:
-                                success_message();
-                            endif; 
-                        endif; ?>
-                    </table>
-                    <div class="bnomics-options-small-margin-top">
-                        <input type="submit" class="button-primary" value="<?php echo __("Test Setup", 'blockonomics-bitcoin-payments')?>" />
-                        <input type="hidden" name="page_options" value="blockonomics_bch, blockonomics_btc" />
-                        <input type="hidden" name="action" value="update" />
-                    </div>
-                    </form>
-                    <?php
-                    break;
-                }
-            ?>
-        </div>
-    <?php
     }
 
     
@@ -660,11 +480,11 @@ function blockonomics_plugin_activation() {
       $html .= '</div>';
       echo $html;
   }
-  if( get_transient( 'blockonomics_activation_hook_transient' ) ){
+  if( get_transient( 'blockonomics_activation_hook_transient' ) || get_option('blockonomics_api_key') == '' ){
 
-    $html = '<div class="updated">';
+    $html = '<div class="notice notice-warning is-dismissible">';
     $html .= '<p>';
-    $html .= __( 'Congrats, you are now accepting BTC payments! You can configure Blockonomics <a href="options-general.php?page=blockonomics_options">on this page</a>.', 'blockonomics-bitcoin-payments' );
+    $html .= __( 'Blockonomics is almost ready. To get started, connect your account <a href="admin.php?page=wc-settings&tab=checkout&section=blockonomics">on the Account setup page</a>.', 'blockonomics-bitcoin-payments' );
     $html .= '</p>';
     $html .= '</div>';
 
@@ -689,11 +509,15 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_nojs');
     delete_option('blockonomics_network_confirmation');
     delete_option('blockonomics_partial_payments');
+    delete_option('woocommerce_blockonomics_settings');
+
     global $wpdb;
     // drop blockonomics_orders & blockonomics_payments on uninstallation
     // blockonomics_orders was the payments table before db version 1.2
     $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS ".$wpdb->prefix."blockonomics_orders , ".$wpdb->prefix."blockonomics_payments"));
     delete_option("blockonomics_db_version");
+    
+
 
     // Remove the custom page and shortcode added for payment
     remove_shortcode('blockonomics_payment');
@@ -701,7 +525,7 @@ function blockonomics_uninstall_hook() {
 }
 
 function blockonomics_plugin_add_settings_link( $links ) {
-    $settings_link = '<a href="options-general.php?page=blockonomics_options">' . __( 'Settings' ) . '</a>';
+    $settings_link = '<a href="admin.php?page=wc-settings&tab=checkout&section=blockonomics">' . __( 'Settings' ) . '</a>';
     array_unshift( $links, $settings_link );
     return $links;
 }
