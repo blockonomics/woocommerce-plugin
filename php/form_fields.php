@@ -12,7 +12,7 @@ class FormFields {
                 'subtitle' => __('Enable Blockonomics plugin', 'blockonomics-bitcoin-payments'),
                 'type' => 'checkbox',
                 'label' => __('Enable Blockonomics as a payment method during checkout', 'blockonomics-bitcoin-payments'),
-                'default' => 'no'
+                'default' =>  get_option('blockonomics_api_key') ? 'yes' : 'no' 
             ),
             'title' => array(
                 'subtitle' => __('Title', 'blockonomics-bitcoin-payments'),
