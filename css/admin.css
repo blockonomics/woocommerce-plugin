@@ -1,0 +1,77 @@
+.forminp {
+    background-color: white;
+}
+
+.form-table {
+    max-width: 900px;
+}
+
+.test-spinner {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top: 4px solid #007bff;
+    width: 20px;
+    height: 20px;
+    animation: spin 2s linear infinite;
+    display: none;
+    margin-left: 10px;
+}
+.block-title-desc {
+    font-weight: normal;
+    height: 0;
+}
+.form-table td {
+    
+    padding: 6px 10px;
+   
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+#test-setup-notification-box, #api-key-notification-box {
+    border: 1px solid #bc9f8f;
+    background-color: #fff3f0;
+    color: #643500;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    display: none;
+}
+
+#save-api-key-button {
+    margin-top: 6px;
+    background-color: green;
+    color:white;
+}
+
+#test-setup-btn {
+    background-color: green;
+    color:white;
+}
+
+.bnomics-options-margin-top {
+    font-size: 14px;
+    margin-bottom: 6px;
+    margin-top: 10px;
+}
+
+.flex-display {
+    display: flex;
+}
+
+@media screen and (max-width: 782px) {
+    .block-title-desc {
+        font-weight: normal;
+        height: auto;
+    }
+}
