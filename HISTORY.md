@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 3.7.4  =
+* New WooCommerce settings page
+* Initial phpunit tests
+
 = 3.7.3  =
 * Fix warnings from wp-cli
 * Update checkout ui to include Scan and Copy headings
