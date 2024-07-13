@@ -38,7 +38,8 @@ class Blockonomics
         return $rounded_total_paid_fiats;
 
     }
-    
+
+    private $api_key;
     
     public function __construct()
     {
