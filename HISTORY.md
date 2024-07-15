@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 3.7.5  =
+* Fixed deprecation warnings
+
 = 3.7.4  =
 * New WooCommerce settings page
 * Initial phpunit tests
