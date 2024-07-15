@@ -38,8 +38,9 @@ class Blockonomics
         return $rounded_total_paid_fiats;
 
     }
-    
-    
+
+    private $api_key;
+
     public function __construct()
     {
         $this->api_key = $this->get_api_key();
@@ -134,7 +135,7 @@ class Blockonomics
         $response = $this->get($url, $this->api_key);
         return $response;
     }
-    
+
     public function check_get_callbacks_response_code($response){
         $error_str = '';
         //TODO: Check This: WE should actually check code for timeout

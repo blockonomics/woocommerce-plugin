@@ -1,5 +1,6 @@
-
 <?php
+
+defined( 'ABSPATH' ) || exit;
 
 class FormFields {
     public static function init_form_fields($callback_url = '') {
