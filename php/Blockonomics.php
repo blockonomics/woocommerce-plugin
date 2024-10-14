@@ -112,11 +112,7 @@ class Blockonomics
 
     public function update_callback($callback_url, $crypto, $xpub)
     {
-        if ($crypto === 'btc'){
-            $url = Blockonomics::SET_CALLBACK_URL;
-        }else{
-            $url = Blockonomics::BCH_SET_CALLBACK_URL;
-        }
+        $url = Blockonomics::SET_CALLBACK_URL;
         $body = json_encode(array('callback' => $callback_url, 'xpub' => $xpub));
         $response = $this->post($url, $this->api_key, $body);
         $responseObj = json_decode(wp_remote_retrieve_body($response));
