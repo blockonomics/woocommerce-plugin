@@ -229,11 +229,6 @@ class Blockonomics
                     'code' => 'btc',
                     'name' => 'Bitcoin',
                     'uri' => 'bitcoin'
-              ),
-              'bch' => array(
-                    'code' => 'bch',
-                    'name' => 'Bitcoin Cash',
-                    'uri' => 'bitcoincash'
               )
           );
     }  
@@ -241,15 +236,7 @@ class Blockonomics
      * Get list of active crypto currencies
      */
     public function getActiveCurrencies() {
-        $active_currencies = array();
-        $blockonomics_currencies = $this->getSupportedCurrencies();
-        foreach ($blockonomics_currencies as $code => $currency) {
-            $enabled = get_option('blockonomics_'.$code);
-            if($enabled || ($code === 'btc' && $enabled === false )){
-                $active_currencies[$code] = $currency;
-            }
-        }
-        return $active_currencies;
+        return $this->getSupportedCurrencies();
     }
 
     private function get($url, $api_key = '')
