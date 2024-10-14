@@ -46,20 +46,6 @@ class FormFields {
             )
         );
 
-        $firstItem = true;
-        foreach ($cryptos as $currencyCode => $crypto) {
-            $title = $firstItem ? 'Currencies<p class="block-title-desc">Setting and testing currencies accepted </p>' : '';
-            $default = $currencyCode === 'btc' ? 1 : 0;
-            $form_fields[$currencyCode . '_enabled'] = array(
-                'title'   => $title,
-                'type'    => 'checkbox',
-                'subtitle'   => $crypto["name"] . ' (' . strtoupper($currencyCode) . ')',
-                'label'   => __('Enable accepting '.$crypto["name"]),
-                'default' => get_option('blockonomics_' . $currencyCode, $default) == 1 ? 'yes' : 'no',
-                'add_divider' => $firstItem
-            );
-            $firstItem = false;
-        }
 
         $form_fields['extra_margin'] = array(
             'title' => __('Advanced<p class="block-title-desc">Setting for advanced control</p>', 'blockonomics-bitcoin-payments'),
