@@ -12,10 +12,7 @@ class Blockonomics
     const GET_CALLBACKS_URL = 'https://www.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
 
     const BCH_BASE_URL = 'https://bch.blockonomics.co';
-    const BCH_NEW_ADDRESS_URL = 'https://bch.blockonomics.co/api/new_address';
     const BCH_PRICE_URL = 'https://bch.blockonomics.co/api/price';
-    const BCH_SET_CALLBACK_URL = 'https://bch.blockonomics.co/api/update_callback';
-    const BCH_GET_CALLBACKS_URL = 'https://bch.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
 
 
     function get_order_paid_fiat($order_id) {
