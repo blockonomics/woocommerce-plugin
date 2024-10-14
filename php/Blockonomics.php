@@ -74,11 +74,7 @@ class Blockonomics
         {
             $get_params = "?match_callback=$secret";
         }
-        if($crypto === 'btc'){
-            $url = Blockonomics::NEW_ADDRESS_URL.$get_params;
-        }else{
-            $url = Blockonomics::BCH_NEW_ADDRESS_URL.$get_params;            
-        }
+        $url = Blockonomics::NEW_ADDRESS_URL.$get_params;
         $response = $this->post($url, $this->api_key, '', 8);
         if (!isset($responseObj)) $responseObj = new stdClass();
         $responseObj->{'response_code'} = wp_remote_retrieve_response_code($response);
