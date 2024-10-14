@@ -307,6 +307,10 @@ class Blockonomics
             return __('Set your Blockonomics API Key', 'blockonomics-bitcoin-payments');
         }
 
+        if ($crypto !== 'btc') {
+            return __('Test Setup only supports BTC', 'blockonomics-bitcoin-payments');
+        }
+
         $response = $this->get_callbacks($crypto);
         $error_str = $this->check_callback_urls_or_set_one($crypto, $response);
         if (!$error_str)
@@ -314,11 +318,7 @@ class Blockonomics
             //Everything OK ! Test address generation
             $error_str = $this->test_new_address_gen($crypto, $response);
         }
-        if($error_str) {
-            return $error_str;
-        }
-        // No errors
-        return false;
+        return $error_str ? $error_str : false;
     }
 
     // Returns WC page endpoint of order adding the given extra parameters
