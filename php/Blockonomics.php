@@ -13,6 +13,7 @@ class Blockonomics
 
     const BCH_BASE_URL = 'https://bch.blockonomics.co';
     const BCH_PRICE_URL = 'https://bch.blockonomics.co/api/price';
+    const BCH_NEW_ADDRESS_URL = 'https://bch.blockonomics.co/api/new_address';
 
 
     function get_order_paid_fiat($order_id) {
@@ -71,7 +72,7 @@ class Blockonomics
         {
             $get_params = "?match_callback=$secret";
         }
-        $url = Blockonomics::NEW_ADDRESS_URL.$get_params;
+        $url = ($crypto === 'bch') ? self::BCH_NEW_ADDRESS_URL : self::NEW_ADDRESS_URL;
         $response = $this->post($url, $this->api_key, '', 8);
         if (!isset($responseObj)) $responseObj = new stdClass();
         $responseObj->{'response_code'} = wp_remote_retrieve_response_code($response);
@@ -219,6 +220,11 @@ class Blockonomics
                     'code' => 'btc',
                     'name' => 'Bitcoin',
                     'uri' => 'bitcoin'
+                ),
+                'bch' => array(
+                    'code' => 'bch',
+                    'name' => 'Bitcoin Cash',
+                    'uri' => 'bitcoincash'
               )
           );
     }  
@@ -226,7 +232,14 @@ class Blockonomics
      * Get list of active crypto currencies
      */
     public function getActiveCurrencies() {
-        return $this->getSupportedCurrencies();
+        $active_currencies = array();
+        $blockonomics_currencies = $this->getSupportedCurrencies();
+        foreach ($blockonomics_currencies as $code => $currency) {
+            if ($code === 'btc' || ($code === 'bch' && get_option('woocommerce_blockonomics_settings')['enable_bch'] === 'yes')) {
+                $active_currencies[$code] = $currency;
+            }
+        }
+        return $active_currencies;
     }
 
     private function get($url, $api_key = '')

@@ -355,12 +355,15 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         }
 
         $blockonomics = new Blockonomics;
-        $activeCurrencies = $blockonomics->getSupportedCurrencies();
+        $supportedCurrencies = $blockonomics->getSupportedCurrencies();
 
-        foreach ($activeCurrencies as $code => $currency) {
-            $optionName = 'blockonomics_' . strtolower($code);
-            $isEnabled = $this->get_option($code . '_enabled') == 'yes' ? 1 : 0;
-            update_option($optionName, $isEnabled);
+        foreach ($supportedCurrencies as $code => $currency) {
+            if ($code === 'btc') {
+                update_option('blockonomics_' . $code, 1);
+            } elseif ($code === 'bch') {
+                $isEnabled = $this->get_option('enable_bch') === 'yes' ? 1 : 0;
+                update_option('blockonomics_' . $code, $isEnabled);
+            }
         }
         update_option('blockonomics_margin', (int)$this->get_option('extra_margin'));
         update_option('blockonomics_underpayment_slack', (int)$this->get_option('underpayment_slack'));

@@ -65,6 +65,13 @@ class FormFields {
             'default' =>  get_option('blockonomics_underpayment_slack', 0),
             'placeholder' => __('Underpayment Slack %', 'blockonomics-bitcoin-payments')
         );
+        $form_fields['enable_bch'] = array(
+            'title' => __('', 'blockonomics-bitcoin-payments'),
+            'type' => 'checkbox',
+            'subtitle' => __('Enable Bitcoin Cash (BCH)', 'blockonomics-bitcoin-payments'),
+            'label' => __('Allow customers to pay with Bitcoin Cash', 'blockonomics-bitcoin-payments'),
+            'default' => 'no',
+        );
         $form_fields['no_javascript'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),
             'type' => 'checkbox',
