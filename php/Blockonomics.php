@@ -208,6 +208,9 @@ class Blockonomics
 
     public function check_callback_urls_or_set_one($crypto, $response) 
     {
+        if ($crypto !== 'btc') {
+            return __('Test Setup only supports BTC', 'blockonomics-bitcoin-payments');
+        }
         //chek the current callback and detect any potential errors
         $error_str = $this->check_get_callbacks_response_code($response, $crypto);
         if(!$error_str){
