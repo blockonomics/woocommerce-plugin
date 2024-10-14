@@ -127,13 +127,11 @@ class Blockonomics
 
     public function get_callbacks($crypto)
     {
-        if ($crypto === 'btc'){
-            $url = Blockonomics::GET_CALLBACKS_URL;
-        }else{
-            $url = Blockonomics::BCH_GET_CALLBACKS_URL;
+        if ($crypto !== 'btc') {
+            return false;
         }
-        $response = $this->get($url, $this->api_key);
-        return $response;
+        $url = self::GET_CALLBACKS_URL;
+        return $this->get($url, $this->api_key);
     }
 
     public function check_get_callbacks_response_code($response){
