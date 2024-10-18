@@ -253,14 +253,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             <td class="forminp">
                 <div class="bnomics-options-margin-top">
                     <div>
-                        <p style="margin-bottom: 8px;">
-                            <strong>
-                                Test Setup
-                            </strong>
-                        </p>
-                        <div class="bnomics-options-margin-top">
-                            Test the setup to ensure it is working correctly
-                        </div>
                         <div>
                             <?php
                                 $blockonomics = new Blockonomics;
@@ -278,7 +270,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                             ?>
                         </div>
                         <div class="flex-display">
-                            <input type="button" id="test-setup-btn" class="button-primary" value="<?php echo __("Test Setup", 'blockonomics-bitcoin-payments') ?>" />
+                            <input type="button" id="test-setup-btn" class="button-primary" value="<?php echo __("Save API Key & Test Setup", 'blockonomics-bitcoin-payments') ?>" />
                             <div class="test-spinner"></div>
                         </div>
                         <div id="test-setup-notification-box">
@@ -334,7 +326,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                     <input class="input-text regular-input <?php echo esc_attr( $data['class'] ); ?>" type="text" name="<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" style="<?php echo esc_attr( $data['css'] ); ?>" value="<?php echo esc_attr( $this->get_option( $key ) ); ?>" placeholder="<?php echo esc_attr( $data['placeholder'] ); ?>" <?php disabled( $data['disabled'], true ); ?> <?php echo $this->get_custom_attribute_html( $data ); // WPCS: XSS ok. ?> />
                 </fieldset>
 
-                <button name="save" id="save-api-key-button" class="button-primary woocommerce-save-button" type="submit" value="Save changes">Save API key</button>
+                <!-- <button name="save" id="save-api-key-button" class="button-primary woocommerce-save-button" type="submit" value="Save changes">Save API key</button> -->
                 <div id="api-key-notification-box">
                     <span class="text">
                         Please enter a valid API key.
