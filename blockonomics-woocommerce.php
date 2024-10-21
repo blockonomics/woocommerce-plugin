@@ -66,6 +66,7 @@ function blockonomics_woocommerce_init()
    
     require_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'WC_Gateway_Blockonomics.php';
     include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
+    require_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'admin-page.php';
     
     add_action('admin_menu', 'add_page');
     add_action('init', 'load_plugin_translations');
@@ -78,6 +79,7 @@ function blockonomics_woocommerce_init()
     add_action('wp_enqueue_scripts', 'bnomics_register_stylesheets');
     add_action('wp_enqueue_scripts', 'bnomics_register_scripts');
     add_filter("wp_list_pages_excludes", "bnomics_exclude_pages");
+    add_action('admin_menu', 'blockonomics_add_admin_menu');
 
     if ( is_HPOS_active()) {
         add_action('woocommerce_order_list_table_restrict_manage_orders', 'filter_orders' , 20 );
@@ -85,6 +87,18 @@ function blockonomics_woocommerce_init()
     } else {
         add_action('restrict_manage_posts', 'filter_orders' , 20 );
         add_filter('request', 'filter_orders_by_address_or_txid' );
+    }
+
+    function blockonomics_add_admin_menu() {
+        add_menu_page(
+            'Blockonomics Setup',
+            'Blockonomics',
+            'manage_options',
+            'blockonomics-setup',
+            'blockonomics_setup_page',
+            'dashicons-money',
+            56
+        );
     }
     
     add_action( 'admin_enqueue_scripts', 'blockonomics_enqueue_custom_admin_style' );
@@ -489,7 +503,7 @@ function blockonomics_plugin_activation() {
     $html .= '</div>';
 
     echo $html;        
-    delete_transient( 'fx-admin-notice-example' );
+    delete_transient( 'blockonomics_activation_hook_transient' );
   }
 }
 
