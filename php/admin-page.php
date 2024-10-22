@@ -28,7 +28,7 @@ function blockonomics_setup_page() {
             </div>
             <ul style="list-style-type: none; padding-left: 0; margin-top: 10px;">
                 <li><span style="font-weight: bold;">I.</span> <a href="https://www.blockonomics.co/merchants" target="_blank">Sign up</a> to Blockonomics</li>
-                <li><span style="font-weight: bold;">II.</span> Create a <a href="https://www.blockonomics.co/merchants#/wallet" target="_blank">Wallet</a></li>
+                <li><span style="font-weight: bold;">II.</span> Create a <a href="https://www.blockonomics.co/dashboard#/wallet" target="_blank">Wallet</a></li>
                 <li><span style="font-weight: bold;">III.</span> Copy your <a href="https://www.blockonomics.co/merchants#/api" target="_blank">API Key</a> and Enter below</li>
             </ul>
             <form method="post" action="options.php">
