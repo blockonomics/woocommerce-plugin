@@ -23,7 +23,7 @@ function blockonomics_setup_page() {
             <div class="bnomics-wizard-heading">
                 <h1 style="font-size: 28px; font-weight: bold; margin-bottom: 10px;">Get started with Blockonomics</h1>
                 <div class="blockonomics-logo">
-                    <img src="<?php echo plugins_url('../img/logo.png', __FILE__); ?>" alt="Blockonomics Logo">
+                    <img src="<?php echo plugins_url('../img/blockonomics_logo_black.svg', __FILE__); ?>" alt="Blockonomics Logo">
                 </div>
             </div>
             <ul style="list-style-type: none; padding-left: 0; margin-top: 10px;">
@@ -49,7 +49,7 @@ function blockonomics_setup_page() {
             margin: 0;
         }
         .blockonomics-setup-wizard {
-            max-width: 600px;
+            max-width: 550px; /* Reduced from 600px */
             margin: 0 auto;
             background: #fff;
             padding: 20px;
@@ -63,7 +63,7 @@ function blockonomics_setup_page() {
             align-items: flex-end;
             justify-content: space-between;
             margin: 20px auto 0;
-            max-width: 640px;
+            max-width: 590px; /* Reduced from 640px */
             position: relative;
         }
         .bnomics-progress-step {
