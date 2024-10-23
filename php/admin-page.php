@@ -49,7 +49,7 @@ function blockonomics_setup_page() {
             margin: 0;
         }
         .blockonomics-setup-wizard {
-            max-width: 550px; /* Reduced from 600px */
+            max-width: 600px; /* Changed back from 550px to 600px */
             margin: 0 auto;
             background: #fff;
             padding: 20px;
@@ -63,7 +63,7 @@ function blockonomics_setup_page() {
             align-items: flex-end;
             justify-content: space-between;
             margin: 20px auto 0;
-            max-width: 590px; /* Reduced from 640px */
+            max-width: 640px; /* Changed back from 590px to 640px */
             position: relative;
         }
         .bnomics-progress-step {
