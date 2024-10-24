@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const testSetupNotificationDOM = document.getElementById('test-setup-notification-box');
         const blockonomicsPluginEnabledDOM = document.getElementById('woocommerce_blockonomics_enabled');
         let hasBlockonomicsApiKeyChanged = false;
+        let hasOtherSettingsChanged = false;
+
 
         apikeyInput.addEventListener('change', () => {
             hasBlockonomicsApiKeyChanged = true;
@@ -17,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const baseUrl = blockonomics_params.ajaxurl;
         const activeCurrencies = { 'btc': true, 'bch': true };
 
-        let formChanged = false;
+        // let formChanged = false;
         const form = document.getElementById("mainform");
        
        
@@ -25,9 +27,11 @@ document.addEventListener('DOMContentLoaded', function() {
             event.stopImmediatePropagation();
         });
         
-        form.addEventListener("input", () => {
+        form.addEventListener("input", (event) => {
             if (event.target !== apikeyInput) {
-                formChanged = true;
+                hasBlockonomicsApiKeyChanged  = true;
+            } else {
+                hasOtherSettingsChanged = true;
             }
         });
 
@@ -94,6 +98,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
 
+                // Other settings changed but not API key -> dont run Test setup
+                if (hasOtherSettingsChanged && !hasBlockonomicsApiKeyChanged) {
+                    if (testSetupNotificationDOM) {
+                        testSetupNotificationDOM.style.display = 'block';
+                    }
+                    return;
+                }
+
 
                 // Hide API key notification if it was previously shown
                 const apiKeyNotificationBox = document.getElementById("api-key-notification-box");
@@ -116,6 +128,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     saveApiKeyPayload.append('woocommerce_blockonomics_api_key', apikeyInput.value);
                     saveApiKeyPayload.append('save', 'Save changes');
 
+                    // // Both API key and other settings changed
+                    // if (hasOtherSettingsChanged) {
+                    //     if (!confirm("Other settings have changed. Proceeding will only save the API key. Do you want to continue?")) {
+                    //         spinner.style.display = 'none';
+                    //         testSetupBtn.disabled = false;
+                    //         return;
+                    //     }
+                    //     // User chose to proceed, reset hasOtherSettingsChanged
+                    //     hasOtherSettingsChanged = false;
+                    // }
+
+
                     try {
                         const saveRes = await fetch(form.action, {
                             method: 'POST',
@@ -125,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             throw new Error('Failed to save API key');
                         }
                         hasBlockonomicsApiKeyChanged = false;
-                        formChanged = false;  // Reset formChanged as we've just saved the API key
+                        hasOtherSettingsChanged  = false;  // Reset formChanged as we've just saved the API key
                     } catch (error) {
                         console.error('Error saving API key:', error);
                         spinner.style.display = 'none';
