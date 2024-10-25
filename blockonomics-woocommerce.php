@@ -90,14 +90,13 @@ function blockonomics_woocommerce_init()
     }
 
     function blockonomics_add_admin_menu() {
-        add_menu_page(
+        add_submenu_page(
+            null,
             'Blockonomics Setup',
             'Blockonomics',
             'manage_options',
             'blockonomics-setup',
-            'blockonomics_setup_page',
-            'dashicons-money',
-            56
+            'blockonomics_setup_page'
         );
     }
     
@@ -539,7 +538,9 @@ function blockonomics_uninstall_hook() {
 }
 
 function blockonomics_plugin_add_settings_link( $links ) {
-    $settings_link = '<a href="admin.php?page=wc-settings&tab=checkout&section=blockonomics">' . __( 'Settings' ) . '</a>';
+    $api_key = get_option('blockonomics_api_key');
+    $settings_url = $api_key ? 'admin.php?page=wc-settings&tab=checkout&section=blockonomics' : 'admin.php?page=blockonomics-setup';
+    $settings_link = '<a href="' . $settings_url . '">' . __( 'Settings' ) . '</a>';
     array_unshift( $links, $settings_link );
     return $links;
 }
