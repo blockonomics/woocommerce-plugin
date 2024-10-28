@@ -1,197 +1,266 @@
 document.addEventListener('DOMContentLoaded', function() {
-    try {
-        const cryptoDOM = {};
+    // Initialize BlockonomicsAdmin class
+    const admin = new BlockonomicsAdmin();
+    admin.init();
+});
 
-        const testSetupBtn = document.getElementById('test-setup-btn');
-        const spinner = document.querySelector('.test-spinner');
+class BlockonomicsAdmin {
+    constructor() {
+        // Store DOM elements
+        this.elements = {
+            form: document.getElementById('mainform'),
+            apiKey: document.querySelector('input[name="woocommerce_blockonomics_api_key"]'),
+            testSetup: document.getElementById('test-setup-btn'),
+            spinner: document.querySelector('.test-spinner'),
+            notifications: {
+                apiKey: document.getElementById('api-key-notification-box'),
+                testSetup: document.getElementById('test-setup-notification-box')
+            },
+            pluginEnabled: document.getElementById('woocommerce_blockonomics_enabled')
+        };
 
-        const apikeyInput = document.querySelector('input[name="woocommerce_blockonomics_api_key"]');
-        const testSetupNotificationDOM = document.getElementById('test-setup-notification-box');
-        const blockonomicsPluginEnabledDOM = document.getElementById('woocommerce_blockonomics_enabled');
-        let hasBlockonomicsApiKeyChanged = false;
-        let hasOtherSettingsChanged = false;
+        // State management
+        this.state = {
+            apiKeyChanged: false,
+            otherSettingsChanged: false
+        };
 
+        // Configuration
+        this.config = {
+            baseUrl: blockonomics_params.ajaxurl,
+            // Get active currencies from metadata or default to BTC
+            activeCurrencies: this.getActiveCurrencies()
+        };
 
-        apikeyInput.addEventListener('change', () => {
-            hasBlockonomicsApiKeyChanged = true;
-        });
+        // Initialize crypto DOM elements
+        this.cryptoElements = this.initializeCryptoElements();
+    }
 
-        const baseUrl = blockonomics_params.ajaxurl;
-        const activeCurrencies = { 'btc': true, 'bch': true };
+    getActiveCurrencies() {
+        const enabledCryptos = blockonomics_params.enabled_cryptos; // This should be passed from PHP
+        if (enabledCryptos) {
+            return enabledCryptos.split(',');
+        }
+        return ['btc']; // Default to BTC if no currencies are set
+    }
 
-        // let formChanged = false;
-        const form = document.getElementById("mainform");
-       
-       
-        window.addEventListener('beforeunload', (event) => {
-            event.stopImmediatePropagation();
-        });
-        
-        form.addEventListener("input", (event) => {
-            if (event.target !== apikeyInput) {
-                hasBlockonomicsApiKeyChanged  = true;
-            } else {
-                hasOtherSettingsChanged = true;
-            }
-        });
+    init() {
+        this.attachEventListeners();
+        this.initializeCryptoDisplay();
+    }
 
-        apikeyInput.addEventListener('change', () => {
-            hasBlockonomicsApiKeyChanged = true;
-        });
+    initializeCryptoElements() {
+        const elements = {};
 
-        form.addEventListener("submit",function(e){ 
-            if(apikeyInput.value === '') {
-                document.getElementById("api-key-notification-box").style.display = 'block';
-                document.getElementById("apikey-row").scrollIntoView();
-                window.scrollBy(0, -100);
-                e.preventDefault();
-                return;
-            }
-            if (hasBlockonomicsApiKeyChanged) {
-                blockonomicsPluginEnabledDOM.checked = true;
-            }
-            document.getElementById("api-key-notification-box").style.display = 'none';
-  
-        });
-
-        for (let code in activeCurrencies) {
-            cryptoDOM[code] = {
+        this.config.activeCurrencies.forEach(code => {
+            elements[code] = {
                 checkbox: document.getElementById(`woocommerce_blockonomics_${code}_enabled`),
                 success: document.querySelector(`.${code}-success-notice`),
                 error: document.querySelector(`.${code}-error-notice`),
                 errorText: document.querySelector(`.${code}-error-notice .errorText`)
             };
+        });
 
-            if (
-                !cryptoDOM[code].success || 
-                !cryptoDOM[code].error || 
-                !cryptoDOM[code].checkbox || 
-                !cryptoDOM[code].errorText) {
-                continue;
+        return elements;
+    }
+
+    initializeCryptoDisplay() {
+        Object.values(this.cryptoElements).forEach(crypto => {
+            if (!this.validateCryptoElements(crypto)) return;
+
+            crypto.success.style.display = 'none';
+            crypto.error.style.display = 'none';
+
+            crypto.checkbox.addEventListener('change', () => {
+                crypto.success.style.display = 'none';
+                crypto.error.style.display = 'none';
+            });
+        });
+    }
+
+    validateCryptoElements(crypto) {
+        return crypto.success && crypto.error && crypto.checkbox && crypto.errorText;
+    }
+
+    attachEventListeners() {
+        // Form related listeners
+        this.elements.form.addEventListener('input', (event) => {
+            if (event.target !== this.elements.apiKey) {
+                this.state.otherSettingsChanged = true;
+            }
+        });
+
+        this.elements.apiKey.addEventListener('change', () => {
+            this.state.apiKeyChanged = true;
+        });
+
+        this.elements.form.addEventListener('submit', (e) => this.handleFormSubmit(e));
+
+        // Test setup button listener
+        if (this.elements.testSetup) {
+            this.elements.testSetup.addEventListener('click', (e) => this.handleTestSetup(e));
+        }
+
+        // Prevent accidental navigation
+        window.addEventListener('beforeunload', (event) => {
+            event.stopImmediatePropagation();
+        });
+    }
+
+    async handleTestSetup(event) {
+        event.preventDefault();
+
+        if (!this.validateApiKey()) return;
+        if (this.shouldSkipTestSetup()) return;
+
+        this.updateUIBeforeTest();
+
+        try {
+            if (this.state.apiKeyChanged) {
+                await this.saveApiKey();
             }
 
-            cryptoDOM[code].success.style.display = 'none';
-            cryptoDOM[code].error.style.display = 'none';
-
-            cryptoDOM[code].checkbox.addEventListener('change', (event) => {
-                cryptoDOM[code].success.style.display = 'none';
-                cryptoDOM[code].error.style.display = 'none';
-            });
+            const result = await this.performTestSetup();
+            this.handleTestSetupResponse(result);
+        } catch (error) {
+            console.error('Test setup failed:', error);
+        } finally {
+            this.updateUIAfterTest();
         }
-       
-
-        if (testSetupBtn) {
-            testSetupBtn.addEventListener('click', async function(event) {
-                event.preventDefault();
-
-                // Check if API key is empty
-                if (apikeyInput.value.trim() === '') {
-                    const apiKeyNotificationBox = document.getElementById("api-key-notification-box");
-                    if (apiKeyNotificationBox) {
-                        apiKeyNotificationBox.style.display = 'block';
-                        const apikeyRow = document.getElementById("apikey-row");
-                        if (apikeyRow) {
-                            apikeyRow.scrollIntoView();
-                            window.scrollBy(0, -100);
-                        }
-                    }
-                    return;
-                }
-
-                // Other settings changed but not API key -> dont run Test setup
-                if (hasOtherSettingsChanged && !hasBlockonomicsApiKeyChanged) {
-                    if (testSetupNotificationDOM) {
-                        testSetupNotificationDOM.style.display = 'block';
-                    }
-                    return;
-                }
-
-
-                // Hide API key notification if it was previously shown
-                const apiKeyNotificationBox = document.getElementById("api-key-notification-box");
-                if (apiKeyNotificationBox) {
-                    apiKeyNotificationBox.style.display = 'none';
-                }
-
-                if (testSetupNotificationDOM) {
-                    testSetupNotificationDOM.style.display = 'none';
-                }
-
-                if (spinner) {
-                    spinner.style.display = 'block';
-                }
-                testSetupBtn.disabled = true;
-                
-                // If API key has changed, save it first
-                if (hasBlockonomicsApiKeyChanged) {
-                    const saveApiKeyPayload = new FormData(form);
-                    saveApiKeyPayload.append('woocommerce_blockonomics_api_key', apikeyInput.value);
-                    saveApiKeyPayload.append('save', 'Save changes');
-
-                    // // Both API key and other settings changed
-                    // if (hasOtherSettingsChanged) {
-                    //     if (!confirm("Other settings have changed. Proceeding will only save the API key. Do you want to continue?")) {
-                    //         spinner.style.display = 'none';
-                    //         testSetupBtn.disabled = false;
-                    //         return;
-                    //     }
-                    //     // User chose to proceed, reset hasOtherSettingsChanged
-                    //     hasOtherSettingsChanged = false;
-                    // }
-
-
-                    try {
-                        const saveRes = await fetch(form.action, {
-                            method: 'POST',
-                            body: saveApiKeyPayload
-                        });
-                        if (!saveRes.ok) {
-                            throw new Error('Failed to save API key');
-                        }
-                        hasBlockonomicsApiKeyChanged = false;
-                        hasOtherSettingsChanged  = false;  // Reset formChanged as we've just saved the API key
-                    } catch (error) {
-                        console.error('Error saving API key:', error);
-                        spinner.style.display = 'none';
-                        testSetupBtn.disabled = false;
-                        return;
-                    }
-                }
-
-                const payload = { action: "test_setup" };
-
-                let result = {};
-
-                try {
-                    const res = await fetch(`${baseUrl}?${new URLSearchParams(payload)}`);
-                    if (!res.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    result = await res.json();
-                } catch (error) {
-                    console.error('Error:', error);
-                } finally {
-                    spinner.style.display = 'none';
-                    testSetupBtn.disabled = false;
-
-                    for (let code in result.crypto) {
-                        const cryptoResult = result.crypto[code];
-
-                        if (cryptoResult === false) {
-                            cryptoDOM[code].success.style.display = 'block';
-                            cryptoDOM[code].error.style.display = 'none';
-                        } else {
-                            cryptoDOM[code].success.style.display = 'none';
-                            cryptoDOM[code].error.style.display = 'block';
-                            cryptoDOM[code].errorText.innerText = cryptoResult;
-                        }
-                    }
-                }
-            });
-        }
-
-       
-    } catch (e) {
-        console.log("Error in admin settings", e);
     }
-});
+
+    validateApiKey() {
+        if (this.elements.apiKey.value.trim() === '') {
+            this.showApiKeyError();
+            return false;
+        }
+        return true;
+    }
+
+    shouldSkipTestSetup() {
+        if (this.state.otherSettingsChanged && !this.state.apiKeyChanged) {
+            this.elements.notifications.testSetup.style.display = 'block';
+            return true;
+        }
+        return false;
+    }
+
+    updateUIBeforeTest() {
+        this.elements.notifications.apiKey.style.display = 'none';
+        this.elements.notifications.testSetup.style.display = 'none';
+        this.elements.spinner.style.display = 'block';
+        this.elements.testSetup.disabled = true;
+    }
+
+    updateUIAfterTest() {
+        this.elements.spinner.style.display = 'none';
+        this.elements.testSetup.disabled = false;
+    }
+
+    async saveApiKey() {
+        const formData = new FormData(this.elements.form);
+        formData.append('woocommerce_blockonomics_api_key', this.elements.apiKey.value);
+        formData.append('save', 'Save changes');
+
+        const response = await fetch(this.elements.form.action, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to save API key');
+        }
+
+        this.state.apiKeyChanged = false;
+        this.state.otherSettingsChanged = false;
+    }
+
+    async performTestSetup() {
+        const response = await fetch(`${this.config.baseUrl}?${new URLSearchParams({ action: "test_setup" })}`);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return await response.json();
+    }
+
+    handleTestSetupResponse(result) {
+        this.updateCryptoStatus(result.crypto);
+        this.updateMetadata(result);
+    }
+
+    updateCryptoStatus(cryptoResults) {
+        // If no cryptos are enabled, show generic message
+        if (Object.values(cryptoResults).every(result => result === false)) {
+            Object.values(this.cryptoElements).forEach(elements => {
+                elements.error.style.display = 'none';
+                elements.success.style.display = 'none';
+            });
+            // Show generic message only in BTC error element
+
+            const btcElements = this.cryptoElements['btc'];
+            if (btcElements) {
+                btcElements.error.style.display = 'block';
+                btcElements.errorText.innerText = 'No crypto enabled for this store';
+                btcElements.success.style.display = 'none';
+            }
+            return;
+        }
+
+        Object.entries(cryptoResults).forEach(([code, result]) => {
+            const elements = this.cryptoElements[code];
+            if (!elements) return;
+
+            elements.success.style.display = result === false ? 'block' : 'none';
+            elements.error.style.display = typeof result === 'string' ? 'block' : 'none';
+            if (typeof result === 'string') {
+                elements.errorText.innerText = result;
+            }
+        });
+    }
+
+    updateMetadata(result) {
+        const apiKeyRow = this.elements.apiKey.closest('tr');
+        const descriptionField = apiKeyRow?.querySelector('.description');
+
+        if (!descriptionField) return;
+
+        if (result.metadata_cleared) {
+            descriptionField.textContent = '';
+            // Reset to BTC only when metadata is cleared
+            this.config.activeCurrencies = ['btc'];
+            this.cryptoElements = this.initializeCryptoElements();
+            this.initializeCryptoDisplay();
+        } else if (result.store_data) {
+            let displayText = result.store_data.name || '';
+
+            // Only show enabled crypto info if currencies are actually enabled
+            if (result.store_data.enabled_cryptos && result.store_data.enabled_cryptos !== '') {
+                this.config.activeCurrencies = result.store_data.enabled_cryptos.toLowerCase().split(',');
+                displayText += ` Enabled crypto <${result.store_data.enabled_cryptos}> (icons)`;
+            }
+            descriptionField.textContent = displayText;
+        }
+    }
+
+    handleFormSubmit(e) {
+        if (!this.validateApiKey()) {
+            e.preventDefault();
+            return;
+        }
+
+        if (this.state.apiKeyChanged) {
+            this.elements.pluginEnabled.checked = true;
+        }
+
+        this.elements.notifications.apiKey.style.display = 'none';
+    }
+
+    showApiKeyError() {
+        this.elements.notifications.apiKey.style.display = 'block';
+        const apiKeyRow = document.getElementById("apikey-row");
+        if (apiKeyRow) {
+            apiKeyRow.scrollIntoView();
+            window.scrollBy(0, -100);
+        }
+    }
+}
