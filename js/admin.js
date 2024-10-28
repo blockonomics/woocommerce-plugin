@@ -236,7 +236,10 @@ class BlockonomicsAdmin {
             // Only show enabled crypto info if currencies are actually enabled
             if (result.store_data.enabled_cryptos && result.store_data.enabled_cryptos !== '') {
                 this.config.activeCurrencies = result.store_data.enabled_cryptos.toLowerCase().split(',');
-                displayText += ` Enabled crypto <${result.store_data.enabled_cryptos}> (icons)`;
+                displayText += ' Enabled crypto: ';  // Changed format to match form fields
+                displayText += this.config.activeCurrencies
+                    .map(code => blockonomics_params.currencies[code]?.name || code.toUpperCase())
+                    .join(' ');
             }
             descriptionField.textContent = displayText;
         }
