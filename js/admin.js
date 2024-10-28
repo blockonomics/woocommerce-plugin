@@ -213,7 +213,7 @@ class BlockonomicsAdmin {
             elements.success.style.display = result === false ? 'block' : 'none';
             elements.error.style.display = typeof result === 'string' ? 'block' : 'none';
             if (typeof result === 'string') {
-                elements.errorText.innerText = result;
+                elements.errorText.innerHTML = result;
             }
         });
     }
