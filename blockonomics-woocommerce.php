@@ -127,6 +127,11 @@ function blockonomics_woocommerce_init()
 
             wp_enqueue_script( 'blockonomics-admin-scripts' );
         }
+
+        if (isset($_GET['page']) && 'blockonomics-setup' === $_GET['page']) {
+            wp_register_style('blockonomics-admin-setup', plugin_dir_url(__FILE__) . "css/admin-setup.css", '', get_plugin_data( __FILE__ )['Version']);
+            wp_enqueue_style('blockonomics-admin-setup');
+        }
     }
 
     function blockonomics_test_setup() {
