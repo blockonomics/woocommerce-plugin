@@ -195,8 +195,8 @@ class BlockonomicsAdmin {
                 elements.error.style.display = 'none';
                 elements.success.style.display = 'none';
             });
-            // Show generic message only in BTC error element
 
+            // Show generic message only in BTC error element
             const btcElements = this.cryptoElements['btc'];
             if (btcElements) {
                 btcElements.error.style.display = 'block';
@@ -231,12 +231,13 @@ class BlockonomicsAdmin {
             this.cryptoElements = this.initializeCryptoElements();
             this.initializeCryptoDisplay();
         } else if (result.store_data) {
+            // Always show store name if available
             let displayText = result.store_data.name || '';
 
             // Only show enabled crypto info if currencies are actually enabled
             if (result.store_data.enabled_cryptos && result.store_data.enabled_cryptos !== '') {
                 this.config.activeCurrencies = result.store_data.enabled_cryptos.toLowerCase().split(',');
-                displayText += ' Enabled crypto: ';  // Changed format to match form fields
+                displayText += ' Enabled crypto: ';
                 displayText += this.config.activeCurrencies
                     .map(code => blockonomics_params.currencies[code]?.name || code.toUpperCase())
                     .join(' ');

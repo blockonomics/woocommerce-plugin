@@ -338,12 +338,14 @@ class Blockonomics
         $api_key = get_option("blockonomics_api_key");
 
         // Function to clear stored metadata
-        $clear_metadata = function($error_message = '') {
-            delete_option('blockonomics_store_name');
+        $clear_metadata = function($error_message = '', $clear_all = true) {
+            if ($clear_all) {
+                delete_option('blockonomics_store_name');
+            }
             delete_option('blockonomics_enabled_cryptos');
             return array(
                 'error' => $error_message !== null ? $error_message : __('Please set your Blockonomics API Key', 'blockonomics-bitcoin-payments'),
-                'metadata_cleared' => true
+                'metadata_cleared' => $clear_all // Only set true when clearing all metadata
             );
         };
 
@@ -362,7 +364,6 @@ class Blockonomics
         if (wp_remote_retrieve_response_code($stores_response) === 401) {
             return $clear_metadata(__('API Key is incorrect', 'blockonomics-bitcoin-payments'));
         }
-
 
         if (!$stores_response || is_wp_error($stores_response) || wp_remote_retrieve_response_code($stores_response) !== 200) {
             return $clear_metadata(__('Could not connect to Blockonomics API', 'blockonomics-bitcoin-payments'));
@@ -409,15 +410,17 @@ class Blockonomics
                     }
                 }
             }
+            // Store name should always be saved if we have a matching store
+            update_option('blockonomics_store_name', $matching_store->name);
 
             // If no wallets/cryptos found, clear metadata and return error
             if (empty($enabled_cryptos)) {
                 return $clear_metadata(
-                    __('No crypto enabled for this store', 'blockonomics-bitcoin-payments')
+                    __('No crypto enabled for this store', 'blockonomics-bitcoin-payments'),
+                    false // Don't clear store name
                 );
             }
 
-            update_option('blockonomics_store_name', $matching_store->name);
             update_option('blockonomics_enabled_cryptos', implode(',', array_unique($enabled_cryptos)));
             return false; // Success
         }
