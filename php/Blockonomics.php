@@ -163,37 +163,73 @@ class Blockonomics
         $api_url = WC()->api_request_url('WC_Gateway_Blockonomics');
         $wordpress_callback_url = add_query_arg('secret', $callback_secret, $api_url);
         $base_url = preg_replace('/https?:\/\//', '', $api_url);
-        $available_xpub = '';
+        // $available_xpub = '';
+        $store_without_callback = null;
         $partial_match = '';
         //Go through all xpubs on the server and examine their callback url
         foreach($response_body as $one_response){
             $server_callback_url = isset($one_response->callback) ? $one_response->callback : '';
             $server_base_url = preg_replace('/https?:\/\//', '', $server_callback_url);
-            $xpub = isset($one_response->address) ? $one_response->address : '';
+            // $xpub = isset($one_response->address) ? $one_response->address : '';
             if(!$server_callback_url){
                 // No callback
-                $available_xpub = $xpub;
+                $store_without_callback = $one_response;
             }else if($server_callback_url == $wordpress_callback_url){
                 // Exact match
                 return '';
             }
             else if(strpos($server_base_url, $base_url) === 0 ){
                 // Partial Match - Only secret or protocol differ
-                $partial_match = $xpub;
+                $partial_match = $one_response;
             }
         }
-        // Use the available xpub
-        if($partial_match || $available_xpub){
-          $update_xpub = $partial_match ? $partial_match : $available_xpub;
-            $response = $this->update_callback($wordpress_callback_url, $crypto, $update_xpub);
+        // check for partial match and update if found
+        if($partial_match){
+        //   $update_xpub = $partial_match ? $partial_match : $available_xpub;
+        $response = $this->update_callback($wordpress_callback_url, $crypto, $partial_match->address);
             if ($response->response_code != 200) {
-                return $response->message;
+                    return $response->message;
             }
             return '';
         }
-        // No match and no empty callback
-        $error_str = __("Please add a new store on blockonomics website", 'blockonomics-bitcoin-payments');
-        return $error_str;
+        // If no matches found but we have a store without callback, update it
+        if($store_without_callback){
+            $response = $this->update_store($store_without_callback->id, array(
+                'name' => $store_without_callback->name,
+                'http_callback' => $wordpress_callback_url
+            ));
+
+            if (wp_remote_retrieve_response_code($response) != 200) {
+                return __("Could not update store callback", 'blockonomics-bitcoin-payments');
+            }
+
+            // Store the name regardless of whether there are enabled cryptos
+            update_option('blockonomics_store_name', $store_without_callback->name);
+
+            // Check if store has any enabled wallets/cryptos
+            if (empty($store_without_callback->wallets)) {
+                return __('No crypto enabled for this store', 'blockonomics-bitcoin-payments');
+            }
+
+            // Store has wallets - extract and save enabled cryptos
+            $enabled_cryptos = array();
+            foreach ($store_without_callback->wallets as $wallet) {
+                if (isset($wallet->crypto)) {
+                    $enabled_cryptos[] = strtolower($wallet->crypto);
+                }
+            }
+
+            if (!empty($enabled_cryptos)) {
+                update_option('blockonomics_enabled_cryptos', implode(',', array_unique($enabled_cryptos)));
+                return '';
+            }
+
+            return __('No crypto enabled for this store', 'blockonomics-bitcoin-payments');
+        }
+
+        // No match and no empty callback store found
+        return __("Please add a new store on blockonomics website", 'blockonomics-bitcoin-payments');
+
     }
 
 
@@ -249,11 +285,9 @@ class Blockonomics
     }
 
     private function update_store($store_id, $data) {
-        return $this->post(
-            self::STORES_URL . '/' . $store_id,
-            $this->api_key,
-            json_encode($data)
-        );
+        // Ensure we're using the specific store endpoint
+        $url = self::BASE_URL . '/stores/' . $store_id;
+        return $this->post($url, $this->api_key, wp_json_encode($data), 45);
     }
 
     private function get($url, $api_key = '')
@@ -298,11 +332,13 @@ class Blockonomics
 
     private function set_headers($api_key)
     {
+        $headers = array(
+            'Content-Type' => 'application/json'
+        );
         if($api_key){
-            return 'Authorization: Bearer ' . $api_key;
-        }else{
-            return '';
+            $headers['Authorization'] = 'Bearer ' . $api_key;
         }
+        return $headers;
     }
     // Runs when the Blockonomics Test Setup button is clicked
     // Returns any errors or false if no errors
@@ -349,6 +385,32 @@ class Blockonomics
             );
         };
 
+        // Function to process store metadata and enabled cryptos
+        $process_store = function($store) use ($clear_metadata) {
+            // Store name should always be saved
+            update_option('blockonomics_store_name', $store->name);
+
+            // Extract enabled cryptos from wallets
+            $enabled_cryptos = array();
+            if (!empty($store->wallets)) {
+                foreach ($store->wallets as $wallet) {
+                    if (isset($wallet->crypto)) {
+                        $enabled_cryptos[] = strtolower($wallet->crypto);
+                    }
+                }
+            }
+
+            if (empty($enabled_cryptos)) {
+                return $clear_metadata(
+                    __('No crypto enabled for this store', 'blockonomics-bitcoin-payments'),
+                    false // Don't clear store name
+                );
+            }
+
+            update_option('blockonomics_enabled_cryptos', implode(',', array_unique($enabled_cryptos)));
+            return false; // Success
+        };
+
         if (!$api_key) {
             return $clear_metadata(null);
         }
@@ -387,42 +449,62 @@ class Blockonomics
                 )
             );
         }
-        // find matching store
+        // find matching store or store without callback
         $callback_secret = get_option('blockonomics_callback_secret');
         $api_url = WC()->api_request_url('WC_Gateway_Blockonomics');
         $wordpress_callback_url = add_query_arg('secret', $callback_secret, $api_url);
+        $base_url = preg_replace('/https?:\/\//', '', $api_url);
 
         $matching_store = null;
+        $store_without_callback = null;
+        $partial_match_store = null;
+
         foreach ($stores->data as $store) {
             if ($store->http_callback === $wordpress_callback_url) {
                 $matching_store = $store;
                 break;
             }
+            if (empty($store->http_callback)) {
+                $store_without_callback = $store;
+                continue;
+            }
+            // Check for partial match - only secret or protocol differs
+            $store_base_url = preg_replace('/https?:\/\//', '', $store->http_callback);
+            if (strpos($store_base_url, $base_url) === 0) {
+                $partial_match_store = $store;
+            }
         }
 
+        // If we found an exact match, process it
         if ($matching_store) {
-            // Extract enabled cryptos from wallets
-            $enabled_cryptos = array();
-            if (!empty($matching_store->wallets)) {
-                foreach ($matching_store->wallets as $wallet) {
-                    if (isset($wallet->crypto)) {
-                        $enabled_cryptos[] = strtolower($wallet->crypto);
-                    }
-                }
-            }
-            // Store name should always be saved if we have a matching store
-            update_option('blockonomics_store_name', $matching_store->name);
+            return $process_store($matching_store);
+        }
+        // If we found a partial match, update its callback
+        if ($partial_match_store) {
+            $response = $this->update_store($partial_match_store->id, array(
+                'name' => $partial_match_store->name,
+                'http_callback' => $wordpress_callback_url
+            ));
 
-            // If no wallets/cryptos found, clear metadata and return error
-            if (empty($enabled_cryptos)) {
-                return $clear_metadata(
-                    __('No crypto enabled for this store', 'blockonomics-bitcoin-payments'),
-                    false // Don't clear store name
-                );
+            if (wp_remote_retrieve_response_code($response) !== 200) {
+                return $clear_metadata(__('Could not update store callback', 'blockonomics-bitcoin-payments'));
             }
 
-            update_option('blockonomics_enabled_cryptos', implode(',', array_unique($enabled_cryptos)));
-            return false; // Success
+            return $process_store($partial_match_store);
+        }
+
+        // If we found a store without callback, update it and process
+        if ($store_without_callback) {
+            $response = $this->update_store($store_without_callback->id, array(
+                'name' => $store_without_callback->name,
+                'http_callback' => $wordpress_callback_url
+            ));
+
+            if (wp_remote_retrieve_response_code($response) !== 200) {
+                return $clear_metadata(__('Could not update store callback', 'blockonomics-bitcoin-payments'));
+            }
+
+            return $process_store($store_without_callback);
         }
 
         return $clear_metadata(__('No matching store found', 'blockonomics-bitcoin-payments'));
