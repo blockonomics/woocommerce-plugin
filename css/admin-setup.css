@@ -2,7 +2,7 @@
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    margin: 20px auto 30px;
+    margin: 20px auto 0;
     max-width: 640px;
     position: relative;
 }
@@ -17,7 +17,7 @@
     justify-content: center;
     font-weight: bold;
     color: #fff;
-    z-index: 2;
+    z-index: 9999;
     font-size: 18px;
     position: relative;
     bottom: 14px;
@@ -41,7 +41,16 @@
     top: 0;
     height: 100%;
     background-color: #3fc47c;
-    transition: width 0.3s ease;
+}
+
+.bnomics-progress-bar .bnomics-progress-line:first-child .bnomics-progress-line-inner,
+.bnomics-progress-bar .bnomics-progress-line:nth-child(2) .bnomics-progress-line-inner {
+    width: 100%;
+}
+
+.bnomics-progress-bar .bnomics-progress-line:nth-child(3) .bnomics-progress-line-inner,
+.bnomics-progress-bar .bnomics-progress-line:last-child .bnomics-progress-line-inner {
+    width: 0%;
 }
 
 .bnomics-welcome-header {

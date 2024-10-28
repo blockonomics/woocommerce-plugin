@@ -56,21 +56,21 @@ function blockonomics_setup_page() {
         <div class="bnomics-welcome-header">
             <h1>Welcome</h1>
         </div>
-        <div class="blockonomics-setup-wizard">
-            <div class="bnomics-progress-bar">
-                <div class="bnomics-progress-line">
-                    <div class="bnomics-progress-line-inner" style="width: 100%;"></div>
-                </div>
-                <div class="bnomics-progress-step active">1</div>
-                <div class="bnomics-progress-line">
-                    <div class="bnomics-progress-line-inner" style="width: <?php echo $current_step >= 2 ? '100%' : '0%'; ?>;"></div>
-                </div>
-                <div class="bnomics-progress-step <?php echo $current_step >= 2 ? 'active' : ''; ?>">2</div>
-                <div class="bnomics-progress-line">
-                    <div class="bnomics-progress-line-inner" style="width: <?php echo ($current_step == 2 && !isset($needs_store_name)) ? '100%' : '0%'; ?>;"></div>
-                </div>
+        <!-- Moved progress bar outside the setup wizard -->
+        <div class="bnomics-progress-bar">
+            <div class="bnomics-progress-line">
+                <div class="bnomics-progress-line-inner" style="width: 100%;"></div>
             </div>
-            
+            <div class="bnomics-progress-step active">1</div>
+            <div class="bnomics-progress-line">
+                <div class="bnomics-progress-line-inner" style="width: <?php echo $current_step >= 2 ? '100%' : '0%'; ?>;"></div>
+            </div>
+            <div class="bnomics-progress-step <?php echo $current_step >= 2 ? 'active' : ''; ?>">2</div>
+            <div class="bnomics-progress-line">
+                <div class="bnomics-progress-line-inner" style="width: <?php echo ($current_step == 2 && !isset($needs_store_name)) ? '100%' : '0%'; ?>;"></div>
+            </div>
+        </div>
+        <div class="blockonomics-setup-wizard">
             <?php if ($current_step == 1): ?>
                 <div class="bnomics-wizard-heading">
                     <h2>Get started with Blockonomics</h2>
@@ -119,11 +119,14 @@ function blockonomics_setup_page() {
                         <?php endif; ?>
                         
                         <?php wp_nonce_field('blockonomics_setup_action', 'blockonomics_setup_nonce'); ?>
-                        <input type="text" 
-                               name="store_name" 
-                               placeholder="Enter your store name" 
-                               style="width: 100%; margin-bottom: 20px;"
-                               value="<?php echo esc_attr($store_name); ?>">
+                        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">
+                            
+                            <input type="text" 
+                                   name="store_name" 
+                                   placeholder="Enter your store name" 
+                                   style="flex: 1;"
+                                   value="<?php echo esc_attr($store_name); ?>">
+                        </div>
                         <?php submit_button('Continue', 'primary', 'submit_store', false); ?>
                     </form>
                 <?php else: ?>
