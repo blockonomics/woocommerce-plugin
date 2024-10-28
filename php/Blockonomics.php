@@ -375,8 +375,8 @@ class Blockonomics
             return $clear_metadata(
                 wp_kses(
                     sprintf(
-                        __('Please add a new store on %s', 'blockonomics-bitcoin-payments'),
-                        '<a href="https://www.blockonomics.co/dashboard#/store" target="_blank">Stores</a>'
+                        __('Please add a %s', 'blockonomics-bitcoin-payments'),
+                        '<a href="https://www.blockonomics.co/dashboard#/store" target="_blank">Store</a>'
                     ),
                     array(
                         'a' => array(
@@ -1015,3 +1015,4 @@ class Blockonomics
         return $decrypted;
     }
 }
+
