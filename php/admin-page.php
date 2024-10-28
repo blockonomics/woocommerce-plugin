@@ -24,7 +24,8 @@ function blockonomics_setup_page() {
     if (isset($_POST['submit_store'])) {
         if (isset($_POST['store_name']) && !empty($_POST['store_name'])) {
             $store_name = sanitize_text_field($_POST['store_name']);
-            // Here we'll need to do a post http request to store the store name in the backend
+            // TODO: Add HTTP POST request to Blockonomics API to update store name
+            // Current code only updates WordPress option
             update_option('blockonomics_store_name', $store_name);
             wp_redirect(admin_url('admin.php?page=blockonomics-setup&step=2&setup_complete=1'));
             exit;
@@ -42,8 +43,9 @@ function blockonomics_setup_page() {
     // Dummy API call to check store name
     $store_name = '';
     if ($current_step == 2) {
-        // will need to replace this with the actual http request to fetch store 
-        // based on the set api_key
+        // TODO: Add HTTP GET request to Blockonomics API to fetch store name
+        // using the stored api_key
+        // Current code only reads from WordPress options
         $store_name = get_option('blockonomics_store_name', '');
         if (empty($store_name)) {
             $needs_store_name = true;
