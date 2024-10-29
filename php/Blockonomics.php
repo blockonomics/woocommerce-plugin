@@ -5,10 +5,10 @@
  */
 class Blockonomics
 {
-    const BASE_URL = 'https://www.blockonomics.co/api/v2';
-    const STORES_URL = self::BASE_URL . '/stores?wallets=true';
+    const BASE_URL = 'https://www.blockonomics.co/api';
+    const STORES_URL = self::BASE_URL . '/v2/stores?wallets=true';
 
-    const NEW_ADDRESS_URL = 'https://www.blockonomics.co/api/new_address';
+    const NEW_ADDRESS_URL = self::BASE_URL . '/new_address';
     const PRICE_URL = 'https://www.blockonomics.co/api/price';
     const SET_CALLBACK_URL = 'https://www.blockonomics.co/api/update_callback';
     const GET_CALLBACKS_URL = 'https://www.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
@@ -54,35 +54,56 @@ class Blockonomics
 
     public function test_new_address_gen($crypto, $response)
     {
-        $error_str = '';
         $callback_secret = get_option('blockonomics_callback_secret');
         $response = $this->new_address($callback_secret, $crypto, true);
-        if ($response->response_code!=200){ 
-             $error_str = $response->response_message;
+        if ($response->response_code != 200) {
+            return isset($response->response_message) && $response->response_message
+                ? $response->response_message
+                : __('Could not generate new address', 'blockonomics-bitcoin-payments');
         }
-        return $error_str;
+
+        if (empty($response->address)) {
+            return __('No address returned from API', 'blockonomics-bitcoin-payments');
+        }
+
+        return ''; // Success - no error
     }
 
 
     public function new_address($secret, $crypto, $reset=false)
     {
-        if($reset)
-        {
-            $get_params = "?match_callback=$secret&reset=1";
-        } 
-        else
-        {
-            $get_params = "?match_callback=$secret";
+        // Get the full callback URL
+        $api_url = WC()->api_request_url('WC_Gateway_Blockonomics');
+        $callback_url = add_query_arg('secret', $secret, $api_url);
+
+        // Build query parameters
+        $params = array();
+        if ($callback_url) {
+            $params['match_callback'] = $callback_url;
         }
-        $url = ($crypto === 'bch') ? self::BCH_NEW_ADDRESS_URL : self::NEW_ADDRESS_URL;
+        if ($reset) {
+            $params['reset'] = 1;
+        }
+
+        $url = self::NEW_ADDRESS_URL;
+        if (!empty($params)) {
+            $url .= '?' . http_build_query($params);
+        }
+
         $response = $this->post($url, $this->api_key, '', 8);
         if (!isset($responseObj)) $responseObj = new stdClass();
         $responseObj->{'response_code'} = wp_remote_retrieve_response_code($response);
-        if (wp_remote_retrieve_body($response))
-        {
-          $body = json_decode(wp_remote_retrieve_body($response));
-          $responseObj->{'response_message'} = isset($body->message) ? $body->message : '';
-          $responseObj->{'address'} = isset($body->address) ? $body->address : '';
+
+        if (wp_remote_retrieve_body($response)) {
+            $body = json_decode(wp_remote_retrieve_body($response));
+            if (isset($body->message)) {
+                $responseObj->{'response_message'} = $body->message;
+            } elseif (isset($body->error_code) && $body->error_code == 1002) {
+                $responseObj->{'response_message'} = __('Multiple wallets found. Please ensure callback URL is set correctly.', 'blockonomics-bitcoin-payments');
+            } else {
+                $responseObj->{'response_message'} = '';
+            }
+            $responseObj->{'address'} = isset($body->address) ? $body->address : '';
         }
         return $responseObj;
     }
@@ -477,8 +498,15 @@ class Blockonomics
 
         // If we found an exact match, process it
         if ($matching_store) {
-            return $process_store($matching_store);
+            $store_result = $process_store($matching_store);
+            if ($store_result !== false) {
+                return $store_result;
+            }
+            // Test address generation
+            $error = $this->test_new_address_gen($crypto, $stores_response);
+            return $error ? array('error' => $error) : false;
         }
+
         // If we found a partial match, update its callback
         if ($partial_match_store) {
             $response = $this->update_store($partial_match_store->id, array(
@@ -490,7 +518,13 @@ class Blockonomics
                 return $clear_metadata(__('Could not update store callback', 'blockonomics-bitcoin-payments'));
             }
 
-            return $process_store($partial_match_store);
+            $store_result = $process_store($partial_match_store);
+            if ($store_result !== false) {
+                return $store_result;
+            }
+            // Test address generation
+            $error = $this->test_new_address_gen($crypto, $stores_response);
+            return $error ? array('error' => $error) : false;
         }
 
         // If we found a store without callback, update it and process
@@ -504,7 +538,13 @@ class Blockonomics
                 return $clear_metadata(__('Could not update store callback', 'blockonomics-bitcoin-payments'));
             }
 
-            return $process_store($store_without_callback);
+            $store_result = $process_store($store_without_callback);
+            if ($store_result !== false) {
+                return $store_result;
+            }
+            // Test address generation
+            $error = $this->test_new_address_gen($crypto, $stores_response);
+            return $error ? array('error' => $error) : false;
         }
 
         return $clear_metadata(__('No matching store found', 'blockonomics-bitcoin-payments'));
