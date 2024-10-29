@@ -267,7 +267,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                             ?>
                         </div>
                         <div class="flex-display">
-                            <input type="button" id="test-setup-btn" class="button-primary" value="<?php echo __("Save API Key & Test Setup", 'blockonomics-bitcoin-payments') ?>" />
+                            <input type="button" id="test-setup-btn" class="button-primary" value="<?php echo __("Test Setup", 'blockonomics-bitcoin-payments') ?>" />
                             <div class="test-spinner"></div>
                         </div>
                         <div id="test-setup-notification-box">
