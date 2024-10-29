@@ -234,6 +234,7 @@ class Blockonomics
         $test_results = array(
             'crypto' => array()
         );
+        // Update here for USDT Integration
         $active_cryptos = $this->getActiveCurrencies();
         foreach ($active_cryptos as $code => $crypto) {
             $result = $this->test_one_crypto($code);
@@ -413,8 +414,7 @@ class Blockonomics
             return $error ? array('error' => $error) : false;
         }
 
-        return $clear_metadata(__('No matching store found', 'blockonomics-bitcoin-payments'));
-    }
+        return $clear_metadata(sprintf(__('Please add a <a href="https://www.blockonomics.co/dashboard#/store">Store</a>', 'blockonomics-bitcoin-payments')));    }
 
     // Returns WC page endpoint of order adding the given extra parameters
 
