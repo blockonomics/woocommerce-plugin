@@ -159,7 +159,9 @@ class Blockonomics
         $active_currencies = array();
         $blockonomics_currencies = $this->getSupportedCurrencies();
         foreach ($blockonomics_currencies as $code => $currency) {
-            if ($code === 'btc' || ($code === 'bch' && get_option('woocommerce_blockonomics_settings')['enable_bch'] === 'yes')) {
+            $settings = get_option('woocommerce_blockonomics_settings');
+
+            if ($code === 'btc' || ($code === 'bch' && is_array($settings) && isset($settings['enable_bch']) && $settings['enable_bch'] === 'yes')) {
                 $active_currencies[$code] = $currency;
             }
         }
