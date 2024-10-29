@@ -172,7 +172,7 @@ class Blockonomics
 
     private function update_store($store_id, $data) {
         // Ensure we're using the specific store endpoint
-        $url = self::BASE_URL . '/stores/' . $store_id;
+        $url = self::BASE_URL . '/v2/stores/' . $store_id;
         return $this->post($url, $this->api_key, wp_json_encode($data), 45);
     }
 
