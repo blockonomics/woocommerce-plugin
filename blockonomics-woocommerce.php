@@ -67,6 +67,7 @@ function blockonomics_woocommerce_init()
     require_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'WC_Gateway_Blockonomics.php';
     include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
     require_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'admin-page.php';
+    require_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'class-blockonomics-setup.php';
     
     add_action('admin_menu', 'add_page');
     add_action('init', 'load_plugin_translations');
