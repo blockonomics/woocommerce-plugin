@@ -1,0 +1,104 @@
+.bnomics-progress-bar {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin: 20px auto 0;
+    max-width: 640px;
+    position: relative;
+}
+
+.bnomics-progress-step {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #fff;
+    z-index: 9999;
+    font-size: 18px;
+    position: relative;
+    bottom: 14px;
+    transform: translateY(27px);
+}
+
+.bnomics-progress-step.active {
+    background-color: #3fc47c;
+}
+
+.bnomics-progress-line {
+    flex-grow: 1;
+    height: 12px;
+    background-color: #e0e0e0;
+    position: relative;
+}
+
+.bnomics-progress-line-inner {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background-color: #3fc47c;
+}
+
+.bnomics-progress-bar .bnomics-progress-line:first-child .bnomics-progress-line-inner,
+.bnomics-progress-bar .bnomics-progress-line:nth-child(2) .bnomics-progress-line-inner {
+    width: 100%;
+}
+
+.bnomics-progress-bar .bnomics-progress-line:nth-child(3) .bnomics-progress-line-inner,
+.bnomics-progress-bar .bnomics-progress-line:last-child .bnomics-progress-line-inner {
+    width: 0%;
+}
+
+.bnomics-welcome-header {
+    max-width: 600px;
+    margin: 20px auto;
+}
+
+.bnomics-welcome-header h1 {
+    font-size: 28px;
+    margin: 0;
+}
+
+.blockonomics-setup-wizard {
+    max-width: 600px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 1;
+}
+
+.bnomics-wizard-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.bnomics-wizard-heading h2 {
+    font-size: 24px;
+    margin: 0;
+}
+
+.blockonomics-logo img {
+    max-width: 100px;
+    height: auto;
+}
+
+.blockonomics-setup-wizard ol {
+    margin-bottom: 20px;
+}
+
+.blockonomics-setup-wizard li {
+    margin-bottom: 10px;
+}
+
+.blockonomics-setup-wizard input[type="text"] {
+    margin-bottom: 20px;
+}
