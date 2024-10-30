@@ -12,9 +12,43 @@ function blockonomics_setup_page() {
             $api_key = sanitize_text_field($_POST['blockonomics_api_key']);
             update_option('blockonomics_api_key', $api_key);
             
-            // Redirect to step 2
-            wp_redirect(admin_url('admin.php?page=blockonomics-setup&step=2'));
-            exit;
+            // First check if any wallet is added
+            $wallets_url = 'https://www.blockonomics.co/api/v2/wallets';
+            $response = wp_remote_get($wallets_url, array(
+                'headers' => array(
+                    'Authorization' => 'Bearer ' . $api_key,
+                    'Content-Type' => 'application/json'
+                )
+            ));
+            if (is_wp_error($response)) {
+                $error_message = 'Failed to check wallets: ' . $response->get_error_message();
+            } else {
+                $response_code = wp_remote_retrieve_response_code($response);
+                if ($response_code === 401){
+                    $error_message = 'Invalid API key';
+                } else if ($response_code === 200){
+                    $wallets = json_decode(wp_remote_retrieve_body($response), true);
+                    if (empty($wallets['data'])){
+                        $error_message = 'Please create a wallet';
+                    } else {
+                    // Wallet exists, save API key and proceed with test setup
+                    update_option('blockonomics_api_key', $api_key);
+
+                    // Create Blockonomics instance to test the API key
+                    $bnomics = new Blockonomics();
+                    $test_result = $bnomics->test_one_crypto('btc');
+
+                    if (is_array($test_result) && isset($test_result['error'])) {
+                        // Test setup failed
+                        $error_message = $test_result['error'];
+                    } else {
+                        // Test setup successful, redirect to step 2
+                        wp_redirect(admin_url('admin.php?page=blockonomics-setup&step=2'));
+                        exit;
+                    }
+                }
+            }
+        }
         } else {
             $error_message = 'Please enter your API key';
         }
