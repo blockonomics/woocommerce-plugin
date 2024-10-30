@@ -76,11 +76,56 @@ class Blockonomics_Setup {
             return array('needs_store' => true);
         }
 
-        // Store exists, save its name
-        // TODO: Check callback url via match_callback parameter
-        // logic here for partial match or exact match or no match
-        update_option('blockonomics_store_name', $stores->data[0]->name);
-        return array('success' => true);
+        $wordpress_callback_url = $this->get_callback_url();
+        $base_url = preg_replace('/https?:\/\//', '', WC()->api_request_url('WC_Gateway_Blockonomics'));
+
+        $matching_store = null;
+        $partial_match_store = null;
+
+        foreach ($stores->data as $store) {
+            if ($store->http_callback === $wordpress_callback_url) {
+                $matching_store = $store;
+                break;
+            }
+
+            // Check for partial match - only secret or protocol differs
+            if (!empty($store->http_callback)) {
+                $store_base_url = preg_replace('/https?:\/\//', '', $store->http_callback);
+                if (strpos($store_base_url, $base_url) === 0) {
+                    $partial_match_store = $store;
+                }
+            }
+        }
+
+        // If we found an exact match
+        if ($matching_store) {
+            update_option('blockonomics_store_name', $matching_store->name);
+            return array('success' => true);
+        }
+
+        // If we found a partial match, update its callback
+        if ($partial_match_store) {
+            $response = wp_remote_post(
+                Blockonomics::BASE_URL . '/v2/stores/' . $partial_match_store->id,
+                array(
+                    'headers' => array(
+                        'Authorization' => 'Bearer ' . $this->api_key,
+                        'Content-Type' => 'application/json'
+                    ),
+                    'body' => wp_json_encode(array(
+                        'name' => $partial_match_store->name,
+                        'http_callback' => $wordpress_callback_url
+                    ))
+                )
+            );
+
+            if (wp_remote_retrieve_response_code($response) === 200) {
+                update_option('blockonomics_store_name', $partial_match_store->name);
+                return array('success' => true);
+            }
+        }
+        // No matching store found - need to create a new one
+        return array('needs_store' => true);
     }
 
     public function create_store($store_name) {
