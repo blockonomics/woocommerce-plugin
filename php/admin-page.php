@@ -1,70 +1,60 @@
 <?php
+/**
+ * Blockonomics Admin Setup Page
+ *
+ * Handles the admin setup page UI and form processing
+ */
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
+
 function blockonomics_setup_page() {
+    $setup = new Blockonomics_Setup();
     // Check if form is submitted
     if (isset($_POST['submit'])) {
-        // Verify nonce for security
         if (!isset($_POST['blockonomics_setup_nonce']) || !wp_verify_nonce($_POST['blockonomics_setup_nonce'], 'blockonomics_setup_action')) {
             wp_die('Security check failed');
         }
 
-        // Check if API key is provided and not empty
-        if (isset($_POST['blockonomics_api_key']) && !empty($_POST['blockonomics_api_key'])) {
+        if (empty($_POST['blockonomics_api_key'])) {
+            $error_message = 'Please enter your API key';
+        } else {
             $api_key = sanitize_text_field($_POST['blockonomics_api_key']);
-            update_option('blockonomics_api_key', $api_key);
-            
-            // First check if any wallet is added
-            $wallets_url = 'https://www.blockonomics.co/api/v2/wallets';
-            $response = wp_remote_get($wallets_url, array(
-                'headers' => array(
-                    'Authorization' => 'Bearer ' . $api_key,
-                    'Content-Type' => 'application/json'
-                )
-            ));
-            if (is_wp_error($response)) {
-                $error_message = 'Failed to check wallets: ' . $response->get_error_message();
+            $result = $setup->validate_api_key($api_key);
+
+            if (isset($result['error'])) {
+                $error_message = $result['error'];
             } else {
-                $response_code = wp_remote_retrieve_response_code($response);
-                if ($response_code === 401){
-                    $error_message = 'Invalid API key';
-                } else if ($response_code === 200){
-                    $wallets = json_decode(wp_remote_retrieve_body($response), true);
-                    if (empty($wallets['data'])){
-                        $error_message = 'Please create a wallet';
-                    } else {
-                    // Wallet exists, save API key and proceed with test setup
-                    update_option('blockonomics_api_key', $api_key);
-
-                    // Create Blockonomics instance to test the API key
-                    $bnomics = new Blockonomics();
-                    $test_result = $bnomics->test_one_crypto('btc');
-
-                    if (is_array($test_result) && isset($test_result['error'])) {
-                        // Test setup failed
-                        $error_message = $test_result['error'];
-                    } else {
-                        // Test setup successful, redirect to step 2
-                        wp_redirect(admin_url('admin.php?page=blockonomics-setup&step=2'));
-                        exit;
-                    }
+                // API key is valid and has wallets
+                update_option('blockonomics_api_key', $api_key);
+                // Check store setup
+                $store_result = $setup->check_store_setup();
+                if (isset($store_result['needs_store'])) {
+                    wp_redirect(admin_url('admin.php?page=blockonomics-setup&step=2'));
+                    exit;
+                } else if (isset($store_result['success'])) {
+                    wp_redirect(admin_url('admin.php?page=blockonomics-setup&step=2&setup_complete=1'));
+                    exit;
+                } else {
+                    $error_message = $store_result['error'];
                 }
             }
         }
-        } else {
-            $error_message = 'Please enter your API key';
-        }
     }
-
     // Handle store name submission
     if (isset($_POST['submit_store'])) {
-        if (isset($_POST['store_name']) && !empty($_POST['store_name'])) {
-            $store_name = sanitize_text_field($_POST['store_name']);
-            // TODO: Add HTTP POST request to Blockonomics API to update store name
-            // Current code only updates WordPress option
-            update_option('blockonomics_store_name', $store_name);
+        if (!isset($_POST['blockonomics_setup_nonce']) || !wp_verify_nonce($_POST['blockonomics_setup_nonce'], 'blockonomics_setup_action')) {
+            wp_die('Security check failed');
+        }
+
+        $store_name = sanitize_text_field($_POST['store_name']);
+        $result = $setup->create_store($store_name);
+
+        if (isset($result['error'])) {
+            $store_error = $result['error'];
+        } else {
             wp_redirect(admin_url('admin.php?page=blockonomics-setup&step=2&setup_complete=1'));
             exit;
-        } else {
-            $store_error = 'Please enter your store name';
         }
     }
 
