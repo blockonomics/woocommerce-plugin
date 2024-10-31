@@ -500,11 +500,16 @@ function blockonomics_plugin_activation() {
   }
   if( get_transient( 'blockonomics_activation_hook_transient' ) || get_option('blockonomics_api_key') == '' ){
 
-    $html = '<div class="notice notice-warning is-dismissible">';
-    $html .= '<p>';
-    $html .= __( 'Blockonomics is almost ready. To get started, connect your account <a href="admin.php?page=wc-settings&tab=checkout&section=blockonomics">on the Account setup page</a>.', 'blockonomics-bitcoin-payments' );
-    $html .= '</p>';
-    $html .= '</div>';
+    // Only show banner if not on blockonomics-setup page
+    if (!isset($_GET['page']) || $_GET['page'] !== 'blockonomics-setup') {
+        $html = '<div class="notice notice-warning is-dismissible">';
+        $html .= '<p>';
+        $api_key = get_option('blockonomics_api_key');
+        $settings_url = $api_key ? 'admin.php?page=wc-settings&tab=checkout&section=blockonomics' : 'admin.php?page=blockonomics-setup';
+        $html .= __( 'Blockonomics is almost ready. To get started, connect your account <a href="'.$settings_url.'">on the Account setup page</a>.', 'blockonomics-bitcoin-payments' );
+        $html .= '</p>';
+        $html .= '</div>';
+    }
 
     echo $html;        
     delete_transient( 'blockonomics_activation_hook_transient' );
