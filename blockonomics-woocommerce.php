@@ -431,8 +431,6 @@ function blockonomics_activation_hook() {
     {
         trigger_error(__( 'Wordpress Bitcoin Payments - Blockonomics requires WooCommerce plugin to be installed and active.', 'blockonomics-bitcoin-payments' ).'<br>', E_USER_ERROR);
     }
-
-    set_transient( 'blockonomics_activation_hook_transient', true, 3);
 }
 // Page creation function  for the Blockonomics payement following woo-commerce page creation shortcode logic 
 function blockonomics_create_payment_page()
@@ -498,22 +496,16 @@ function blockonomics_plugin_activation() {
       $html .= '</div>';
       echo $html;
   }
-  if( get_transient( 'blockonomics_activation_hook_transient' ) || get_option('blockonomics_api_key') == '' ){
-
-    // Only show banner if not on blockonomics-setup page
-    if (!isset($_GET['page']) || $_GET['page'] !== 'blockonomics-setup') {
+  $api_key = get_option('blockonomics_api_key');
+  if (empty($api_key) && (!isset($_GET['page']) || $_GET['page'] !== 'blockonomics-setup')) {
         $html = '<div class="notice notice-warning is-dismissible">';
         $html .= '<p>';
-        $api_key = get_option('blockonomics_api_key');
-        $settings_url = $api_key ? 'admin.php?page=wc-settings&tab=checkout&section=blockonomics' : 'admin.php?page=blockonomics-setup';
+        $settings_url = 'admin.php?page=blockonomics-setup';
         $html .= __( 'Blockonomics is almost ready. To get started, connect your account <a href="'.$settings_url.'">on the Account setup page</a>.', 'blockonomics-bitcoin-payments' );
         $html .= '</p>';
         $html .= '</div>';
-    }
-
-    echo $html;        
-    delete_transient( 'blockonomics_activation_hook_transient' );
-  }
+        echo $html;
+	}
 }
 
 // On uninstallation, clear every option the plugin has set
