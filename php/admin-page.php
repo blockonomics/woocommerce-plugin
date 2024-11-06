@@ -78,7 +78,7 @@ function blockonomics_setup_page() {
     ?>
     <div class="wrap">
         <div class="bnomics-welcome-header">
-            <h1>Welcome</h1>
+            <h1></h1>
         </div>
         <!-- Moved progress bar outside the setup wizard -->
         <div class="bnomics-progress-bar">
@@ -103,23 +103,29 @@ function blockonomics_setup_page() {
                     </div>
                 </div>
                 <ol>
-                    <li><a href="https://www.blockonomics.co/merchants" target="_blank">Sign up</a> to Blockonomics</li>
+                    <li><a href="https://www.blockonomics.co/register" target="_blank">Sign up</a> to Blockonomics</li>
                     <li>Create a <a href="https://www.blockonomics.co/dashboard#/wallet" target="_blank">Wallet</a></li>
-                    <li>Copy your <a href="https://www.blockonomics.co/merchants#/api" target="_blank">API Key</a> and Enter below</li>
+                    <li>Copy your <a href="https://www.blockonomics.co/dashboard#/store" target="_blank">API Key</a> and Enter below</li>
                 </ol>
                 <form method="post" action="">
-                    <?php 
-                    // Display error message if exists
-                    if (isset($error_message)): ?>
-                        <div class="notice notice-error">
-                            <p><?php echo esc_html($error_message); ?></p>
-                        </div>
-                    <?php endif; ?>
-                    
                     <?php wp_nonce_field('blockonomics_setup_action', 'blockonomics_setup_nonce'); ?>
-                    <input type="text" name="blockonomics_api_key" value="<?php echo esc_attr($api_key); ?>" placeholder="Enter your API Key" style="width: 100%;">
+                    <input type="text" 
+                           name="blockonomics_api_key" 
+                           value="<?php echo esc_attr($api_key); ?>" 
+                           placeholder="Enter your API Key" 
+                           style="width: 100%;">
+                    <?php if (isset($error_message)): ?>
+                        <p class="bnomics-error-message"><?php echo esc_html($error_message); ?></p>
+                    <?php endif; ?>
                     <?php submit_button('Continue', 'primary', 'submit', false); ?>
                 </form>
+                <script>
+                    // Remove active class from progress steps when in step 1
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const progressSteps = document.querySelectorAll('.bnomics-progress-step');
+                        progressSteps.forEach(step => step.classList.remove('active'));
+                    });
+                </script>
             <?php else: ?>
                 <?php if (isset($needs_store_name) && $needs_store_name): ?>
                     <!-- Store Name Input Screen -->
@@ -135,6 +141,12 @@ function blockonomics_setup_page() {
                             <img src="<?php echo plugins_url('../img/blockonomics_logo_black.svg', __FILE__); ?>" alt="Blockonomics Logo">
                         </div>
                     </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const progressSteps = document.querySelectorAll('.bnomics-progress-step');
+                            progressSteps[1].classList.remove('active');
+                        });
+                    </script>
                     <form method="post" action="">
                         <?php if (isset($store_error)): ?>
                             <div class="notice notice-error">
