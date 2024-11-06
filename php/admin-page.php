@@ -16,17 +16,18 @@ function blockonomics_setup_page() {
             wp_die('Security check failed');
         }
 
-        if (empty($_POST['blockonomics_api_key'])) {
+        // Store the submitted API key
+        $api_key = isset($_POST['blockonomics_api_key']) ? sanitize_text_field($_POST['blockonomics_api_key']) : '';
+        if (empty($api_key)) {
             $error_message = 'Please enter your API key';
         } else {
-            $api_key = sanitize_text_field($_POST['blockonomics_api_key']);
+            update_option('blockonomics_api_key', $api_key);
             $result = $setup->validate_api_key($api_key);
 
             if (isset($result['error'])) {
                 $error_message = $result['error'];
             } else {
                 // API key is valid and has wallets
-                update_option('blockonomics_api_key', $api_key);
                 // Check store setup
                 $store_result = $setup->check_store_setup();
                 if (isset($store_result['needs_store'])) {
@@ -78,7 +79,6 @@ function blockonomics_setup_page() {
     ?>
     <div class="wrap">
         <div class="bnomics-welcome-header">
-            <h1></h1>
         </div>
         <!-- Moved progress bar outside the setup wizard -->
         <div class="bnomics-progress-bar">
