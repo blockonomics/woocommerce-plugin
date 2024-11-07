@@ -79,6 +79,8 @@ function blockonomics_setup_page() {
     ?>
     <div class="wrap">
         <div class="bnomics-welcome-header">
+            <!-- Empty h1 tag is required for UI consistency -->
+            <h1></h1>
         </div>
         <!-- Moved progress bar outside the setup wizard -->
         <div class="bnomics-progress-bar">
