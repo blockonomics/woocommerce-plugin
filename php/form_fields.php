@@ -72,7 +72,7 @@ class FormFields {
             'api_key' => array(
                 'title' => __('
                     Store
-                    <p class="block-title-desc">To enable various cryptos go to <a href="https://blockonomics.co/dashboard#/store" target="_blank">stores</a></p>
+                    <p class="block-title-desc">To enable various cryptos go to <a href="https://blockonomics.co/dashboard#/store" target="_blank">Stores</a></p>
                     ', 'blockonomics-bitcoin-payments'),
                 'subtitle' =>  $subtitle,
                 'type' => 'apikey',
