@@ -26,15 +26,13 @@ class Blockonomics
 
     public function calculate_total_paid_fiat($transactions) {
         $total_paid_fiats = 0.0;
-    
+
         foreach ($transactions as $transaction) {
             $total_paid_fiats += (float) $transaction['paid_fiat'];
         }
-        
         $rounded_total_paid_fiats = round($total_paid_fiats, wc_get_price_decimals(), PHP_ROUND_HALF_UP);
-         
-        return $rounded_total_paid_fiats;
 
+        return $rounded_total_paid_fiats;
     }
 
     private $api_key;
@@ -83,7 +81,7 @@ class Blockonomics
             $params['reset'] = 1;
         }
 
-        $url = self::NEW_ADDRESS_URL;
+        $url = $crypto === 'bch' ? self::BCH_NEW_ADDRESS_URL : self::NEW_ADDRESS_URL;
         if (!empty($params)) {
             $url .= '?' . http_build_query($params);
         }
