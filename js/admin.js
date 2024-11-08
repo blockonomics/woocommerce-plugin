@@ -189,23 +189,17 @@ class BlockonomicsAdmin {
     }
 
     updateCryptoStatus(cryptoResults) {
-        // If no cryptos are enabled, show generic message
+        // For success case, just show success messages
         if (Object.values(cryptoResults).every(result => result === false)) {
             Object.values(this.cryptoElements).forEach(elements => {
+                if (!elements) return;
                 elements.error.style.display = 'none';
-                elements.success.style.display = 'none';
+                elements.success.style.display = 'block';
             });
-
-            // Show generic message only in BTC error element
-            const btcElements = this.cryptoElements['btc'];
-            if (btcElements) {
-                btcElements.error.style.display = 'block';
-                btcElements.errorText.innerText = 'No crypto enabled for this store';
-                btcElements.success.style.display = 'none';
-            }
             return;
         }
 
+        // For error cases
         Object.entries(cryptoResults).forEach(([code, result]) => {
             const elements = this.cryptoElements[code];
             if (!elements) return;
@@ -226,23 +220,9 @@ class BlockonomicsAdmin {
 
         if (result.metadata_cleared) {
             descriptionField.textContent = '';
-            // Reset to BTC only when metadata is cleared
             this.config.activeCurrencies = ['btc'];
             this.cryptoElements = this.initializeCryptoElements();
             this.initializeCryptoDisplay();
-        } else if (result.store_data) {
-            // Always show store name if available
-            let displayText = result.store_data.name || '';
-
-            // Only show enabled crypto info if currencies are actually enabled
-            if (result.store_data.enabled_cryptos && result.store_data.enabled_cryptos !== '') {
-                this.config.activeCurrencies = result.store_data.enabled_cryptos.toLowerCase().split(',');
-                displayText += ' Enabled crypto: ';
-                displayText += this.config.activeCurrencies
-                    .map(code => blockonomics_params.currencies[code]?.name || code.toUpperCase())
-                    .join(' ');
-            }
-            descriptionField.textContent = displayText;
         }
     }
 
