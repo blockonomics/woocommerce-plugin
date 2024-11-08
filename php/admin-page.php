@@ -109,23 +109,30 @@ function blockonomics_setup_page() {
                     <li>Create a <a href="https://www.blockonomics.co/dashboard#/wallet" target="_blank">Wallet</a></li>
                     <li>Copy your <a href="https://www.blockonomics.co/dashboard#/store" target="_blank">API Key</a> and Enter below</li>
                 </ol>
-                <form method="post" action="">
+                <form method="post" action="" id="bnomics-setup-form">
                     <?php wp_nonce_field('blockonomics_setup_action', 'blockonomics_setup_nonce'); ?>
                     <input type="text" 
-                           name="blockonomics_api_key" 
+                           name="blockonomics_api_key"
+                           id="blockonomics_api_key"
                            value="<?php echo esc_attr($api_key); ?>" 
                            placeholder="Enter your API Key" 
                            style="width: 100%;">
                     <?php if (isset($error_message)): ?>
                         <p class="bnomics-error-message"><?php echo esc_html($error_message); ?></p>
                     <?php endif; ?>
+                    <p class="bnomics-error-message" id="api-key-error" style="display: none;">Please enter your API key</p>
                     <?php submit_button('Continue', 'primary', 'submit', false); ?>
                 </form>
                 <script>
-                    // Remove active class from progress steps when in step 1
-                    document.addEventListener('DOMContentLoaded', function() {
-                        const progressSteps = document.querySelectorAll('.bnomics-progress-step');
-                        progressSteps.forEach(step => step.classList.remove('active'));
+                    document.getElementById('bnomics-setup-form').addEventListener('submit', function(e) {
+                        const apiKey = document.getElementById('blockonomics_api_key').value.trim();
+                        const errorElement = document.getElementById('api-key-error');
+                        if (apiKey === '') {
+                            e.preventDefault();
+                            errorElement.style.display = 'block';
+                            return false;
+                        }
+                        errorElement.style.display = 'none';
                     });
                 </script>
             <?php else: ?>
