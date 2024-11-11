@@ -10,42 +10,12 @@ class FormFields {
         // Get the current API key and any stored metadata
         $api_key = get_option('blockonomics_api_key');
         $store_name = get_option('blockonomics_store_name');
-        $enabled_cryptos = get_option('blockonomics_enabled_cryptos', array());
-        $description = '';
+        // $enabled_cryptos = get_option('blockonomics_enabled_cryptos', array());
         if ($store_name) {
             $subtitle = $store_name;
         } else {
             $subtitle = __('<br>', 'blockonomics-bitcoin-payments');
         }
-
-    // Handle description
-    if ($enabled_cryptos) {
-        $crypto_icons = '';
-        $cryptos = explode(',', $enabled_cryptos);
-
-        foreach ($cryptos as $crypto) {
-            $icon_path = '';
-            switch (strtolower($crypto)) {
-                case 'btc':
-                    $icon_path = plugins_url('img/bitcoin-icon.png', dirname(__FILE__));
-                    break;
-                case 'bch':
-                    $icon_path = plugins_url('img/bch-icon.png', dirname(__FILE__));
-                    break;
-                // TODO: Add USDT icon
-            }
-
-            if ($icon_path) {
-                $crypto_icons .= '<img src="' . $icon_path . '" style="height: 16px; vertical-align: middle; margin-right: 5px;">';
-            }
-        }
-
-        $description = sprintf(
-            '%s %s',
-            __('Enabled crypto:', 'blockonomics-bitcoin-payments'),
-            $crypto_icons
-        );
-    }
 
         $form_fields = array(
             'enabled' => array(
@@ -76,9 +46,6 @@ class FormFields {
                     ', 'blockonomics-bitcoin-payments'),
                 'subtitle' =>  $subtitle,
                 'type' => 'apikey',
-                // 'description' => __('Setup Store on <a href="https://blockonomics.co/merchants" target="_blank" style="color: green;">Blockonomics</a> and paste API Key here', 'blockonomics-bitcoin-payments'),
-                'description' => $description, // Will be empty if no enabled_cryptos
-
                 'default' => get_option('blockonomics_api_key'),
                 'placeholder' => __('API key', 'blockonomics-bitcoin-payments'),
             ),
