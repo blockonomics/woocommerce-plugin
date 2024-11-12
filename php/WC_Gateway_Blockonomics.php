@@ -252,27 +252,17 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
        <tr valign="top">
             <td class="forminp">
                 <div class="bnomics-options-margin-top">
-                    <div>
-                        <p style="margin-bottom: 8px;">
-                            <strong>
-                                Test Setup
-                            </strong>
-                        </p>
-                        <div class="bnomics-options-margin-top">
-                            Test the setup to ensure it is working correctly
-                        </div>
                         <div>
                             <?php
                                 $blockonomics = new Blockonomics;
                                 $cryptos = $blockonomics->getSupportedCurrencies();
                                 foreach ($cryptos as $currencyCode => $crypto) {
-        
-                                    echo '<p class="notice notice-success ' . $currencyCode . '-success-notice" style="display:none;width:400px;">'.strtoupper($currencyCode).' - Success</p>';
-                                    echo '<p class="notice notice-error ' . $currencyCode . '-error-notice" style="width:400px;display:none;">';
-                                    echo strtoupper($currencyCode).' - ';
-                                    echo '<span class="errorText"></span><br />';
-                                    echo 'Please consult <a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank">this troubleshooting article</a>.';
-                                    echo '</p>';
+                                    if ($currencyCode !== 'bch') {
+                                        echo '<p class="notice notice-success ' . $currencyCode . '-success-notice" style="display:none;width:400px;">'.strtoupper($currencyCode).'  &#9989;</p>';
+                                        echo '<p class="notice notice-error ' . $currencyCode . '-error-notice" style="width:400px;display:none;">';
+                                        echo '<span class="errorText"></span><br />';
+                                        echo '</p>';
+                                    }
                                 }
                             ?>
                         </div>
@@ -333,7 +323,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                     <input class="input-text regular-input <?php echo esc_attr( $data['class'] ); ?>" type="text" name="<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" style="<?php echo esc_attr( $data['css'] ); ?>" value="<?php echo esc_attr( $this->get_option( $key ) ); ?>" placeholder="<?php echo esc_attr( $data['placeholder'] ); ?>" <?php disabled( $data['disabled'], true ); ?> <?php echo $this->get_custom_attribute_html( $data ); // WPCS: XSS ok. ?> />
                 </fieldset>
 
-                <button name="save" id="save-api-key-button" class="button-primary woocommerce-save-button" type="submit" value="Save changes">Save API key</button>
+                <!-- <button name="save" id="save-api-key-button" class="button-primary woocommerce-save-button" type="submit" value="Save changes">Save API key</button> -->
                 <div id="api-key-notification-box">
                     <span class="text">
                         Please enter a valid API key.
@@ -350,25 +340,38 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 
     public function process_admin_options()
     {
+        // Enqueue scripts and localize data
+        wp_enqueue_script('blockonomics-admin', plugins_url('js/admin.js', dirname(__FILE__)), array('jquery'), '1.0');
+        wp_localize_script('blockonomics-admin', 'blockonomics_params', array(
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'enabled_cryptos' => get_option('blockonomics_enabled_cryptos', 'btc'),
+            'plugin_url' => plugins_url('', dirname(__FILE__))
+        ));
+
         if (!parent::process_admin_options()) {
             return false;
         }
 
         $blockonomics = new Blockonomics;
-        $activeCurrencies = $blockonomics->getSupportedCurrencies();
+        $supportedCurrencies = $blockonomics->getSupportedCurrencies();
 
-        foreach ($activeCurrencies as $code => $currency) {
-            $optionName = 'blockonomics_' . strtolower($code);
-            $isEnabled = $this->get_option($code . '_enabled') == 'yes' ? 1 : 0;
-            update_option($optionName, $isEnabled);
+        foreach ($supportedCurrencies as $code => $currency) {
+            if ($code === 'btc') {
+                update_option('blockonomics_' . $code, 1);
+            } elseif ($code === 'bch') {
+                $isEnabled = $this->get_option('enable_bch') === 'yes' ? 1 : 0;
+                update_option('blockonomics_' . $code, $isEnabled);
+            }
         }
         update_option('blockonomics_margin', (int)$this->get_option('extra_margin'));
         update_option('blockonomics_underpayment_slack', (int)$this->get_option('underpayment_slack'));
         update_option('blockonomics_partial_payments', $this->get_option('partial_payment') == 'yes' ? 1 : 0);
         update_option('blockonomics_api_key', $this->get_option('api_key'));
-        update_option('blockonomics_nojs',$this->get_option('no_javascript') == 'yes' ? 1 : 0);
+        update_option('blockonomics_nojs', $this->get_option('no_javascript') == 'yes' ? 1 : 0);
         update_option('blockonomics_network_confirmation', $this->get_option('network_confirmation'));
         $this->update_option('call_backurls', $this->get_callback_url());
+
+        return true;
     }
 
     // Woocommerce process payment, runs during the checkout

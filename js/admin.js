@@ -1,128 +1,207 @@
 document.addEventListener('DOMContentLoaded', function() {
-    try {
-        const cryptoDOM = {};
+    // Initialize BlockonomicsAdmin class
+    const admin = new BlockonomicsAdmin();
+    admin.init();
+});
 
-        const testSetupBtn = document.getElementById('test-setup-btn');
-        const spinner = document.querySelector('.test-spinner');
+class BlockonomicsAdmin {
+    constructor() {
+        // Store DOM elements
+        this.elements = {
+            form: document.getElementById('mainform'),
+            apiKey: document.querySelector('input[name="woocommerce_blockonomics_api_key"]'),
+            testSetup: document.getElementById('test-setup-btn'),
+            spinner: document.querySelector('.test-spinner'),
+            notifications: {
+                apiKey: document.getElementById('api-key-notification-box'),
+                testSetup: document.getElementById('test-setup-notification-box')
+            },
+            pluginEnabled: document.getElementById('woocommerce_blockonomics_enabled')
+        };
 
-        const apikeyInput = document.querySelector('input[name="woocommerce_blockonomics_api_key"]');
-        const testSetupNotificationDOM = document.getElementById('test-setup-notification-box');
-        const blockonomicsPluginEnabledDOM = document.getElementById('woocommerce_blockonomics_enabled');
-        let hasBlockonomicsApiKeyChanged = false;
+        // State management
+        this.state = {
+            apiKeyChanged: false,
+            otherSettingsChanged: false
+        };
 
-        const baseUrl = blockonomics_params.ajaxurl;
-        const activeCurrencies = { 'btc': true, 'bch': true };
+        // Configuration
+        this.config = {
+            baseUrl: blockonomics_params.ajaxurl,
+        };
 
-        let formChanged = false;
-        const form = document.getElementById("mainform");
-       
-       
+        // Initialize crypto DOM elements
+        this.cryptoElements = {
+            btc: {
+                success: document.querySelector('.btc-success-notice'),
+                error: document.querySelector('.btc-error-notice'),
+                errorText: document.querySelector('.btc-error-notice .errorText')
+            }
+        };
+    }
+
+    init() {
+        this.attachEventListeners();
+    }
+
+
+    attachEventListeners() {
+        // Form related listeners
+        this.elements.form.addEventListener('input', (event) => {
+            if (event.target !== this.elements.apiKey) {
+                this.state.otherSettingsChanged = true;
+            }
+        });
+
+        this.elements.apiKey.addEventListener('change', () => {
+            this.state.apiKeyChanged = true;
+        });
+
+        this.elements.form.addEventListener('submit', (e) => this.handleFormSubmit(e));
+
+        // Test setup button listener
+        if (this.elements.testSetup) {
+            this.elements.testSetup.addEventListener('click', (e) => this.handleTestSetup(e));
+        }
+
+        // Prevent accidental navigation
         window.addEventListener('beforeunload', (event) => {
             event.stopImmediatePropagation();
         });
-        
-        form.addEventListener("input", () => {
-            formChanged = true;
-        });
-
-        apikeyInput.addEventListener('change', () => {
-            hasBlockonomicsApiKeyChanged = true;
-        });
-
-        form.addEventListener("submit",function(e){ 
-            if(apikeyInput.value === '') {
-                document.getElementById("api-key-notification-box").style.display = 'block';
-                document.getElementById("apikey-row").scrollIntoView();
-                window.scrollBy(0, -100);
-                e.preventDefault();
-                return;
-            }
-            if (hasBlockonomicsApiKeyChanged) {
-                blockonomicsPluginEnabledDOM.checked = true;
-            }
-            document.getElementById("api-key-notification-box").style.display = 'none';
-  
-        });
-
-        for (let code in activeCurrencies) {
-            cryptoDOM[code] = {
-                checkbox: document.getElementById(`woocommerce_blockonomics_${code}_enabled`),
-                success: document.querySelector(`.${code}-success-notice`),
-                error: document.querySelector(`.${code}-error-notice`),
-                errorText: document.querySelector(`.${code}-error-notice .errorText`)
-            };
-
-            if (
-                !cryptoDOM[code].success || 
-                !cryptoDOM[code].error || 
-                !cryptoDOM[code].checkbox || 
-                !cryptoDOM[code].errorText) {
-                continue;
-            }
-
-            cryptoDOM[code].success.style.display = 'none';
-            cryptoDOM[code].error.style.display = 'none';
-
-            cryptoDOM[code].checkbox.addEventListener('change', (event) => {
-                cryptoDOM[code].success.style.display = 'none';
-                cryptoDOM[code].error.style.display = 'none';
-            });
-        }
-       
-
-        if (testSetupBtn) {
-            testSetupBtn.addEventListener('click', async function(event) {
-                event.preventDefault();
-
-                if (formChanged) {
-                    if (testSetupNotificationDOM) {
-                        testSetupNotificationDOM.style.display = 'block';
-                    }
-                    return;
-                }
-                if (testSetupNotificationDOM) {
-                    testSetupNotificationDOM.style.display = 'none';
-                }
-
-                if (spinner) {
-                    spinner.style.display = 'block';
-                }
-                testSetupBtn.disabled = true;
-                
-                const payload = { action: "test_setup" };
-
-                let result = {};
-
-                try {
-                    const res = await fetch(`${baseUrl}?${new URLSearchParams(payload)}`);
-                    if (!res.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    result = await res.json();
-                } catch (error) {
-                    console.error('Error:', error);
-                } finally {
-                    spinner.style.display = 'none';
-                    testSetupBtn.disabled = false;
-
-                    for (let code in result.crypto) {
-                        const cryptoResult = result.crypto[code];
-
-                        if (cryptoResult === false) {
-                            cryptoDOM[code].success.style.display = 'block';
-                            cryptoDOM[code].error.style.display = 'none';
-                        } else {
-                            cryptoDOM[code].success.style.display = 'none';
-                            cryptoDOM[code].error.style.display = 'block';
-                            cryptoDOM[code].errorText.innerText = cryptoResult;
-                        }
-                    }
-                }
-            });
-        }
-
-       
-    } catch (e) {
-        console.log("Error in admin settings", e);
     }
-});
+
+    async handleTestSetup(event) {
+        event.preventDefault();
+
+        if (!this.validateApiKey()) return;
+        if (this.shouldSkipTestSetup()) return;
+
+        this.updateUIBeforeTest();
+
+        try {
+            if (this.state.apiKeyChanged) {
+                await this.saveApiKey();
+            }
+
+            const result = await this.performTestSetup();
+            this.handleTestSetupResponse(result);
+        } catch (error) {
+            console.error('Test setup failed:', error);
+        } finally {
+            this.updateUIAfterTest();
+        }
+    }
+
+    validateApiKey() {
+        if (this.elements.apiKey.value.trim() === '') {
+            this.showApiKeyError();
+            return false;
+        }
+        return true;
+    }
+
+    shouldSkipTestSetup() {
+        if (this.state.otherSettingsChanged && !this.state.apiKeyChanged) {
+            this.elements.notifications.testSetup.style.display = 'block';
+            return true;
+        }
+        return false;
+    }
+
+    updateUIBeforeTest() {
+        this.elements.notifications.apiKey.style.display = 'none';
+        this.elements.notifications.testSetup.style.display = 'none';
+        this.elements.spinner.style.display = 'block';
+        this.elements.testSetup.disabled = true;
+    }
+
+    updateUIAfterTest() {
+        this.elements.spinner.style.display = 'none';
+        this.elements.testSetup.disabled = false;
+    }
+
+    async saveApiKey() {
+        const formData = new FormData(this.elements.form);
+        formData.append('woocommerce_blockonomics_api_key', this.elements.apiKey.value);
+        formData.append('save', 'Save changes');
+
+        const response = await fetch(this.elements.form.action, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to save API key');
+        }
+
+        this.state.apiKeyChanged = false;
+        this.state.otherSettingsChanged = false;
+    }
+
+    async performTestSetup() {
+        const response = await fetch(`${this.config.baseUrl}?${new URLSearchParams({ action: "test_setup" })}`);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return await response.json();
+    }
+
+    handleTestSetupResponse(result) {
+        this.updateCryptoStatus(result.crypto);
+        this.updateMetadata(result);
+    }
+
+    updateCryptoStatus(cryptoResults) {
+        const btcResult = cryptoResults.btc;
+        const btcElements = this.cryptoElements.btc;
+
+        if (!btcElements) return;
+
+        if (btcResult === false) {
+            // Success case
+            btcElements.error.style.display = 'none';
+            btcElements.success.style.display = 'block';
+        } else {
+            // Error case
+            btcElements.success.style.display = 'none';
+            btcElements.error.style.display = 'block';
+            if (typeof btcResult === 'string') {
+                btcElements.errorText.innerHTML = btcResult;
+            }
+        }
+    }
+
+    updateMetadata(result) {
+        const apiKeyRow = this.elements.apiKey.closest('tr');
+        const descriptionField = apiKeyRow?.querySelector('.description');
+
+        if (!descriptionField) return;
+
+        if (result.metadata_cleared) {
+            descriptionField.textContent = '';
+            this.config.activeCurrencies = ['btc'];
+        }
+    }
+
+    handleFormSubmit(e) {
+        if (!this.validateApiKey()) {
+            e.preventDefault();
+            return;
+        }
+
+        if (this.state.apiKeyChanged) {
+            this.elements.pluginEnabled.checked = true;
+        }
+
+        this.elements.notifications.apiKey.style.display = 'none';
+    }
+
+    showApiKeyError() {
+        this.elements.notifications.apiKey.style.display = 'block';
+        const apiKeyRow = document.getElementById("apikey-row");
+        if (apiKeyRow) {
+            apiKeyRow.scrollIntoView();
+            window.scrollBy(0, -100);
+        }
+    }
+}

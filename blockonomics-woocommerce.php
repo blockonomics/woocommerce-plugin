@@ -66,6 +66,8 @@ function blockonomics_woocommerce_init()
    
     require_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'WC_Gateway_Blockonomics.php';
     include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
+    require_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'admin-page.php';
+    require_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'class-blockonomics-setup.php';
     
     add_action('admin_menu', 'add_page');
     add_action('init', 'load_plugin_translations');
@@ -78,6 +80,7 @@ function blockonomics_woocommerce_init()
     add_action('wp_enqueue_scripts', 'bnomics_register_stylesheets');
     add_action('wp_enqueue_scripts', 'bnomics_register_scripts');
     add_filter("wp_list_pages_excludes", "bnomics_exclude_pages");
+    add_action('admin_menu', 'blockonomics_add_admin_menu');
 
     if ( is_HPOS_active()) {
         add_action('woocommerce_order_list_table_restrict_manage_orders', 'filter_orders' , 20 );
@@ -85,6 +88,17 @@ function blockonomics_woocommerce_init()
     } else {
         add_action('restrict_manage_posts', 'filter_orders' , 20 );
         add_filter('request', 'filter_orders_by_address_or_txid' );
+    }
+
+    function blockonomics_add_admin_menu() {
+        add_submenu_page(
+            null,
+            'Blockonomics Setup',
+            'Blockonomics',
+            'manage_options',
+            'blockonomics-setup',
+            'blockonomics_setup_page'
+        );
     }
     
     add_action( 'admin_enqueue_scripts', 'blockonomics_enqueue_custom_admin_style' );
@@ -113,6 +127,11 @@ function blockonomics_woocommerce_init()
             ));
 
             wp_enqueue_script( 'blockonomics-admin-scripts' );
+        }
+
+        if (isset($_GET['page']) && 'blockonomics-setup' === $_GET['page']) {
+            wp_register_style('blockonomics-admin-setup', plugin_dir_url(__FILE__) . "css/admin-setup.css", '', get_plugin_data( __FILE__ )['Version']);
+            wp_enqueue_style('blockonomics-admin-setup');
         }
     }
 
@@ -413,8 +432,6 @@ function blockonomics_activation_hook() {
     {
         trigger_error(__( 'Wordpress Bitcoin Payments - Blockonomics requires WooCommerce plugin to be installed and active.', 'blockonomics-bitcoin-payments' ).'<br>', E_USER_ERROR);
     }
-
-    set_transient( 'blockonomics_activation_hook_transient', true, 3);
 }
 // Page creation function  for the Blockonomics payement following woo-commerce page creation shortcode logic 
 function blockonomics_create_payment_page()
@@ -480,17 +497,16 @@ function blockonomics_plugin_activation() {
       $html .= '</div>';
       echo $html;
   }
-  if( get_transient( 'blockonomics_activation_hook_transient' ) || get_option('blockonomics_api_key') == '' ){
-
-    $html = '<div class="notice notice-warning is-dismissible">';
-    $html .= '<p>';
-    $html .= __( 'Blockonomics is almost ready. To get started, connect your account <a href="admin.php?page=wc-settings&tab=checkout&section=blockonomics">on the Account setup page</a>.', 'blockonomics-bitcoin-payments' );
-    $html .= '</p>';
-    $html .= '</div>';
-
-    echo $html;        
-    delete_transient( 'fx-admin-notice-example' );
-  }
+  $api_key = get_option('blockonomics_api_key');
+  if (empty($api_key) && (!isset($_GET['page']) || $_GET['page'] !== 'blockonomics-setup')) {
+        $html = '<div class="notice notice-warning is-dismissible">';
+        $html .= '<p>';
+        $settings_url = 'admin.php?page=blockonomics-setup';
+        $html .= __( 'Blockonomics is almost ready. To get started, connect your account <a href="'.$settings_url.'">on the Account setup page</a>.', 'blockonomics-bitcoin-payments' );
+        $html .= '</p>';
+        $html .= '</div>';
+        echo $html;
+	}
 }
 
 // On uninstallation, clear every option the plugin has set
@@ -510,14 +526,14 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_network_confirmation');
     delete_option('blockonomics_partial_payments');
     delete_option('woocommerce_blockonomics_settings');
+    delete_option('blockonomics_store_name');
+    delete_option('blockonomics_enabled_cryptos');
 
     global $wpdb;
     // drop blockonomics_orders & blockonomics_payments on uninstallation
     // blockonomics_orders was the payments table before db version 1.2
     $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS ".$wpdb->prefix."blockonomics_orders , ".$wpdb->prefix."blockonomics_payments"));
     delete_option("blockonomics_db_version");
-    
-
 
     // Remove the custom page and shortcode added for payment
     remove_shortcode('blockonomics_payment');
@@ -525,7 +541,9 @@ function blockonomics_uninstall_hook() {
 }
 
 function blockonomics_plugin_add_settings_link( $links ) {
-    $settings_link = '<a href="admin.php?page=wc-settings&tab=checkout&section=blockonomics">' . __( 'Settings' ) . '</a>';
+    $api_key = get_option('blockonomics_api_key');
+    $settings_url = $api_key ? 'admin.php?page=wc-settings&tab=checkout&section=blockonomics' : 'admin.php?page=blockonomics-setup';
+    $settings_link = '<a href="' . $settings_url . '">' . __( 'Settings' ) . '</a>';
     array_unshift( $links, $settings_link );
     return $links;
 }
