@@ -1,6 +1,6 @@
 # Wordpress Bitcoin Payments - Blockonomics # 
 **Contributors:** juhasiivikko, darrenwestwood, blockonomics
-**Tags:** bitcoin, accept bitcoin, bitcoin woocommerce, bitcoin wordpress plugin, bitcoin payments 
+**Tags:** bitcoin, accept bitcoin, bitcoin woocommerce, bitcoin wordpress plugin, bitcoin payments
 **Requires at least:** 3.0.1 
 **Tested up to:** 6.6.2
 **Stable tag:** 3.7.6
@@ -38,13 +38,14 @@ Blockonomics is the only Bitcoin payment gateway that enables full decentralizat
 
 ## Installation ## 
 
-### Direct to Wallet  ### 
-[Video Tutorial](https://www.youtube.com/watch?v=lNFBAk2x6ns) | [Blog Tutorial](https://blog.blockonomics.co/how-to-accept-bitcoin-payments-on-woocommerce-using-blockonomics-f18661819a62)  
+<!-- [Video Tutorial](https://www.youtube.com/watch?v=lNFBAk2x6ns) | -->
+[Blog Tutorial](https://help.blockonomics.co/support/solutions/articles/33000248575-wordpress-woocommerce-integration)
  
-- Click on **Get Started For Free** on [Blockonomics > Merchants](https://www.blockonomics.co/merchants) and proceed to complete merchant wizard. 
-- Your API key should be now shown on the [merchants page](https://www.blockonomics.co/merchants)   
-- In WordPress Admin > Woocommerce > Settings > Payments Blockonomics, paste this API Key and Save  
-- Click on **Test Setup** button to verify installation  
+- **Sign Up** on [Blockonomics](https://www.blockonomics.co/merchants#/)
+- Add a **new wallet** on [Wallets](https://www.blockonomics.co/wallets) page
+- Copy your **API key** from [Stores](https://www.blockonomics.co/stores) page
+- Paste this **API key** in plugin setup wizard
+- Click on **Test Setup** button to verify installation
 
 For community support/discussion feel free [to post on our community forum](https://community.blockonomics.co/)
 
@@ -58,8 +59,7 @@ details about the issue
 Your webhost is blocking incoming callbacks from bots, or you have a DDOS protection in place that is causing this. Blockonomics server does payment callbacks to update transaction status and cannot emulate a browser accessing your website. Please consult [this article](http://help.blockonomics.co/solution/articles/33000219539-order-status-not-changing-ddos-protection) on how debug and fix this
 
 ### How to report security issues? ### 
-Feel free to read our [bug bounty policy](https://help.blockonomics.co/support/solutions/articles/33000256692-bug-bounty-program). 
-[![huntr](https://cdn.huntr.dev/huntr_security_badge_mono.svg)](https://huntr.dev)
+Feel free to read our [bug bounty policy](https://help.blockonomics.co/support/solutions/articles/33000256692-bug-bounty-program).
 
 ### Can I remove Powered by Blockonomics text or customize the checkout page? ### 
 You are free to customize the checkout page according to your needs. Feel free to consult [this article](http://help.blockonomics.co/support/solutions/articles/33000243991-how-to-customize-the-checkout-page-)
