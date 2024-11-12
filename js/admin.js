@@ -28,59 +28,22 @@ class BlockonomicsAdmin {
         // Configuration
         this.config = {
             baseUrl: blockonomics_params.ajaxurl,
-            // Get active currencies from metadata or default to BTC
-            activeCurrencies: this.getActiveCurrencies()
         };
 
         // Initialize crypto DOM elements
-        this.cryptoElements = this.initializeCryptoElements();
-    }
-
-    getActiveCurrencies() {
-        const enabledCryptos = blockonomics_params.enabled_cryptos; // This should be passed from PHP
-        if (enabledCryptos) {
-            return enabledCryptos.split(',');
-        }
-        return ['btc']; // Default to BTC if no currencies are set
+        this.cryptoElements = {
+            btc: {
+                success: document.querySelector('.btc-success-notice'),
+                error: document.querySelector('.btc-error-notice'),
+                errorText: document.querySelector('.btc-error-notice .errorText')
+            }
+        };
     }
 
     init() {
         this.attachEventListeners();
-        this.initializeCryptoDisplay();
     }
 
-    initializeCryptoElements() {
-        const elements = {};
-
-        this.config.activeCurrencies.forEach(code => {
-            elements[code] = {
-                checkbox: document.getElementById(`woocommerce_blockonomics_${code}_enabled`),
-                success: document.querySelector(`.${code}-success-notice`),
-                error: document.querySelector(`.${code}-error-notice`),
-                errorText: document.querySelector(`.${code}-error-notice .errorText`)
-            };
-        });
-
-        return elements;
-    }
-
-    initializeCryptoDisplay() {
-        Object.values(this.cryptoElements).forEach(crypto => {
-            if (!this.validateCryptoElements(crypto)) return;
-
-            crypto.success.style.display = 'none';
-            crypto.error.style.display = 'none';
-
-            crypto.checkbox.addEventListener('change', () => {
-                crypto.success.style.display = 'none';
-                crypto.error.style.display = 'none';
-            });
-        });
-    }
-
-    validateCryptoElements(crypto) {
-        return crypto.success && crypto.error && crypto.checkbox && crypto.errorText;
-    }
 
     attachEventListeners() {
         // Form related listeners
@@ -189,27 +152,23 @@ class BlockonomicsAdmin {
     }
 
     updateCryptoStatus(cryptoResults) {
-        // For success case, just show success messages
-        if (Object.values(cryptoResults).every(result => result === false)) {
-            Object.values(this.cryptoElements).forEach(elements => {
-                if (!elements) return;
-                elements.error.style.display = 'none';
-                elements.success.style.display = 'block';
-            });
-            return;
-        }
+        const btcResult = cryptoResults.btc;
+        const btcElements = this.cryptoElements.btc;
 
-        // For error cases
-        Object.entries(cryptoResults).forEach(([code, result]) => {
-            const elements = this.cryptoElements[code];
-            if (!elements) return;
+        if (!btcElements) return;
 
-            elements.success.style.display = result === false ? 'block' : 'none';
-            elements.error.style.display = typeof result === 'string' ? 'block' : 'none';
-            if (typeof result === 'string') {
-                elements.errorText.innerHTML = result;
+        if (btcResult === false) {
+            // Success case
+            btcElements.error.style.display = 'none';
+            btcElements.success.style.display = 'block';
+        } else {
+            // Error case
+            btcElements.success.style.display = 'none';
+            btcElements.error.style.display = 'block';
+            if (typeof btcResult === 'string') {
+                btcElements.errorText.innerHTML = btcResult;
             }
-        });
+        }
     }
 
     updateMetadata(result) {
@@ -221,8 +180,6 @@ class BlockonomicsAdmin {
         if (result.metadata_cleared) {
             descriptionField.textContent = '';
             this.config.activeCurrencies = ['btc'];
-            this.cryptoElements = this.initializeCryptoElements();
-            this.initializeCryptoDisplay();
         }
     }
 
