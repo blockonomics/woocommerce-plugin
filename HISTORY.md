@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 3.7.6  =
+* New setup flow having wizard
+
 = 3.7.5  =
 * Fixed deprecation warnings
 

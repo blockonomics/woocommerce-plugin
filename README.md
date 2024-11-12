@@ -38,7 +38,6 @@ Blockonomics is the only Bitcoin payment gateway that enables full decentralizat
 
 ## Installation ## 
 
-<!-- [Video Tutorial](https://www.youtube.com/watch?v=lNFBAk2x6ns) | -->
 [Blog Tutorial](https://help.blockonomics.co/support/solutions/articles/33000248575-wordpress-woocommerce-integration)
  
 - **Sign Up** on [Blockonomics](https://www.blockonomics.co/merchants#/)
@@ -61,7 +60,7 @@ Your webhost is blocking incoming callbacks from bots, or you have a DDOS protec
 ### How to report security issues? ### 
 Feel free to read our [bug bounty policy](https://help.blockonomics.co/support/solutions/articles/33000256692-bug-bounty-program).
 
-### Can I remove Powered by Blockonomics text or customize the checkout page? ### 
+### How to customize the checkout page? ### 
 You are free to customize the checkout page according to your needs. Feel free to consult [this article](http://help.blockonomics.co/support/solutions/articles/33000243991-how-to-customize-the-checkout-page-)
 
 ## Screenshots ## 
