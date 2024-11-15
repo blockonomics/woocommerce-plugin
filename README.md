@@ -1,5 +1,5 @@
 # Wordpress Bitcoin Payments - Blockonomics # 
-**Contributors:** juhasiivikko, darrenwestwood, blockonomics
+**Contributors:** juhasiivikko, darrenwestwood, blockonomics, anktd, btcdeveloper
 **Tags:** bitcoin, accept bitcoin, bitcoin woocommerce, bitcoin wordpress plugin, bitcoin payments
 **Requires at least:** 3.0.1 
 **Tested up to:** 6.6.2
@@ -11,7 +11,7 @@ Accept bitcoin payments and altcoins on your WooCommerce website. Bitcoin paymen
 
 ## Description ## 
 
-The fastest and easiest way to start accepting Bitcoin payments on your WooCommerce online store. Since 2015, [Blockonomics](https://www.blockonomics.co/merchants?utm_source=wordpress) has helped thousands of ecommerce sites increase sales by including Bitcoin and Bitcoin Cash as payment options for their customers. 
+The fastest and easiest way to start accepting Bitcoin payments on your WooCommerce online store. Since 2015, [Blockonomics](https://www.blockonomics.co/merchants?utm_source=wordpress) has helped thousands of ecommerce sites increase sales by including Bitcoin and Bitcoin Cash as payment options for their customers.
 
 ### A truly decentralized bitcoin payment processor for WordPress ### 
 
