@@ -316,21 +316,21 @@ function blockonomics_woocommerce_init()
     function bnomics_display_payment_details($order, $transactions, $email=false)
     {
         $blockonomics = new Blockonomics;
-        
+
         $output  = '<h2 class="woocommerce-column__title">Payment details</h2>';
         $output .= '<table class="woocommerce-table woocommerce-table--order-details shop_table order_details">'; 
         $output .= '<tbody>';
         $total_paid_fiat = $blockonomics->calculate_total_paid_fiat($transactions);
         foreach ($transactions as $transaction) {
-           
-            $base_url = ($transaction['crypto'] === 'btc') ? Blockonomics::BASE_URL : Blockonomics::BCH_BASE_URL;
-            
+
+            $base_url = ($transaction['crypto'] === 'btc') ? Blockonomics::BASE_URL : Blockonomics::BCH_BASE_URL . '/api';
+
             $output .=  '<tr><td scope="row">';
-            $output .=  '<a style="word-wrap: break-word;word-break: break-all;" href="' . $base_url . '/api/tx?txid=' . $transaction['txid'] . '&addr=' . $transaction['address'] . '">' . $transaction['txid'] . '</a></td>';
-            
+            $output .=  '<a style="word-wrap: break-word;word-break: break-all;" href="' . $base_url . '/tx?txid=' . $transaction['txid'] . '&addr=' . $transaction['address'] . '">' . $transaction['txid'] . '</a></td>';
+
             $formatted_paid_fiat = ($transaction['payment_status'] == '2') ? wc_price($transaction['paid_fiat']) : 'Processing';
             $output .= '<td>' . $formatted_paid_fiat . '</td></tr>';
-            
+
         }
         $output .= '</tbody>';
         $expected_fiat = (float)$order->get_total();
