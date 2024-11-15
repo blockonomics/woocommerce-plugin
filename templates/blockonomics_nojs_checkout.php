@@ -31,6 +31,29 @@
                             <span class="blockonomics-icon-cart"></span>
                             <?php echo $order['expected_fiat'] ?> <?php echo $order['currency'] ?>
                         </div>
+                        <?php
+                        if (isset($paid_fiat)) {
+                            ?>
+                                <tr>
+                                    <th>
+                                        <div class="bnomics-header-row">
+                                            <span class="bnomics-order-id"><?php _e('Paid Amount:', 'blockonomics-bitcoin-payments'); ?></span>
+                                            <div>
+                                                <?php echo $paid_fiat ?> <?php echo $order['currency'] ?>
+                                            </div>
+                                        </div>
+
+                                        <div class="bnomics-header-row">
+                                            <span class="bnomics-order-id"><?php _e('Remaining Amount:', 'blockonomics-bitcoin-payments'); ?></span>
+                                            <div>
+                                                <?php echo $order['expected_fiat'] ?> <?php echo $order['currency'] ?>
+                                            </div>
+                                        </div>
+                                    </th>
+                                </tr>
+                            <?php
+                        }
+                        ?>
                     </th>
                 </tr>
             </table>
