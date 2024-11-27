@@ -502,20 +502,15 @@ class Blockonomics
     }
 
     public function calculate_order_params($order){
-    
         // Check if order is unused or new
         if ( $order['payment_status'] == 0) {
             return $this->calculate_new_order_params($order);
         }
         if ($order['payment_status'] == 2){
-
             if ($this->is_order_underpaid($order) && $this->is_partial_payments_active()){
-
                 return $this->create_and_insert_new_order_on_underpayment($order);
             }
-
         }
-    
         return $order;
     }
 
@@ -771,7 +766,7 @@ class Blockonomics
     // Check and update the crypto order or create a new order
     public function process_order($order_id, $crypto){
         $order = $this->get_order_by_id_and_crypto($order_id, $crypto);
-        if ($order) {    
+        if ($order) {
             // Update the existing order info
             $order = $this->calculate_order_params($order);
             $this->update_order($order);
@@ -785,7 +780,6 @@ class Blockonomics
             $this->insert_order($order);
             $this->record_address($order_id, $crypto, $order['address']);
         }
-    
         return $order;
     }
 
