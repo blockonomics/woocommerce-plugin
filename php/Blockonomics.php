@@ -572,51 +572,20 @@ class Blockonomics
         $wc_order->save();
     }
 
-    public function create_new_order($order_id, $crypto)
-    {
-        $wc_order = wc_get_order($order_id);
-        $currency = $wc_order->get_currency();
-
-        // Get price first to check if currency is supported
-        $price_obj = $this->get_price($currency, $crypto);
-        if (empty($price_obj->price)) {
-            return array(
-                'error' => $price_obj->response_message
-            );
+    public function create_new_order($order_id, $crypto){
+        $responseObj = $this->new_address(get_option("blockonomics_callback_secret"), $crypto);
+        if($responseObj->response_code != 200) {
+            return array("error"=>$responseObj->response_message);
         }
-
-        // Continue with rest of order creation only if we have a valid price
+        $address = $responseObj->address;
         $order = array(
-            'order_id' => $order_id,
-            'crypto' => $crypto,
-            'currency' => $currency,
-            'expected_fiat' => $wc_order->get_total(),
-            'timestamp' => time(),
-            'status' => -1,
-            'payment_status' => 0,
-            'paid_fiat' => 0
+            'order_id'           => $order_id,
+            'payment_status'     => 0,
+            'crypto'             => $crypto,
+            'address'            => $address
         );
-
-        // Generate new address
-        $callback_secret = get_option("blockonomics_callback_secret");
-        $response = $this->new_address($callback_secret, $crypto);
-
-        if ($response->response_code != 200) {
-            return array(
-                'error' => isset($response->response_message) && $response->response_message ? 
-                          $response->response_message : 
-                          __('Could not generate new address', 'blockonomics-bitcoin-payments')
-            );
-        }
-
-        if (empty($response->address)) {
-            return array(
-                'error' => __('No address returned from API', 'blockonomics-bitcoin-payments')
-            );
-        }
-
-        $order['address'] = $response->address;
-        return $this->calculate_order_params($order);
+        $order = $this->calculate_order_params($order);
+        return $order;
     }
 
     public function get_error_context($error_type){
