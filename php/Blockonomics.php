@@ -104,8 +104,7 @@ class Blockonomics
         return $responseObj;
     }
 
-    public function get_price($currency, $crypto)
-    {
+    public function get_price($currency, $crypto) {
         if($crypto === 'btc'){
             $url = Blockonomics::PRICE_URL. "?currency=$currency";
         }else{
@@ -114,15 +113,22 @@ class Blockonomics
         $response = $this->get($url);
         if (!isset($responseObj)) $responseObj = new stdClass();
         $responseObj->{'response_code'} = wp_remote_retrieve_response_code($response);
-        if (wp_remote_retrieve_body($response))
-        {
-          $body = json_decode(wp_remote_retrieve_body($response));
-          $responseObj->{'response_message'} = isset($body->message) ? $body->message : '';
-          $responseObj->{'price'} = isset($body->price) ? $body->price : '';
+        if (wp_remote_retrieve_body($response)) {
+            $body = json_decode(wp_remote_retrieve_body($response));
+            // Check if api response is {"price":null} which indicates unsupported currency
+            if ($body && property_exists($body, 'price') && $body->price === null) {
+                $responseObj->{'response_message'} = sprintf(
+                    __('Currency %s is not supported by Blockonomics', 'blockonomics-bitcoin-payments'),
+                    $currency
+                );
+                $responseObj->{'price'} = '';
+            } else {
+                $responseObj->{'response_message'} = isset($body->message) ? $body->message : '';
+                $responseObj->{'price'} = isset($body->price) ? $body->price : '';
+            }
         }
         return $responseObj;
     }
-
 
     public function get_callbacks($crypto)
     {
@@ -566,34 +572,73 @@ class Blockonomics
         $wc_order->save();
     }
 
-    public function create_new_order($order_id, $crypto){
-        $responseObj = $this->new_address(get_option("blockonomics_callback_secret"), $crypto);
-        if($responseObj->response_code != 200) {
-            return array("error"=>$responseObj->response_message);
+    public function create_new_order($order_id, $crypto)
+    {
+        $wc_order = wc_get_order($order_id);
+        $currency = $wc_order->get_currency();
+
+        // Get price first to check if currency is supported
+        $price_obj = $this->get_price($currency, $crypto);
+        if (empty($price_obj->price)) {
+            return array(
+                'error' => $price_obj->response_message
+            );
         }
-        $address = $responseObj->address;
+
+        // Continue with rest of order creation only if we have a valid price
         $order = array(
-                'order_id'           => $order_id,
-                'payment_status'     => 0,
-                'crypto'             => $crypto,
-                'address'            => $address
+            'order_id' => $order_id,
+            'crypto' => $crypto,
+            'currency' => $currency,
+            'expected_fiat' => $wc_order->get_total(),
+            'timestamp' => time(),
+            'status' => -1,
+            'payment_status' => 0,
+            'paid_fiat' => 0
         );
-        $order = $this->calculate_order_params($order);
-        return $order;
+
+        // Generate new address
+        $callback_secret = get_option("blockonomics_callback_secret");
+        $response = $this->new_address($callback_secret, $crypto);
+
+        if ($response->response_code != 200) {
+            return array(
+                'error' => isset($response->response_message) && $response->response_message ? 
+                          $response->response_message : 
+                          __('Could not generate new address', 'blockonomics-bitcoin-payments')
+            );
+        }
+
+        if (empty($response->address)) {
+            return array(
+                'error' => __('No address returned from API', 'blockonomics-bitcoin-payments')
+            );
+        }
+
+        $order['address'] = $response->address;
+        return $this->calculate_order_params($order);
     }
 
     public function get_error_context($error_type){
         $context = array();
 
-        if ($error_type == 'generic') {
-            // Show Generic Error to Client.
+        if ($error_type == 'currency') {
+            // For unsupported currency errors
+            // $context['error_title'] = __('Checkout Page Error', 'blockonomics-bitcoin-payments');
+            $context['error_title'] = '';
+
+            $context['error_msg'] = sprintf(
+                __('Currency %s selected on this store is not supported by Blockonomics', 'blockonomics-bitcoin-payments'),
+                get_woocommerce_currency()
+            );
+        } else if ($error_type == 'generic') {
+            // Show Generic Error to Client
             $context['error_title'] = __('Could not generate new address (This may be a temporary error. Please try again)', 'blockonomics-bitcoin-payments');
-            $context['error_msg'] = __('If this continues, please ask website administrator to do following:<br/><ul><li>Login to admin panel, navigate to WooCommerce > Settings > Payment. Select Manage on "Blockonomics Bitcoin" and click Test Setup to diagnose the exact issue.</li><li>Check blockonomics registered email address for error messages</li>', 'blockonomics-bitcoin-payments');
-        } else if($error_type == 'underpaid') {
+            $context['error_msg'] = __('If this continues, please ask website administrator to do following:<br/><ul><li>Login to WordPress admin panel, navigate to WooCommerce > Settings > Payment. Select Manage on "Blockonomics Bitcoin" and click Test Setup to diagnose the exact issue.</li><li>Check blockonomics registered email address for error messages</li></ul>', 'blockonomics-bitcoin-payments');
+        } else if ($error_type == 'underpaid') {
             $context['error_title'] = '';
             $context['error_msg'] = __('Paid order BTC amount is less than expected. Contact merchant', 'blockonomics-bitcoin-payments');
         }
-
         return $context;
     }
 
@@ -617,17 +662,21 @@ class Blockonomics
     }
 
     public function get_checkout_context($order, $crypto){
-        
         $context = array();
         $error_context = NULL;
 
-        $context['order_id'] = $order['order_id'];
-
+        $context['order_id'] = isset($order['order_id']) ? $order['order_id'] : '';
         $cryptos = $this->getActiveCurrencies();
         $context['crypto'] = $cryptos[$crypto];
 
         if (array_key_exists('error', $order)) {
-            $error_context = $this->get_error_context('generic');
+            // Check if this is a currency error
+            if (strpos($order['error'], 'Currency') === 0) {
+                $error_context = $this->get_error_context('currency');
+            } else {
+                // All other errors use generic error handling
+                $error_context = $this->get_error_context('generic');
+            }
         } else {
             $context['order'] = $order;
 
