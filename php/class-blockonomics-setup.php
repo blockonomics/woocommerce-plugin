@@ -54,7 +54,7 @@ class Blockonomics_Setup {
 
     public function check_store_setup() {
         $api_key = get_option('blockonomics_api_key');
-        $stores_url = Blockonomics::BASE_URL . '/v2/stores?wallets=true';
+        $stores_url = Blockonomics::BASE_URL . '/api/v2/stores?wallets=true';
         $response = wp_remote_get($stores_url, array(
             'headers' => array(
                 'Authorization' => 'Bearer ' . $this->api_key,
@@ -85,7 +85,7 @@ class Blockonomics_Setup {
                 $store_base_url = preg_replace('/https?:\/\//', '', $store->http_callback);
                 if (strpos($store_base_url, $base_url) === 0) {
                     $response = wp_remote_post(
-                        Blockonomics::BASE_URL . '/v2/stores/' . $partial_match_store->id,
+                        Blockonomics::BASE_URL . '/api/v2/stores/' . $partial_match_store->id,
                         array(
                             'headers' => array(
                                 'Authorization' => 'Bearer ' . $this->api_key,
@@ -122,7 +122,7 @@ class Blockonomics_Setup {
             'http_callback' => $callback_url
         );
         $response = wp_remote_post(
-            Blockonomics::BASE_URL . '/v2/stores',
+            Blockonomics::BASE_URL . '/api/v2/stores',
             array(
                 'headers' => array(
                     'Authorization' => 'Bearer ' . $api_key,
@@ -144,7 +144,7 @@ class Blockonomics_Setup {
 
                 // Step 2: Attach wallet to store
                 $wallet_attach_response = wp_remote_post(
-                    Blockonomics::BASE_URL . '/v2/stores/' . $store_id . '/wallets',
+                    Blockonomics::BASE_URL . '/api/v2/stores/' . $store_id . '/wallets',
                     array(
                         'headers' => array(
                             'Authorization' => 'Bearer ' . $api_key,

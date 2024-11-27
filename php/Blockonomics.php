@@ -5,15 +5,15 @@
  */
 class Blockonomics
 {
-    const BASE_URL = 'https://www.blockonomics.co/api';
-    const STORES_URL = self::BASE_URL . '/v2/stores?wallets=true';
+    const BASE_URL = 'https://www.blockonomics.co';
+    const STORES_URL = self::BASE_URL . '/api/v2/stores?wallets=true';
 
-    const NEW_ADDRESS_URL = self::BASE_URL . '/new_address';
-    const PRICE_URL = 'https://www.blockonomics.co/api/price';
+    const NEW_ADDRESS_URL = self::BASE_URL . '/api/new_address';
+    const PRICE_URL = self::BASE_URL . '/api/price';
 
     const BCH_BASE_URL = 'https://bch.blockonomics.co';
-    const BCH_PRICE_URL = 'https://bch.blockonomics.co/api/price';
-    const BCH_NEW_ADDRESS_URL = 'https://bch.blockonomics.co/api/new_address';
+    const BCH_PRICE_URL = self::BCH_BASE_URL . '/api/price';
+    const BCH_NEW_ADDRESS_URL = self::BCH_BASE_URL . '/api/new_address';
 
 
     function get_order_paid_fiat($order_id) {
@@ -171,7 +171,7 @@ class Blockonomics
 
     private function update_store($store_id, $data) {
         // Ensure we're using the specific store endpoint
-        $url = self::BASE_URL . '/v2/stores/' . $store_id;
+        $url = self::BASE_URL . '/api/v2/stores/' . $store_id;
         return $this->post($url, $this->api_key, wp_json_encode($data), 45);
     }
 
