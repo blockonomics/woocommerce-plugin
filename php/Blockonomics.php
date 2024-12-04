@@ -66,8 +66,9 @@ class Blockonomics
     }
 
 
-    public function new_address($secret, $crypto, $reset=false)
+    public function new_address($crypto, $reset=false)
     {
+        $secret = get_option("blockonomics_callback_secret");
         // Get the full callback URL
         $api_url = WC()->api_request_url('WC_Gateway_Blockonomics');
         $callback_url = add_query_arg('secret', $secret, $api_url);
@@ -573,7 +574,7 @@ class Blockonomics
     }
 
     public function create_new_order($order_id, $crypto){
-        $responseObj = $this->new_address(get_option("blockonomics_callback_secret"), $crypto);
+        $responseObj = $this->new_address($crypto);
         if($responseObj->response_code != 200) {
             return array("error"=>$responseObj->response_message);
         }
