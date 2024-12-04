@@ -5,15 +5,15 @@
  */
 class Blockonomics
 {
-    const BASE_URL = 'https://www.blockonomics.co/api';
-    const STORES_URL = self::BASE_URL . '/v2/stores?wallets=true';
+    const BASE_URL = 'https://www.blockonomics.co';
+    const STORES_URL = self::BASE_URL . '/api/v2/stores?wallets=true';
 
-    const NEW_ADDRESS_URL = self::BASE_URL . '/new_address';
-    const PRICE_URL = 'https://www.blockonomics.co/api/price';
+    const NEW_ADDRESS_URL = self::BASE_URL . '/api/new_address';
+    const PRICE_URL = self::BASE_URL . '/api/price';
 
     const BCH_BASE_URL = 'https://bch.blockonomics.co';
-    const BCH_PRICE_URL = 'https://bch.blockonomics.co/api/price';
-    const BCH_NEW_ADDRESS_URL = 'https://bch.blockonomics.co/api/new_address';
+    const BCH_PRICE_URL = self::BCH_BASE_URL . '/api/price';
+    const BCH_NEW_ADDRESS_URL = self::BCH_BASE_URL . '/api/new_address';
 
 
     function get_order_paid_fiat($order_id) {
@@ -66,8 +66,9 @@ class Blockonomics
     }
 
 
-    public function new_address($secret, $crypto, $reset=false)
+    public function new_address($crypto, $reset=false)
     {
+        $secret = get_option("blockonomics_callback_secret");
         // Get the full callback URL
         $api_url = WC()->api_request_url('WC_Gateway_Blockonomics');
         $callback_url = add_query_arg('secret', $secret, $api_url);
@@ -177,7 +178,7 @@ class Blockonomics
 
     private function update_store($store_id, $data) {
         // Ensure we're using the specific store endpoint
-        $url = self::BASE_URL . '/v2/stores/' . $store_id;
+        $url = self::BASE_URL . '/api/v2/stores/' . $store_id;
         return $this->post($url, $this->api_key, wp_json_encode($data), 45);
     }
 
@@ -572,50 +573,18 @@ class Blockonomics
         $wc_order->save();
     }
 
-    public function create_new_order($order_id, $crypto)
-    {
-        $wc_order = wc_get_order($order_id);
-        $currency = $wc_order->get_currency();
-
-        // Get price first to check if currency is supported
-        $price_obj = $this->get_price($currency, $crypto);
-        if (empty($price_obj->price)) {
-            return array(
-                'error' => $price_obj->response_message
-            );
+    public function create_new_order($order_id, $crypto){
+        $responseObj = $this->new_address($crypto);
+        if($responseObj->response_code != 200) {
+            return array("error"=>$responseObj->response_message);
         }
-
-        // Continue with rest of order creation only if we have a valid price
+        $address = $responseObj->address;
         $order = array(
-            'order_id' => $order_id,
-            'crypto' => $crypto,
-            'currency' => $currency,
-            'expected_fiat' => $wc_order->get_total(),
-            'timestamp' => time(),
-            'status' => -1,
-            'payment_status' => 0,
-            'paid_fiat' => 0
+            'order_id'           => $order_id,
+            'payment_status'     => 0,
+            'crypto'             => $crypto,
+            'address'            => $address
         );
-
-        // Generate new address
-        $callback_secret = get_option("blockonomics_callback_secret");
-        $response = $this->new_address($callback_secret, $crypto);
-
-        if ($response->response_code != 200) {
-            return array(
-                'error' => isset($response->response_message) && $response->response_message ? 
-                          $response->response_message : 
-                          __('Could not generate new address', 'blockonomics-bitcoin-payments')
-            );
-        }
-
-        if (empty($response->address)) {
-            return array(
-                'error' => __('No address returned from API', 'blockonomics-bitcoin-payments')
-            );
-        }
-
-        $order['address'] = $response->address;
         return $this->calculate_order_params($order);
     }
 

@@ -10,6 +10,7 @@ class TestableBlockonomics extends Blockonomics {
 }
 
 class BlockonomicsTest extends TestCase {
+    protected $blockonomics;
 
     protected function setUp(): void {
         parent::setUp();

@@ -91,8 +91,9 @@ function blockonomics_woocommerce_init()
     }
 
     function blockonomics_add_admin_menu() {
+        // Use options.php as parent slug to create a hidden admin page
         add_submenu_page(
-            null,
+            'options.php', // parent slug
             'Blockonomics Setup',
             'Blockonomics',
             'manage_options',
@@ -323,11 +324,10 @@ function blockonomics_woocommerce_init()
         $total_paid_fiat = $blockonomics->calculate_total_paid_fiat($transactions);
         foreach ($transactions as $transaction) {
 
-            $base_url = ($transaction['crypto'] === 'btc') ? Blockonomics::BASE_URL : Blockonomics::BCH_BASE_URL . '/api';
+            $base_url = ($transaction['crypto'] === 'btc') ? Blockonomics::BASE_URL . '/#/search?q=' : Blockonomics::BCH_BASE_URL . '/api/tx?txid=';
 
             $output .=  '<tr><td scope="row">';
-            $output .=  '<a style="word-wrap: break-word;word-break: break-all;" href="' . $base_url . '/tx?txid=' . $transaction['txid'] . '&addr=' . $transaction['address'] . '">' . $transaction['txid'] . '</a></td>';
-
+            $output .=  '<a style="word-wrap: break-word;word-break: break-all;" href="' . $base_url . $transaction['txid'] . '&addr=' . $transaction['address'] . '">' . $transaction['txid'] . '</a></td>';
             $formatted_paid_fiat = ($transaction['payment_status'] == '2') ? wc_price($transaction['paid_fiat']) : 'Processing';
             $output .= '<td>' . $formatted_paid_fiat . '</td></tr>';
 
@@ -538,7 +538,9 @@ function blockonomics_uninstall_hook() {
     global $wpdb;
     // drop blockonomics_orders & blockonomics_payments on uninstallation
     // blockonomics_orders was the payments table before db version 1.2
-    $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS ".$wpdb->prefix."blockonomics_orders , ".$wpdb->prefix."blockonomics_payments"));
+    // Fix: Add proper placeholder in the query
+    $wpdb->query("DROP TABLE IF EXISTS ".$wpdb->prefix."blockonomics_orders");
+    $wpdb->query("DROP TABLE IF EXISTS ".$wpdb->prefix."blockonomics_payments");
     delete_option("blockonomics_db_version");
 
     // Remove the custom page and shortcode added for payment
