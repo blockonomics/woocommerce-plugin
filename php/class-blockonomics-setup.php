@@ -9,6 +9,7 @@ if (!defined('ABSPATH')) {
 }
 
 class Blockonomics_Setup {
+    private $api_key;
     private function get_callback_url() {
         $callback_secret = get_option('blockonomics_callback_secret');
         $api_url = WC()->api_request_url('WC_Gateway_Blockonomics');
