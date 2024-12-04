@@ -584,8 +584,7 @@ class Blockonomics
             'crypto'             => $crypto,
             'address'            => $address
         );
-        $order = $this->calculate_order_params($order);
-        return $order;
+        return $this->calculate_order_params($order);
     }
 
     public function get_error_context($error_type){
