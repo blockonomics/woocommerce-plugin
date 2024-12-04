@@ -91,8 +91,9 @@ function blockonomics_woocommerce_init()
     }
 
     function blockonomics_add_admin_menu() {
+        // Use options.php as parent slug to create a hidden admin page
         add_submenu_page(
-            null,
+            'options.php', // parent slug
             'Blockonomics Setup',
             'Blockonomics',
             'manage_options',
