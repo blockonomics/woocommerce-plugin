@@ -1,5 +1,10 @@
 == Changelog ==
 
+= 3.7.7  =
+* graceful error handling in few cases 
+* php error warning fixes on settings page and during uninstalling
+* bug fix : URL to view payment txn
+
 = 3.7.6  =
 * New setup flow having wizard
 
