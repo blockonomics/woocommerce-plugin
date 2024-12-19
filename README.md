@@ -1,5 +1,5 @@
 # Wordpress Bitcoin Payments - Blockonomics # 
-**Contributors:** juhasiivikko, darrenwestwood, blockonomics, anktd, btcdeveloper
+**Contributors:** juhasiivikko, darrenwestwood, blockonomics, ankit61d, btcdeveloper
 **Tags:** bitcoin, accept bitcoin, bitcoin woocommerce, bitcoin wordpress plugin, bitcoin payments
 **Requires at least:** 3.0.1 
 **Tested up to:** 6.8.1
@@ -64,7 +64,7 @@ Feel free to read our [bug bounty policy](https://help.blockonomics.co/support/s
 You are free to customize the checkout page according to your needs. Feel free to consult [this article](http://help.blockonomics.co/support/solutions/articles/33000243991-how-to-customize-the-checkout-page-)
 
 ## Screenshots ## 
-
+// TODO: add updated gif
 ![](assets-wp-repo/screenshot-1.gif)     
 Animated Demo
 
