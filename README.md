@@ -22,7 +22,7 @@ Blockonomics is the only Bitcoin payment gateway that enables full decentralizat
 - Payments are received **directly into your wallet** 
 - **No approvals** of API key/documentation required 
 - **Safe and secure** transactions 
-- Installation only takes **two minutes** - [Video Tutorial](https://www.youtube.com/watch?v=nFKzzMgdBpQ)  
+- Installation only takes **two minutes** - [Video Tutorial](https://www.youtube.com/watch?v=bozfMIznpao)  
 - Eliminate chargebacks and fraud 
 - **World-class** customer support team 
 
