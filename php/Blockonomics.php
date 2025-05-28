@@ -538,7 +538,8 @@ class Blockonomics
                 exit();
             }
             $price = $responseObj->price;
-            $price = $price * 100/(100+get_option('blockonomics_margin', 0));
+            $margin = floatval(get_option('blockonomics_margin', 0));
+            $price = $price * 100 / (100 + $margin);
         } else {
             $price = 1;
         }
