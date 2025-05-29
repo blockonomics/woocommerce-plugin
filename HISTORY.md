@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 3.7.8  =
+* Improved: Markup setting now supports decimal values (0–4%) for finer pricing control
+* Fixed: "Payment details" string now translatable
+
 = 3.7.7  =
 * graceful error handling in few cases 
 * php error warning fixes on settings page and during uninstalling
