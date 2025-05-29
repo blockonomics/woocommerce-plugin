@@ -318,7 +318,7 @@ function blockonomics_woocommerce_init()
     {
         $blockonomics = new Blockonomics;
 
-        $output  = '<h2 class="woocommerce-column__title">Payment details</h2>';
+        $output  = '<h2 class="woocommerce-column__title">' . __('Payment details', 'blockonomics-bitcoin-payments') . '</h2>';
         $output .= '<table class="woocommerce-table woocommerce-table--order-details shop_table order_details">'; 
         $output .= '<tbody>';
         $total_paid_fiat = $blockonomics->calculate_total_paid_fiat($transactions);
