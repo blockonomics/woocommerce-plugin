@@ -12,6 +12,7 @@ Accept bitcoin payments and altcoins on your WooCommerce website. Bitcoin paymen
 ## Description ## 
 
 The fastest and easiest way to start accepting Bitcoin payments on your WooCommerce online store. Since 2015, [Blockonomics](https://www.blockonomics.co/merchants?utm_source=wordpress) has helped thousands of ecommerce sites increase sales by including Bitcoin and Bitcoin Cash as payment options for their customers.
+
 https://www.youtube.com/watch?v=FNEmYaGRaDo
 
 
