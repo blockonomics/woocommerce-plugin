@@ -12,6 +12,7 @@ Accept bitcoin payments and altcoins on your WooCommerce website. Bitcoin paymen
 ## Description ## 
 
 The fastest and easiest way to start accepting Bitcoin payments on your WooCommerce online store. Since 2015, [Blockonomics](https://www.blockonomics.co/merchants?utm_source=wordpress) has helped thousands of ecommerce sites increase sales by including Bitcoin and Bitcoin Cash as payment options for their customers.
+<iframe width="560" height="315" src="https://www.youtube.com/embed/FNEmYaGRaDo?si=gcXWrxqr_iLZaM-3" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 ### A truly decentralized bitcoin payment processor for WordPress ### 
 
@@ -63,17 +64,13 @@ Feel free to read our [bug bounty policy](https://help.blockonomics.co/support/s
 ### How to customize the checkout page? ### 
 You are free to customize the checkout page according to your needs. Feel free to consult [this article](http://help.blockonomics.co/support/solutions/articles/33000243991-how-to-customize-the-checkout-page-)
 
-## Screenshots ## 
-// TODO: add updated gif
-![](assets-wp-repo/screenshot-1.gif)     
-Animated Demo
+## Screenshots ##
 
-![](assets-wp-repo/screenshot-2.png)     
+![](assets-wp-repo/screenshot-2.png)
 Payment screen 
 
-![](assets-wp-repo/screenshot-3.png)     
-Settings Panel   
+![](assets-wp-repo/screenshot-3.png)
+Settings Panel
 
-![](assets-wp-repo/screenshot-4.png)   
+![](assets-wp-repo/screenshot-4.png)
 Blockonomics configuration
- 
