@@ -172,54 +172,64 @@ function blockonomics_woocommerce_init()
         }
     }
 
+    /**
+     * Get the selected payment method from various sources
+     */
+    function get_selected_payment_method() {
+        // Try POST data first (form submission)
+        if ( isset( $_POST['payment_method'] ) ) {
+            return sanitize_text_field( $_POST['payment_method'] );
+        }
+        
+        // Try WooCommerce session
+        if ( WC()->session ) {
+            $session_method = WC()->session->get( 'chosen_payment_method' );
+            if ( ! empty( $session_method ) ) {
+                return $session_method;
+            }
+        }
+        
+        // Try REQUEST data as fallback
+        if ( isset( $_REQUEST['payment_method'] ) ) {
+            return sanitize_text_field( $_REQUEST['payment_method'] );
+        }
+        
+        return '';
+    }
+
     function apply_bitcoin_discount( $cart ) {
+        // Skip if admin or not on checkout page
         if ( is_admin() || ! is_checkout() ) {
-            error_log( '[Blockonomics] Skipping discount: admin or not checkout page.' );
             return;
         }
     
-        // Get the selected payment method from multiple sources
-        $payment_method = '';
+        // Get payment method from multiple sources
+        $payment_method = get_selected_payment_method();
         
-        // First, try to get from POST data
-        if ( isset( $_POST['payment_method'] ) ) {
-            $payment_method = sanitize_text_field( $_POST['payment_method'] );
-            error_log( '[Blockonomics] Payment method from POST: ' . $payment_method );
-        }
-        
-        // If not in POST, try WooCommerce session
-        if ( empty( $payment_method ) && WC()->session ) {
-            $payment_method = WC()->session->get('chosen_payment_method');
-            error_log( '[Blockonomics] Payment method from session: ' . $payment_method );
-        }
-        
-        // If still empty, try getting from the current request
-        if ( empty( $payment_method ) && isset( $_REQUEST['payment_method'] ) ) {
-            $payment_method = sanitize_text_field( $_REQUEST['payment_method'] );
-            error_log( '[Blockonomics] Payment method from REQUEST: ' . $payment_method );
+        if ( empty( $payment_method ) ) {
+            error_log( '[Blockonomics] No payment method available.' );
+            return;
         }
     
-        if ( ! empty( $payment_method ) ) {
-            error_log( '[Blockonomics] Final payment method: ' . $payment_method );
-    
-            if ( $payment_method === 'blockonomics' ) {
-                $discount_percent = floatval( get_option( 'blockonomics_bitcoin_discount', 0 ) );
-                error_log( '[Blockonomics] Discount percent: ' . $discount_percent );
-    
-                if ( $discount_percent > 0 ) {
-                    $discount = $cart->get_subtotal() * ( $discount_percent / 100 );
-                    error_log( '[Blockonomics] Calculated discount: ' . $discount );
-                    $cart->add_fee( __( 'Bitcoin Discount', 'blockonomics-bitcoin-payments' ), -$discount );
-                } else {
-                    error_log( '[Blockonomics] Discount percent is 0 or less. No discount applied.' );
-                }
-            } else {
-                error_log( '[Blockonomics] Payment method is not blockonomics. No discount applied.' );
-            }
-        } else {
-            error_log( '[Blockonomics] No payment method found in POST, session, or REQUEST data.' );
+        // Only apply discount for Blockonomics payment method
+        if ( $payment_method !== 'blockonomics' ) {
+            return;
         }
+    
+        $discount_percent = floatval( get_option( 'blockonomics_bitcoin_discount', 0 ) );
+        
+        if ( $discount_percent <= 0 ) {
+            error_log( '[Blockonomics] Discount not configured or invalid.' );
+            return;
+        }
+    
+        // Calculate and apply discount
+        $discount = $cart->get_subtotal() * ( $discount_percent / 100 );
+        $cart->add_fee( __( 'Payment method discount', 'blockonomics-bitcoin-payments' ), -$discount );
+        
+        error_log( "[Blockonomics] Applied {$discount_percent}% discount: -{$discount}" );
     }
+    
 
     /**
      * Redriect to the checkout page  
