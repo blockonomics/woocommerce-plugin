@@ -177,7 +177,7 @@ function blockonomics_setup_page() {
                 <?php else: ?>
                     <!-- Final Success Screen -->
                     <div class="bnomics-wizard-heading">
-                        <h3>Congratulations! Blockonomics is now enabled for <?php echo esc_html($store_name); ?>.</h3>
+                        <h3>Success! Blockonomics is now enabled for <?php echo esc_html($store_name); ?>.</h3>
                         <div class="blockonomics-logo">
                             <img src="<?php echo plugins_url('../img/blockonomics_logo_black.svg', __FILE__); ?>" alt="Blockonomics Logo">
                         </div>
