@@ -223,11 +223,8 @@ function blockonomics_woocommerce_init()
             return;
         }
     
-        // Calculate and apply discount
         $discount = $cart->get_subtotal() * ( $discount_percent / 100 );
-        $cart->add_fee( __( 'Payment method discount', 'blockonomics-bitcoin-payments' ), -$discount );
-        
-        error_log( "[Blockonomics] Applied {$discount_percent}% discount: -{$discount}" );
+        $cart->add_fee( __( 'Bitcoin Discount', 'blockonomics-bitcoin-payments' ), -$discount, false );
     }
     
 
