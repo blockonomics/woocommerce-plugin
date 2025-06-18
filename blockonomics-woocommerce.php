@@ -218,7 +218,7 @@ function blockonomics_woocommerce_init()
     
         $discount_percent = floatval( get_option( 'blockonomics_bitcoin_discount', 0 ) );
         
-        if ( $discount_percent <= 0 ) {
+        if ( $discount_percent < 0 ) {
             error_log( '[Blockonomics] Discount not configured or invalid.' );
             return;
         }
