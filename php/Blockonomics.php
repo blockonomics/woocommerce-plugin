@@ -533,7 +533,7 @@ class Blockonomics
         $discount_percent = floatval( get_option( 'blockonomics_bitcoin_discount', 0 ) );
         $subtotal = (float) $wc_order->get_subtotal();
         
-        // Reverse calculate the expected fiat before discount
+        // Calculate the expected amount after applying the Bitcoin discount
         $expected_fiat = $subtotal - ( $subtotal * ( $discount_percent / 100 ) );
         
         $order['expected_fiat'] = $expected_fiat - $paid_fiat;
