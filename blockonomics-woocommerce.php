@@ -9,7 +9,9 @@
  * License: MIT
  * Text Domain: blockonomics-bitcoin-payments
  * Domain Path: /languages/
- * WC tested up to: 9.3.3
+* WC requires at least: 3.0
+* WC tested up to: 9.9.5
+* Requires Plugins: woocommerce
  */
 
 /*  Copyright 2017 Blockonomics Inc.
