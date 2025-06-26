@@ -224,7 +224,7 @@ function blockonomics_woocommerce_init()
         }
     
         $discount = $cart->get_subtotal() * ( $discount_percent / 100 );
-        $cart->add_fee( __( 'Bitcoin Discount', 'blockonomics-bitcoin-payments' ), -$discount, false );
+        $cart->add_fee( __( 'Payment Method Discount', 'blockonomics-bitcoin-payments' ), -$discount, false );
     }
     
 
