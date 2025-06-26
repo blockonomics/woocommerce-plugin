@@ -74,7 +74,7 @@ class FormFields {
             'subtitle' => __('Underpayment Slack %', 'blockonomics-bitcoin-payments'),
             'default' =>  get_option('blockonomics_underpayment_slack', 0),
             'placeholder' => __('Underpayment Slack %', 'blockonomics-bitcoin-payments'),
-            'custom_attributes' => ['step' => '0.01', 'min' => '0', 'max' => '20']
+            'custom_attributes' => ['step' => '0.1', 'min' => '0', 'max' => '20']
         );
         $form_fields['enable_bch'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),
