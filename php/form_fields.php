@@ -59,12 +59,12 @@ class FormFields {
         $form_fields['bitcoin_discount'] = array(
             'title' => __('Advanced<p class="block-title-desc">Setting for advanced control</p>', 'blockonomics-bitcoin-payments'),
             'type' => 'number',
-            'description' => __('Decrease the order total by a percentage when paid in Bitcoin (0–10%). Default is 0%.', 'blockonomics-bitcoin-payments'),
+            'description' => __('Give customers discount for paying via bitcoin(0-20)', 'blockonomics-bitcoin-payments'),
             'subtitle' => __('Bitcoin Payment Discount %', 'blockonomics-bitcoin-payments'),
             'default' => get_option('blockonomics_bitcoin_discount', 0),
             'add_divider' => true,
             'placeholder' => __('Bitcoin Payment Discount %', 'blockonomics-bitcoin-payments'),
-            'custom_attributes' => ['step' => '0.1', 'min' => '0', 'max' => '10']
+            'custom_attributes' => ['step' => '0.1', 'min' => '0', 'max' => '20']
         );
         $form_fields['extra_margin'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),
