@@ -798,6 +798,7 @@ class Blockonomics
             }
             $this->insert_order($order);
             $this->record_address($order_id, $crypto, $order['address']);
+            $this->record_expected_satoshi($order_id, $crypto, $order['expected_satoshi']);
         }
         return $order;
     }
@@ -851,6 +852,15 @@ class Blockonomics
         else if (strpos($txid_meta_value, $txid) === false){
             $wc_order->update_meta_data($txid_meta_key, $txid_meta_value.', '. $txid);
         }
+        $wc_order->save();
+    }
+
+    // Record the expected amount as a custom field
+    public function record_expected_satoshi($order_id, $crypto, $expected_satoshi){
+        $wc_order = wc_get_order($order_id);
+        $expected_satoshi_meta_key = 'blockonomics_expected_' . $crypto . '_amount';
+        $formatted_amount = $this->fix_displaying_small_values($expected_satoshi);
+        $wc_order->update_meta_data( $expected_satoshi_meta_key, $formatted_amount );
         $wc_order->save();
     }
 
