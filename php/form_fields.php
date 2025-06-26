@@ -56,14 +56,23 @@ class FormFields {
         );
 
 
-        $form_fields['extra_margin'] = array(
+        $form_fields['bitcoin_discount'] = array(
             'title' => __('Advanced<p class="block-title-desc">Setting for advanced control</p>', 'blockonomics-bitcoin-payments'),
+            'type' => 'number',
+            'description' => __('Decrease the order total by a percentage when paid in Bitcoin (0–10%). Default is 0%.', 'blockonomics-bitcoin-payments'),
+            'subtitle' => __('Bitcoin Payment Discount %', 'blockonomics-bitcoin-payments'),
+            'default' => get_option('blockonomics_bitcoin_discount', 0),
+            'add_divider' => true,
+            'placeholder' => __('Bitcoin Payment Discount %', 'blockonomics-bitcoin-payments'),
+            'custom_attributes' => ['step' => '0.1', 'min' => '0', 'max' => '10']
+        );
+        $form_fields['extra_margin'] = array(
+            'title' => __('', 'blockonomics-bitcoin-payments'),
             'type' => 'number',
             'description' => __('Increase live fiat to BTC rate by small percent (0-4%)', 'blockonomics-bitcoin-payments'),
             'subtitle' => __('Extra Currency Rate Margin %', 'blockonomics-bitcoin-payments'),
             'default' => get_option('blockonomics_extra_margin', 0),
             'placeholder' => __('Extra Currency Rate Margin %', 'blockonomics-bitcoin-payments'),
-            'add_divider' => true,
             'custom_attributes' => ['step' => '0.01', 'min' => '0', 'max' => '4']
         );
         $form_fields['underpayment_slack'] = array(

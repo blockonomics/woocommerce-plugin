@@ -76,6 +76,7 @@ function blockonomics_woocommerce_init()
     add_action('admin_enqueue_scripts', 'blockonomics_load_admin_scripts' );
     add_filter('woocommerce_get_checkout_payment_url','update_payment_url_on_underpayments',10,2);
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
+    add_action( 'woocommerce_cart_calculate_fees', 'apply_bitcoin_discount', 20, 1 );
     add_shortcode('blockonomics_payment', 'add_payment_page_shortcode');
     add_action('wp_enqueue_scripts', 'bnomics_register_stylesheets');
     add_action('wp_enqueue_scripts', 'bnomics_register_scripts');
@@ -170,6 +171,63 @@ function blockonomics_woocommerce_init()
             return $blockonomics->load_blockonomics_template('crypto_options');
         }
     }
+
+    /**
+     * Get the selected payment method from various sources
+     */
+    function get_selected_payment_method() {
+        // Try POST data first (form submission)
+        if ( isset( $_POST['payment_method'] ) ) {
+            return sanitize_text_field( $_POST['payment_method'] );
+        }
+        
+        // Try WooCommerce session
+        if ( WC()->session ) {
+            $session_method = WC()->session->get( 'chosen_payment_method' );
+            if ( ! empty( $session_method ) ) {
+                return $session_method;
+            }
+        }
+        
+        // Try REQUEST data as fallback
+        if ( isset( $_REQUEST['payment_method'] ) ) {
+            return sanitize_text_field( $_REQUEST['payment_method'] );
+        }
+        
+        return '';
+    }
+
+    function apply_bitcoin_discount( $cart ) {
+        // Skip if admin or not on checkout page
+        if ( is_admin() || ! is_checkout() ) {
+            return;
+        }
+    
+        // Get payment method from multiple sources
+        $payment_method = get_selected_payment_method();
+        
+        if ( empty( $payment_method ) ) {
+            error_log( '[Blockonomics] No payment method available.' );
+            return;
+        }
+    
+        // Only apply discount for Blockonomics payment method
+        if ( $payment_method !== 'blockonomics' ) {
+            return;
+        }
+    
+        $discount_percent = floatval( get_option( 'blockonomics_bitcoin_discount', 0 ) );
+        
+        if ( $discount_percent < 0 ) {
+            error_log( '[Blockonomics] Discount not configured or invalid.' );
+            return;
+        }
+    
+        $discount = $cart->get_subtotal() * ( $discount_percent / 100 );
+        $cart->add_fee( __( 'Payment Method Discount', 'blockonomics-bitcoin-payments' ), -$discount, false );
+    }
+    
+
     /**
      * Redriect to the checkout page  
      **/
@@ -520,6 +578,7 @@ register_uninstall_hook( __FILE__, 'blockonomics_uninstall_hook' );
 function blockonomics_uninstall_hook() {
     delete_option('blockonomics_callback_secret');
     delete_option('blockonomics_api_key');
+    delete_option('blockonomics_bitcoin_discount');
     delete_option('blockonomics_margin');
     delete_option('blockonomics_timeperiod');
     delete_option('blockonomics_api_updated');

@@ -530,7 +530,13 @@ class Blockonomics
         $query = $wpdb->prepare("SELECT expected_fiat,paid_fiat,currency FROM ". $table_name." WHERE order_id = %d " , $order_id);
         $results = $wpdb->get_results($query,ARRAY_A);
         $paid_fiat = $this->calculate_total_paid_fiat($results);
-        $order['expected_fiat'] = $wc_order->get_total() - $paid_fiat;
+        $discount_percent = floatval( get_option( 'blockonomics_bitcoin_discount', 0 ) );
+        $subtotal = (float) $wc_order->get_subtotal();
+        
+        // Calculate the expected amount after applying the Bitcoin discount
+        $expected_fiat = $subtotal - ( $subtotal * ( $discount_percent / 100 ) );
+        
+        $order['expected_fiat'] = $expected_fiat - $paid_fiat;
         $order['currency'] = get_woocommerce_currency();
         if (get_woocommerce_currency() != 'BTC') {
             $responseObj = $this->get_price($order['currency'], $order['crypto']);
@@ -874,7 +880,7 @@ class Blockonomics
     public function check_paid_amount($paid_satoshi, $order, $wc_order){
         $order['paid_satoshi'] = $paid_satoshi;
         $paid_amount_ratio = $paid_satoshi/$order['expected_satoshi'];
-        $order['paid_fiat'] =number_format($order['expected_fiat']*$paid_amount_ratio,wc_get_price_decimals(),'.','');
+        $order['paid_fiat'] = number_format($order['expected_fiat']*$paid_amount_ratio,wc_get_price_decimals(),'.','');
 
         // This is to update the order table before we send an email on failed and confirmed state
         // So that the updated data is used to build the email
