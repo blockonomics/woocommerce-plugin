@@ -364,7 +364,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             }
         }
         update_option('blockonomics_margin', floatval($this->get_option('extra_margin')));
-        update_option('blockonomics_underpayment_slack', (int)$this->get_option('underpayment_slack'));
+        update_option('blockonomics_underpayment_slack', floatval($this->get_option('underpayment_slack')));
         update_option('blockonomics_partial_payments', $this->get_option('partial_payment') == 'yes' ? 1 : 0);
         update_option('blockonomics_api_key', $this->get_option('api_key'));
         update_option('blockonomics_nojs', $this->get_option('no_javascript') == 'yes' ? 1 : 0);

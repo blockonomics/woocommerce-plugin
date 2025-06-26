@@ -73,7 +73,8 @@ class FormFields {
             'description' => __('Allow payments that are off by a small percentage', 'blockonomics-bitcoin-payments'),
             'subtitle' => __('Underpayment Slack %', 'blockonomics-bitcoin-payments'),
             'default' =>  get_option('blockonomics_underpayment_slack', 0),
-            'placeholder' => __('Underpayment Slack %', 'blockonomics-bitcoin-payments')
+            'placeholder' => __('Underpayment Slack %', 'blockonomics-bitcoin-payments'),
+            'custom_attributes' => ['step' => '0.01', 'min' => '0', 'max' => '20']
         );
         $form_fields['enable_bch'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),

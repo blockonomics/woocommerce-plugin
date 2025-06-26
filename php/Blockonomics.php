@@ -912,7 +912,7 @@ class Blockonomics
 
     public function is_order_underpaid($order){
         // Return TRUE only if there has been a payment which is less than required.
-        $underpayment_slack = get_option("blockonomics_underpayment_slack", 0)/100 * $order['expected_satoshi'];
+        $underpayment_slack = floatval(get_option("blockonomics_underpayment_slack", 0))/100 * $order['expected_satoshi'];
         $is_order_underpaid = ($order['expected_satoshi'] - $underpayment_slack > $order['paid_satoshi'] && !empty($order['paid_satoshi'])) ? TRUE : FALSE;
         return $is_order_underpaid;
     }
