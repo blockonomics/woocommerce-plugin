@@ -804,6 +804,7 @@ class Blockonomics
             }
             $this->insert_order($order);
             $this->record_address($order_id, $crypto, $order['address']);
+            $this->record_expected_satoshi($order_id, $crypto, $order['expected_satoshi']);
         }
         return $order;
     }
@@ -860,6 +861,15 @@ class Blockonomics
         $wc_order->save();
     }
 
+    // Record the expected amount as a custom field
+    public function record_expected_satoshi($order_id, $crypto, $expected_satoshi){
+        $wc_order = wc_get_order($order_id);
+        $expected_satoshi_meta_key = 'blockonomics_expected_' . $crypto . '_amount';
+        $formatted_amount = $this->fix_displaying_small_values($expected_satoshi);
+        $wc_order->update_meta_data( $expected_satoshi_meta_key, $formatted_amount );
+        $wc_order->save();
+    }
+
     public function update_paid_amount($callback_status, $paid_satoshi, $order, $wc_order){
         $network_confirmations = get_option("blockonomics_network_confirmation",2);
         if ($order['payment_status'] == 2) {
@@ -908,7 +918,7 @@ class Blockonomics
 
     public function is_order_underpaid($order){
         // Return TRUE only if there has been a payment which is less than required.
-        $underpayment_slack = get_option("blockonomics_underpayment_slack", 0)/100 * $order['expected_satoshi'];
+        $underpayment_slack = floatval(get_option("blockonomics_underpayment_slack", 0))/100 * $order['expected_satoshi'];
         $is_order_underpaid = ($order['expected_satoshi'] - $underpayment_slack > $order['paid_satoshi'] && !empty($order['paid_satoshi'])) ? TRUE : FALSE;
         return $is_order_underpaid;
     }
