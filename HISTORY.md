@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 3.7.9  =
+* Add discount settings for payment method
+* Added back expected_btc custom field
+
 = 3.7.8  =
 * Improved: Markup setting now supports decimal values (0–4%) for finer pricing control
 * Fixed: "Payment details" string now translatable
