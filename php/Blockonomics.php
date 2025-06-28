@@ -531,10 +531,10 @@ class Blockonomics
         $results = $wpdb->get_results($query,ARRAY_A);
         $paid_fiat = $this->calculate_total_paid_fiat($results);
         $discount_percent = floatval( get_option( 'blockonomics_bitcoin_discount', 0 ) );
-        $subtotal = (float) $wc_order->get_subtotal();
+        $total = (float) $wc_order->get_total();
         
         // Calculate the expected amount after applying the Bitcoin discount
-        $expected_fiat = $subtotal - ( $subtotal * ( $discount_percent / 100 ) );
+        $expected_fiat = $total - ( $total * ( $discount_percent / 100 ) );
         
         $order['expected_fiat'] = $expected_fiat - $paid_fiat;
         $order['currency'] = get_woocommerce_currency();
