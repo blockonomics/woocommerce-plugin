@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 3.8  =
+* Fixed bugs with calculations due to discount setting
+
 = 3.7.9  =
 * Add discount settings for payment method
 * Added back expected_btc custom field
