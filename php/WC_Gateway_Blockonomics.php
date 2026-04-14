@@ -360,9 +360,18 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         update_option('blockonomics_underpayment_slack', floatval($this->get_option('underpayment_slack')));
         update_option('blockonomics_partial_payments', $this->get_option('partial_payment') == 'yes' ? 1 : 0);
         update_option('blockonomics_api_key', $this->get_option('api_key'));
+        update_option('blockonomics_accent_color', sanitize_hex_color($this->get_option('accent_color')) ?: '');
         update_option('blockonomics_nojs', $this->get_option('no_javascript') == 'yes' ? 1 : 0);
         update_option('blockonomics_network_confirmation', $this->get_option('network_confirmation'));
         $this->update_option('call_backurls', $this->get_callback_url());
+
+        // Fetch and cache the store_uid for the checkout widget.
+        // Re-instantiate so the constructor picks up the freshly-saved api_key.
+        $blockonomics_fresh = new Blockonomics;
+        $store_uid = $blockonomics_fresh->get_store_uid($this->get_callback_url());
+        if ($store_uid) {
+            update_option('blockonomics_store_uid', $store_uid);
+        }
 
         return true;
     }
@@ -385,6 +394,21 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
     // Sanitizes all request/input data
     public function handle_requests()
     {
+        include_once 'Blockonomics.php';
+        $blockonomics = new Blockonomics;
+
+        // New checkout flow: Blockonomics sends a POST with a JSON body containing platform_order_id.
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $raw_body = file_get_contents('php://input');
+            if (!empty($raw_body)) {
+                $json_body = json_decode($raw_body, true);
+                if (json_last_error() === JSON_ERROR_NONE && isset($json_body['wp_order_id'])) {
+                    $blockonomics->process_checkout_callback($json_body);
+                    // process_checkout_callback() always calls exit()
+                }
+            }
+        }
+
         $crypto = isset($_GET["crypto"]) ? sanitize_key($_GET['crypto']) : "";
         $finish_order = isset($_GET["finish_order"]) ? sanitize_text_field(wp_unslash($_GET['finish_order'])) : "";
         $get_amount = isset($_GET['get_amount']) ? sanitize_text_field(wp_unslash($_GET['get_amount'])) : "";
@@ -395,9 +419,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $txid = isset($_GET['txid']) ? sanitize_text_field(wp_unslash($_GET['txid'])) : "";
         $rbf = isset($_GET['rbf']) ? wp_validate_boolean(intval(wp_unslash($_GET['rbf']))) : "";
         $txhash = isset($_GET["txhash"]) ? sanitize_text_field(wp_unslash($_GET['txhash'])) : "";
-
-        include_once 'Blockonomics.php';
-        $blockonomics = new Blockonomics;
 
         if ($finish_order) {
             $order_id = $blockonomics->decrypt_hash($finish_order);

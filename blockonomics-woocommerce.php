@@ -166,7 +166,12 @@ function blockonomics_woocommerce_init()
 
         if ($crypto === "empty") {
             return $blockonomics->load_blockonomics_template('no_crypto_selected');
+        } else if ($show_order && !$crypto) {
+            // Widget checkout: no crypto param — JS widget handles crypto selection
+            $order_id = $blockonomics->decrypt_hash($show_order);
+            return $blockonomics->load_widget_checkout($order_id);
         } else if ($show_order && $crypto) {
+            // Legacy checkout: PHP-side, specific crypto already chosen
             $order_id = $blockonomics->decrypt_hash($show_order);
             return $blockonomics->load_checkout_template($order_id, $crypto);
         } else if ($select_crypto) {
@@ -431,14 +436,15 @@ function blockonomics_woocommerce_init()
 
     function bnomics_register_stylesheets(){
         wp_register_style('bnomics-style', plugin_dir_url(__FILE__) . "css/order.css", '', get_plugin_data( __FILE__ )['Version']);
+        wp_register_style('blockonomics-checkout', plugin_dir_url(__FILE__) . "css/checkout-default.css", array(), get_plugin_data( __FILE__ )['Version']);
     }
 
     function bnomics_register_scripts(){
         wp_register_script( 'reconnecting-websocket', plugins_url('js/vendors/reconnecting-websocket.min.js', __FILE__), array(), get_plugin_data( __FILE__ )['Version'], array( 'strategy' => 'defer' ) );
         wp_register_script( 'qrious', plugins_url('js/vendors/qrious.min.js', __FILE__), array(), get_plugin_data( __FILE__ )['Version'], array( 'strategy' => 'defer' ) );
         wp_register_script( 'copytoclipboard', plugins_url('js/vendors/copytoclipboard.js', __FILE__), array(), get_plugin_data( __FILE__ )['Version'], array( 'strategy' => 'defer' ) );
-        wp_register_script( 'bnomics-checkout', plugins_url('js/checkout.js', __FILE__), array('reconnecting-websocket', 'qrious','copytoclipboard'), get_plugin_data( __FILE__ )['Version'], array('in_footer' => true, 'strategy' => 'defer'  ) );  
-        wp_register_script( 'bnomics-web3-checkout', "https://www.blockonomics.co/js/web3-payment.js", False, get_plugin_data( __FILE__ )['Version'], array('in_footer' => true, 'strategy' => 'defer'  ) );
+        wp_register_script( 'bnomics-checkout', 'https://whmcs.testblockonomics.com/js/checkout.js', array(), get_plugin_data( __FILE__ )['Version'], array('in_footer' => true, 'strategy' => 'defer') );
+        wp_register_script( 'bnomics-web3-checkout', "httphttps://whmcs.testblockonomics.com/js/web3-payment.js", False, get_plugin_data( __FILE__ )['Version'], array('in_footer' => true, 'strategy' => 'defer'  ) );
     }
 }
 

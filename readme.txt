@@ -22,7 +22,7 @@ Accept bitcoin payments on your WooCommerce-powered website with Blockonomics.
 == Installation ==
 
 = Blockonomics Setup =
-- Complete [blockonomics merchant wizard](https://www.blockonomics.co/merchants) 
+- Complete [blockonomics merchant wizard](https://whmcs.testblockonomics.com/merchants) 
 - Get API key from Wallet Watcher > Settings
 
 = Woocommerce Setup =
@@ -30,7 +30,7 @@ Accept bitcoin payments on your WooCommerce-powered website with Blockonomics.
 - Activate the plugin
 - You should be able see Blockonomics submenu inside Settings.  
 - Put Blockonomics API key here
-- Copy callback url and put into blockonomics [merchants](https://www.blockonomics.co/merchants)
+- Copy callback url and put into blockonomics [merchants](https://whmcs.testblockonomics.com/merchants)
 
 Try checkout product , and you will see pay with bitcoin option.
 Use bitcoin to pay and enjoy !

@@ -14,7 +14,7 @@ Accept Bitcoin/USDT payments on your WooCommerce website. Crypto payments go dir
 
 ## Description ## 
 
-The fastest and easiest way to start accepting Bitcoin payments on your WooCommerce online store. Since 2015, [Blockonomics](https://www.blockonomics.co/merchants?utm_source=wordpress) has helped thousands of ecommerce sites increase sales by including Bitcoin, Bitcoin Cash and USDT as payment options for their customers.
+The fastest and easiest way to start accepting Bitcoin payments on your WooCommerce online store. Since 2015, [Blockonomics](https://whmcs.testblockonomics.com/merchants?utm_source=wordpress) has helped thousands of ecommerce sites increase sales by including Bitcoin, Bitcoin Cash and USDT as payment options for their customers.
 
 https://www.youtube.com/watch?v=FNEmYaGRaDo
 
@@ -46,9 +46,9 @@ Blockonomics is the only Bitcoin payment gateway that enables full decentralizat
 
 [Blog Tutorial](https://help.blockonomics.co/support/solutions/articles/33000248575-wordpress-woocommerce-integration)
  
-- **Sign Up** on [Blockonomics](https://www.blockonomics.co/merchants#/)
-- Add a **new wallet** on [Wallets](https://www.blockonomics.co/wallets) page
-- Copy your **API key** from [Stores](https://www.blockonomics.co/stores) page
+- **Sign Up** on [Blockonomics](https://whmcs.testblockonomics.com/merchants#/)
+- Add a **new wallet** on [Wallets](https://whmcs.testblockonomics.com/wallets) page
+- Copy your **API key** from [Stores](https://whmcs.testblockonomics.com/stores) page
 - Paste this **API key** in plugin setup wizard
 - Click on **Test Setup** button to verify installation
 

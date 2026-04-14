@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "blockonomics-test": {
+      "url": "https://wordpress.testblockonomics.com/.well-known/mcp/server.json",
+      "type": "http"
+    },
+    "testblockonomics-store": {
+      "url": "https://wordpress.testblockonomics.com/wp-json/ucp/v1/mcp",
+      "type": "http"
+    }
+  }
+}

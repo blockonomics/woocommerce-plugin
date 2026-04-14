@@ -18,7 +18,7 @@ class Blockonomics_Setup {
 
     // Check if API key is valid and has wallets
     public function validate_api_key($api_key) {
-        $wallets_url = 'https://www.blockonomics.co/api/v2/wallets';
+        $wallets_url = 'https://whmcs.testblockonomics.com/api/v2/wallets';
         $response = wp_remote_get($wallets_url, array(
             'headers' => array(
                 'Authorization' => 'Bearer ' . $api_key,

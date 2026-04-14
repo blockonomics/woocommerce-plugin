@@ -1,331 +1,420 @@
 'use strict';
-class Blockonomics {
-    constructor({ checkout_id = 'blockonomics_checkout' } = {}) {
-        // User Params
-        this.checkout_id = checkout_id;
 
-        // Initialise
-        this.init();
+(function (global) {
+
+  var BASE_URL = 'https://whmcs.testblockonomics.com/';
+
+  // ---------------------------------------------------------------------------
+  // Entry point
+  // ---------------------------------------------------------------------------
+
+  function show(opts) {
+    var options = {
+      msg_area:          opts.msg_area,
+      store_uid:         opts.store_uid          || '',
+      platform_order_id: opts.platform_order_id  || '',
+      amount:            opts.amount             || 0,
+      currency:          opts.currency           || 'USD',
+      cryptos:           opts.cryptos            || [],
+      testnet:           opts.testnet            || false,
+      timer:             opts.timer              || 3600,
+      redirect_url:      opts.redirect_url       || '',
+    };
+
+    var container = document.getElementById(options.msg_area);
+    if (!container) {
+      console.error('BlockonomicsCheckout: container #' + options.msg_area + ' not found');
+      return;
     }
 
-    init() {
-        this.container = document.getElementById(this.checkout_id);
-        if (!this.container) {
-            throw Error(
-                `Blockonomics Initialisation Error: Container #${this.checkout_id} was not found!`
-            );
-        }
+    container.classList.add('bck-widget');
 
-        // we load data from HTML data attributes on the container element
-        // this approach is simple and avoids the js error blockonomics_data already initialised
-        const dataset = this.container.dataset;
-        if (!dataset.timePeriod || !dataset.paymentUri || !dataset.cryptoCode) {
-            throw Error(
-                `Blockonomics Initialisation Error: Required data attributes are missing from container element.`
-            );
-        }
-        this.data = {
-            time_period: dataset.timePeriod,
-            payment_uri: dataset.paymentUri,
-            crypto: { code: dataset.cryptoCode },
-            crypto_address: dataset.cryptoAddress,
-            finish_order_url: dataset.finishOrderUrl,
-            get_order_amount_url: dataset.getOrderAmountUrl
-        };
-        this.create_bindings();
+    // Runtime state
+    var state = {
+      cryptos:        [],     // payment options returned by API
+      selected:       null,   // currently-shown crypto object
+      ws:             null,   // reconnecting WebSocket wrapper
+      timer_interval: null,
+      clock:          0,
+    };
 
-        this.reset_progress();
-        this._spinner_wrapper.style.display = 'none';
-        this._order_panel.style.display = 'flex';
-        this.generate_qr();
-        this.connect_to_ws();
+    // -------------------------------------------------------------------------
+    // DOM helpers
+    // -------------------------------------------------------------------------
 
-        // Hide Display Error
-        this._display_error_wrapper.style.display = 'none';
+    function render(html) {
+      container.innerHTML = html;
     }
 
-    create_bindings() {
-        this._spinner_wrapper = this.container.querySelector(
-            '.bnomics-spinner-wrapper'
-        );
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g,  '&amp;')
+        .replace(/</g,  '&lt;')
+        .replace(/>/g,  '&gt;')
+        .replace(/"/g,  '&quot;');
+    }
 
-        this._order_panel = this.container.querySelector(
-            '.bnomics-order-panel'
-        );
+    // -------------------------------------------------------------------------
+    // State panels
+    // -------------------------------------------------------------------------
 
-        this._amount_text = this.container.querySelector(
-            '.bnomics-amount-text'
-        );
-        this._copy_amount_text = this.container.querySelector(
-            '.bnomics-copy-amount-text'
-        );
-        this._amount_input = this.container.querySelector(
-            '#bnomics-amount-input'
-        );
+    function showLoading() {
+      render('<div class="blockonomics_message"><p>Loading payment details\u2026</p></div>');
+    }
 
-        this._address_text = this.container.querySelector(
-            '.bnomics-address-text'
-        );
-        this._copy_address_text = this.container.querySelector(
-            '.bnomics-copy-address-text'
-        );
-        this._address_input = this.container.querySelector(
-            '#bnomics-address-input'
-        );
+    function showError(msg) {
+      render('<div class="blockonomics_error"><p>' + escHtml(msg) + '</p></div>');
+    }
 
-        this._time_left = this.container.querySelector('.bnomics-time-left');
-        this._crypto_rate = this.container.querySelector(
-            '#bnomics-crypto-rate'
-        );
+    function showSuccess() {
+      cleanup();
+      var orderLine = options.platform_order_id
+        ? '<p>Order: <strong>' + escHtml(options.platform_order_id) + '</strong></p>'
+        : '';
+      render(
+        '<div class="blockonomics_message">' +
+          '<h3>Payment received!</h3>' +
+          orderLine +
+        '</div>'
+      );
+      if (options.redirect_url) {
+        setTimeout(function () { window.location.href = options.redirect_url; }, 2000);
+      }
+    }
 
-        this._refresh = this.container.querySelector('#bnomics-refresh');
-        this._qr_code_container =
-            this.container.querySelector('.bnomics-qr-code');
-        this._qr_code = this.container.querySelector('#bnomics-qr-code');
-        this._qr_code_links =
-            this.container.querySelectorAll('a.bnomics-qr-link');
+    // -------------------------------------------------------------------------
+    // API
+    // -------------------------------------------------------------------------
 
-        this._display_error_wrapper = this.container.querySelector(
-            '.bnomics-display-error'
-        );
+    function checkoutUrl() {
+      return BASE_URL + '/api/checkout/' + encodeURIComponent(options.store_uid);
+    }
 
-        // Click Bindings
+    function buildPayload() {
+      return JSON.stringify({
+        platform_order_id: options.platform_order_id,
+        amount:            options.amount,
+        currency:          options.currency,
+        cryptos:           options.cryptos,
+        testnet:           options.testnet,
+        timer:             options.timer,
+      });
+    }
 
-        this._refresh.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.refresh_order();
+    function fetchPayment() {
+      showLoading();
+      fetch(checkoutUrl(), {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    buildPayload(),
+      })
+        .then(function (res) {
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return res.json();
+        })
+        .then(function (data) {
+          if (!data.cryptos || !data.cryptos.length) {
+            showError('No payment methods available for this store.');
+            return;
+          }
+          state.cryptos = data.cryptos;
+          selectCrypto(data.cryptos[0]);
+        })
+        .catch(function (err) {
+          console.error('BlockonomicsCheckout:', err);
+          showError('Could not load payment details. Please refresh and try again.');
         });
-
-        this.data.time_period = Number(this.data.time_period);
     }
 
-    reset_progress() {
-        this.progress = {
-            total_time: this.data.time_period * 60,
-            interval: null,
-            clock: this.data.time_period * 60,
-            percent: 100,
-        };
-        // Set the start time straight away
-        this.progress.clock += 1;
-        this.tick();
-        this.progress.interval = setInterval(() => this.tick(), 1000);
-    }
+    function refreshRate() {
+      var btn = container.querySelector('#bck-refresh');
+      if (btn) btn.disabled = true;
+      stopTimer();
 
-    generate_qr() {
-        this._qr = new QRious({
-            element: this._qr_code,
-            value: this.data.payment_uri,
-            size: 160,
+      fetch(checkoutUrl(), {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    buildPayload(),
+      })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          if (!data.cryptos || !data.cryptos.length) return;
+          state.cryptos = data.cryptos;
+          var currentCode = state.selected && state.selected.code;
+          var match = null;
+          for (var i = 0; i < data.cryptos.length; i++) {
+            if (data.cryptos[i].code === currentCode) { match = data.cryptos[i]; break; }
+          }
+          selectCrypto(match || data.cryptos[0]);
+        })
+        .catch(function () {
+          if (btn) btn.disabled = false;
+          startTimer(options.timer);
         });
     }
 
-    tick() {
-        this.progress.clock = this.progress.clock - 1;
+    // -------------------------------------------------------------------------
+    // Crypto selection & payment panel
+    // -------------------------------------------------------------------------
 
-        this.progress.percent = Math.floor(
-            (this.progress.clock * 100) / this.progress.total_time
-        );
-        if (this.progress.clock < 0) {
-            this.progress.clock = 0;
-            //Order expired
-            this.refresh_order();
-        } else {
-            this._time_left.innerHTML = `${String(
-                Math.floor(this.progress.clock / 60)
-            ).padStart(2, '0')}:${String(this.progress.clock % 60).padStart(
-                2,
-                '0'
-            )} min`;
+    function selectCrypto(crypto) {
+      stopTimer();
+      closeWs();
+      state.selected = crypto;
+      renderPaymentPanel();
+      startTimer(crypto.expires_in || options.timer);
+      connectWs(crypto);
+    }
+
+    function renderPaymentPanel() {
+      var crypto = state.selected;
+
+      // Crypto tabs (only if multiple options)
+      var tabsHtml = '';
+      if (state.cryptos.length > 1) {
+        tabsHtml = '<div class="bck-crypto-tabs">';
+        for (var i = 0; i < state.cryptos.length; i++) {
+          var c = state.cryptos[i];
+          var active = c.code === crypto.code ? ' bck-tab-active' : '';
+          tabsHtml += '<button class="bck-tab' + active + '" data-crypto="' + escHtml(c.code) + '">'
+            + escHtml(c.code.toUpperCase()) + '</button>';
         }
+        tabsHtml += '</div>';
+      }
+
+      var qrHtml = '<div class="bck-qr-wrap"><canvas id="bck-qr-canvas"></canvas></div>';
+
+      var addrHtml =
+        '<div class="bck-field">' +
+          '<label>Send ' + escHtml(crypto.code.toUpperCase()) + ' to this address:</label>' +
+          '<div class="bck-copy-wrap">' +
+            '<input type="text" id="bck-address-input" readonly value="' + escHtml(crypto.address) + '">' +
+            '<button class="bck-copy-btn" data-target="bck-address-input">Copy</button>' +
+          '</div>' +
+        '</div>';
+
+      var amtHtml =
+        '<div class="bck-field">' +
+          '<label>Amount of ' + escHtml(crypto.code.toUpperCase()) + ' to send:</label>' +
+          '<div class="bck-copy-wrap">' +
+            '<input type="text" id="bck-amount-input" readonly value="' + escHtml(crypto.amount) + '">' +
+            '<button class="bck-copy-btn" data-target="bck-amount-input">Copy</button>' +
+          '</div>' +
+        '</div>';
+
+      var ratePrefix = crypto.rate_str
+        ? '1 ' + escHtml(crypto.code.toUpperCase()) + ' = ' + escHtml(crypto.rate_str)
+            + ' ' + escHtml(options.currency) + ', expires in '
+        : 'Expires in ';
+
+      var footerHtml =
+        '<div class="bck-footer">' +
+          '<small>' + ratePrefix + '<span class="time_remaining">--:--</span></small>' +
+          '<button id="bck-refresh" title="Refresh rate">&#8635;</button>' +
+        '</div>';
+
+      var closeHtml =
+        '<div class="blockonomics_close"><a href="#" id="bck-close">Close</a></div>';
+
+      render(
+        '<div class="blockonomics_message">' +
+          tabsHtml + qrHtml + addrHtml + amtHtml + footerHtml + closeHtml +
+        '</div>'
+      );
+
+      generateQr(crypto.payment_uri || crypto.address);
+      bindPanelEvents();
     }
 
-    connect_to_ws() {
-        //Connect and Listen on websocket for payment notification
-        var ws = new ReconnectingWebSocket(
-            'wss://' +
-                (this.data.crypto.code == 'btc'
-                    ? 'www'
-                    : this.data.crypto.code) +
-                '.blockonomics.co/payment/' +
-                this.data.crypto_address
-        );
-        let $this = this;
+    // -------------------------------------------------------------------------
+    // QR code
+    // -------------------------------------------------------------------------
 
-        ws.onmessage = function (evt) {
-            ws.close();
-
-            setTimeout(
-                function () {
-                    //Redirect to order confirmation page if message from socket
-                    $this.redirect_to_finish_order();
-                    //Wait for 2 seconds for order status to update on server
-                },
-                2000,
-                1
-            );
-        };
-    }
-
-    redirect_to_finish_order() {
-        window.location.href = this.data.finish_order_url;
-    }
-
-    _create_loading_rectangle(ref, target) {
-        let style = window.getComputedStyle(ref);
-
-        let target_position = target.getBoundingClientRect();
-        let ref_position = ref.getBoundingClientRect();
-
-        let position_x = ref_position.x - target_position.x;
-        let position_y = ref_position.y - target_position.y;
-
-        let ele = document.createElement('div');
-        ele.classList.add('bnomics-copy-container-animation-rectangle');
-
-        let border = {
-            left: parseFloat(style.borderLeftWidth.replace('px', '')),
-            right: parseFloat(style.borderRightWidth.replace('px', '')),
-            top: parseFloat(style.borderTopWidth.replace('px', '')),
-            bottom: parseFloat(style.borderBottomWidth.replace('px', '')),
-        };
-
-        // Initial Parameters
-        ele.style.width = 0;
-        ele.style.height = ref_position.height - border.top - border.bottom + 'px';
-        ele.style.top = position_y + border.top + 'px';
-        ele.style.left = position_x + border.left + 'px';
-        ele.style.borderTopLeftRadius = style.borderTopLeftRadius;
-        ele.style.borderTopRightRadius = style.borderTopRightRdius;
-        ele.style.borderBottomLeftRadius = style.borderBottomLeftRadius;
-        ele.style.borderBottomRightRadius = style.borderBottomRightRadius;
-        ele.style.backgroundColor = window.getComputedStyle(
-            document.body
-        ).backgroundColor;
-
-        target.appendChild(ele);
-        setTimeout(
-            () =>
-                (ele.style.width =
-                    ref_position.width - border.left - border.right + 'px'),
-            10
-        );
-
-        return ele;
-    }
-
-    _remove_loading_rectangle(ele) {
-        let style = window.getComputedStyle(ele);
-        let width = parseFloat(style.width.replace('px', ''));
-        let left = parseFloat(style.left.replace('px', ''));
-
-        setTimeout(() => {
-            (ele.style.left = width + left + 'px'), (ele.style.width = '0px');
-        }, 10);
-        setTimeout(() => ele.remove(), 300);
-    }
-
-    _animate_price_update() {
-        let parent_container = this._crypto_rate.closest('td');
-        let container = this._crypto_rate.closest(
-            '.bnomics-crypto-price-timer'
-        );
-
-        parent_container.setAttribute(
-            'data-bnomics-overflow',
-            parent_container.style.overflow
-        );
-        parent_container.style.overflow = 'hidden';
-
-        container.style.position = 'relative';
-        container.style.top = 0;
-        setTimeout(
-            () => (container.style.top = parent_container.clientHeight + 'px'),
-            10
-        );
-    }
-
-    _deanimate_price_update() {
-        let parent_container = this._crypto_rate.closest('td');
-        let container = this._crypto_rate.closest(
-            '.bnomics-crypto-price-timer'
-        );
-
-        container.style.top = '0';
-
-        setTimeout(() => {
-            container.style.top = null;
-            container.style.position = null;
-            parent_container.style.overflow = parent_container.getAttribute(
-                'data-bnomics-overflow'
-            );
-            parent_container.removeAttribute('data-bnomics-overflow');
-        }, 300);
-    }
-
-    _set_refresh_loading(loading = false) {
-        if (loading) {
-            this._refresh.classList.add('spin');
-            this._refresh.setAttribute('disabled', 'disabled');
-            this._active_loading_rect = this._create_loading_rectangle(
-                this._amount_input,
-                this.container.querySelector('#bnomics-amount-copy-container')
-            );
-            this._animate_price_update();
-        } else {
-            this._refresh.classList.remove('spin');
-            this._refresh.removeAttribute('disabled');
-            this._remove_loading_rectangle(this._active_loading_rect);
-            this._deanimate_price_update();
+    function generateQr(data) {
+      if (!data) return;
+      function doGenerate() {
+        var canvas = document.getElementById('bck-qr-canvas');
+        if (canvas && window.QRious) {
+          new window.QRious({ element: canvas, value: data, size: 160 });
         }
+      }
+      if (window.QRious) {
+        doGenerate();
+      } else {
+        var s = document.createElement('script');
+        s.src = BASE_URL + '/js/vendors/qrious.min.js';
+        s.onload = doGenerate;
+        document.head.appendChild(s);
+      }
     }
 
-    refresh_order() {
-        this._set_refresh_loading(true);
+    // -------------------------------------------------------------------------
+    // Panel event bindings
+    // -------------------------------------------------------------------------
 
-        // Stop Progress Counter
-        clearInterval(this.progress.interval);
+    function bindPanelEvents() {
+      // Copy buttons
+      var copyBtns = container.querySelectorAll('.bck-copy-btn');
+      for (var i = 0; i < copyBtns.length; i++) {
+        (function (btn) {
+          btn.addEventListener('click', function () {
+            var targetId = btn.getAttribute('data-target');
+            var input = document.getElementById(targetId);
+            if (input) copyText(input.value, btn);
+          });
+        })(copyBtns[i]);
+      }
 
-        fetch(this.data.get_order_amount_url, { method: 'GET' })
-            .then((res) => {
-                if (!res.ok) {
-                    location.reload();
-                } else {
-                    return res.json();
-                }
-            })
-            .then((res) => {
-                this._update_order_params(res);
-                this._set_refresh_loading(false);
-            })
-            .catch((err) => {
-                // Enable the button anyways so that user can retry
-                this._set_refresh_loading(false);
+      // Refresh rate
+      var refreshBtn = container.querySelector('#bck-refresh');
+      if (refreshBtn) {
+        refreshBtn.addEventListener('click', function (e) {
+          e.preventDefault();
+          refreshRate();
+        });
+      }
 
-                // Log to Console for Debuggin by Admin as it's probably a CORS, Network or JSON Decode Issue
-                console.log('Blockonomics AJAX Error: ', err);
+      // Crypto tab switching
+      var tabs = container.querySelectorAll('.bck-tab');
+      for (var j = 0; j < tabs.length; j++) {
+        (function (tab) {
+          tab.addEventListener('click', function () {
+            var code = tab.getAttribute('data-crypto');
+            for (var k = 0; k < state.cryptos.length; k++) {
+              if (state.cryptos[k].code === code) {
+                selectCrypto(state.cryptos[k]);
+                break;
+              }
+            }
+          });
+        })(tabs[j]);
+      }
 
-                // Fallback
-                location.reload();
-            });
+      // Close link
+      var closeBtn = container.querySelector('#bck-close');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', function (e) {
+          e.preventDefault();
+          cleanup();
+          container.innerHTML = '';
+        });
+      }
     }
 
-    _update_order_params(data) {
-        // Updates the Dynamic Parts of Page
-        this._amount_input.value = data.order_amount;
-        this._crypto_rate.innerHTML = data.crypto_rate_str;
+    // -------------------------------------------------------------------------
+    // Clipboard
+    // -------------------------------------------------------------------------
 
-        // Update QR Code
-        this.data.payment_uri = data.payment_uri;
-        this.generate_qr();
-        this._qr_code_links.forEach((ele) =>
-            ele.setAttribute('href', data.payment_uri)
-        );
-
-        this.reset_progress();
+    function copyText(text, btn) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { flashBtn(btn, 'Copied!'); });
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0;';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (e) { /* ignore */ }
+        document.body.removeChild(ta);
+        flashBtn(btn, 'Copied!');
+      }
     }
-}
 
-// Automatically trigger only after DOM is loaded
-new Blockonomics();
+    function flashBtn(btn, msg) {
+      var orig = btn.textContent;
+      btn.textContent = msg;
+      setTimeout(function () { btn.textContent = orig; }, 1500);
+    }
 
+    // -------------------------------------------------------------------------
+    // Countdown timer
+    // -------------------------------------------------------------------------
+
+    function startTimer(seconds) {
+      state.clock = seconds;
+      tickTimer();
+      state.timer_interval = setInterval(tickTimer, 1000);
+    }
+
+    function stopTimer() {
+      if (state.timer_interval) {
+        clearInterval(state.timer_interval);
+        state.timer_interval = null;
+      }
+    }
+
+    function tickTimer() {
+      var el = container.querySelector('.time_remaining');
+      if (!el) return;
+      if (state.clock <= 0) {
+        stopTimer();
+        refreshRate();
+        return;
+      }
+      var m = Math.floor(state.clock / 60);
+      var s = state.clock % 60;
+      el.textContent = pad2(m) + ':' + pad2(s);
+      state.clock--;
+    }
+
+    function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+
+    // -------------------------------------------------------------------------
+    // WebSocket payment monitoring
+    // -------------------------------------------------------------------------
+
+    function connectWs(crypto) {
+      if (!crypto.address) return;
+      var wsUrl = BASE_URL.replace(/^http/, 'ws') + '/payment/' + encodeURIComponent(crypto.address);
+
+      var ws = { conn: null, dead: false, retryTimer: null };
+
+      function connect() {
+        if (ws.dead) return;
+        ws.conn = new WebSocket(wsUrl);
+
+        ws.conn.onmessage = function () {
+          ws.dead = true;
+          ws.conn.close();
+          showSuccess();
+        };
+
+        ws.conn.onclose = function () {
+          if (!ws.dead) ws.retryTimer = setTimeout(connect, 5000);
+        };
+
+        ws.conn.onerror = function () { ws.conn.close(); };
+      }
+
+      ws.close_all = function () {
+        ws.dead = true;
+        clearTimeout(ws.retryTimer);
+        if (ws.conn) ws.conn.close();
+      };
+
+      state.ws = ws;
+      connect();
+    }
+
+    function closeWs() {
+      if (state.ws) { state.ws.close_all(); state.ws = null; }
+    }
+
+    // -------------------------------------------------------------------------
+    // Cleanup & kick off
+    // -------------------------------------------------------------------------
+
+    function cleanup() {
+      stopTimer();
+      closeWs();
+    }
+
+    fetchPayment();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Public API
+  // ---------------------------------------------------------------------------
+  global.BlockonomicsCheckout = { show: show };
+
+}(window));

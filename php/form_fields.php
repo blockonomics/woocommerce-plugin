@@ -66,6 +66,14 @@ class FormFields {
         );
 
 
+        $form_fields['accent_color'] = array(
+            'title'       => __('Appearance<p class="block-title-desc">Customise the checkout widget</p>', 'blockonomics-bitcoin-payments'),
+            'subtitle'    => __('Widget Accent Colour', 'blockonomics-bitcoin-payments'),
+            'type'        => 'color',
+            'description' => __('Override the button and highlight colour in the payment widget. Leave blank to inherit from your theme automatically.', 'blockonomics-bitcoin-payments'),
+            'default'     => get_option('blockonomics_accent_color', ''),
+            'placeholder' => '#7f54b3',
+        );
         $form_fields['bitcoin_discount'] = array(
             'title' => __('Advanced<p class="block-title-desc">Setting for advanced control</p>', 'blockonomics-bitcoin-payments'),
             'type' => 'number',

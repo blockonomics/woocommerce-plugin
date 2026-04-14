@@ -1,10 +1,10 @@
 <?php
 
-/** 
+/**
  * Blockonomics Checkout Page (JS Enabled)
- * 
+ *
  * The following variables are available to be used in the template along with all WP Functions/Methods/Globals
- * 
+ *
  * $order: Order Object
  * $order_id: WooCommerce Order ID
  * $order_amount: Crypto Amount
@@ -94,7 +94,7 @@
 
                 <table class="blockonomics_checkout_table">
                     <tr>
-                        <td> 
+                        <td>
                             <div class="bnomics-order-address">
                                 <span class="copy-title">Copy</span>
                                 <div class="bnomics-address">

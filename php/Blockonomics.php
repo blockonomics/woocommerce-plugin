@@ -5,13 +5,14 @@
  */
 class Blockonomics
 {
-    const BASE_URL = 'https://www.blockonomics.co';
+    const BASE_URL = 'https://whmcs.testblockonomics.com/';
     const STORES_URL = self::BASE_URL . '/api/v2/stores?wallets=true';
 
     const NEW_ADDRESS_URL = self::BASE_URL . '/api/new_address';
     const PRICE_URL = self::BASE_URL . '/api/price';
+    const STORE_UID_URL = self::BASE_URL . '/api/store_uid';
 
-    const BCH_BASE_URL = 'https://bch.blockonomics.co';
+    const BCH_BASE_URL = 'https://whmcs.testblockonomics.com/';
     const BCH_PRICE_URL = self::BCH_BASE_URL . '/api/price';
     const BCH_NEW_ADDRESS_URL = self::BCH_BASE_URL . '/api/new_address';
 
@@ -198,7 +199,7 @@ class Blockonomics
         $result['stores'] = is_array($response_data->data) ? $response_data->data : [];
 
         if (empty($result['stores'])) {
-            $result['error'] = __('Please add a <a href="https://www.blockonomics.co/dashboard#/store" target="_blank"><i>Store</i></a> on Blockonomics Dashboard', 'blockonomics-bitcoin-payments');
+            $result['error'] = __('Please add a <a href="https://whmcs.testblockonomics.com/dashboard#/store" target="_blank"><i>Store</i></a> on Blockonomics Dashboard', 'blockonomics-bitcoin-payments');
             return $result;
         }
 
@@ -498,6 +499,48 @@ class Blockonomics
         return false;
     }
 
+    /**
+     * Get the wallets from the API, also checks if API key is valid.
+     *
+     * @param string $api_key Blockonomics API key.
+     * @return array [
+     *   'error' => string,     // Error message if any
+     *   'wallets' => array     // Array of configured wallet currencies
+     * ]
+     */
+    public function get_wallets($api_key)
+    {
+        $response = $this->get(self::WALLETS_URL, $api_key);
+
+        $error = $this->check_api_response_error($response);
+        if ($error) {
+            return ['error' => $error];
+        }
+
+        $body = wp_remote_retrieve_body($response);
+        $response_data = json_decode($body);
+
+        if (!$response_data || !isset($response_data->data)) {
+            return ['error' => __('Invalid response was received. Please retry.', 'blockonomics-bitcoin-payments')];
+        }
+
+        $wallets = [];
+        foreach ($response_data->data as $wallet) {
+            if (!empty($wallet->crypto)) {
+                $crypto = strtolower($wallet->crypto);
+                if (!in_array($crypto, $wallets)) {
+                    $wallets[] = $crypto;
+                }
+            }
+        }
+
+        if (empty($wallets)) {
+            return ['error' => __('Please add a <a href="https://whmcs.testblockonomics.com/dashboard#/wallet" target="_blank"><i>Wallet</i></a> on Blockonomics Dashboard', 'blockonomics-bitcoin-payments')];
+        }
+
+        return ['wallets' => $wallets];
+    }
+
     public function testSetup()
     {
         // just clear these first, they will only be set again on success
@@ -518,6 +561,24 @@ class Blockonomics
         $callback_url = $this->get_callback_url();
         $matching_store = $this->findExactMatchingStore($stores_result['stores'], $callback_url);
 
+        if ($match_type === 'none') {
+            return $this->setup_error(__(var_export($stores_result['stores'], true) . '   This is the Callback URL:' . $callback_url . 'Please add a <a href="https://whmcs.testblockonomics.com/dashboard#/store" target="_blank"><i>Store</i></a> on Blockonomics Dashboard', 'blockonomics-bitcoin-payments'));
+        }
+
+        if ($match_type === 'partial') {
+            return $this->setup_error(__('Please copy Callback URL from Advanced Settings and paste it as your <a href="https://whmcs.testblockonomics.com/dashboard#/store" target="_blank">Store Callback URL</a>', 'blockonomics-bitcoin-payments'));
+        }
+
+        if ($match_type === 'empty') {
+            $update_result = $this->update_store($matching_store->id, [
+                'name' => $matching_store->name,
+                'http_callback' => $callback_url
+            ]);
+            if (!empty($update_result)) {
+                return $this->setup_error($update_result);
+            }
+        }
+
         if (!$matching_store) {
             return $this->setup_error(__('Please add a <a href="https://www.blockonomics.co/dashboard#/store" target="_blank">new store</a> with the callback URL shown in advanced settings', 'blockonomics-bitcoin-payments'));
         }
@@ -531,11 +592,11 @@ class Blockonomics
             // empty store name: Please enable Payment method on Stores
             if (!empty($matching_store->name)){
                 $error_msg = sprintf(
-                    __('Please enable Payment method on your store <a href="https://www.blockonomics.co/dashboard#/store" target="_blank"><i>%s</i></a>', 'blockonomics-bitcoin-payments'),
+                    __('Please enable Payment method on your store <a href="https://whmcs.testblockonomics.com/dashboard#/store" target="_blank"><i>%s</i></a>', 'blockonomics-bitcoin-payments'),
                     esc_html($matching_store->name)
                 );
             } else{
-                $error_msg = __('Please enable Payment method on <a href="https://www.blockonomics.co/dashboard#/store" target="_blank"><i>Stores</i></a>', 'blockonomics-bitcoin-payments');
+                $error_msg = __('Please enable Payment method on <a href="https://whmcs.testblockonomics.com/dashboard#/store" target="_blank"><i>Stores</i></a>', 'blockonomics-bitcoin-payments');
             }
             return $this->setup_error($error_msg);
         }
@@ -543,6 +604,16 @@ class Blockonomics
         $this->saveBlockonomicsEnabledCryptos($enabled_cryptos);
 
         $result = $this->test_cryptos($enabled_cryptos);
+        $duplicate_count = isset($match_result['duplicate_count']) ? $match_result['duplicate_count'] : 0;
+        if ($duplicate_count > 0) {
+            $store_name = !empty($matching_store->name) ? $matching_store->name : __('(unnamed)', 'blockonomics-bitcoin-payments');
+            $notice = sprintf(
+                __('Note: Found %d duplicate store(s) with matching callback URL. Using "%s" which has payments enabled. You may want to remove unused stores from your <a href="https://whmcs.testblockonomics.com/dashboard#/store" target="_blank">Blockonomics dashboard</a>.', 'blockonomics-bitcoin-payments'),
+                $duplicate_count,
+                esc_html($store_name)
+            );
+            $result['duplicate_notice'] = $notice;
+        }
         // include store info for JS to update UI without page refresh
         $result['store_name'] = $matching_store->name ?? '';
         $result['enabled_cryptos'] = $enabled_cryptos;
@@ -645,21 +716,8 @@ class Blockonomics
 
     // Returns url to redirect the user to during checkout
     public function get_order_checkout_url($order_id){
-        $active_cryptos = $this->getCachedActiveCurrencies();
         $order_hash = $this->encrypt_hash($order_id);
-        // handle php error from getActiveCurrencies, when api fails
-        if (!is_array($active_cryptos) || isset($active_cryptos['error'])) {
-            return $this->get_parameterized_wc_url('page',array('crypto' => 'empty'));
-        }
-        // check how many crypto are activate
-        if (count($active_cryptos) > 1) {
-            $order_url = $this->get_parameterized_wc_url('page',array('select_crypto' => $order_hash));
-        } elseif (count($active_cryptos) === 1) {
-            $order_url = $this->get_parameterized_wc_url('page',array('show_order' => $order_hash, 'crypto' => array_keys($active_cryptos)[0]));
-        } else {
-            $order_url = $this->get_parameterized_wc_url('page',array('crypto' => 'empty'));
-        }
-        return $order_url;
+        return $this->get_parameterized_wc_url('page', array('show_order' => $order_hash));
     }
     
     // Check if a template is a nojs template
@@ -690,11 +748,46 @@ class Blockonomics
     // Adds the style for blockonomics checkout page
     public function add_blockonomics_checkout_style($template_name){
         wp_enqueue_style( 'bnomics-style' );
-        if ($template_name === 'checkout') {
+        if ($template_name === 'checkout' || $template_name === 'widget_checkout') {
             wp_enqueue_script( 'bnomics-checkout' );
-        }elseif ($template_name === 'web3_checkout') {
+            wp_enqueue_style( 'blockonomics-checkout' );
+            // Priority: manual setting → classic-theme auto-detect → CSS var fallback (block themes).
+            $accent = sanitize_hex_color( get_option( 'blockonomics_accent_color', '' ) );
+            if ( ! $accent ) {
+                $accent = $this->get_theme_accent_color();
+            }
+            if ( $accent ) {
+                wp_add_inline_style( 'blockonomics-checkout',
+                    '#bck-payment { --bck-btn-bg: ' . esc_attr( $accent ) . '; --bck-accent: ' . esc_attr( $accent ) . '; }' .
+                    '#web3-payment { --primary-color: ' . esc_attr( $accent ) . '; }'
+                );
+            }
+        } elseif ($template_name === 'web3_checkout') {
             wp_enqueue_script( 'bnomics-web3-checkout' );
         }
+    }
+
+    /**
+     * Auto-detect the active theme's primary/accent colour for classic themes.
+     * Block themes are handled passively via var(--wp--preset--color--primary) in the CSS.
+     *
+     * @return string Hex colour string, or empty string if not detected.
+     */
+    private function get_theme_accent_color() {
+        // Classic theme customizer keys — ordered most-specific first.
+        $customizer_keys = array(
+            'storefront_accent_color', // Storefront (most popular WC theme)
+            'accent_color',
+            'primary_color',
+            'button_color',
+        );
+        foreach ( $customizer_keys as $key ) {
+            $val = get_theme_mod( $key );
+            if ( $val && is_string( $val ) ) {
+                return sanitize_hex_color( $val ) ?: '';
+            }
+        }
+        return '';
     }
 
     public function set_template_context($context) {
@@ -866,6 +959,104 @@ class Blockonomics
 
     public function get_crypto_payment_uri($crypto, $address, $order_amount) {
         return $crypto['uri'] . ":" . $address . "?amount=" . $order_amount;
+    }
+
+    // -------------------------------------------------------------------------
+    // Blockonomics Checkout widget support
+    // -------------------------------------------------------------------------
+
+    /**
+     * Fetch the store_uid for this merchant's store.
+     * Call once on plugin settings save; result is cached in wp_options.
+     *
+     * @param string $callback_url Optional: pass the store callback URL to
+     *                             disambiguate when the merchant has multiple stores.
+     * @return string|false store_uid on success, false on failure.
+     */
+    public function get_store_uid($callback_url = '') {
+        $url = self::STORE_UID_URL;
+        if ($callback_url) {
+            $url = add_query_arg('callback', rawurlencode($callback_url), $url);
+        }
+        $response = $this->get($url, $this->api_key);
+        if (is_wp_error($response)) return false;
+        if (wp_remote_retrieve_response_code($response) !== 200) return false;
+        $body = json_decode(wp_remote_retrieve_body($response));
+        return isset($body->store_uid) ? $body->store_uid : false;
+    }
+
+    /**
+     * Load the widget-based checkout template.
+     * No server-side address generation — the JS widget handles that.
+     *
+     * @param int $order_id WooCommerce order ID.
+     * @return string Rendered HTML.
+     */
+    public function load_widget_checkout($order_id) {
+        $wc_order = wc_get_order($order_id);
+        if (!$wc_order) {
+            return $this->load_blockonomics_template('error', $this->get_error_context('generic'));
+        }
+
+        $store_uid = get_option('blockonomics_store_uid', '');
+        if (empty($store_uid)) {
+            $fetched = $this->get_store_uid();
+            if ($fetched) {
+                update_option('blockonomics_store_uid', $fetched);
+                $store_uid = $fetched;
+            }
+        }
+
+        $context = array(
+            'store_uid'        => $store_uid,
+            'order_id'         => $order_id,
+            'amount'           => (float) $wc_order->get_total(),
+            'currency'         => get_woocommerce_currency(),
+            // blockonomics_timeperiod is stored in minutes; widget expects seconds
+            'timer'            => (int) get_option('blockonomics_timeperiod', 10) * 60,
+            'finish_order_url' => $this->get_wc_order_received_url($order_id),
+        );
+
+        return $this->load_blockonomics_template('widget_checkout', $context);
+    }
+
+    /**
+     * Handle a Blockonomics Checkout callback (POST JSON with wp_order_id).
+     * Called when the new widget flow is used.
+     *
+     * @param array $body Decoded JSON body from the callback request.
+     */
+    public function process_checkout_callback($body) {
+        $order_id = isset($body['wp_order_id'])
+            ? sanitize_text_field($body['wp_order_id'])
+            : null;
+
+        $order_status = isset($body['order_status'])
+            ? sanitize_text_field($body['order_status'])
+            : '';
+
+        if (!$order_id) {
+            exit(__('Error: missing wp_order_id', 'blockonomics-bitcoin-payments'));
+        }
+
+        // Acknowledge pending_confirmation without marking paid
+        if ($order_status !== 'paid') {
+            exit('ok');
+        }
+
+        $crypto_details = isset($body['crypto_details']) && is_array($body['crypto_details'])
+            ? $body['crypto_details']
+            : array();
+
+        $txid = isset($crypto_details['txid']) ? sanitize_text_field($crypto_details['txid']) : '';
+
+        $wc_order = wc_get_order($order_id);
+        if (!$wc_order) {
+            exit(__('Error: WooCommerce order not found', 'blockonomics-bitcoin-payments'));
+        }
+
+        $wc_order->payment_complete($txid);
+        exit('ok');
     }
 
     public function get_checkout_context($order, $crypto){

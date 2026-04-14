@@ -105,9 +105,9 @@ function blockonomics_setup_page() {
                     </div>
                 </div>
                 <ol>
-                    <li><a href="https://www.blockonomics.co/register" target="_blank">Sign up</a> to Blockonomics</li>
-                    <li>Add a <a href="https://www.blockonomics.co/dashboard#/wallet" target="_blank">Wallet</a></li>
-                    <li>Copy your <a href="https://www.blockonomics.co/dashboard#/store" target="_blank">API Key</a> and click Continue</li>
+                    <li><a href="https://whmcs.testblockonomics.com/register" target="_blank">Sign up</a> to Blockonomics</li>
+                    <li>Add a <a href="https://whmcs.testblockonomics.com/dashboard#/wallet" target="_blank">Wallet</a></li>
+                    <li>Copy your <a href="https://whmcs.testblockonomics.com/dashboard#/store" target="_blank">API Key</a> and click Continue</li>
                 </ol>
                 <form method="post" action="" id="bnomics-setup-form">
                     <?php wp_nonce_field('blockonomics_setup_action', 'blockonomics_setup_nonce'); ?>
