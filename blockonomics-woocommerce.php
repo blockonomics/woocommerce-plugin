@@ -109,7 +109,6 @@ function blockonomics_woocommerce_init()
     }
 
     add_action( 'admin_enqueue_scripts', 'blockonomics_enqueue_custom_admin_style' );
-    add_action( 'admin_footer', 'blockonomics_floating_save_btn' );
     add_action( 'wp_ajax_test_setup', 'blockonomics_test_setup' );
 
     function bnomics_exclude_pages( $exclude ) {
@@ -144,105 +143,6 @@ function blockonomics_woocommerce_init()
         }
     }
 
-    function blockonomics_floating_save_btn() {
-
-        $page    = isset( $_GET['page'] )    ? sanitize_text_field( wp_unslash( $_GET['page'] ) )    : '';
-        $tab     = isset( $_GET['tab'] )     ? sanitize_text_field( wp_unslash( $_GET['tab'] ) )     : '';
-        $section = isset( $_GET['section'] ) ? sanitize_text_field( wp_unslash( $_GET['section'] ) ) : '';
-
-        if ( 'wc-settings' !== $page || 'checkout' !== $tab || 'blockonomics' !== $section ) {
-            return;
-        }
-        ?>
-        <style>
-            
-            #blockonomics-floating-save {
-                position: fixed;
-                bottom: 24px;
-                left: 200px;   
-                z-index: 9999; 
-                padding: 8px 18px;
-                border: 0;
-                border-radius: 4px;
-                background: #2271b1;
-                color: #fff;
-                font-size: 14px;
-                font-weight: 600;
-                line-height: 1.4;
-                cursor: pointer;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-            }
-
-            #blockonomics-floating-save:hover {
-                background: #135e96;
-            }
-
-        
-            #blockonomics-floating-save:disabled {
-                background: #a0a0a0;
-                cursor: not-allowed;
-                box-shadow: none;
-            }
-
-            /* Hide the default save button after the floating button is initialized. */
-            body.blockonomics-floating-save-ready .woocommerce-save-button {
-                display: none !important;
-            }
-
-            /* On smaller screens the sidebar collapses to shift button to left edge */
-            @media (max-width: 960px) {
-                #blockonomics-floating-save {
-                    left: 10px;
-                }
-            }
-        </style>
-
-        <button type="button" id="blockonomics-floating-save" disabled>
-            Save changes
-        </button>
-
-        <script>
-            (function () {
-                // Find the original WooCommerce save button
-                var saveButton = document.querySelector('.woocommerce-save-button');
-                if (!saveButton) {
-                    return;
-                }
-
-                // Get the settings form.
-                var form = saveButton.closest('form');
-                if (!form) {
-                    return;
-                }
-
-                var floatingButton = document.getElementById('blockonomics-floating-save');
-                if (!floatingButton) {
-                    return;
-                }
-
-                // Add the class that hides the original save button
-                document.body.classList.add('blockonomics-floating-save-ready');
-
-                form.addEventListener('input', function () {
-                    floatingButton.disabled = false;
-                });
-
-                form.addEventListener('change', function () {
-                    floatingButton.disabled = false;
-                });
-
-               // Use WooCommerce's existing save action.
-                floatingButton.addEventListener('click', function () {
-                    if (floatingButton.disabled) {
-                        return; 
-                    }
-                    saveButton.click();
-                });
-
-            }());
-        </script>
-        <?php
-    }
 
     function blockonomics_test_setup() {
         include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
