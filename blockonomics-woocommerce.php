@@ -143,7 +143,6 @@ function blockonomics_woocommerce_init()
         }
     }
 
-
     function blockonomics_test_setup() {
         include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
         $blockonomics = new Blockonomics;
