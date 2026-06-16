@@ -19,30 +19,54 @@ Accept bitcoin payments on your WooCommerce-powered website with Blockonomics.
 - No approvals of API key/documentation required
 - Supports all major fiat currencies
 
-== Installation ==
+## Installation
 
-= Blockonomics Setup =
-- Complete [blockonomics merchant wizard](https://www.blockonomics.co/merchants) 
-- Get API key from Wallet Watcher > Settings
+Follow these instructions to start accepting Bitcoin with Blockonomics on your WordPress/WooCommerce store.
 
-= Woocommerce Setup =
-- Make sure you have [woocommerce](https://wordpress.org/plugins/woocommerce/) plugin installed on your wordpress site
-- Activate the plugin
-- You should be able see Blockonomics submenu inside Settings.  
-- Put Blockonomics API key here
-- Copy callback url and put into blockonomics [merchants](https://www.blockonomics.co/merchants)
+### 1) Install Blockonomics Plugin
 
-Try checkout product , and you will see pay with bitcoin option.
-Use bitcoin to pay and enjoy !
+1. In your WordPress dashboard, go to Plugins and click on Add New Plugin.
+2. Search for "WordPress Bitcoin Payments - Blockonomics". In Search Results, next to our plugin click on "Install Now".
+3. Once installed, click on "Activate" to activate our plugin.
 
-== Frequently Asked Questions ==
+### 2) Automatic Store Setup (Recommended)
 
-= I am getting empty order page after checkout, what to do ? =
-Your webhost is blocking outgoing HTTP connections. Blockonomics requires an outgoing HTTP POST to generate new address. Check with your webhost to allow this.
+1. Once activated, you will be redirected to the Plugins page. You will see a notification banner. Click on "Account Setup page" to complete the setup.
+2. Follow the instructions in the Account setup page to get the API Key from Blockonomics Stores dashboard and paste it in. Then click on "Continue".
+3. Enter a Store name that's easy for you to remember. Then click on "Continue".
+4. A store will be created in your Blockonomics account linking your WordPress/WooCommerce store. Click on "Done".
+5. You will be redirected to WooCommerce > Settings > Payments > Blockonomics. Here in the "Store" section click on "Test Setup".
+6. Once successful, you should see a green checkmark next to "BTC" indicating that your Blockonomics plugin is ready to accept Bitcoin payments.
 
-= My order page is repeatedly refreshing on payment, how to fix this? =
-Your webhost is blocking incoming callbacks from bots, our you have a DDOS protection in place that is causing this. Blockonomics server uses curl for payment callbacks and cannot emulate a browser accessing your website. Remove the DDOS protection for blockonomics.co 
+### 3) Manual Setup
 
+(If you have already completed Automatic Store Setup, you can skip this section.)
+
+**Configure API Key:**
+1. Go to Dashboard > Stores in Blockonomics.
+2. Copy the API Key.
+3. In your WordPress Dashboard, go to WooCommerce > Settings > Payments > Blockonomics Bitcoin, paste the API Key and click "Save changes".
+
+For detailed steps on adding Wallet & Store, please refer to the official support article.
+
+## FAQ
+
+### How do I edit text/customize appearance of the checkout page?
+
+Please consult this article to find out how to customize the checkout page as desired:
+<https://help.blockonomics.co/support/solutions/articles/33000243991-customizing-branding-checkout-page-appreance>
+
+### Orders are not getting marked Paid on payment. How do I fix?
+
+Blockonomics server sends payment callbacks to your system to update transaction status. If these payment callbacks are successful, your orders get marked as Paid.
+
+Most common reason for callbacks failing is your webhost blocking incoming callbacks thinking they are from bots, or you have a DDoS protection in place. Please consult this article on how to debug and fix this:
+<https://help.blockonomics.co/solution/articles/33000219539-order-status-not-changing-ddos-protection>
+
+### My customers use TOR browser and don't have JavaScript enabled. What to do?
+
+You can run our plugin in No JavaScript mode by checking the "No JavaScript checkout page" option in
+WordPress Admin Dashboard > WooCommerce > Settings > Payments > Blockonomics Bitcoin > Advanced.
 == Screenshots ==
 
 1. Settings panel
