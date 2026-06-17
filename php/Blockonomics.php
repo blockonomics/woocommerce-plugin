@@ -1172,10 +1172,6 @@ class Blockonomics
         else {
             // since $callback_status < $network_confirmations payment_status should be 1 i.e. payment in progress if payment is not already completed
             $order['payment_status'] = 1;
-            // set WC order to 'On Hold' upon 1st confirmation, this prevents woo from auto cancelling the order after 60 mins
-            if ($wc_order->get_status() === 'pending') {
-                $wc_order->update_status('on-hold', __('Crypto payment detected, awaiting confirmations.', 'blockonomics-bitcoin-payments'));
-            }
         }
         return $order;
     }

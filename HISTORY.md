@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 3.9.2  =
+* Skip auto-cancel for Blockonomics orders awaiting crypto confirmation
+
 = 3.9.1  =
 * Added testmode support for simulated test payments via Blockonomics dashboard
 * Faster checkout page load with parallel API calls

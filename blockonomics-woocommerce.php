@@ -3,7 +3,7 @@
  * Plugin Name: Bitcoin Payments - Blockonomics
  * Plugin URI: https://github.com/blockonomics/woocommerce-plugin
  * Description: Accept Bitcoin Payments on your WooCommerce-powered website with Blockonomics
- * Version: 3.9.1
+ * Version: 3.9.2-beta1
  * Author: Blockonomics
  * Author URI: https://www.blockonomics.co
  * License: MIT
@@ -80,6 +80,7 @@ function blockonomics_woocommerce_init()
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
     add_action('admin_enqueue_scripts', 'blockonomics_load_admin_scripts' );
     add_filter('woocommerce_get_checkout_payment_url','update_payment_url_on_underpayments',10,2);
+    add_filter('woocommerce_cancel_unpaid_order', 'blockonomics_skip_auto_cancel', 10, 2);
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_action( 'woocommerce_cart_calculate_fees', 'apply_bitcoin_discount', 20, 1 );
     add_shortcode('blockonomics_payment', 'add_payment_page_shortcode');
@@ -249,9 +250,23 @@ function blockonomics_woocommerce_init()
         if (!$paid_fiat) {
             return $pay_url;
         }
-        
+
         return esc_url($blockonomics->get_order_checkout_url($order_id));
 
+    }
+
+    /**
+     * Prevent WooCommerce from auto-cancelling pending Blockonomics orders.
+     *
+     * Crypto confirmations can take longer than the WC "Hold Stock" timeout
+     * (default 60 min). We rely on Blockonomics callbacks to move the order
+     * to processing/failed; until then it must remain in pending.
+     */
+    function blockonomics_skip_auto_cancel($cancel, $order) {
+        if ($order && $order->get_payment_method() === 'blockonomics') {
+            return false;
+        }
+        return $cancel;
     }
 
     /**
