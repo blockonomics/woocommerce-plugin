@@ -1,0 +1,208 @@
+# Copyright (C) 2017 Example project
+# This file is distributed under the same license as the Example project package.
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Example project\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-KeywordsList: __;_e;_ex:1,2c;_n:1,2;_n_noop:1,2;_nx:1,2,4c;_nx_noop:1,2,3c;_x:1,2c;esc_attr__;esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"X-Generator: Poedit 2.0.4\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+
+#: blockonomics-woocommerce.php:72
+msgid "Pay with bitcoin"
+msgstr ""
+
+#: blockonomics-woocommerce.php:106
+msgid "Blockonomics Payment Gateway"
+msgstr ""
+
+#: blockonomics-woocommerce.php:116
+msgid "Enable Blockonomics plugin"
+msgstr ""
+
+#: blockonomics-woocommerce.php:118
+msgid "Show bitcoin as an option to customers during checkout?"
+msgstr ""
+
+#: blockonomics-woocommerce.php:122
+msgid "Title"
+msgstr ""
+
+#: blockonomics-woocommerce.php:124
+msgid "This controls the title which the user sees during checkout."
+msgstr ""
+
+#: blockonomics-woocommerce.php:125
+msgid "Bitcoin"
+msgstr ""
+
+#: blockonomics-woocommerce.php:128
+msgid "Description"
+msgstr ""
+
+#: blockonomics-woocommerce.php:130
+msgid "This controls the description which the user sees during checkout."
+msgstr ""
+
+#: blockonomics-woocommerce.php:131
+msgid "Powered by "
+msgstr ""
+
+#: blockonomics-woocommerce.php:162
+msgid ""
+"API Key not set. Please login to Admin and go to Blockonomics module "
+"configuration to set you API Key."
+msgstr ""
+
+#: blockonomics-woocommerce.php:243
+msgid "Paid BTC amount less than expected."
+msgstr ""
+
+#: blockonomics-woocommerce.php:247
+msgid "Overpayment of BTC amount"
+msgstr ""
+
+#: blockonomics-woocommerce.php:249
+msgid "Payment completed"
+msgstr ""
+
+#: blockonomics-woocommerce.php:267
+msgid ""
+"<h1>Unable to generate bitcoin address.</h1><p> Note for site webmaster: "
+msgstr ""
+
+#: blockonomics-woocommerce.php:269
+msgid ""
+"</p><p> If problem persists, please consult <a href=\"https://blockonomics."
+"freshdesk.com/support/solutions/articles/33000215104-troubleshooting-unable-"
+"to-generate-new-address\" target=\"_blank\">this troubleshooting article</"
+"a></p>"
+msgstr ""
+
+#: blockonomics-woocommerce.php:283
+msgid ""
+"Your webhost is blocking outgoing HTTPS connections. Blockonomics requires "
+"an outgoing HTTPS POST (port 443) to generate new address. Check with your "
+"webhosting provider to allow this."
+msgstr ""
+
+#: blockonomics-woocommerce.php:286
+msgid ""
+"The allow_url_fopen is not enabled, please enable this option to allow "
+"address generation."
+msgstr ""
+
+#: blockonomics-woocommerce.php:296
+msgid ""
+"API Key is incorrect. Make sure that the API key set in admin Blockonomics "
+"module configuration is correct."
+msgstr ""
+
+#: blockonomics-woocommerce.php:308
+msgid ""
+"There is a problem in the Callback URL. Make sure that you have set your "
+"Callback URL from the admin Blockonomics module configuration to your "
+"Merchants > Settings."
+msgstr ""
+
+#: blockonomics-woocommerce.php:311
+msgid ""
+"There is a problem in the XPUB. Make sure that the you have added an address "
+"to Wallet Wathcer > Address Wathcer. If you have added an address make sure "
+"that it is an XPUB address and not a Bitcoin address."
+msgstr ""
+
+#: blockonomics-woocommerce.php:358
+msgid "Customer cancelled blockonomics payment"
+msgstr ""
+
+#: blockonomics-woocommerce.php:396
+msgid "Transaction"
+msgstr ""
+
+#: blockonomics-woocommerce.php:437
+msgid "Generate from "
+msgstr ""
+
+#: blockonomics-woocommerce.php:440
+msgid "Complete Merchant Setup by clicking on Get Started For Free in "
+msgstr ""
+
+#: blockonomics-woocommerce.php:440
+msgid "Paste this URL when prompted "
+msgstr ""
+
+#: blockonomics-woocommerce.php:456
+msgid "Accept Altcoin Payments (Using Shapeshift)"
+msgstr ""
+
+#: blockonomics-woocommerce.php:459
+msgid "Time period of countdown timer on payment page (in minutes)"
+msgstr ""
+
+#: order.php:16
+msgid "Order#"
+msgstr ""
+
+#: order.php:34
+msgid "Status"
+msgstr ""
+
+#: order.php:36
+msgid "To pay, send exact amount of BTC to the given address"
+msgstr ""
+
+#: order.php:37
+msgid "Payment Expired (Use browser back button and try again)"
+msgstr ""
+
+#: order.php:38
+msgid "Payment Error"
+msgstr ""
+
+#: order.php:39
+msgid "Unconfirmed"
+msgstr ""
+
+#: order.php:40
+msgid "Partially Confirmed"
+msgstr ""
+
+#: order.php:41
+msgid "Confirmed"
+msgstr ""
+
+#: order.php:47
+msgid "Bitcoin Address"
+msgstr ""
+
+#: order.php:53
+msgid "Click on the QR code above to open in wallet"
+msgstr ""
+
+#: order.php:58
+msgid "Amount"
+msgstr ""
+
+#: order.php:79
+msgid "OR you can "
+msgstr ""
+
+#: order.php:83
+msgid "Ethereum, Bitcoin Cash, Dash and many others supported"
+msgstr ""
+
+#: order.php:89
+msgid "Waiting for BTC payment from shapeshift altcoin conversion "
+msgstr ""
