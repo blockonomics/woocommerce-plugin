@@ -74,6 +74,34 @@ function blockonomics_woocommerce_init()
     require_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'admin-page.php';
     require_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'class-blockonomics-setup.php';
 
+    // UCP / MCP integration
+    $ucp_path = plugin_dir_path(__FILE__) . 'ucp' . DIRECTORY_SEPARATOR;
+    require_once $ucp_path . 'class-ucp-mapper.php';
+    require_once $ucp_path . 'class-ucp-cart-manager.php';
+    require_once $ucp_path . 'class-ucp-store-api.php';
+    require_once $ucp_path . 'class-ucp-api.php';
+    require_once $ucp_path . 'class-ucp-mcp.php';
+    require_once $ucp_path . 'class-ucp-webmcp.php';
+
+    add_action('rest_api_init', function () {
+        $api = new UCP_API();
+        $api->register_routes();
+        $mcp = new UCP_MCP_Server();
+        $mcp->register_routes();
+    });
+
+    new UCP_WebMCP();
+
+    add_action('init', function () {
+        if (isset($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], '/.well-known/ucp') !== false) {
+            header('Content-Type: application/json');
+            $api = new UCP_API();
+            $response = $api->get_discovery(new WP_REST_Request());
+            echo json_encode($response->get_data());
+            exit;
+        }
+    });
+
     add_action('admin_menu', 'add_page');
     add_action('init', 'load_plugin_translations');
     add_action('woocommerce_order_details_after_order_table', 'nolo_custom_field_display_cust_order_meta', 10, 1);
@@ -445,8 +473,40 @@ function blockonomics_woocommerce_init()
 // After all plugins have been loaded, initialize our payment gateway plugin
 add_action('plugins_loaded', 'blockonomics_woocommerce_init', 0);
 
+// Register Blockonomics MCP abilities at file level so the hooks are in place
+// before WordPress fires the lazy wp_abilities_api_* actions (which can happen
+// any time after init, before or after plugins_loaded callbacks run).
+add_action( 'wp_abilities_api_categories_init', function() {
+    require_once plugin_dir_path( __FILE__ ) . 'php' . DIRECTORY_SEPARATOR . 'MCP_Abilities.php';
+    Blockonomics_MCP_Abilities::register_category();
+} );
+add_action( 'wp_abilities_api_init', function() {
+    require_once plugin_dir_path( __FILE__ ) . 'php' . DIRECTORY_SEPARATOR . 'MCP_Abilities.php';
+    Blockonomics_MCP_Abilities::register();
+} );
+
+// Boot the MCP server discovery layer (virtual route, wp_head script, Link header).
+add_action( 'plugins_loaded', function() {
+    require_once plugin_dir_path( __FILE__ ) . 'php' . DIRECTORY_SEPARATOR . 'class-blockonomics-mcp-server.php';
+    Blockonomics_MCP_Server::init();
+}, 5 );
+
 register_activation_hook( __FILE__, 'blockonomics_activation_hook' );
 add_action('admin_notices', 'blockonomics_plugin_activation');
+
+// Flush rewrite rules on activation so /.well-known/mcp/server.json is live immediately.
+register_activation_hook( __FILE__, 'blockonomics_mcp_server_activate' );
+function blockonomics_mcp_server_activate() {
+    require_once plugin_dir_path( __FILE__ ) . 'php' . DIRECTORY_SEPARATOR . 'class-blockonomics-mcp-server.php';
+    Blockonomics_MCP_Server::register_rewrite();
+    flush_rewrite_rules();
+}
+
+// Remove the rewrite rule cleanly when the plugin is deactivated.
+register_deactivation_hook( __FILE__, 'blockonomics_mcp_server_deactivate' );
+function blockonomics_mcp_server_deactivate() {
+    flush_rewrite_rules();
+}
 
 add_action( 'before_woocommerce_init', function() {
 	if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
