@@ -561,3 +561,10 @@ svg {
 #blockonomics_checkout.no-js a[href=""] {
   text-decoration: none;
 }
+
+
+/** Woocommerce Multi Currency Support (CURCY) **/
+
+.woocommerce-multi-currency {
+  display: none!important;
+}
