@@ -1476,11 +1476,12 @@ class Blockonomics
                 return array('error' => __('This transaction hash is already used by another order.', 'blockonomics-bitcoin-payments'));
             }
             // one guarded UPDATE covers first-attach and rebind; the status guard
-            // keeps a concurrent final callback from having its row rewritten
+            // keeps a concurrent final callback from having its row rewritten.
+            // A rebind starts over at 0 so a failed monitor of the new hash can be retried
             global $wpdb;
             $bound_ok = $wpdb->query(
                 $wpdb->prepare(
-                    "UPDATE {$wpdb->prefix}blockonomics_payments SET txid = %s WHERE order_id = %d AND crypto = 'usdt' AND (txid IS NULL OR txid = '' OR txid = %s) AND payment_status < 2",
+                    "UPDATE {$wpdb->prefix}blockonomics_payments SET txid = %s, payment_status = 0 WHERE order_id = %d AND crypto = 'usdt' AND (txid IS NULL OR txid = '' OR txid = %s) AND payment_status < 2",
                     $txhash, $order_id, $row['txid']
                 )
             );
