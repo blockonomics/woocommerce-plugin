@@ -14,10 +14,6 @@ final class WC_Blockonomics_Blocks_Support extends AbstractPaymentMethodType {
 		return filter_var( $this->get_setting( 'enabled', true ), FILTER_VALIDATE_BOOLEAN );
 	}
 
-    private function get_enable_for_virtual() {
-		return filter_var( $this->get_setting( 'enable_for_virtual', true ), FILTER_VALIDATE_BOOLEAN );
-	}
-
     public function get_payment_method_script_handles() {
 		$asset_path = plugin_dir_path(__FILE__) . 'build' . DIRECTORY_SEPARATOR . 'block.asset.php';
 		$version = get_plugin_data( __FILE__ )['Version'];
@@ -48,8 +44,6 @@ final class WC_Blockonomics_Blocks_Support extends AbstractPaymentMethodType {
 		return [
 			'title'                    => $this->get_setting( 'title' ),
 			'description'              => $this->get_setting( 'description' ),
-			'enableForVirtual'         => $this->get_enable_for_virtual(),
-			'supports'                 => $this->get_supported_features(),
 			'icons'				       => $this->get_icons()
 		];
 	}

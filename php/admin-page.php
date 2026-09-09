@@ -186,9 +186,3 @@ function blockonomics_setup_page() {
     </div>
     <?php
 }
-
-// Register settings
-function blockonomics_register_settings() {
-    register_setting('blockonomics_options', 'blockonomics_api_key');
-}
-add_action('admin_init', 'blockonomics_register_settings');

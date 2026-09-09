@@ -53,25 +53,10 @@ class Blockonomics {
             '.bnomics-order-panel'
         );
 
-        this._amount_text = this.container.querySelector(
-            '.bnomics-amount-text'
-        );
-        this._copy_amount_text = this.container.querySelector(
-            '.bnomics-copy-amount-text'
-        );
         this._amount_input = this.container.querySelector(
             '#bnomics-amount-input'
         );
 
-        this._address_text = this.container.querySelector(
-            '.bnomics-address-text'
-        );
-        this._copy_address_text = this.container.querySelector(
-            '.bnomics-copy-address-text'
-        );
-        this._address_input = this.container.querySelector(
-            '#bnomics-address-input'
-        );
 
         this._time_left = this.container.querySelector('.bnomics-time-left');
         this._crypto_rate = this.container.querySelector(
@@ -79,8 +64,6 @@ class Blockonomics {
         );
 
         this._refresh = this.container.querySelector('#bnomics-refresh');
-        this._qr_code_container =
-            this.container.querySelector('.bnomics-qr-code');
         this._qr_code = this.container.querySelector('#bnomics-qr-code');
         this._qr_code_links =
             this.container.querySelectorAll('a.bnomics-qr-link');

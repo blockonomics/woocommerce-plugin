@@ -5,10 +5,8 @@ defined( 'ABSPATH' ) || exit;
 class FormFields {
     public static function init_form_fields($callback_url = '') {
         $blockonomics = new Blockonomics;
-        $cryptos = $blockonomics->getSupportedCurrencies();
 
         // Get the current API key and any stored metadata
-        $api_key = get_option('blockonomics_api_key');
         $store_name = get_option('blockonomics_store_name');
         $enabled_cryptos = get_option('blockonomics_enabled_cryptos', array());
         $subtitle = '';

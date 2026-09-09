@@ -48,12 +48,6 @@
     display: none;
 }
 
-#save-api-key-button {
-    margin-top: 6px;
-    background-color: green;
-    color:white;
-}
-
 #test-setup-btn {
     background-color: green;
     color:white;

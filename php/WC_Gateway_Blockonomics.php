@@ -20,7 +20,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $this->method_description = __( 'Accept crypto payments. Payments go directly to your wallet.', 'blockonomics-bitcoin-payments' );
 
         include_once 'Blockonomics.php';
-        $blockonomics = new Blockonomics;
         $this->icon = plugins_url('img', dirname(__FILE__)) . '/logo.png';
 
         // control icon size in WooCommerce checkout payment method list, file is 100x100 we want 36x36
@@ -325,7 +324,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                     <input class="input-text regular-input <?php echo esc_attr( $data['class'] ); ?>" type="text" name="<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" style="<?php echo esc_attr( $data['css'] ); ?>" value="<?php echo esc_attr( $this->get_option( $key ) ); ?>" placeholder="<?php echo esc_attr( $data['placeholder'] ); ?>" <?php disabled( $data['disabled'], true ); ?> <?php echo $this->get_custom_attribute_html( $data ); // WPCS: XSS ok. ?> />
                 </fieldset>
 
-                <!-- <button name="save" id="save-api-key-button" class="button-primary woocommerce-save-button" type="submit" value="Save changes">Save API key</button> -->
                 <div id="api-key-notification-box">
                     <span class="text">
                         Please enter a valid API key.
@@ -346,17 +344,6 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             return false;
         }
 
-        $blockonomics = new Blockonomics;
-        $supportedCurrencies = $blockonomics->getSupportedCurrencies();
-
-        foreach ($supportedCurrencies as $code => $currency) {
-            if ($code === 'btc') {
-                update_option('blockonomics_' . $code, 1);
-            } elseif ($code === 'bch') {
-                $isEnabled = $this->get_option('enable_bch') === 'yes' ? 1 : 0;
-                update_option('blockonomics_' . $code, $isEnabled);
-            }
-        }
         update_option('blockonomics_bitcoin_discount', floatval($this->get_option('bitcoin_discount')));
         update_option('blockonomics_margin', floatval($this->get_option('extra_margin')));
         update_option('blockonomics_underpayment_slack', floatval($this->get_option('underpayment_slack')));

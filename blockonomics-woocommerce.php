@@ -3,7 +3,7 @@
  * Plugin Name: Bitcoin Payments - Blockonomics
  * Plugin URI: https://github.com/blockonomics/woocommerce-plugin
  * Description: Accept Bitcoin Payments on your WooCommerce-powered website with Blockonomics
- * Version: 3.10.1
+ * Version: 3.11.0
  * Author: Blockonomics
  * Author URI: https://www.blockonomics.co
  * License: MIT
@@ -78,8 +78,8 @@ function blockonomics_woocommerce_init()
     add_action('init', 'load_plugin_translations');
     add_action('woocommerce_order_details_after_order_table', 'nolo_custom_field_display_cust_order_meta', 10, 1);
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
-    add_action('admin_enqueue_scripts', 'blockonomics_load_admin_scripts' );
     add_filter('woocommerce_get_checkout_payment_url','update_payment_url_on_underpayments',10,2);
+    add_filter('woocommerce_cancel_unpaid_order', 'blockonomics_skip_auto_cancel', 10, 2);
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_action( 'woocommerce_cart_calculate_fees', 'apply_bitcoin_discount', 20, 1 );
     add_shortcode('blockonomics_payment', 'add_payment_page_shortcode');
@@ -110,6 +110,61 @@ function blockonomics_woocommerce_init()
 
     add_action( 'admin_enqueue_scripts', 'blockonomics_enqueue_custom_admin_style' );
     add_action( 'wp_ajax_test_setup', 'blockonomics_test_setup' );
+    add_action( 'add_meta_boxes', 'blockonomics_add_attach_hash_meta_box', 10, 2 );
+    add_action( 'woocommerce_process_shop_order_meta', 'blockonomics_handle_attach_hash' );
+
+    // Recovery for USDT orders whose txhash never reached the plugin
+    // (window closed before redirect, external-wallet payment, gas replacement)
+    function blockonomics_add_attach_hash_meta_box($screen_id, $post_or_order) {
+        $order = ($post_or_order instanceof WC_Order) ? $post_or_order : wc_get_order($post_or_order);
+        if (!$order || $order->get_payment_method() !== 'blockonomics') {
+            return;
+        }
+        if ($order->is_paid()) {
+            return;
+        }
+        $blockonomics = new Blockonomics();
+        $row = $blockonomics->get_order_by_id_and_crypto($order->get_id(), 'usdt');
+        if (!$row || $row['payment_status'] == 2) {
+            return;
+        }
+        add_meta_box(
+            'blockonomics-attach-hash',
+            __('Blockonomics — Attach USDT txhash', 'blockonomics-bitcoin-payments'),
+            function() use ($row) {
+                wp_nonce_field('blockonomics_attach_hash', 'blockonomics_attach_hash_nonce');
+                if (!empty($row['txid'])) {
+                    echo '<p style="word-break:break-all;">' . esc_html__('Current hash:', 'blockonomics-bitcoin-payments') . ' <code>' . esc_html($row['txid']) . '</code></p>';
+                }
+                echo '<input type="text" name="blockonomics_attach_txhash" style="width:100%" placeholder="0x…" />';
+                echo '<p class="description">' . esc_html__('Paste the on-chain transaction hash, then click Update. The result is recorded as an order note.', 'blockonomics-bitcoin-payments') . '</p>';
+            },
+            $screen_id,
+            'side'
+        );
+    }
+
+    function blockonomics_handle_attach_hash($order_id) {
+        if (empty($_POST['blockonomics_attach_txhash'])) {
+            return;
+        }
+        if (!isset($_POST['blockonomics_attach_hash_nonce'])
+            || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['blockonomics_attach_hash_nonce'])), 'blockonomics_attach_hash')
+            || !current_user_can('edit_shop_orders')) {
+            return;
+        }
+        $txhash = sanitize_text_field(wp_unslash($_POST['blockonomics_attach_txhash']));
+        $blockonomics = new Blockonomics();
+        $result = $blockonomics->attach_txhash($order_id, $txhash);
+        $wc_order = wc_get_order($order_id);
+        if ($wc_order) {
+            if (isset($result['error'])) {
+                $wc_order->add_order_note(__('Attach txhash failed: ', 'blockonomics-bitcoin-payments') . $result['error']);
+            } else {
+                $wc_order->add_order_note($result['success'] . '<br/>txhash: ' . $txhash);
+            }
+        }
+    }
 
     function bnomics_exclude_pages( $exclude ) {
         $exclude[] = wc_get_page_id( 'payment' );
@@ -130,7 +185,6 @@ function blockonomics_woocommerce_init()
 
             wp_localize_script('blockonomics-admin-scripts', 'blockonomics_params', array(
                 'ajaxurl' => admin_url( 'admin-ajax.php' ),
-                'apikey'  => get_option('blockonomics_api_key'),
                 'plugin_url' => plugins_url('/', __FILE__)
             ));
 
@@ -249,19 +303,25 @@ function blockonomics_woocommerce_init()
         if (!$paid_fiat) {
             return $pay_url;
         }
-        
+
         return esc_url($blockonomics->get_order_checkout_url($order_id));
 
     }
 
     /**
-     * Add Styles to Blockonomics Admin Page
-     **/
-    function blockonomics_load_admin_scripts($hook){ 
-        if ( $hook === 'settings_page_blockonomics_options') {        
-            wp_enqueue_style('bnomics-admin-style', plugin_dir_url(__FILE__) . "css/blockonomics_options.css", '', get_plugin_data( __FILE__ )['Version']);
+     * Prevent WooCommerce from auto-cancelling pending Blockonomics orders.
+     *
+     * Crypto confirmations can take longer than the WC "Hold Stock" timeout
+     * (default 60 min). We rely on Blockonomics callbacks to move the order
+     * to processing/failed; until then it must remain in pending.
+     */
+    function blockonomics_skip_auto_cancel($cancel, $order) {
+        if ($order && $order->get_payment_method() === 'blockonomics') {
+            return false;
         }
+        return $cancel;
     }
+
     /**
      * Adding new filter to WooCommerce orders
      **/
@@ -314,60 +374,18 @@ function blockonomics_woocommerce_init()
     // Add entry in the settings menu
     function add_page()
     {
-        $nonce = isset($_REQUEST['_wpnonce']) ? wp_verify_nonce( sanitize_text_field(wp_unslash($_REQUEST['_wpnonce'])), 'update-options' ) : "";
-        $force_generate = isset($_POST['generateSecret']) && $nonce ? true : false;
-        generate_secret($force_generate);
+        generate_secret();
     }
 
-    function display_admin_message($msg, $type)
-    {
-        add_settings_error('option_notice', 'option_notice', $msg, $type);
-    }
-
-    function get_started_message($domain = '', $label_class = 'bnomics-options-intendation', $message = 'To configure')
-    {
-        echo 
-        "<label class=$label_class>".
-            __("$message, click <b> Get Started for Free </b> on ", 'blockonomics-bitcoin-payments').
-            '<a href="https://'.$domain.'blockonomics.co/merchants" target="_blank">'.
-                __('https://'.$domain.'blockonomics.co/merchants', 'blockonomics-bitcoin-payments').
-            '</a>
-        </label>';
-    }
-
-    function success_message()
-    {
-        echo '<td colspan="2"class="notice notice-success bnomics-test-setup-message">'.__("Success", 'blockonomics-bitcoin-payments').'</td>';
-    }
-
-    function error_message($error)
-    {
-        echo 
-        '<td colspan="2" class="notice notice-error bnomics-test-setup-message">'.$error.'.<br/>'.
-            __("Please consult ", 'blockonomics-bitcoin-payments').
-            '<a href="http://help.blockonomics.co/support/solutions/articles/33000215104-unable-to-generate-new-address" target="_blank">'.
-            __("this troubleshooting article", 'blockonomics-bitcoin-payments').'</a>.
-        </td>';
-    }
-
-    function generate_secret($force_generate = false)
+    function generate_secret()
     {
         $callback_secret = get_option("blockonomics_callback_secret");
-        if (!$callback_secret || $force_generate) {
+        if (!$callback_secret) {
             $callback_secret = sha1(openssl_random_pseudo_bytes(20));
             update_option("blockonomics_callback_secret", $callback_secret);
         }
     }
 
-    function get_callback_url()
-    {
-        $callback_secret = get_option('blockonomics_callback_secret');
-        $callback_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-        $callback_url = add_query_arg('secret', $callback_secret, $callback_url);
-        return $callback_url;
-    }
-
-    
     function bnomics_display_payment_details($order, $transactions, $email=false)
     {
         $blockonomics = new Blockonomics;

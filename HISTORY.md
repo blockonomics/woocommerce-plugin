@@ -1,5 +1,10 @@
 == Changelog ==
 
+= 3.11.0  =
+* Support for multilingual stores
+* Improved USDT payment handling and recovery
+* Orders stay Pending without automatic cancellation
+
 = 3.10.1  =
 * Minor Fixes
 
