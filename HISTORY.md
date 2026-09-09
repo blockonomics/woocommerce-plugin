@@ -1,7 +1,9 @@
 == Changelog ==
 
 = 3.11.0  =
-* Orders stay Pending during crypto confirmation (no more premature On Hold emails); auto-cancel skipped for Blockonomics orders
+* Support for multilingual stores
+* Improved USDT payment handling and recovery
+* Orders stay Pending without automatic cancellation
 
 = 3.10.1  =
 * Minor Fixes
