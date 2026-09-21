@@ -1,0 +1,168 @@
+# Copyright (C) 2017 Example project
+# This file is distributed under the same license as the Example project package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Example project\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-KeywordsList: __;_e;_ex:1,2c;_n:1,2;_n_noop:1,2;_nx:1,2,4c;"
+"_nx_noop:1,2,3c;_x:1,2c;esc_attr__;esc_attr_e;esc_attr_x:1,2c;esc_html__;"
+"esc_html_e;esc_html_x:1,2c\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Language-Team: \n"
+"X-Generator: Poedit 2.0.4\n"
+"Last-Translator: \n"
+"Language: fr_FR\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+
+#: blockonomics-woocommerce.php:71
+msgid "Pay with bitcoin"
+msgstr "Payer Avec Bitcoin"
+
+#: blockonomics-woocommerce.php:99
+msgid "Blockonomics Payment Gateway"
+msgstr "Payement par Blockonomics"
+
+#: blockonomics-woocommerce.php:109
+msgid "Enable Blockonomics plugin"
+msgstr "Activer le Plug-In Blockonomics"
+
+#: blockonomics-woocommerce.php:111
+msgid "Show bitcoin as an option to customers during checkout?"
+msgstr "Afficher Bitcoin comme Option à la caisse?"
+
+#: blockonomics-woocommerce.php:115
+msgid "Title"
+msgstr "Titre"
+
+#: blockonomics-woocommerce.php:117
+msgid "This controls the title which the user sees during checkout."
+msgstr ""
+"Ceci contrôle le titre que l'utilisateur va voir pendant le processus de "
+"paiement"
+
+#: blockonomics-woocommerce.php:118
+msgid "Bitcoin"
+msgstr "Bitcoin"
+
+#: blockonomics-woocommerce.php:121
+msgid "Description"
+msgstr "Description"
+
+#: blockonomics-woocommerce.php:123
+msgid "This controls the description which the user sees during checkout."
+msgstr ""
+"Ceci contrôle la description que l'utilisateur va voir pendant le processus "
+"de paiement"
+
+#: blockonomics-woocommerce.php:124
+msgid "Powered by "
+msgstr "Alimenté par"
+
+#: blockonomics-woocommerce.php:156 blockonomics-woocommerce.php:158
+msgid ""
+"Sorry, but there was an error processing your order. Please try again or try "
+"a different payment method. (plugin not configured)"
+msgstr ""
+"Il y a eu une erreur pendant le procès de votre commande. Veuillez réessayer "
+"ou utiliser une différente méthode de paiement. (plug-in non confirmé)"
+
+#: blockonomics-woocommerce.php:240
+msgid "Paid BTC amount less than expected."
+msgstr "Le montant de Bitcoin paié n'est pas suffisant"
+
+#: blockonomics-woocommerce.php:244
+msgid "Overpayment of BTC amount"
+msgstr "Le montant de Bitcoin payé est trop important."
+
+#: blockonomics-woocommerce.php:245
+msgid "Payment completed"
+msgstr "Paiement complété."
+
+#: blockonomics-woocommerce.php:281
+msgid "Customer cancelled blockonomics payment"
+msgstr "Le Client a annulé le paiement par Blockonomics"
+
+#: blockonomics-woocommerce.php:316
+msgid "Transaction"
+msgstr "Transaction"
+
+#: blockonomics-woocommerce.php:342
+msgid "Generate from "
+msgstr "Généré par"
+
+#: blockonomics-woocommerce.php:345
+msgid "Copy this url and set in "
+msgstr "Copiez cette Adresse URL et fixer "
+
+#: blockonomics-woocommerce.php:352
+msgid "Accept Altcoin Payments (Using Shapeshift)"
+msgstr "Accepter les paiements Altcoin (en utilisant Shapeshift)"
+
+#: order.php:4
+msgid "Bitcoin Payment - Powered by Blockonomics"
+msgstr "Paiement Bitcoin - Alimenté par Blockonomics"
+
+#: order.php:84
+msgid "Order#"
+msgstr "Commande#"
+
+#: order.php:116
+msgid "Status"
+msgstr "Statut"
+
+#: order.php:118
+msgid "To pay, send exact amount of BTC to the given address"
+msgstr "À payé, envoyez le montant exact de BTC à l'adresse donnée. "
+
+#: order.php:119
+msgid "Payment Expired (Use browser back button and try again)"
+msgstr ""
+"Le paiement a expiré (Utiliser la fonction arrière de votre navigateur Web "
+"et réessayez)"
+
+#: order.php:120
+msgid "Payment Error"
+msgstr "Erreur de paiement"
+
+#: order.php:121
+msgid "Unconfirmed"
+msgstr "Non confirmé"
+
+#: order.php:122
+msgid "Partially Confirmed"
+msgstr "Partiellement confirmé"
+
+#: order.php:123
+msgid "Confirmed"
+msgstr "Confirmé"
+
+#: order.php:130
+msgid "Bitcoin Address"
+msgstr "Adresse Bitcoin"
+
+#: order.php:144
+msgid "Click on the QR code above to open in wallet"
+msgstr "Cliquez sur le Code QR ci-dessur pour ouvrir dans le Portefeuille."
+
+#: order.php:150
+msgid "Amount"
+msgstr "Montant"
+
+#: order.php:166
+msgid "OR you can "
+msgstr "OU vous pouvez"
+
+#: order.php:170
+msgid "Ethereum, Bitcoin Cash, Dash and many others supported"
+msgstr "Ethereum, Bitcoin Cash, Dash et beaucoup d'autres sont utilisables"
+
+#: order.php:174
+msgid "Waiting for BTC payment from shapeshift altcoin conversion "
+msgstr "Attendre le paiement BTC de la conversion altcoin par Shapeshift"
