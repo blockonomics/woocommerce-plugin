@@ -1394,8 +1394,8 @@ class Blockonomics
     public function process_token_order($order_id, $crypto, $txhash) {
         $wc_order = wc_get_order($order_id);
 
-        if (!is_string($txhash) || $txhash === '') {
-            $msg = __('Missing transaction hash!', 'blockonomics-bitcoin-payments');
+        if (!is_string($txhash) || !preg_match('/^0x[a-fA-F0-9]{64}$/', $txhash)) {
+            $msg = __('Invalid transaction hash!', 'blockonomics-bitcoin-payments');
             $wc_order->add_order_note($msg);
             $this->display_order_error($msg, $order_id, $txhash);
             exit;
