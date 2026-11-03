@@ -401,7 +401,7 @@ function blockonomics_woocommerce_init()
             }
 
             $output .=  '<tr><td scope="row">';
-            $output .=  '<a style="word-wrap: break-word;word-break: break-all;" href="' . $txid_url . '">' . $transaction['txid'] . '</a></td>';
+            $output .=  '<a style="word-wrap: break-word;word-break: break-all;" href="' . esc_url($txid_url) . '">' . esc_html($transaction['txid']) . '</a></td>';
             $formatted_paid_fiat = ($transaction['payment_status'] == '2') ? wc_price($transaction['paid_fiat']) : 'Processing';
             $output .= '<td>' . $formatted_paid_fiat . '</td></tr>';
 
