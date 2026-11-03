@@ -1,5 +1,8 @@
 == Changelog ==
 
+= 3.11.1  =
+* Security fix: escape payment page links and validate USDT transaction hashes
+
 = 3.11.0  =
 * Support for multilingual stores
 * Improved USDT payment handling and recovery
