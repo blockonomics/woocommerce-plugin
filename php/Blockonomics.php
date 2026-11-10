@@ -589,16 +589,10 @@ class Blockonomics
                 continue;
             }
 
-            if ($response->status_code == 200) {
-                $body = json_decode($response->body);
-                if (isset($body->address) && !empty($body->address)) {
-                    $success_messages[] = strtoupper($code) . " ✅";
-                } else {
-                    $msg = isset($body->message) ? $body->message : __('Could not generate new address', 'blockonomics-bitcoin-payments');
-                    $error_messages[] = strtoupper($code) . ": " . $msg;
-                }
+            $body = json_decode($response->body);
+            if ($response->status_code == 200 && !empty($body->address)) {
+                $success_messages[] = strtoupper($code) . " ✅";
             } else {
-                $body = json_decode($response->body);
                 $msg = isset($body->message) ? $body->message : __('Could not generate new address', 'blockonomics-bitcoin-payments');
                 $error_messages[] = strtoupper($code) . ": " . $msg;
             }
