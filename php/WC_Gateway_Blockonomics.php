@@ -78,15 +78,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 
     public function init_form_fields() {
         require_once 'form_fields.php';
-        $this->form_fields = FormFields::init_form_fields($this->get_callback_url());
-    }
-
-    private function get_callback_url()
-    {
-        $callback_secret = get_option('blockonomics_callback_secret');
-        $callback_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-        $callback_url = add_query_arg('secret', $callback_secret, $callback_url);
-        return $callback_url;
+        $this->form_fields = FormFields::init_form_fields(Blockonomics::get_callback_url());
     }
 
     public function generate_text_html( $key, $data ) {
@@ -351,7 +343,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         update_option('blockonomics_api_key', $this->get_option('api_key'));
         update_option('blockonomics_nojs', $this->get_option('no_javascript') == 'yes' ? 1 : 0);
         update_option('blockonomics_network_confirmation', $this->get_option('network_confirmation'));
-        $this->update_option('call_backurls', $this->get_callback_url());
+        $this->update_option('call_backurls', Blockonomics::get_callback_url());
 
         return true;
     }

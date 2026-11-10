@@ -195,12 +195,6 @@ class Blockonomics_Setup {
         return array('stores' => $response_data->data);
     }
 
-    private function get_callback_url() {
-        $callback_secret = get_option('blockonomics_callback_secret');
-        $api_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-        return add_query_arg('secret', $callback_secret, $api_url);
-    }
-
     // Check if API key is valid and has wallets
     public function validate_api_key($api_key) {
         $wallet_result = $this->fetch_wallet_choices($api_key);
@@ -231,7 +225,7 @@ class Blockonomics_Setup {
 
         // repair http -> https drift only (never downgrade to http, never rewrite
         // for path differences — WPML prefixes, subfolder installs)
-        $wordpress_callback_url = $this->get_callback_url();
+        $wordpress_callback_url = Blockonomics::get_callback_url();
         if (strpos($best_store->http_callback, 'http://') === 0
             && strpos($wordpress_callback_url, 'https://') === 0
             && substr($best_store->http_callback, 7) === substr($wordpress_callback_url, 8)) {
@@ -412,7 +406,7 @@ class Blockonomics_Setup {
             return array('error' => 'Please enter your store name');
         }
         $api_key = get_option('blockonomics_api_key');
-        $callback_url = $this->get_callback_url();
+        $callback_url = Blockonomics::get_callback_url();
         $store_lookup = $this->find_store_by_callback($api_key);
         if (isset($store_lookup['error'])) {
             return $store_lookup;

@@ -444,6 +444,10 @@ class Blockonomics
         return isset($params['secret']) && $params['secret'] === $secret;
     }
 
+    public static function get_callback_url() {
+        return add_query_arg('secret', get_option('blockonomics_callback_secret'), WC()->api_request_url('WC_Gateway_Blockonomics'));
+    }
+
     /* Find this install's store by callback secret, if multiple matches exist, prefers store with wallets attached
      *
      * @param array $stores List of stores from API
