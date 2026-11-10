@@ -1184,18 +1184,17 @@ class Blockonomics
             return $order;
         }
 
+        $wc_order->add_order_note(__(wc_price($order['paid_fiat']). " paid via ".strtoupper($order['crypto'])." (Blockonomics).", 'blockonomics-bitcoin-payments'));
         if ($this->is_order_underpaid($order)) {
             if ($this->is_partial_payments_active()){
-                $this->add_note_on_underpayment($order, $wc_order);
+                $wc_order->add_order_note(__( "Customer has been mailed invoice to pay the remaining amount. You can resend invoice from Order actions.", 'blockonomics-bitcoin-payments' ));
                 $this->send_email_on_underpayment($order);
             }
             else {
-                $wc_order->add_order_note(__(  wc_price($order['paid_fiat']). " paid via ".strtoupper($order['crypto'])." (Blockonomics).", 'blockonomics-bitcoin-payments' ));
                 $wc_order->update_status('failed', __( "Order Underpaid.", 'blockonomics-bitcoin-payments'));
             }
         }
         else{
-            $wc_order->add_order_note(__(wc_price($order['paid_fiat']). " paid via ".strtoupper($order['crypto'])." (Blockonomics).", 'blockonomics-bitcoin-payments'));
             $wc_order->payment_complete($order['txid']);
         }
         if ($order['expected_satoshi'] < $paid_satoshi) {
@@ -1245,13 +1244,6 @@ class Blockonomics
         $selected_currency = $blockonomics_currencies[$order['crypto']];
         $wc_order->set_payment_method_title($selected_currency['name']);
         $wc_order->save();
-    }
-
-    // Auto generate and apply coupon on underpaid callbacks
-    public function add_note_on_underpayment($order, $wc_order){
-        $paid_amount = $order['paid_fiat'];
-        $wc_order->add_order_note(__( wc_price($paid_amount). " paid via ".strtoupper($order['crypto'])." (Blockonomics).", 'blockonomics-bitcoin-payments' ));
-        $wc_order->add_order_note(__( "Customer has been mailed invoice to pay the remaining amount. You can resend invoice from Order actions.", 'blockonomics-bitcoin-payments' ));
     }
 
     // Send Invoice email to customer to pay remaining amount
