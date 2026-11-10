@@ -79,7 +79,7 @@ function blockonomics_woocommerce_init()
     add_action('woocommerce_order_details_after_order_table', 'nolo_custom_field_display_cust_order_meta', 10, 1);
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
     add_filter('woocommerce_get_checkout_payment_url','update_payment_url_on_underpayments',10,2);
-    add_filter('woocommerce_cancel_unpaid_order', 'blockonomics_skip_auto_cancel', 10, 2);
+    add_filter('woocommerce_order_needs_payment', 'blockonomics_underpaid_order_needs_payment', 10, 2);
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_action( 'woocommerce_cart_calculate_fees', 'apply_bitcoin_discount', 20, 1 );
     add_shortcode('blockonomics_payment', 'add_payment_page_shortcode');
@@ -278,6 +278,15 @@ function blockonomics_woocommerce_init()
     }
 
 
+    function blockonomics_underpaid_order_needs_payment($needs_payment, $order) {
+        if ($needs_payment || !$order->has_status('on-hold') || $order->get_payment_method() !== 'blockonomics') {
+            return $needs_payment;
+        }
+        $blockonomics = new Blockonomics();
+        $paid_fiat = $blockonomics->get_order_paid_fiat($order->get_id());
+        return $blockonomics->is_partial_payments_active() && $paid_fiat > 0 && $paid_fiat < (float) $order->get_total();
+    }
+
     /**
      * Redriect to the checkout page  
      **/
@@ -306,20 +315,6 @@ function blockonomics_woocommerce_init()
 
         return esc_url($blockonomics->get_order_checkout_url($order_id));
 
-    }
-
-    /**
-     * Prevent WooCommerce from auto-cancelling pending Blockonomics orders.
-     *
-     * Crypto confirmations can take longer than the WC "Hold Stock" timeout
-     * (default 60 min). We rely on Blockonomics callbacks to move the order
-     * to processing/failed; until then it must remain in pending.
-     */
-    function blockonomics_skip_auto_cancel($cancel, $order) {
-        if ($order && $order->get_payment_method() === 'blockonomics') {
-            return false;
-        }
-        return $cancel;
     }
 
     /**

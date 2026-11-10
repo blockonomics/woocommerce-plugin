@@ -1132,6 +1132,9 @@ class Blockonomics
         else {
             // since $callback_status < $network_confirmations payment_status should be 1 i.e. payment in progress if payment is not already completed
             $order['payment_status'] = 1;
+            if ($wc_order->get_status() === 'pending') {
+                $wc_order->update_status('on-hold', __('Crypto payment detected, awaiting confirmations.', 'blockonomics-bitcoin-payments'));
+            }
         }
         return $order;
     }
