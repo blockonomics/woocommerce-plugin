@@ -667,7 +667,20 @@ class Blockonomics
         $expires_at = (int) $wc_order->get_meta($expires_key);
         $order = $this->get_order_by_id_and_crypto($order_id, $crypto);
 
-        if (!$order || $order['payment_status'] != 0 || $expires_at <= time()) {
+        // Only quote orders that still need payment
+        if ($wc_order->has_status('cancelled')) {
+            return array(
+                'order_hash'   => $this->encrypt_hash($order_id),
+                'order_status' => $wc_order->get_status(),
+            );
+        }
+        $awaiting_payment = $wc_order->needs_payment();
+        if (!$awaiting_payment && (!$order || $order['payment_status'] == 0)) {
+            // Paid or on hold with a payment in another crypto
+            return array('error' => __('Order already has a payment in another crypto', 'blockonomics-bitcoin-payments'));
+        }
+
+        if ($awaiting_payment && (!$order || $order['payment_status'] != 0 || $expires_at <= time())) {
             $order = $this->process_order($order_id, $crypto);
             if (array_key_exists('error', $order)) {
                 return $order;
