@@ -71,7 +71,6 @@ class Blockonomics_Agent_Discovery {
     }
 
     private static function build_instructions() {
-        include_once 'Blockonomics.php';
         $blockonomics = new Blockonomics;
         $cryptos = array_keys($blockonomics->getCachedActiveCurrencies());
         $crypto_list = $cryptos ? implode(', ', $cryptos) : 'btc';

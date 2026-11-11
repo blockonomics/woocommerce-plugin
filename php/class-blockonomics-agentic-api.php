@@ -10,7 +10,6 @@ class Blockonomics_Agentic_API {
     const HASH_PATTERN = '(?P<hash>[a-fA-F0-9]+)';
 
     public static function register_routes() {
-        include_once 'Blockonomics.php';
         $blockonomics = new Blockonomics;
         if (!$blockonomics->is_agentic_checkout_active()) {
             return;
