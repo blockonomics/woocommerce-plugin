@@ -712,6 +712,12 @@ class Blockonomics
         if (isset($crypto_obj['uri'])) {
             $details['payment_uri'] = $this->get_crypto_payment_uri($crypto_obj, $order['address'], $amount);
         }
+        if (!$details['testmode']) {
+            $explorer_url = $this->get_explorer_url($crypto, $order['address'], isset($order['txid']) ? $order['txid'] : '');
+            if ($explorer_url) {
+                $details['explorer_url'] = $explorer_url;
+            }
+        }
         if ($crypto === 'usdt') {
             // ERC-20 transfers are only detected once the payer submits the txhash
             $details['network'] = 'ethereum';
@@ -721,6 +727,17 @@ class Blockonomics
             }
         }
         return $details;
+    }
+
+    // USDT and BCH links need a txid; BTC falls back to an address search
+    public function get_explorer_url($crypto, $address, $txid = ''){
+        if ($crypto === 'usdt') {
+            return $txid ? 'https://www.etherscan.io/tx/' . $txid : '';
+        }
+        if ($crypto === 'bch') {
+            return $txid ? self::BCH_BASE_URL . '/api/tx?txid=' . $txid . '&addr=' . $address : '';
+        }
+        return self::BASE_URL . '/#/search?q=' . ($txid ? $txid . '&addr=' . $address : $address);
     }
 
     private function is_test_address($address){

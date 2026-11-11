@@ -401,13 +401,7 @@ function blockonomics_woocommerce_init()
         foreach ($transactions as $transaction) {
 
             $crypto = strtolower($transaction['crypto']);
-            if ( $crypto === 'bch' ) {
-                $txid_url = Blockonomics::BCH_BASE_URL . '/api/tx?txid=' . $transaction['txid'] . '&addr=' . $transaction['address'];
-            } elseif ( $crypto === 'usdt' ) {
-                $txid_url = 'https://www.etherscan.io/tx/' . $transaction['txid'];
-            } else {
-                $txid_url = Blockonomics::BASE_URL . '/#/search?q=' . $transaction['txid'] . '&addr=' . $transaction['address'];
-            }
+            $txid_url = $blockonomics->get_explorer_url($crypto, $transaction['address'], $transaction['txid']);
 
             $output .=  '<tr><td scope="row">';
             $output .=  '<a style="word-wrap: break-word;word-break: break-all;" href="' . $txid_url . '">' . $transaction['txid'] . '</a></td>';
