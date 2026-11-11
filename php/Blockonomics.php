@@ -715,7 +715,7 @@ class Blockonomics
         if ($crypto === 'usdt') {
             // ERC-20 transfers are only detected once the payer submits the txhash
             $details['network'] = 'ethereum';
-            $details['txhash_url'] = rest_url('blockonomics/v1/orders/' . $details['order_hash'] . '/txhash');
+            $details['txhash_url'] = rest_url(Blockonomics_Agentic_API::NAMESPACE_V1 . '/orders/' . $details['order_hash'] . '/txhash');
             if ($details['testmode'] && $order['payment_status'] == 0) {
                 $details['test_txhash'] = $this->generate_usdt_test_txhash($order['expected_satoshi']);
             }

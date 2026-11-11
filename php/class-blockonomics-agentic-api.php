@@ -1,12 +1,12 @@
 <?php
 
 /**
- * blockonomics/v1 routes used after a Store API checkout: payment details/status
+ * Agentic checkout routes used after a Store API checkout: payment details/status
  * and USDT txhash submission. The order hash acts as the credential, same as the checkout page URL.
  */
 class Blockonomics_Agentic_API {
 
-    const NAMESPACE_V1 = 'blockonomics/v1';
+    const NAMESPACE_V1 = 'blockonomics-agentic-checkout/v1';
     const HASH_PATTERN = '(?P<hash>[a-fA-F0-9]+)';
 
     public static function register_routes() {

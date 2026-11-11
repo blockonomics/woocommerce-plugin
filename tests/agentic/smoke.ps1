@@ -46,11 +46,11 @@ function Assert($cond, [string]$msg) {
 }
 
 function Get-Details([string]$Hash) {
-    Invoke-Api GET "/wp-json/blockonomics/v1/orders/$Hash`?crypto=$Crypto"
+    Invoke-Api GET "/wp-json/blockonomics-agentic-checkout/v1/orders/$Hash`?crypto=$Crypto"
 }
 
 # 0. Discovery: instructions route points agents at the Store API
-$r = Invoke-Api GET '/wp-json/blockonomics/v1/agent'
+$r = Invoke-Api GET '/wp-json/blockonomics-agentic-checkout/v1/agent'
 Assert ($r.Code -eq 200 -and $r.Text -match 'wc/store/v1/cart') 'agent instructions served with Store API flow'
 
 # 1. Discover product (agent browsing)
@@ -90,17 +90,17 @@ Assert ($r.Code -eq 200) 'GET order details'
 Assert ($r.Json.address -eq $pd.address -and $r.Json.amount_base_units -eq $pd.amount_base_units) 'quote reused (same address + amount)'
 
 # 5. Negative cases
-$r = Invoke-Api GET "/wp-json/blockonomics/v1/orders/deadbeef`?crypto=$Crypto"
+$r = Invoke-Api GET "/wp-json/blockonomics-agentic-checkout/v1/orders/deadbeef`?crypto=$Crypto"
 Assert ($r.Code -eq 404) "bogus hash -> 404 (got $($r.Code))"
-$r = Invoke-Api GET "/wp-json/blockonomics/v1/orders/$hash`?crypto=doge"
+$r = Invoke-Api GET "/wp-json/blockonomics-agentic-checkout/v1/orders/$hash`?crypto=doge"
 Assert ($r.Code -eq 400) "unsupported crypto -> 400 (got $($r.Code))"
 
 # 6. USDT: agent registers txhash
 if ($Crypto -eq 'usdt' -and $TxHash) {
-    $r = Invoke-Api POST "/wp-json/blockonomics/v1/orders/$hash/txhash" @{ txhash = $TxHash }
+    $r = Invoke-Api POST "/wp-json/blockonomics-agentic-checkout/v1/orders/$hash/txhash" @{ txhash = $TxHash }
     Write-Host $r.Text
     Assert ($r.Code -eq 200) "txhash submit (HTTP $($r.Code))"
-    $r = Invoke-Api POST "/wp-json/blockonomics/v1/orders/$hash/txhash" @{ txhash = ('0x' + ('f' * 64)) }
+    $r = Invoke-Api POST "/wp-json/blockonomics-agentic-checkout/v1/orders/$hash/txhash" @{ txhash = ('0x' + ('f' * 64)) }
     Assert ($r.Code -eq 400) "different txhash rejected (got $($r.Code))"
 }
 

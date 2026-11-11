@@ -72,7 +72,7 @@ WordPress Admin Dashboard > WooCommerce > Settings > Payments > Blockonomics Bit
 
 Enable "Agentic checkout" in WooCommerce > Settings > Payments > Blockonomics Bitcoin > Advanced. Guest checkout must be enabled in WooCommerce.
 
-Agents check out through the WooCommerce Store API and get the payment address and amount back as JSON. Step-by-step instructions for agents are served at `/wp-json/blockonomics/v1/agent` on your store.
+Agents check out through the WooCommerce Store API and get the payment address and amount back as JSON. Step-by-step instructions for agents are served at `/wp-json/blockonomics-agentic-checkout/v1/agent` on your store.
 == Screenshots ==
 
 1. Settings panel

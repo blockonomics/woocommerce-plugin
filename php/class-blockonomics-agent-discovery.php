@@ -7,7 +7,7 @@
  */
 class Blockonomics_Agent_Discovery {
 
-    const INSTRUCTIONS_ROUTE = '/blockonomics/v1/agent';
+    const INSTRUCTIONS_ROUTE = '/' . Blockonomics_Agentic_API::NAMESPACE_V1 . '/agent';
 
     public static function init() {
         add_action('send_headers', array(__CLASS__, 'send_link_header'));
@@ -44,7 +44,7 @@ class Blockonomics_Agent_Discovery {
         }
         // RFC 8631: service-doc = human/agent docs, service-desc = machine-readable API index
         header('Link: <' . esc_url_raw(self::instructions_url()) . '>; rel="service-doc"; type="text/markdown"', false);
-        header('Link: <' . esc_url_raw(rest_url('blockonomics/v1')) . '>; rel="service-desc"', false);
+        header('Link: <' . esc_url_raw(rest_url(Blockonomics_Agentic_API::NAMESPACE_V1)) . '>; rel="service-desc"', false);
     }
 
     public static function print_head_link() {
@@ -79,7 +79,7 @@ class Blockonomics_Agent_Discovery {
         $example_crypto = in_array('btc', $cryptos, true) || !$cryptos ? 'btc' : $cryptos[0];
 
         $store = untrailingslashit(rest_url('wc/store/v1'));
-        $orders = untrailingslashit(rest_url('blockonomics/v1/orders'));
+        $orders = untrailingslashit(rest_url(Blockonomics_Agentic_API::NAMESPACE_V1 . '/orders'));
         $name = wp_strip_all_tags(get_bloginfo('name'));
         $tagline = wp_strip_all_tags(get_bloginfo('description'));
         $currency = get_woocommerce_currency();
