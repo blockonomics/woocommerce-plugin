@@ -30,12 +30,13 @@ class BlockonomicsAdmin {
             baseUrl: blockonomics_params.ajaxurl,
         };
 
-        // Initialize crypto DOM elements
+        // Test setup result elements: scoped to our own box, other admin notices use the same classes
+        const testSetupBox = this.elements.testSetup.closest('.bnomics-options-margin-top');
         this.cryptoElements = {
-            success: document.querySelector('.notice-success'),
-            successText: document.querySelector('.notice-success .successText'),
-            error: document.querySelector('.notice-error'),
-            errorText: document.querySelector('.notice-error .errorText')
+            success: testSetupBox.querySelector('.notice-success'),
+            successText: testSetupBox.querySelector('.successText'),
+            error: testSetupBox.querySelector('.notice-error'),
+            errorText: testSetupBox.querySelector('.errorText')
         };
     }
 
@@ -90,6 +91,8 @@ class BlockonomicsAdmin {
             this.handleTestSetupResponse(result);
         } catch (error) {
             console.error('Test setup failed:', error);
+            this.cryptoElements.error.style.display = 'block';
+            this.cryptoElements.errorText.innerHTML = 'Test Setup could not be completed. Please reload the page and try again.';
         } finally {
             this.updateUIAfterTest();
         }
