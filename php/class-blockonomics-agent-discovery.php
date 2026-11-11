@@ -125,7 +125,7 @@ class Blockonomics_Agent_Discovery {
             '',
             '## Reference',
             '',
-            '- WooCommerce Store API: https://github.com/woocommerce/woocommerce/tree/trunk/plugins/woocommerce/src/StoreApi/docs',
+            '- WooCommerce Store API: https://developer.woocommerce.com/docs/apis/store-api/',
             '',
         );
         return implode("\n", $lines);
