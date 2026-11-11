@@ -118,7 +118,7 @@ class Blockonomics_Agent_Discovery {
             '',
             "   `crypto` is one of: $crypto_list. `GET $store/cart` lists required address fields for the shipping country.",
             '5. Pay: the response `payment_result.payment_details` (key/value list) has `address`, `amount`, `payment_uri` (BTC), `expires_at` and `order_hash`. Send exactly `amount` to `address` before `expires_at`.',
-            "6. USDT only: after sending, `POST $orders/{order_hash}/txhash` with `{\"txhash\": \"0x...\"}`. Unregistered USDT transfers are not detected.",
+            "6. USDT only: after sending, `POST $orders/{order_hash}/txhash` with `{\"txhash\": \"0x...\"}`. Unregistered USDT transfers are not detected. If `testmode` is true send nothing, just POST the `test_txhash` from the payment details.",
             "7. Status: `GET $orders/{order_hash}?crypto=<crypto>` returns `payment_status` (`awaiting_payment`, `detected`, `confirmed`, `underpaid`). Calling it after `expires_at` returns a fresh quote.",
             '',
             '## Reference',

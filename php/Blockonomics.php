@@ -706,20 +706,44 @@ class Blockonomics
             'payment_status'    => $this->get_agentic_payment_status($order),
             'order_status'      => $wc_order->get_status(),
             'expires_at'        => $order['payment_status'] == 0 ? gmdate('c', $expires_at) : '',
+            // Test address: placeholder, no real funds
+            'testmode'          => $this->is_test_address($order['address']),
         );
         if (isset($crypto_obj['uri'])) {
             $details['payment_uri'] = $this->get_crypto_payment_uri($crypto_obj, $order['address'], $amount);
         }
         if ($crypto === 'usdt') {
             // ERC-20 transfers are only detected once the payer submits the txhash
-            $details['network'] = $this->is_usdt_test_address($order['address']) ? 'ethereum-testmode' : 'ethereum';
+            $details['network'] = 'ethereum';
             $details['txhash_url'] = rest_url('blockonomics/v1/orders/' . $details['order_hash'] . '/txhash');
+            if ($details['testmode'] && $order['payment_status'] == 0) {
+                $details['test_txhash'] = $this->generate_usdt_test_txhash($order['expected_satoshi']);
+            }
         }
         return $details;
     }
 
+    private function is_test_address($address){
+        return strpos($address, '1TestBTCAddress') === 0 || $this->is_usdt_test_address($address);
+    }
+
     private function is_usdt_test_address($address){
         return strpos($address, '0xTestUSDTAddress') === 0;
+    }
+
+    private function is_usdt_test_txhash($txhash){
+        return strlen($txhash) === 64 && preg_match('/^TestUSDTTxid_\d+_[A-Za-z0-9]+$/', $txhash) === 1;
+    }
+
+    // Same format as the web3 test modal: TestUSDTTxid_<amount base units>_<random>, 64 chars.
+    // Blockonomics reads the paid amount from the middle part
+    private function generate_usdt_test_txhash($amount_base_units){
+        $chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+        $txhash = 'TestUSDTTxid_' . $amount_base_units . '_';
+        while (strlen($txhash) < 64) {
+            $txhash .= $chars[wp_rand(0, strlen($chars) - 1)];
+        }
+        return $txhash;
     }
 
     private function get_agentic_payment_status($order){
@@ -1570,11 +1594,13 @@ class Blockonomics
      */
     public function attach_txhash($order_id, $txhash) {
         $txhash = trim($txhash);
-        if (!preg_match('/^0x[a-fA-F0-9]{64}$/', $txhash)) {
+        $row = $this->get_order_by_id_and_crypto($order_id, 'usdt');
+        // Test hashes are only accepted for test addresses
+        $is_test = $row && $this->is_usdt_test_address($row['address']) && $this->is_usdt_test_txhash($txhash);
+        if (!$is_test && !preg_match('/^0x[a-fA-F0-9]{64}$/', $txhash)) {
             return array('error' => __('Invalid transaction hash.', 'blockonomics-bitcoin-payments'));
         }
 
-        $row = $this->get_order_by_id_and_crypto($order_id, 'usdt');
         if (!$row) {
             return array('error' => __('No USDT payment found for this order.', 'blockonomics-bitcoin-payments'));
         }
