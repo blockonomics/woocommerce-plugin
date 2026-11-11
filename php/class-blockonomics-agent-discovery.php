@@ -87,15 +87,16 @@ class Blockonomics_Agent_Discovery {
         $checkout_body = wp_json_encode(array(
             'payment_method'  => 'blockonomics',
             'payment_data'    => array(array('key' => 'crypto', 'value' => $example_crypto)),
+            // Placeholders, not sample values: agents copied a sample address into real orders
             'billing_address' => array(
-                'first_name' => 'Jane',
-                'last_name'  => 'Doe',
-                'email'      => 'jane@example.com',
-                'address_1'  => '1 Main St',
-                'city'       => 'Springfield',
-                'state'      => 'IL',
-                'postcode'   => '62701',
-                'country'    => 'US',
+                'first_name' => '<first name>',
+                'last_name'  => '<last name>',
+                'email'      => '<email>',
+                'address_1'  => '<street address>',
+                'city'       => '<city>',
+                'state'      => '<state code>',
+                'postcode'   => '<postcode>',
+                'country'    => '<2-letter country code>',
             ),
         ), JSON_UNESCAPED_SLASHES);
 
@@ -117,7 +118,7 @@ class Blockonomics_Agent_Discovery {
             "   $checkout_body",
             '   ```',
             '',
-            "   `crypto` is one of: $crypto_list. `GET $store/cart` lists required address fields for the shipping country.",
+            "   `crypto` is one of: $crypto_list. Fill `billing_address` with the shopper's own details; ask the shopper if you don't have them. `GET $store/cart` lists required address fields for the shipping country.",
             '5. Pay: the response `payment_result.payment_details` (key/value list) has `address`, `amount`, `payment_uri` (BTC), `expires_at` and `order_hash`. Send exactly `amount` to `address` before `expires_at`.',
             "6. USDT only: after sending, `POST $orders/{order_hash}/txhash` with `{\"txhash\": \"0x...\"}`. Unregistered USDT transfers are not detected. If `testmode` is true send nothing, just POST the `test_txhash` from the payment details.",
             "7. Status: `GET $orders/{order_hash}?crypto=<crypto>` returns `payment_status` (`awaiting_payment`, `detected`, `confirmed`, `underpaid`). Calling it after `expires_at` returns a fresh quote.",
