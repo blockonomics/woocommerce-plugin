@@ -185,6 +185,7 @@ function blockonomics_woocommerce_init()
 
             wp_localize_script('blockonomics-admin-scripts', 'blockonomics_params', array(
                 'ajaxurl' => admin_url( 'admin-ajax.php' ),
+                'test_setup_nonce' => wp_create_nonce( 'blockonomics_test_setup' ),
                 'plugin_url' => plugins_url('/', __FILE__)
             ));
 
@@ -198,6 +199,10 @@ function blockonomics_woocommerce_init()
     }
 
     function blockonomics_test_setup() {
+        check_ajax_referer('blockonomics_test_setup');
+        if (!current_user_can('manage_woocommerce')) {
+            wp_send_json(array('error' => __('You are not allowed to do this.', 'blockonomics-bitcoin-payments')), 403);
+        }
         include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
         $blockonomics = new Blockonomics;
         wp_send_json($blockonomics->testSetup());

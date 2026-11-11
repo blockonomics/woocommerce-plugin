@@ -142,7 +142,7 @@ class BlockonomicsAdmin {
     }
 
     async performTestSetup() {
-        const response = await fetch(`${this.config.baseUrl}?${new URLSearchParams({ action: "test_setup" })}`);
+        const response = await fetch(`${this.config.baseUrl}?${new URLSearchParams({ action: "test_setup", _ajax_nonce: blockonomics_params.test_setup_nonce })}`);
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
