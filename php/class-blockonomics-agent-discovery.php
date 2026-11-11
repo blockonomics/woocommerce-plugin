@@ -2,14 +2,14 @@
 
 /**
  * Points agents at the JSON checkout flow instead of the storefront UI:
- * /llms.txt, a Link header + <link> tag, and a visually hidden footer note.
+ * an instructions route, a Link header + <link> tag, and a visually hidden footer note.
+ * Not /llms.txt: SEO plugins own that file.
  */
 class Blockonomics_Agent_Discovery {
 
-    const LLMS_PATH = 'llms.txt';
+    const INSTRUCTIONS_ROUTE = '/blockonomics/v1/agent';
 
     public static function init() {
-        add_action('parse_request', array(__CLASS__, 'maybe_serve_llms_txt'));
         add_action('send_headers', array(__CLASS__, 'send_link_header'));
         add_action('wp_head', array(__CLASS__, 'print_head_link'));
         add_action('wp_footer', array(__CLASS__, 'print_footer_hint'));
@@ -19,33 +19,37 @@ class Blockonomics_Agent_Discovery {
         return (bool) get_option('blockonomics_agentic_checkout', false);
     }
 
-    private static function llms_url() {
-        return home_url('/' . self::LLMS_PATH);
+    private static function instructions_url() {
+        return rest_url(ltrim(self::INSTRUCTIONS_ROUTE, '/'));
     }
 
-    public static function maybe_serve_llms_txt($wp) {
-        if ($wp->request !== self::LLMS_PATH || !self::is_active()) {
-            return;
+    public static function serve_instructions() {
+        return new WP_REST_Response(self::build_instructions());
+    }
+
+    // REST responses are JSON by default; send the instructions as plain markdown
+    public static function serve_markdown($served, $result, $request) {
+        if ($served || $request->get_route() !== self::INSTRUCTIONS_ROUTE || $result->is_error()) {
+            return $served;
         }
-        status_header(200);
         header('Content-Type: text/markdown; charset=utf-8');
         header('X-Robots-Tag: noindex');
-        echo self::build_llms_txt();
-        exit;
+        echo $result->get_data();
+        return true;
     }
 
     public static function send_link_header() {
         if (!self::is_active() || headers_sent()) {
             return;
         }
-        header('Link: <' . esc_url_raw(self::llms_url()) . '>; rel="describedby"; type="text/markdown"', false);
+        header('Link: <' . esc_url_raw(self::instructions_url()) . '>; rel="describedby"; type="text/markdown"', false);
     }
 
     public static function print_head_link() {
         if (!self::is_active()) {
             return;
         }
-        echo '<link rel="alternate" type="text/markdown" title="Agent checkout API" href="' . esc_url(self::llms_url()) . '" />' . "\n";
+        echo '<link rel="alternate" type="text/markdown" title="Agent checkout API" href="' . esc_url(self::instructions_url()) . '" />' . "\n";
     }
 
     // Clip-hidden, not display:none, so it stays in the accessibility tree browser agents read
@@ -57,8 +61,8 @@ class Blockonomics_Agent_Discovery {
         printf(
             '<p style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">%s <a href="%s">%s</a>. %s: %s/products, %s/cart, %s/checkout.</p>' . "\n",
             esc_html__('Note for AI agents: this store can be shopped and paid in crypto through JSON APIs, no browser needed. Instructions:', 'blockonomics-bitcoin-payments'),
-            esc_url(self::llms_url()),
-            esc_html(self::llms_url()),
+            esc_url(self::instructions_url()),
+            esc_html(self::instructions_url()),
             esc_html__('Endpoints', 'blockonomics-bitcoin-payments'),
             esc_html($store),
             esc_html($store),
@@ -66,7 +70,7 @@ class Blockonomics_Agent_Discovery {
         );
     }
 
-    private static function build_llms_txt() {
+    private static function build_instructions() {
         include_once 'Blockonomics.php';
         $blockonomics = new Blockonomics;
         $cryptos = array_keys($blockonomics->getCachedActiveCurrencies());

@@ -41,6 +41,13 @@ class Blockonomics_Agentic_API {
                 ),
             ),
         ));
+
+        register_rest_route(self::NAMESPACE_V1, '/agent', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array('Blockonomics_Agent_Discovery', 'serve_instructions'),
+            'permission_callback' => '__return_true',
+        ));
+        add_filter('rest_pre_serve_request', array('Blockonomics_Agent_Discovery', 'serve_markdown'), 10, 3);
     }
 
     public static function get_order(WP_REST_Request $request) {

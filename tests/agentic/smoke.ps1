@@ -49,9 +49,9 @@ function Get-Details([string]$Hash) {
     Invoke-Api GET "/wp-json/blockonomics/v1/orders/$Hash`?crypto=$Crypto"
 }
 
-# 0. Discovery: llms.txt points agents at the Store API
-$r = Invoke-Api GET '/llms.txt'
-Assert ($r.Code -eq 200 -and $r.Text -match 'wc/store/v1/cart') 'llms.txt served with Store API flow'
+# 0. Discovery: instructions route points agents at the Store API
+$r = Invoke-Api GET '/wp-json/blockonomics/v1/agent'
+Assert ($r.Code -eq 200 -and $r.Text -match 'wc/store/v1/cart') 'agent instructions served with Store API flow'
 
 # 1. Discover product (agent browsing)
 $r = Invoke-Api GET "/wp-json/wc/store/v1/products?slug=$ProductSlug"
