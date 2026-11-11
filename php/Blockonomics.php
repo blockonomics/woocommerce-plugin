@@ -676,8 +676,8 @@ class Blockonomics
         }
         $awaiting_payment = $wc_order->needs_payment();
         if (!$awaiting_payment && (!$order || $order['payment_status'] == 0)) {
-            // Paid or on hold with a payment in another crypto
-            return array('error' => __('Order already has a payment in another crypto', 'blockonomics-bitcoin-payments'));
+            // Paid or on hold, and no payment in this crypto
+            return array('error' => __('Order is no longer awaiting payment', 'blockonomics-bitcoin-payments'));
         }
 
         if ($awaiting_payment && (!$order || $order['payment_status'] != 0 || $expires_at <= time())) {

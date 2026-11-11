@@ -51,7 +51,7 @@ function Get-Details([string]$Hash) {
 
 # 0. Discovery: instructions route points agents at the Store API
 $r = Invoke-Api GET '/wp-json/blockonomics-agentic-checkout/v1/agent'
-Assert ($r.Code -eq 200 -and $r.Text -match 'wc/store/v1/cart') 'agent instructions served with Store API flow'
+Assert ($r.Code -eq 200 -and @($r.Json.steps).Count -ge 1) 'agent instructions served as JSON steps'
 
 # 1. Discover product (agent browsing)
 $r = Invoke-Api GET "/wp-json/wc/store/v1/products?slug=$ProductSlug"

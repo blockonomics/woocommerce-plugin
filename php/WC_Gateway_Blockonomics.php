@@ -371,8 +371,11 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 
         // Agentic checkout: Store API checkout with payment_data crypto=btc|usdt.
         // Store API copies these keys into payment_result.payment_details
+        if (!defined('REST_REQUEST') || !REST_REQUEST || !$blockonomics->is_agentic_checkout_active()) {
+            return $result;
+        }
         $crypto = isset($_POST['crypto']) ? sanitize_key(wp_unslash($_POST['crypto'])) : '';
-        if ($crypto && defined('REST_REQUEST') && REST_REQUEST && $blockonomics->is_agentic_checkout_active()) {
+        if ($crypto) {
             $details = $blockonomics->get_agentic_payment_details($order_id, $crypto);
             if (array_key_exists('error', $details)) {
                 return array(
@@ -381,6 +384,13 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                 );
             }
             $result = array_merge($result, $details);
+        } else {
+            // No crypto picked (also the browser block checkout): point to the details route without
+            // generating an address, so agents don't fall back to scraping the payment page
+            $order_hash = $blockonomics->encrypt_hash($order_id);
+            $result['order_hash'] = $order_hash;
+            $result['cryptos'] = implode(',', array_keys($blockonomics->getCachedActiveCurrencies()));
+            $result['payment_details_url'] = rest_url(Blockonomics_Agentic_API::NAMESPACE_V1 . '/orders/' . $order_hash);
         }
 
         return $result;

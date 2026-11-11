@@ -21,8 +21,10 @@ class Blockonomics_Agentic_API {
             'permission_callback' => '__return_true',
             'args'                => array(
                 'crypto' => array(
+                    'description'       => 'Crypto to pay with. Must be one of the cryptos enabled on this store.',
                     'required'          => true,
                     'type'              => 'string',
+                    'enum'              => array_keys($blockonomics->getCachedActiveCurrencies()),
                     'sanitize_callback' => 'sanitize_key',
                 ),
             ),
@@ -34,6 +36,7 @@ class Blockonomics_Agentic_API {
             'permission_callback' => '__return_true',
             'args'                => array(
                 'txhash' => array(
+                    'description'       => 'USDT transaction hash (0x + 64 hex). In test mode, send the test_txhash from the payment details.',
                     'required'          => true,
                     'type'              => 'string',
                     'sanitize_callback' => 'sanitize_text_field',
@@ -46,7 +49,6 @@ class Blockonomics_Agentic_API {
             'callback'            => array('Blockonomics_Agent_Discovery', 'serve_instructions'),
             'permission_callback' => '__return_true',
         ));
-        add_filter('rest_pre_serve_request', array('Blockonomics_Agent_Discovery', 'serve_markdown'), 10, 3);
     }
 
     public static function get_order(WP_REST_Request $request) {
