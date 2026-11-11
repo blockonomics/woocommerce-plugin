@@ -1239,8 +1239,8 @@ class Blockonomics
     // Send Invoice email to customer to pay remaining amount
     public function send_email_on_underpayment($order){
         $wc_email = WC()->mailer()->emails['WC_Email_Customer_Invoice'];
-        $wc_email->settings['subject'] = __('Additional Payment Required for order #{order_number} on {site_title}');
-        $wc_email->settings['heading'] = __('Use below link to pay remaining amount.'); 
+        $wc_email->settings['subject'] = __('Additional Payment Required for order #{order_number} on {site_title}', 'blockonomics-bitcoin-payments');
+        $wc_email->settings['heading'] = __('Your payment was incomplete', 'blockonomics-bitcoin-payments');
         $wc_email->trigger($order['order_id']);
     }
 

@@ -78,6 +78,7 @@ function blockonomics_woocommerce_init()
     add_action('init', 'load_plugin_translations');
     add_action('woocommerce_order_details_after_order_table', 'nolo_custom_field_display_cust_order_meta', 10, 1);
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
+    add_action('woocommerce_email_order_details', 'blockonomics_email_remaining_amount', 5, 4);
     add_filter('woocommerce_get_checkout_payment_url','update_payment_url_on_underpayments',10,2);
     add_filter('woocommerce_order_needs_payment', 'blockonomics_underpaid_order_needs_payment', 10, 2);
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
@@ -442,6 +443,35 @@ function blockonomics_woocommerce_init()
     {
         bnomics_display_tx_info($order);
     }
+    function blockonomics_email_remaining_amount($order, $sent_to_admin, $plain_text, $email)
+    {
+        if (!$email || $email->id !== 'customer_invoice' || $order->get_payment_method() !== 'blockonomics' || !$order->needs_payment()) {
+            return;
+        }
+        $blockonomics = new Blockonomics();
+        $paid = $blockonomics->get_order_paid_fiat($order->get_id());
+        $remaining = (float) $order->get_total() - $paid;
+        if ($paid <= 0 || $remaining <= 0) {
+            return;
+        }
+        $price_args = array('currency' => $order->get_currency());
+        $summary = sprintf(
+            /* translators: 1: amount received, 2: order total, 3: amount still due */
+            __('We received %1$s of %2$s. %3$s is still due.', 'blockonomics-bitcoin-payments'),
+            wc_price($paid, $price_args), wc_price($order->get_total(), $price_args), wc_price($remaining, $price_args)
+        );
+        /* translators: %s: amount still due */
+        $link_text = sprintf(__('Pay remaining %s', 'blockonomics-bitcoin-payments'), wp_strip_all_tags(wc_price($remaining, $price_args)));
+        $pay_url = $order->get_checkout_payment_url();
+
+        if ($plain_text) {
+            echo html_entity_decode(wp_strip_all_tags($summary . "\n" . $link_text . ': ' . $pay_url), ENT_QUOTES) . "\n\n";
+            return;
+        }
+        echo '<p>' . wp_kses_post($summary) . '</p>';
+        echo '<p><a href="' . esc_url($pay_url) . '" style="font-weight: bold;">' . esc_html($link_text) . '</a></p>';
+    }
+
     function nolo_bnomics_woocommerce_email_customer_details($order)
     {
         bnomics_display_tx_info($order);
