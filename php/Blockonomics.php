@@ -1503,7 +1503,7 @@ class Blockonomics
      *
      * @param string $txhash Transaction hash.
      * @param string $crypto Crypto code (e.g., 'usdt').
-     * @return array ['code' => int|string, 'message' => string]
+     * @return array ['code' => int, 'message' => string]
      */
     private function monitor_txhash($txhash, $crypto) {
         $post_data = array(
@@ -1516,15 +1516,14 @@ class Blockonomics
         }
 
         $response = $this->post(self::BASE_URL . '/api/monitor_tx', $this->api_key, wp_json_encode($post_data), 8);
-        $body = wp_remote_retrieve_body($response);
-        $message = '';
-        if ($body) {
-            $body_obj = json_decode($body);
-            if (isset($body_obj->message)) {
-                $message = $body_obj->message;
-            }
+        if (is_wp_error($response)) {
+            // request never got an HTTP response: timeout, DNS, blocked outgoing connection
+            return array('code' => 0, 'message' => $response->get_error_message());
         }
-        return array('code' => wp_remote_retrieve_response_code($response), 'message' => $message);
+        $code = wp_remote_retrieve_response_code($response);
+        $body_obj = json_decode(wp_remote_retrieve_body($response));
+        $message = isset($body_obj->message) ? $body_obj->message : 'HTTP ' . $code;
+        return array('code' => $code, 'message' => $message);
     }
 
     /**
