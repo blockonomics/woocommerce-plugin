@@ -42,7 +42,9 @@ class Blockonomics_Agent_Discovery {
         if (!self::is_active() || headers_sent()) {
             return;
         }
-        header('Link: <' . esc_url_raw(self::instructions_url()) . '>; rel="describedby"; type="text/markdown"', false);
+        // RFC 8631: service-doc = human/agent docs, service-desc = machine-readable API index
+        header('Link: <' . esc_url_raw(self::instructions_url()) . '>; rel="service-doc"; type="text/markdown"', false);
+        header('Link: <' . esc_url_raw(rest_url('blockonomics/v1')) . '>; rel="service-desc"', false);
     }
 
     public static function print_head_link() {
