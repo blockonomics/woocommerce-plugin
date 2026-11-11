@@ -1,0 +1,17 @@
+{
+  "core": null,
+  "phpVersion": "8.1",
+  "plugins": [
+    "https://downloads.wordpress.org/plugin/woocommerce.latest-stable.zip",
+    "."
+  ],
+  "config": {
+    "WP_DEBUG": true,
+    "WP_DEBUG_LOG": true,
+    "WP_DEBUG_DISPLAY": false,
+    "SCRIPT_DEBUG": true
+  },
+  "lifecycleScripts": {
+    "afterStart": "npx wp-env run cli wp eval-file wp-content/plugins/woocommerce-plugin/tests/agentic/wp-env-setup.php"
+  }
+}
