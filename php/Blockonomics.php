@@ -1010,7 +1010,6 @@ class Blockonomics
         $order = $this->get_order_by_id_and_crypto($order_id, $crypto);
         if ($order) {
             // Update the existing order info
-            $this->log('process_order: existing order found for order_id=' . $order_id . ' crypto=' . $crypto . ' status=' . $order['payment_status']);
             $order = $this->calculate_order_params($order);
             if (array_key_exists("error", $order)) {
                 $this->log('process_order: calculate_order_params error: ' . $order['error'], 'error');
@@ -1019,21 +1018,19 @@ class Blockonomics
             $this->update_order($order);
         }else {
             // Create and add the new order to the database
-            $this->log('process_order: creating new order for order_id=' . $order_id . ' crypto=' . $crypto);
             $order = $this->create_new_order($order_id, $crypto);
             if (array_key_exists("error", $order)) {
                 // Some error in Address Generation from API, return the same array.
                 $this->log('process_order: create_new_order error: ' . $order['error'], 'error');
                 return $order;
             }
-            $this->log('process_order: inserting new order, address=' . $order['address']);
             $result = $this->insert_order($order);
             if (array_key_exists("error", $result)) {
                 // Some error in inserting order to DB, return the error.
                 $this->log('process_order: insert_order error: ' . $result['error'], 'error');
                 return $result;
             }
-            $this->log('process_order: order created successfully, address=' . $order['address']);
+            $this->log('process_order: order created order_id=' . $order_id . ' crypto=' . $crypto . ' address=' . $order['address']);
             $this->record_address($order_id, $crypto, $order['address']);
             $this->record_expected_satoshi($order_id, $crypto, $order['expected_satoshi']);
         }
@@ -1233,7 +1230,6 @@ class Blockonomics
         }
 
         $this->update_order($order);
-        $this->log('Callback: order updated, new_status=' . $order['payment_status'] . ' paid_satoshi=' . ($order['paid_satoshi'] ?? 'N/A'));
         $blockonomics_currencies = $this->getSupportedCurrencies();
         $selected_currency = $blockonomics_currencies[$order['crypto']];
         $wc_order->set_payment_method_title($selected_currency['name']);
@@ -1388,8 +1384,10 @@ class Blockonomics
      */
     public function process_token_order($order_id, $crypto, $txhash) {
         $wc_order = wc_get_order($order_id);
+        $this->log('USDT txhash received: order_id=' . $order_id . ' txhash=' . $txhash);
 
         if (!is_string($txhash) || !preg_match(self::USDT_TXHASH_PATTERN, $txhash)) {
+            $this->log('USDT txhash rejected: order_id=' . $order_id . ' invalid hash', 'error');
             $msg = __('Invalid transaction hash!', 'blockonomics-bitcoin-payments');
             $wc_order->add_order_note($msg);
             $this->display_order_error($msg, $order_id, $txhash);
@@ -1400,6 +1398,7 @@ class Blockonomics
         // same-order re-submits (customer reloading the redirect URL) are idempotent
         $existing = $this->get_payment_by_txid($txhash);
         if ($existing && (int)$existing['order_id'] !== (int)$order_id) {
+            $this->log('USDT txhash rejected: order_id=' . $order_id . ' hash already used by order_id=' . $existing['order_id'], 'error');
             $msg = __('Transaction already exists!', 'blockonomics-bitcoin-payments');
             $wc_order->add_order_note("$msg<br/>txhash: $txhash");
             $this->display_order_error($msg, $order_id, $txhash);
@@ -1411,6 +1410,7 @@ class Blockonomics
                 // benign race: a parallel request of the same order may have just bound it
                 $recheck = $this->get_payment_by_txid($txhash);
                 if (!$recheck || (int)$recheck['order_id'] !== (int)$order_id) {
+                    $this->log('USDT txhash rejected: order_id=' . $order_id . ' could not bind hash to the payment row', 'error');
                     $msg = __('Error updating transaction!', 'blockonomics-bitcoin-payments');
                     $wc_order->add_order_note("$msg<br/>txhash: $txhash");
                     $this->display_order_error($msg, $order_id, $txhash);
@@ -1427,6 +1427,7 @@ class Blockonomics
         // Monitor transaction via Blockonomics API (first attempt, or retry after an earlier failure)
         $monitor = $this->monitor_txhash($txhash, $crypto);
         if ($monitor['code'] != 200) {
+            $this->log('monitor_tx failed: order_id=' . $order_id . ' txhash=' . $txhash . ' code=' . $monitor['code'] . ' message=' . $monitor['message'], 'error');
             $msg = __('Error monitoring transaction!', 'blockonomics-bitcoin-payments');
             $wc_order->add_order_note("$msg<br/>txhash: $txhash<br/>Error: " . $monitor['message']);
             $this->display_order_error($msg, $order_id, $txhash, $monitor['message']);
