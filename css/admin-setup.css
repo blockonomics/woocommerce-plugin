@@ -29,12 +29,7 @@
     box-sizing: border-box;
 }
 
-.bnomics-progress-step.active .bnomics-progress-circle {
-    background: #3fbf7f;
-    border-color: #3fbf7f;
-    color: #fff;
-}
-
+.bnomics-progress-step.active .bnomics-progress-circle,
 .bnomics-progress-step.done .bnomics-progress-circle {
     background: #3fbf7f;
     border-color: #3fbf7f;
@@ -123,7 +118,6 @@
     min-height: 40px;
 }
 
-.blockonomics-setup-wizard input[type="submit"],
 .blockonomics-setup-wizard .button-primary {
     margin-top: 20px;
     background: #3fbf7f;
@@ -134,8 +128,6 @@
     font-weight: 600;
 }
 
-.blockonomics-setup-wizard input[type="submit"]:hover,
-.blockonomics-setup-wizard input[type="submit"]:focus,
 .blockonomics-setup-wizard .button-primary:hover,
 .blockonomics-setup-wizard .button-primary:focus {
     background: #35a96f;

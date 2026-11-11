@@ -50,31 +50,13 @@
   margin: 20px 0;
     gap: 20px;
 }
-.bnomics-qr-code {
-  display: none;
-}
-
-.bnomics-order-address {
-  display: block;
-}
-
-.no-js .bnomics-qr-code {
-  display: block;
-}
-
 .bnomics-qr-code-hint {
   text-align: center;
 }
 
 
-.bnomics-bg {
-  min-height: 180px;
-  padding-top: 5px;
-}
-
 .bnomics-qr {
   text-align: center !important;
-  text-align: left;
   position: relative; 
   height: 100%;
   box-sizing: border-box;
@@ -107,15 +89,8 @@ svg {
 
 /* Mobile */
 @media screen and (max-width: 800px) {
-  .bnomics-btc-info {
-    display: block !important;
-  }
   .bnomics-order-container {
     text-align: center;
-  }
-
-  .bnomics-order-info {
-    display: block;
   }
 }
 
@@ -268,20 +243,10 @@ svg {
   content: '\e900';
 }
 
-.blockonomics-icon-qr::before {
-  content: '\e901';
-}
-
-.blockonomics-icon-copy::before {
-  content: '\e902';
-}
-
 .blockonomics-icon-refresh::before {
   content: '\e903';
 }
 
-.blockonomics-icon-copy,
-.blockonomics-icon-qr,
 .blockonomics-icon-refresh {
   cursor: pointer;
 }
@@ -291,27 +256,15 @@ svg {
   margin: 0;
 }
 
-#bnomics-amount-copy,
-#bnomics-address-copy {
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
 #blockonomics_checkout,
-#blockonomics_checkout h5,
 #blockonomics_checkout table {
   margin-left: auto;
   margin-right: auto;
 }
 
-#blockonomics_checkout h5,
 #blockonomics_checkout table {
   width: 100%;
   max-width: 500px;
-}
-
-#blockonomics_checkout h5 {
-  text-align: left;
 }
 
 #bnomics-refresh {
@@ -347,12 +300,6 @@ svg {
   align-items: center;
 }
 
-#blockonomics_checkout button img {
-  margin-right: 5px;
-  height: 1rem;
-  width: auto;
-}
-
 #blockonomics_checkout .blockonomics-icon {
   padding-left: 5px;
   padding-right: 5px;
@@ -366,7 +313,6 @@ svg {
 
 .bnomics-header-row {
   display: flex;
-  justify-content: flex-end;
   align-items: center;
   justify-content: space-between;
   width: 100%;
@@ -413,7 +359,6 @@ svg {
   position: relative; 
   
   border-top: 0px;
-  height: 100%;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -455,18 +400,6 @@ svg {
   font-size: var(--global--font-size-xs);
 }
 
-.bnomics-footer-divider {
-  display: none;
-}
-
-.border-address-container {
-  position: relative; 
-  padding: 10px; 
-  height: 100%;
-  border-top: 0px; 
-  box-sizing: border-box;
-}
-
 .scan-title,
 .copy-title {
   font-weight: normal;
@@ -474,10 +407,6 @@ svg {
   width: 100%;
   display: block;
   margin-bottom: 8px;
-}
-
-.scan-title,
-.copy-title {
   text-align: center;
 }
 
@@ -496,13 +425,6 @@ svg {
     max-width: 100%;
   }
  
- .border-title-container {
-  margin-bottom: 20px;
- }
-  .bnomics-order-address-container{
-    height:auto;
-  }
-
   .bnomics-order-address {
     margin-left: 0;
   }
@@ -528,10 +450,6 @@ svg {
 
   .bnomics-footer-container .bnomics-copy-container {
     padding-bottom: 0;
-  }
-
-  .bnomics-footer-divider {
-    display: table-row;
   }
 
 }
