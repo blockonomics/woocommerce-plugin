@@ -120,7 +120,7 @@ class Blockonomics_Agent_Discovery {
                 array(
                     'step'  => 5,
                     'do'    => 'Pay',
-                    'notes' => 'The checkout response payment_result.payment_details (key/value list) has address, amount, payment_uri (BTC), expires_at and order_hash. Send exactly amount to address before expires_at. If you checked out without crypto, it has payment_details_url instead: GET it with ?crypto=<crypto>.',
+                    'notes' => 'The checkout response payment_result.payment_details (key/value list) has address, amount, payment_uri (BTC), expires_at and order_hash. Send exactly amount to address before expires_at. USDT quotes do not expire, so expires_at is empty for USDT. If you checked out without crypto, it has payment_details_url instead: GET it with ?crypto=<crypto>.',
                 ),
                 array(
                     'step'   => 6,

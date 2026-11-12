@@ -664,8 +664,6 @@ class Blockonomics
         }
 
         $wc_order = wc_get_order($order_id);
-        $expires_key = 'blockonomics_quote_expires_' . $crypto;
-        $expires_at = (int) $wc_order->get_meta($expires_key);
         $order = $this->get_order_by_id_and_crypto($order_id, $crypto);
 
         // Only quote orders that still need payment
@@ -681,15 +679,11 @@ class Blockonomics
             return array('error' => __('Order is no longer awaiting payment', 'blockonomics-bitcoin-payments'));
         }
 
-        if ($awaiting_payment && (!$order || $order['payment_status'] != 0 || $expires_at <= time())) {
+        if ($awaiting_payment) {
+            // process_order keeps a valid quote and re-prices an expired one
             $order = $this->process_order($order_id, $crypto);
             if (array_key_exists('error', $order)) {
                 return $order;
-            }
-            if ($order['payment_status'] == 0) {
-                $expires_at = time() + 60 * intval(get_option('blockonomics_timeperiod', 10));
-                $wc_order->update_meta_data($expires_key, $expires_at);
-                $wc_order->save();
             }
         }
 
@@ -706,7 +700,8 @@ class Blockonomics
             'fiat_currency'     => $order['currency'],
             'payment_status'    => $this->get_agentic_payment_status($order),
             'order_status'      => $wc_order->get_status(),
-            'expires_at'        => $order['payment_status'] == 0 ? gmdate('c', $expires_at) : '',
+            // USDT quotes do not expire
+            'expires_at'        => $order['payment_status'] == 0 && $crypto !== 'usdt' ? gmdate('c', time() + $this->get_quote_seconds_left($order_id, $crypto)) : '',
             // Test address: placeholder, no real funds
             'testmode'          => $this->is_test_address($order['address']),
         );
