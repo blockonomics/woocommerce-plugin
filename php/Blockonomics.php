@@ -913,6 +913,9 @@ class Blockonomics
 
     // Load the the checkout template in the page
     public function load_checkout_template($order_id, $crypto){
+        if (wc_get_order($order_id)->is_paid()) {
+            $this->redirect_finish_order($order_id);
+        }
         // Create or update the order
         $order = $this->process_order($order_id, $crypto);
         
