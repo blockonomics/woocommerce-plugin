@@ -19,13 +19,13 @@ class Blockonomics {
         // we load data from HTML data attributes on the container element
         // this approach is simple and avoids the js error blockonomics_data already initialised
         const dataset = this.container.dataset;
-        if (!dataset.timePeriod || !dataset.paymentUri || !dataset.cryptoCode) {
+        if (!dataset.paymentUri || !dataset.cryptoCode) {
             throw Error(
                 `Blockonomics Initialisation Error: Required data attributes are missing from container element.`
             );
         }
         this.data = {
-            time_period: dataset.timePeriod,
+            time_left: Number(dataset.timeLeft) || 0,
             payment_uri: dataset.paymentUri,
             crypto: { code: dataset.cryptoCode },
             crypto_address: dataset.cryptoAddress,
@@ -78,16 +78,12 @@ class Blockonomics {
             e.preventDefault();
             this.refresh_order();
         });
-
-        this.data.time_period = Number(this.data.time_period);
     }
 
     reset_progress() {
         this.progress = {
-            total_time: this.data.time_period * 60,
             interval: null,
-            clock: this.data.time_period * 60,
-            percent: 100,
+            clock: this.data.time_left,
         };
         // Set the start time straight away
         this.progress.clock += 1;
@@ -106,9 +102,6 @@ class Blockonomics {
     tick() {
         this.progress.clock = this.progress.clock - 1;
 
-        this.progress.percent = Math.floor(
-            (this.progress.clock * 100) / this.progress.total_time
-        );
         if (this.progress.clock < 0) {
             this.progress.clock = 0;
             //Order expired
@@ -278,6 +271,10 @@ class Blockonomics {
                 }
             })
             .then((res) => {
+                if (res.error) {
+                    location.reload();
+                    return;
+                }
                 this._update_order_params(res);
                 this._set_refresh_loading(false);
             })
@@ -305,6 +302,7 @@ class Blockonomics {
             ele.setAttribute('href', data.payment_uri)
         );
 
+        this.data.time_left = data.time_left;
         this.reset_progress();
     }
 }

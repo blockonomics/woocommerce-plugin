@@ -15,7 +15,8 @@
  */
 ?>
 <div id="blockonomics_checkout"
-    data-time-period="<?php echo esc_attr($context['time_period']); ?>"
+    data-time-left="<?php echo esc_attr($context['time_left']); ?>"
+    data-time-period="<?php echo esc_attr(Blockonomics::QUOTE_MINUTES); ?>"
     data-payment-uri="<?php echo esc_attr($payment_uri); ?>"
     data-crypto-code="<?php echo esc_attr($crypto['code']); ?>"
     data-crypto-address="<?php echo esc_attr($order['address']); ?>"

@@ -7,6 +7,7 @@ class Blockonomics
 {
     // eth tx hash, or the 64-char hash the dashboard test wallet sends in test mode
     const USDT_TXHASH_PATTERN = '/^(0x[a-fA-F0-9]{64}|TestUSDTTxid_[A-Za-z0-9_]{51})$/';
+    const QUOTE_MINUTES = 30;
     const BASE_URL = 'https://www.blockonomics.co';
     const STORES_URL = self::BASE_URL . '/api/v2/stores?wallets=true';
 
@@ -66,7 +67,7 @@ class Blockonomics
         $response = $this->get($url);
         if (!isset($responseObj)) $responseObj = new stdClass();
         $responseObj->{'response_code'} = wp_remote_retrieve_response_code($response);
-        $responseObj->{'response_message'} = '';
+        $responseObj->{'response_message'} = is_wp_error($response) ? $response->get_error_message() : '';
         $responseObj->{'price'} = '';
         if (wp_remote_retrieve_body($response)) {
             $body = json_decode(wp_remote_retrieve_body($response));
@@ -704,7 +705,7 @@ class Blockonomics
         if ($order['currency'] != 'BTC') {
             $responseObj = $this->get_price($order['currency'], $order['crypto']);
             if ($responseObj->response_code != 200 || empty($responseObj->price)) {
-                $error_msg = !empty($responseObj->response_message) ? $responseObj->response_message : __('Could not get price', 'blockonomics-bitcoin-payments');
+                $error_msg = !empty($responseObj->response_message) ? $responseObj->response_message : __('Could not get price', 'blockonomics-bitcoin-payments') . ' (HTTP ' . $responseObj->response_code . ')';
                 return array("error" => $error_msg);
             }
             $price = $responseObj->price;
@@ -872,7 +873,7 @@ class Blockonomics
                     $context['payment_uri'] = $this->get_crypto_payment_uri($context['crypto'], $order['address'], $context['order_amount']);
                     $context['finish_order_url'] = $this->get_wc_order_received_url($context['order_id']);
                     $context['get_order_amount_url'] = $this->get_parameterized_wc_url('api', array('get_amount' => $order_hash, 'crypto' => $context['crypto']['code']));
-                    $context['time_period'] = get_option('blockonomics_timeperiod', 10);
+                    $context['time_left'] = $this->get_quote_seconds_left($context['order_id'], $context['crypto']['code']);
                 }
                 $context['crypto_rate_str'] = $this->get_crypto_rate_from_params($context['crypto']['code'], $order['expected_fiat'], $order['expected_satoshi']);
                 //Using svg library qrcode.php to generate QR Code in NoJS mode
@@ -1009,10 +1010,13 @@ class Blockonomics
     public function process_order($order_id, $crypto){
         $order = $this->get_order_by_id_and_crypto($order_id, $crypto);
         if ($order) {
+            if ($this->is_quote_valid($order)) {
+                return $order;
+            }
             // Update the existing order info
             $order = $this->calculate_order_params($order);
             if (array_key_exists("error", $order)) {
-                $this->log('process_order: calculate_order_params error: ' . $order['error'], 'error');
+                $this->log('process_order: could not update quote order_id=' . $order_id . ' crypto=' . $crypto . ' - ' . $order['error'], 'error');
                 return $order;
             }
             $this->update_order($order);
@@ -1034,7 +1038,28 @@ class Blockonomics
             $this->record_address($order_id, $crypto, $order['address']);
             $this->record_expected_satoshi($order_id, $crypto, $order['expected_satoshi']);
         }
+        if ($order['payment_status'] == 0 && $crypto !== 'usdt') {
+            $wc_order = wc_get_order($order_id);
+            $wc_order->update_meta_data('_blockonomics_quote_expires_' . $crypto, time() + 60 * self::QUOTE_MINUTES);
+            $wc_order->save();
+        }
         return $order;
+    }
+
+    private function is_quote_valid($order){
+        if ($order['payment_status'] != 0) {
+            return false;
+        }
+        $wc_order = wc_get_order($order['order_id']);
+        $due = (float) $wc_order->get_total() - $this->get_order_paid_fiat($order['order_id']);
+        if (round($due, wc_get_price_decimals()) != round((float) $order['expected_fiat'], wc_get_price_decimals())) {
+            return false;
+        }
+        return $order['crypto'] === 'usdt' || $this->get_quote_seconds_left($order['order_id'], $order['crypto']) > 0;
+    }
+
+    private function get_quote_seconds_left($order_id, $crypto){
+        return max(0, (int) wc_get_order($order_id)->get_meta('_blockonomics_quote_expires_' . $crypto) - time());
     }
 
     // Get the order info by id and crypto
@@ -1051,7 +1076,8 @@ class Blockonomics
         $response = array(
             "payment_uri" => $this->get_crypto_payment_uri($crypto_obj, $order['address'], $order_amount),
             "order_amount" => $order_amount,
-            "crypto_rate_str" => $this->get_crypto_rate_from_params($crypto, $order['expected_fiat'], $order['expected_satoshi'])
+            "crypto_rate_str" => $this->get_crypto_rate_from_params($crypto, $order['expected_fiat'], $order['expected_satoshi']),
+            "time_left" => $this->get_quote_seconds_left($order_id, $crypto)
         );
         header("Content-Type: application/json");
         exit(json_encode($response));
