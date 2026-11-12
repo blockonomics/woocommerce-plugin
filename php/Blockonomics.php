@@ -652,8 +652,14 @@ class Blockonomics
         return get_option('blockonomics_partial_payments', true);
     }
 
+    // On by default. Agents check out as guests through this gateway, so both must be available
     public function is_agentic_checkout_active(){
-        return (bool) get_option('blockonomics_agentic_checkout', false);
+        if (!get_option('blockonomics_agentic_checkout', 1) || get_option('woocommerce_enable_guest_checkout') !== 'yes') {
+            return false;
+        }
+        $settings = get_option('woocommerce_blockonomics_settings', array());
+        // Same default as the "Enable Blockonomics plugin" setting
+        return isset($settings['enabled']) ? $settings['enabled'] === 'yes' : (bool) get_option('blockonomics_api_key');
     }
 
     // Payment details as JSON for agents. Unpaid quotes are reused until expiry so the amount doesn't change mid-payment

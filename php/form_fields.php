@@ -118,7 +118,7 @@ class FormFields {
             'subtitle' => __('Agentic Checkout', 'blockonomics-bitcoin-payments'),
             'label' => __('Enable Agentic checkout', 'blockonomics-bitcoin-payments'),
             'description' => $agentic_description,
-            'default' => get_option('blockonomics_agentic_checkout') == 1 ? 'yes' : 'no',
+            'default' => get_option('blockonomics_agentic_checkout', 1) == 1 ? 'yes' : 'no',
         );
         $form_fields['partial_payment'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),

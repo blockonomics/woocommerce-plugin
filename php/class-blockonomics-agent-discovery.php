@@ -14,7 +14,8 @@ class Blockonomics_Agent_Discovery {
     }
 
     private static function is_active() {
-        return (bool) get_option('blockonomics_agentic_checkout', false);
+        $blockonomics = new Blockonomics;
+        return $blockonomics->is_agentic_checkout_active();
     }
 
     private static function instructions_url() {
