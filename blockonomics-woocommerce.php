@@ -10,7 +10,7 @@
  * Text Domain: blockonomics-bitcoin-payments
  * Domain Path: /languages/
  * Requires at least: 5.6
- * Tested up to: 7.0.2
+ * Tested up to: 7.0.4
  * Requires PHP: 7.4
  * WC requires at least: 7.0
  * WC tested up to: 10.9.4
@@ -73,6 +73,8 @@ function blockonomics_woocommerce_init()
     include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
     require_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'admin-page.php';
     require_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'class-blockonomics-setup.php';
+    require_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'class-blockonomics-agentic-api.php';
+    require_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'class-blockonomics-agent-discovery.php';
 
     add_action('admin_menu', 'add_page');
     add_action('init', 'load_plugin_translations');
@@ -88,6 +90,8 @@ function blockonomics_woocommerce_init()
     add_action('wp_enqueue_scripts', 'bnomics_register_scripts');
     add_filter("wp_list_pages_excludes", "bnomics_exclude_pages");
     add_action('admin_menu', 'blockonomics_add_admin_menu');
+    add_action('rest_api_init', array('Blockonomics_Agentic_API', 'register_routes'));
+    Blockonomics_Agent_Discovery::init();
 
     if ( is_HPOS_active()) {
         add_action('woocommerce_order_list_table_restrict_manage_orders', 'filter_orders' , 20 );
@@ -415,13 +419,7 @@ function blockonomics_woocommerce_init()
         foreach ($transactions as $transaction) {
 
             $crypto = strtolower($transaction['crypto']);
-            if ( $crypto === 'bch' ) {
-                $txid_url = Blockonomics::BCH_BASE_URL . '/api/tx?txid=' . $transaction['txid'] . '&addr=' . $transaction['address'];
-            } elseif ( $crypto === 'usdt' ) {
-                $txid_url = 'https://www.etherscan.io/tx/' . $transaction['txid'];
-            } else {
-                $txid_url = Blockonomics::BASE_URL . '/#/search?q=' . $transaction['txid'] . '&addr=' . $transaction['address'];
-            }
+            $txid_url = $blockonomics->get_explorer_url($crypto, $transaction['address'], $transaction['txid']);
 
             $output .=  '<tr><td scope="row">';
             $output .=  '<a style="word-wrap: break-word;word-break: break-all;" href="' . esc_url($txid_url) . '">' . esc_html($transaction['txid']) . '</a></td>';
@@ -671,6 +669,7 @@ function blockonomics_uninstall_hook() {
     // blockonomics_lite is only for db version below 1.3
     delete_option('blockonomics_lite');
     delete_option('blockonomics_nojs');
+    delete_option('blockonomics_agentic_checkout');
     delete_option('blockonomics_network_confirmation');
     delete_option('blockonomics_partial_payments');
     delete_option('woocommerce_blockonomics_settings');

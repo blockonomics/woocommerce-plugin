@@ -2,7 +2,7 @@
 **Contributors:** juhasiivikko, darrenwestwood, blockonomics, ankit61d, btcdeveloper
 **Tags:** bitcoin, bitcoin payments, usdt payments, woocommerce, cryptocurrency
 **Requires at least:** 5.6
-**Tested up to:** 7.0.2
+**Tested up to:** 7.0.4
 **Require PHP:** 7.4
 **WC requires at least:** 7.0
 **WC tested up to:** 10.4.3
