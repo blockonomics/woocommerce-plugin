@@ -879,7 +879,7 @@ class Blockonomics
                 //Using svg library qrcode.php to generate QR Code in NoJS mode
                 // only generate QR if payment_uri exists (USDT doesn't use payment_uri)
                 if($this->is_nojs_active() && isset($context['payment_uri'])){
-                    $context['qrcode_svg_element'] = $this->generate_qrcode_svg_element($context['payment_uri']);
+                    $context['qrcode_svg_element'] = $this->generate_qrcode_svg_element($order['address']);
                 }
 
                 $context['total'] = $order['expected_fiat'];
