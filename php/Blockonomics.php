@@ -689,6 +689,7 @@ class Blockonomics
 
         $crypto_obj = $this->getSupportedCurrencies()[$crypto];
         $amount = rtrim(rtrim(number_format($order['expected_satoshi'] / pow(10, $crypto_obj['decimals']), $crypto_obj['decimals'], '.', ''), '0'), '.');
+        $testmode = $this->is_test_address($order['address']);
 
         $details = array(
             'order_hash'        => $this->encrypt_hash($order_id),
@@ -702,13 +703,13 @@ class Blockonomics
             'order_status'      => $wc_order->get_status(),
             // USDT quotes do not expire
             'expires_at'        => $order['payment_status'] == 0 && $crypto !== 'usdt' ? gmdate('c', time() + $this->get_quote_seconds_left($order_id, $crypto)) : '',
-            // Test address: placeholder, no real funds
-            'testmode'          => $this->is_test_address($order['address']),
+            // Test address: placeholder, no real funds. A string, because the checkout response casts values to strings
+            'testmode'          => $testmode ? 'true' : 'false',
         );
         if (isset($crypto_obj['uri'])) {
             $details['payment_uri'] = $this->get_crypto_payment_uri($crypto_obj, $order['address'], $amount);
         }
-        if (!$details['testmode']) {
+        if (!$testmode) {
             $explorer_url = $this->get_explorer_url($crypto, $order['address'], isset($order['txid']) ? $order['txid'] : '');
             if ($explorer_url) {
                 $details['explorer_url'] = $explorer_url;
@@ -718,7 +719,7 @@ class Blockonomics
             // ERC-20 transfers are only detected once the payer submits the txhash
             $details['network'] = 'ethereum';
             $details['txhash_url'] = rest_url(Blockonomics_Agentic_API::NAMESPACE_V1 . '/orders/' . $details['order_hash'] . '/txhash');
-            if ($details['testmode'] && $order['payment_status'] == 0) {
+            if ($testmode && $order['payment_status'] == 0) {
                 $details['test_txhash'] = $this->generate_usdt_test_txhash($order['expected_satoshi']);
             }
         }
