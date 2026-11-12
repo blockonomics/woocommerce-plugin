@@ -111,6 +111,7 @@ function blockonomics_woocommerce_init()
 
     add_action( 'admin_enqueue_scripts', 'blockonomics_enqueue_custom_admin_style' );
     add_action( 'wp_ajax_test_setup', 'blockonomics_test_setup' );
+    add_action( 'admin_post_blockonomics_regenerate_secret', 'blockonomics_regenerate_secret' );
     add_action( 'add_meta_boxes', 'blockonomics_add_attach_hash_meta_box', 10, 2 );
     add_action( 'woocommerce_process_shop_order_meta', 'blockonomics_handle_attach_hash' );
 
@@ -384,6 +385,23 @@ function blockonomics_woocommerce_init()
             $callback_secret = sha1(openssl_random_pseudo_bytes(20));
             update_option("blockonomics_callback_secret", $callback_secret);
         }
+    }
+
+    function blockonomics_regenerate_secret()
+    {
+        check_admin_referer('blockonomics_regenerate_secret');
+        if (!current_user_can('manage_woocommerce')) {
+            wp_die(esc_html__('You are not allowed to do this.', 'blockonomics-bitcoin-payments'));
+        }
+        delete_option('blockonomics_callback_secret');
+        delete_option('blockonomics_store_name');
+        delete_option('blockonomics_enabled_cryptos');
+        generate_secret();
+        $settings = get_option('woocommerce_blockonomics_settings', array());
+        $settings['call_backurls'] = Blockonomics::get_callback_url();
+        update_option('woocommerce_blockonomics_settings', $settings);
+        wp_safe_redirect(admin_url('admin.php?page=wc-settings&tab=checkout&section=blockonomics'));
+        exit;
     }
 
     function bnomics_display_payment_details($order, $transactions, $email=false)

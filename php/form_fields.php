@@ -130,11 +130,11 @@ class FormFields {
         $form_fields['call_backurls'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),
             'type' => 'text',
-            'description' => __('You need this callback URL to setup multiple stores', 'blockonomics-bitcoin-payments'),
+            'description' => __('Every store on blockonomics.co must have its own callback secret.', 'blockonomics-bitcoin-payments'),
             'subtitle' => __('Callback URL', 'blockonomics-bitcoin-payments'),
             'default' => $callback_url,
             'disabled' => true,
-            'css' => 'width:100%;',
+            'css' => 'width:calc(100% - 64px);',
         );
         return $form_fields;
     }

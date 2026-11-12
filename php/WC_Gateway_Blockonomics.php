@@ -114,6 +114,13 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                     <?php endif; ?>
 					<legend class="screen-reader-text"><span><?php echo wp_kses_post( $data['title'] ); ?></span></legend>
 					<input class="input-text regular-input <?php echo esc_attr( $data['class'] ); ?>" type="<?php echo esc_attr( $data['type'] ); ?>" name="<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" style="<?php echo esc_attr( $data['css'] ); ?>" value="<?php echo esc_attr( $this->get_option( $key ) ); ?>" placeholder="<?php echo esc_attr( $data['placeholder'] ); ?>" <?php disabled( $data['disabled'], true ); ?> <?php echo $this->get_custom_attribute_html( $data ); // WPCS: XSS ok. ?> />
+                    <?php if ( 'call_backurls' === $key ) : ?>
+                        <a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=blockonomics_regenerate_secret' ), 'blockonomics_regenerate_secret' ) ); ?>"
+                            title="<?php esc_attr_e( 'Regenerate callback secret', 'blockonomics-bitcoin-payments' ); ?>" aria-label="<?php esc_attr_e( 'Regenerate callback secret', 'blockonomics-bitcoin-payments' ); ?>"
+                            onclick="return confirm('<?php echo esc_js( __( 'Your callback URL will change. Afterwards, update your store on blockonomics.co with the new URL, then run Test Setup. Continue?', 'blockonomics-bitcoin-payments' ) ); ?>');">
+                            <span class="dashicons dashicons-update" style="line-height: 1; vertical-align: middle;"></span>
+                        </a>
+                    <?php endif; ?>
                     <?php echo $this->get_description_html( $data ); // WPCS: XSS ok. ?>
 				</fieldset>
 			</td>
