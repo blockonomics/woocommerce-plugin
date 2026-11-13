@@ -11,19 +11,8 @@ if (!defined('ABSPATH')) {
 class Blockonomics_Setup {
     private const STORE_CRYPTOS = array('btc', 'usdt');
 
-    private function log_http_error($context, $error) {
-        if (!function_exists('wc_get_logger') || !is_wp_error($error)) {
-            return;
-        }
-
-        wc_get_logger()->error(
-            $context . ': ' . $error->get_error_message(),
-            array('source' => 'blockonomics')
-        );
-    }
-
     private function connection_error($context, $error) {
-        $this->log_http_error($context, $error);
+        wc_get_logger()->error($context . ': ' . $error->get_error_message(), array('source' => 'blockonomics'));
 
         return array(
             'error' => __('Could not reach Blockonomics. Please check your connection and try again.', 'blockonomics-bitcoin-payments')
@@ -63,17 +52,24 @@ class Blockonomics_Setup {
         return array('error' => $fallback_message);
     }
 
-    private function fetch_wallet_choices($api_key) {
-        $response = wp_remote_get(
-            Blockonomics::BASE_URL . '/api/v2/wallets',
-            array(
-                'headers' => array(
-                    'Authorization' => 'Bearer ' . $api_key,
-                    'Content-Type' => 'application/json'
-                ),
-                'timeout' => 8
-            )
+    // GET, or POST when a body is given; all wizard calls share these headers and timeout
+    private function api_request($url, $api_key, $body = null) {
+        $args = array(
+            'headers' => array(
+                'Authorization' => 'Bearer ' . $api_key,
+                'Content-Type' => 'application/json'
+            ),
+            'timeout' => 8
         );
+        if ($body !== null) {
+            $args['body'] = wp_json_encode($body);
+            return wp_remote_post($url, $args);
+        }
+        return wp_remote_get($url, $args);
+    }
+
+    private function fetch_wallet_choices($api_key) {
+        $response = $this->api_request(Blockonomics::BASE_URL . '/api/v2/wallets', $api_key);
 
         $error = $this->response_error(
             $response,
@@ -146,22 +142,7 @@ class Blockonomics_Setup {
 
     private function fetch_stores_with_wallets($api_key) {
         // Wallet details are required to select and finalize a configured store.
-        $stores_url = add_query_arg(
-            'wallets',
-            'true',
-            Blockonomics::BASE_URL . '/api/v2/stores'
-        );
-
-        $response = wp_remote_get(
-            $stores_url,
-            array(
-                'headers' => array(
-                    'Authorization' => 'Bearer ' . $api_key,
-                    'Content-Type' => 'application/json'
-                ),
-                'timeout' => 8
-            )
-        );
+        $response = $this->api_request(Blockonomics::STORES_URL, $api_key);
 
         $error = $this->response_error(
             $response,
@@ -214,12 +195,6 @@ class Blockonomics_Setup {
         return array('stores' => $response_data->data);
     }
 
-    private function get_callback_url() {
-        $callback_secret = get_option('blockonomics_callback_secret');
-        $api_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-        return add_query_arg('secret', $callback_secret, $api_url);
-    }
-
     // Check if API key is valid and has wallets
     public function validate_api_key($api_key) {
         $wallet_result = $this->fetch_wallet_choices($api_key);
@@ -250,23 +225,14 @@ class Blockonomics_Setup {
 
         // repair http -> https drift only (never downgrade to http, never rewrite
         // for path differences — WPML prefixes, subfolder installs)
-        $wordpress_callback_url = $this->get_callback_url();
+        $wordpress_callback_url = Blockonomics::get_callback_url();
         if (strpos($best_store->http_callback, 'http://') === 0
             && strpos($wordpress_callback_url, 'https://') === 0
             && substr($best_store->http_callback, 7) === substr($wordpress_callback_url, 8)) {
-            $update_response = wp_remote_post(
+            $update_response = $this->api_request(
                 Blockonomics::BASE_URL . '/api/v2/stores/' . $best_store->id,
-                array(
-                    'headers' => array(
-                        'Authorization' => 'Bearer ' . $api_key,
-                        'Content-Type' => 'application/json'
-                    ),
-                    'body' => wp_json_encode(array(
-                        'name' => $best_store->name,
-                        'http_callback' => $wordpress_callback_url
-                    )),
-                    'timeout' => 8
-                )
+                $api_key,
+                array('name' => $best_store->name, 'http_callback' => $wordpress_callback_url)
             );
 
             $update_error = $this->response_error(
@@ -308,18 +274,10 @@ class Blockonomics_Setup {
                 continue;
             }
 
-            $wallet_attach_response = wp_remote_post(
+            $wallet_attach_response = $this->api_request(
                 Blockonomics::BASE_URL . '/api/v2/stores/' . $store->id . '/wallets',
-                array(
-                    'headers' => array(
-                        'Authorization' => 'Bearer ' . $api_key,
-                        'Content-Type' => 'application/json'
-                    ),
-                    'body' => wp_json_encode(array(
-                        'wallet_id' => $wallet_id
-                    )),
-                    'timeout' => 8
-                )
+                $api_key,
+                array('wallet_id' => $wallet_id)
             );
 
             $attach_error = $this->response_error(
@@ -357,16 +315,7 @@ class Blockonomics_Setup {
     }
 
     private function fetch_store_wallets($store_id, $api_key) {
-        $response = wp_remote_get(
-            Blockonomics::BASE_URL . '/api/v2/stores/' . $store_id . '/wallets',
-            array(
-                'headers' => array(
-                    'Authorization' => 'Bearer ' . $api_key,
-                    'Content-Type' => 'application/json'
-                ),
-                'timeout' => 8
-            )
-        );
+        $response = $this->api_request(Blockonomics::BASE_URL . '/api/v2/stores/' . $store_id . '/wallets', $api_key);
 
         $error = $this->response_error(
             $response,
@@ -457,7 +406,7 @@ class Blockonomics_Setup {
             return array('error' => 'Please enter your store name');
         }
         $api_key = get_option('blockonomics_api_key');
-        $callback_url = $this->get_callback_url();
+        $callback_url = Blockonomics::get_callback_url();
         $store_lookup = $this->find_store_by_callback($api_key);
         if (isset($store_lookup['error'])) {
             return $store_lookup;
@@ -482,17 +431,7 @@ class Blockonomics_Setup {
             'name' => $store_name,
             'http_callback' => $callback_url
         );
-        $response = wp_remote_post(
-            Blockonomics::BASE_URL . '/api/v2/stores',
-            array(
-                'headers' => array(
-                    'Authorization' => 'Bearer ' . $api_key,
-                    'Content-Type' => 'application/json'
-                ),
-                'body' => wp_json_encode($store_data),
-                'timeout' => 8
-            )
-        );
+        $response = $this->api_request(Blockonomics::BASE_URL . '/api/v2/stores', $api_key, $store_data);
 
         $create_error = $this->response_error(
             $response,
@@ -542,19 +481,7 @@ class Blockonomics_Setup {
      * @return array Result containing success or an error
      */
     private function update_store_name($api_key, $store_id, $new_name) {
-        $response = wp_remote_post(
-            Blockonomics::BASE_URL . '/api/v2/stores/' . $store_id,
-            array(
-                'headers' => array(
-                    'Authorization' => 'Bearer ' . $api_key,
-                    'Content-Type' => 'application/json'
-                ),
-                'body' => wp_json_encode(array(
-                    'name' => $new_name
-                )),
-                'timeout' => 8
-            )
-        );
+        $response = $this->api_request(Blockonomics::BASE_URL . '/api/v2/stores/' . $store_id, $api_key, array('name' => $new_name));
 
         $update_error = $this->response_error(
             $response,

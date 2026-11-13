@@ -108,6 +108,18 @@ class FormFields {
             'description' => __('Note: Customers paying with USDT must have JavaScript enabled.', 'blockonomics-bitcoin-payments'),
             'default' => get_option('blockonomics_nojs') == 1 ? 'yes' : 'no',
         );
+        $agentic_description = __('Lets AI agents check out via the WooCommerce Store API and receive the payment address and amount as JSON. The human or the agent then pays.', 'blockonomics-bitcoin-payments');
+        if (get_option('woocommerce_enable_guest_checkout') !== 'yes') {
+            $agentic_description .= '<br/><strong>' . __('Warning: guest checkout is disabled in WooCommerce settings, so agents cannot place orders.', 'blockonomics-bitcoin-payments') . '</strong>';
+        }
+        $form_fields['agentic_checkout'] = array(
+            'title' => __('', 'blockonomics-bitcoin-payments'),
+            'type' => 'checkbox',
+            'subtitle' => __('Agentic Checkout', 'blockonomics-bitcoin-payments'),
+            'label' => __('Enable Agentic checkout', 'blockonomics-bitcoin-payments'),
+            'description' => $agentic_description,
+            'default' => get_option('blockonomics_agentic_checkout', 1) == 1 ? 'yes' : 'no',
+        );
         $form_fields['partial_payment'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),
             'type' => 'checkbox',
@@ -130,11 +142,11 @@ class FormFields {
         $form_fields['call_backurls'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),
             'type' => 'text',
-            'description' => __('You need this callback URL to setup multiple stores', 'blockonomics-bitcoin-payments'),
+            'description' => __('Every store on blockonomics.co must have its own callback secret.', 'blockonomics-bitcoin-payments'),
             'subtitle' => __('Callback URL', 'blockonomics-bitcoin-payments'),
             'default' => $callback_url,
             'disabled' => true,
-            'css' => 'width:100%;',
+            'css' => 'width:calc(100% - 64px);',
         );
         return $form_fields;
     }
