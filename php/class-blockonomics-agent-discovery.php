@@ -68,6 +68,8 @@ class Blockonomics_Agent_Discovery {
         $orders = untrailingslashit(rest_url(Blockonomics_Agentic_API::NAMESPACE_V1 . '/orders'));
         $name = wp_strip_all_tags(get_bloginfo('name'));
         $currency = get_woocommerce_currency();
+        // Plain permalinks URLs already have a ? (?rest_route=), so join with &
+        $q = strpos($store, '?') === false ? '?' : '&';
 
         return array(
             'title'       => "$name: agent checkout",
@@ -78,8 +80,8 @@ class Blockonomics_Agent_Discovery {
                     'step'   => 1,
                     'do'     => 'Find products',
                     'method' => 'GET',
-                    'url'    => "$store/products?search=<term>",
-                    'notes'  => 'Also ?slug=, ?category=, ?per_page=. Use the product id.',
+                    'url'    => "$store/products{$q}search=<term>",
+                    'notes'  => "Also {$q}slug=, {$q}category=, {$q}per_page=. Use the product id.",
                 ),
                 array(
                     'step'   => 2,
@@ -121,7 +123,7 @@ class Blockonomics_Agent_Discovery {
                 array(
                     'step'  => 5,
                     'do'    => 'Pay',
-                    'notes' => 'The checkout response payment_result.payment_details (key/value list) has address, amount, payment_uri (BTC), expires_at and order_hash. Send exactly amount to address before expires_at. USDT quotes do not expire, so expires_at is empty for USDT. If you checked out without crypto, it has payment_details_url instead: GET it with ?crypto=<crypto>.',
+                    'notes' => "The checkout response payment_result.payment_details (key/value list) has address, amount, payment_uri (BTC), expires_at and order_hash. Send exactly amount to address before expires_at (empty for USDT). If you checked out without crypto, it has payment_details_url instead: GET it with {$q}crypto=<crypto>.",
                 ),
                 array(
                     'step'   => 6,
@@ -135,7 +137,7 @@ class Blockonomics_Agent_Discovery {
                     'step'   => 7,
                     'do'     => 'Check payment status',
                     'method' => 'GET',
-                    'url'    => "$orders/{order_hash}?crypto=<crypto>",
+                    'url'    => "$orders/{order_hash}{$q}crypto=<crypto>",
                     'notes'  => 'Returns payment_status: awaiting_payment, detected, confirmed or underpaid. After expires_at it returns a fresh quote.',
                 ),
             ),
