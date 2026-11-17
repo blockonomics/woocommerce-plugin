@@ -1,191 +1,259 @@
 /* ----- Payment page ----- */
+/* The card follows the store's theme: text inherits the theme's font, size and
+   colour, and lines and tints are derived from that text colour. */
 #blockonomics_checkout {
-  max-width: 560px;
+  /* fallbacks for browsers without color-mix() */
+  --bn-line: rgba(128, 128, 128, 0.35);
+  --bn-tint: rgba(128, 128, 128, 0.1);
+  /* the layout below depends on the card's own width, not the screen's */
+  container-type: inline-size;
+  box-sizing: border-box;
+  inline-size: 100%;
+  /* a size container has no content width, so a shrink-to-fit parent could collapse it */
+  min-inline-size: 240px;
+  max-inline-size: 560px;
   margin: 0 auto;
-  color: #14171a;
-  text-align: left;
+  color: inherit;
+  font-size: clamp(14px, 1em, 18px);
+  /* one regular weight for the whole card, whatever the theme's body weight is; values that matter are semi-bold */
+  font-weight: 400;
+  line-height: 1.45;
+  text-align: start;
+}
+
+@supports (color: color-mix(in srgb, red, blue)) {
+  #blockonomics_checkout {
+    --bn-line: color-mix(in srgb, currentColor 16%, transparent);
+    --bn-tint: color-mix(in srgb, currentColor 5%, transparent);
+  }
+}
+
+/* !important: rules below give some of these elements a display value at the same specificity */
+#blockonomics_checkout [hidden] {
+  display: none !important;
 }
 
 #blockonomics_checkout .bnomics-card {
   position: relative;
-  border: 1px solid #e2e5e9;
+  border: 1px solid var(--bn-line);
   border-radius: 14px;
-  background: #fff;
-  box-shadow: 0 1px 2px rgba(20, 23, 26, 0.05);
   overflow: hidden;
 }
 
 .bnomics-header {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 16px 24px;
-  border-bottom: 1px solid #e2e5e9;
+  gap: 0.5em;
+  padding: 1em 1.25em;
+  border-bottom: 1px solid var(--bn-line);
 }
 
 .bnomics-header-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
-  gap: 16px;
-  font-size: 14px;
-  line-height: 22px;
-}
-
-.bnomics-order-id {
-  font-weight: 500;
-  color: #5c6470;
+  gap: 0.25em 1em;
+  font-size: 0.875em;
 }
 
 .bnomics-fiat {
-  font-size: 15px;
-  font-weight: 500;
+  font-size: 1.07em;
   white-space: nowrap;
 }
 
 .bnomics-fiat-strong {
-  font-size: 17px;
+  font-size: 1.21em;
   font-weight: 600;
 }
 
 .bnomics-fiat small {
-  font-size: 12px;
-  font-weight: 500;
-  color: #5c6470;
+  font-size: 0.72em;
+  font-weight: 400;
 }
 
 .bnomics-header-remaining {
-  padding-top: 8px;
-  border-top: 1px solid #e2e5e9;
+  padding-top: 0.5em;
+  border-top: 1px solid var(--bn-line);
   font-weight: 600;
 }
 
+/* Stacked by default; side by side only when the card is wide enough (see the end of this section) */
 .bnomics-body {
   display: flex;
-  align-items: center;
-  gap: 24px;
-  padding: 24px;
+  flex-direction: column;
+  gap: 1em;
+  padding: 1.25em;
 }
 
 .bnomics-qr-col {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  width: 184px;
-  flex-shrink: 0;
+  gap: 0.75em;
+  align-self: center;
+  inline-size: min(100%, 184px);
 }
 
-.bnomics-qr-tile {
+/* The QR code stays black on white on every theme: scanners need it */
+#blockonomics_checkout .bnomics-qr-tile {
   display: block;
   box-sizing: border-box;
-  width: 184px;
-  height: 184px;
   padding: 11px;
-  border: 1px solid #e2e5e9;
+  border: 1px solid var(--bn-line);
   border-radius: 12px;
   background: #fff;
   line-height: 0;
 }
 
-.bnomics-qr-tile canvas,
-.bnomics-qr-tile svg {
+#blockonomics_checkout .bnomics-qr-tile svg {
   display: block;
-  width: 160px;
-  height: 160px;
+  inline-size: 100%;
+  block-size: auto;
+  max-inline-size: none;
+  fill: #000;
 }
 
+/* Layout only: the look comes from the theme's own button classes */
 #blockonomics_checkout .bnomics-wallet-btn {
   box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  min-height: 40px;
-  padding: 0 16px;
+  gap: 0.4em;
+  inline-size: 100%;
+  min-block-size: 44px;
+  margin: 0;
+  padding: 0.5em 0.75em;
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* Zero specificity: only applies where the theme styles neither button class */
+:where(#blockonomics_checkout .bnomics-wallet-btn) {
+  border: 1px solid currentColor;
   border-radius: 10px;
-  background: #14171a;
-  color: #fff;
-  font-size: 14px;
+  color: inherit;
   font-weight: 600;
-  line-height: 20px;
   text-decoration: none;
 }
 
 .bnomics-fields {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  flex-grow: 1;
-  min-width: 0;
+  gap: 1.1em;
+  flex: 1 1 0;
+  min-inline-size: 0;
 }
 
 .bnomics-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 0.4em;
 }
 
 .bnomics-label {
-  font-size: 13px;
-  line-height: 19px;
-  font-weight: 500;
-  color: #5c6470;
+  font-size: 0.8125em;
 }
 
+/* The row wraps its items onto a second line before it breaks the amount digit by digit */
 .bnomics-box {
   position: relative;
   box-sizing: border-box;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-  min-height: 56px;
-  padding: 8px 6px 8px 14px;
-  border: 1px solid #e2e5e9;
+  gap: 0.25em 0.5em;
+  min-block-size: 56px;
+  padding: 0.5em 0.375em 0.5em 0.875em;
+  border: 1px solid var(--bn-line);
   border-radius: 10px;
-  background: #f5f6f8;
+  background: var(--bn-tint);
   overflow: hidden;
 }
 
+.bnomics-box > * {
+  transition: opacity 180ms ease;
+}
+
 .bnomics-value {
-  flex-grow: 1;
-  min-width: 0;
+  flex: 1 1 12em;
+  min-inline-size: 0;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 13px;
-  line-height: 20px;
+  font-size: 0.8125em;
+  line-height: 1.5;
   overflow-wrap: anywhere;
 }
 
 .bnomics-amount-value {
-  font-size: 20px;
-  line-height: 28px;
+  flex: 1 0 auto;
+  max-inline-size: 100%;
+  font-size: 1.25em;
   font-weight: 600;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
 }
 
 .bnomics-unit {
-  font-size: 13px;
+  margin-inline-start: auto;
+  font-size: 0.8125em;
   font-weight: 600;
-  color: #5c6470;
 }
 
-#blockonomics_checkout .bnomics-copy {
-  box-sizing: border-box;
+#blockonomics_checkout .bnomics-copy,
+#blockonomics_checkout .bnomics-refresh {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  min-height: 0;
+  flex: none;
+  inline-size: auto;
+  block-size: auto;
+  min-inline-size: 40px;
+  min-block-size: 40px;
   margin: 0;
   padding: 0;
   border: 0;
   border-radius: 8px;
   background: transparent;
   box-shadow: none;
-  color: #5c6470;
+  color: inherit;
+  line-height: 0;
   cursor: pointer;
 }
 
+#blockonomics_checkout .bnomics-copy {
+  margin-inline-start: auto;
+}
+
+#blockonomics_checkout .bnomics-unit + .bnomics-copy {
+  margin-inline-start: 0;
+}
+
+#blockonomics_checkout .bnomics-refresh {
+  min-inline-size: 28px;
+  min-block-size: 28px;
+  border-radius: 50%;
+}
+
+#blockonomics_checkout .bnomics-copy:hover,
+#blockonomics_checkout .bnomics-refresh:hover {
+  background: var(--bn-tint);
+}
+
+#blockonomics_checkout .bnomics-copy:focus-visible,
+#blockonomics_checkout .bnomics-refresh:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -2px;
+}
+
+@media (pointer: coarse) {
+  #blockonomics_checkout .bnomics-copy,
+  #blockonomics_checkout .bnomics-refresh {
+    min-inline-size: 44px;
+    min-block-size: 44px;
+  }
+}
+
+/* "Copied" / "Copy failed": a cross-fade with the box content, so it needs no background of its own */
 .bnomics-copied {
   position: absolute;
   top: 0;
@@ -195,78 +263,160 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f5f6f8;
-  font-size: 14px;
+  gap: 0.35em;
+  font-size: 0.875em;
   font-weight: 600;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 180ms ease;
 }
 
-.bnomics-box.is-copied .bnomics-copied {
+/* The tick after "Copied"; a failed copy shows the message alone */
+.bnomics-copied svg {
+  display: none;
+  width: 1.5em;
+  height: 1.5em;
+}
+
+.bnomics-box.is-copied .bnomics-copied svg {
+  display: block;
+}
+
+.bnomics-box.is-reporting > :not(.bnomics-copied) {
+  opacity: 0;
+}
+
+.bnomics-box.is-reporting > .bnomics-copied {
   opacity: 1;
 }
 
+/* Blanks the amount while a new price loads; the script gives it the page colour behind the card */
 .bnomics-wipe {
   position: absolute;
   top: 0;
   left: 0;
   width: 0;
   height: 100%;
-  background: #fff;
-  transition: width 300ms ease-in-out, left 300ms ease-in-out;
 }
 
 .bnomics-bar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding: 12px 24px;
-  border-top: 1px solid #e2e5e9;
-  background: #fafbfc;
+  gap: 0.5em 1em;
+  padding: 0.75em 1.25em;
+  border-top: 1px solid var(--bn-line);
+  background: var(--bn-tint);
 }
 
 .bnomics-status {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 13px;
-  line-height: 20px;
-  font-weight: 500;
+  gap: 0.6em;
+  font-size: 0.8125em;
 }
 
 .bnomics-dot {
+  position: relative;
   width: 8px;
   height: 8px;
   flex-shrink: 0;
   border-radius: 50%;
-  background: #2563eb;
-  animation: bnomics-pulse 1.8s ease-out infinite;
+  background: #3b82f6;
+}
+
+/* No movement at all for visitors who asked their system to reduce motion */
+@media (prefers-reduced-motion: no-preference) {
+  .bnomics-dot::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border-radius: 50%;
+    background: inherit;
+    animation: bnomics-pulse 1.8s ease-out infinite;
+  }
+
+  .bnomics-wipe {
+    transition: width 300ms ease-in-out, left 300ms ease-in-out;
+  }
+
+  #blockonomics_checkout .bnomics-copy:active,
+  #blockonomics_checkout .bnomics-refresh:active {
+    scale: 0.94;
+  }
+
+  .bnomics-quote.is-loading .bnomics-refresh svg {
+    animation: bnomics-spin 2s linear infinite;
+  }
+
+  /* While a new price loads, the rate slides down out of its capsule and comes back up with the new values */
+  .bnomics-rate-text {
+    transition: translate 300ms ease-in-out;
+  }
+
+  .bnomics-quote.is-loading .bnomics-rate-text {
+    translate: 0 150%;
+  }
 }
 
 @keyframes bnomics-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.45); }
-  70% { box-shadow: 0 0 0 7px rgba(37, 99, 235, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+  from { scale: 1; opacity: 0.5; }
+  70%, to { scale: 2.8; opacity: 0; }
 }
 
-.bnomics-timer {
+@keyframes bnomics-spin {
+  to { rotate: 1turn; }
+}
+
+/* One capsule: "1 BTC = 104490.67 USD, updates in 24:53". The refresh button sits beside it. */
+.bnomics-quote {
   display: flex;
   align-items: center;
-  gap: 6px;
-  height: 28px;
-  padding: 0 10px;
-  border-radius: 999px;
-  background: #eef0f3;
-  color: #5c6470;
-  font-size: 13px;
-  font-weight: 600;
+  gap: 0.25em;
+}
+
+.bnomics-rate {
+  box-sizing: border-box;
+  min-block-size: 28px;
+  padding: 0.3em 0.9em;
+  border-radius: 14px;
+  background: var(--bn-tint);
+  font-size: 0.8125em;
   font-variant-numeric: tabular-nums;
+  overflow: hidden;
+}
+
+.bnomics-rate-text {
+  display: block;
 }
 
 .bnomics-time-left {
-  color: #14171a;
+  font-weight: 600;
+}
+
+/* Without motion the button still shows that a request is running */
+.bnomics-quote.is-loading .bnomics-refresh {
+  opacity: 0.5;
+}
+
+.bnomics-paid-link {
+  font-size: 0.8125em;
+}
+
+/* Text for screen readers only */
+.bnomics-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 
 .bnomics-detected {
@@ -275,8 +425,30 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 18px;
-  padding: 24px;
+  gap: 1.1em;
+  padding: 1.5em;
+  text-align: center;
+}
+
+.bnomics-detected:focus {
+  outline: none;
+}
+
+.is-detected .bnomics-pay {
+  display: none;
+}
+
+.is-detected .bnomics-detected {
+  display: flex;
+  opacity: 1;
+  transition: opacity 300ms ease-out, display 300ms;
+  transition-behavior: allow-discrete;
+}
+
+@starting-style {
+  .is-detected .bnomics-detected {
+    opacity: 0;
+  }
 }
 
 .bnomics-detected-icon,
@@ -287,50 +459,66 @@
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: #e8f5ec;
-  color: #116b3a;
+  background: rgba(31, 157, 85, 0.16);
+  color: #1f9d55;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .is-detected .bnomics-detected-icon {
+    transition: scale 450ms cubic-bezier(0.2, 1.4, 0.4, 1);
+  }
+
+  @starting-style {
+    .is-detected .bnomics-detected-icon {
+      scale: 0.6;
+    }
+  }
 }
 
 .bnomics-detected-text {
-  font-size: 22px;
-  line-height: 30px;
+  font-size: 1.375em;
+  line-height: 1.35;
   font-weight: 700;
+  text-wrap: balance;
 }
 
+/* USDT: the wallet component is loaded from blockonomics.co and has its own light design */
 .bnomics-web3 {
   padding: 12px 24px;
+  background: #fff;
+  color: #14171a;
 }
 
 .bnomics-error {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
-  padding: 28px 24px 24px;
+  gap: 1em;
+  padding: 1.75em 1.5em 1.5em;
 }
 
 .bnomics-error-icon {
-  background: #fdf1dc;
-  color: #8a4b08;
+  background: rgba(217, 119, 6, 0.16);
+  color: #d97706;
 }
 
-.bnomics-error h2 {
+#blockonomics_checkout .bnomics-error h2 {
   margin: 0;
-  font-size: 18px;
-  line-height: 26px;
+  font-size: 1.125em;
+  line-height: 1.45;
   font-weight: 700;
   text-align: center;
+  text-wrap: balance;
 }
 
 .bnomics-message {
   align-self: stretch;
-  padding: 14px 16px;
-  border: 1px solid #e2e5e9;
+  padding: 0.875em 1em;
+  border: 1px solid var(--bn-line);
   border-radius: 10px;
-  background: #f5f6f8;
-  font-size: 13px;
-  line-height: 20px;
-  color: #5c6470;
+  background: var(--bn-tint);
+  font-size: 0.8125em;
+  line-height: 1.55;
 }
 
 .bnomics-message p {
@@ -342,71 +530,24 @@
   padding-left: 18px;
 }
 
-/* JS page: payment details stay hidden until the script starts */
-#blockonomics_checkout:not(.no-js) .bnomics-pay {
-  display: none;
-}
-
-.bnomics-display-error {
-  animation: errorAnimation 0s 3s forwards;
-  height: 0;
-  width: 0;
-  overflow: hidden;
-}
-
-@keyframes errorAnimation {
-  to {
-    width: auto;
-    height: auto;
-    padding: 24px;
-  }
-}
-
-.bnomics-spinner-wrapper {
-  text-align: center;
-  padding: 40px 20px;
-  animation: errorAnimationSync 0s 3s forwards;
-}
-
-.bnomics-spinner {
-  display: inline-block;
-  width: 48px;
-  height: 48px;
-  border: 3px solid #e2e5e9;
-  border-radius: 50%;
-  border-top-color: #14171a;
-  animation: bnomics-spin 1s ease-in-out infinite;
-}
-
-@keyframes bnomics-spin {
-  to { transform: rotate(360deg); }
-}
-
-@keyframes errorAnimationSync {
-  to {
-    height: 0;
-    width: 0;
-    overflow: hidden;
-    padding: 0;
-  }
-}
-
-@media screen and (max-width: 600px) {
+@container (min-width: 500px) {
   .bnomics-header,
   .bnomics-bar {
-    padding-left: 20px;
-    padding-right: 20px;
+    padding-left: 1.5em;
+    padding-right: 1.5em;
   }
 
   .bnomics-body {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 16px;
-    padding: 20px;
+    flex-direction: row;
+    align-items: center;
+    gap: 1.5em;
+    padding: 1.5em;
   }
 
   .bnomics-qr-col {
-    align-self: center;
+    flex: none;
+    align-self: auto;
+    inline-size: 184px;
   }
 }
 
@@ -417,38 +558,34 @@
   flex-shrink: 0;
 }
 
-.bnomics-select-options {
-  cursor: pointer;
-  width: 100%;
+.bnomics-select-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+  max-width: 400px;
+  margin: auto;
+  padding-top: 20px;
+}
+
+.bnomics-select-container a.bnomics-select-options {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  padding: 14px 20px;
-  margin-bottom: 12px !important;
-  border-radius: 8px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-  transition: all 0.2s ease;
-  word-break: break-word;
-}
-
-.bnomics-select-options:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transform: translateY(-1px);
-}
-
-.bnomics-select-container {
-  padding-top: 20px;
+  width: 100%;
+  min-height: 48px;
+  margin: 0;
+  padding: 0.75em 1.25em;
   text-align: center;
-  max-width: 400px;
-  margin: auto;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
 }
 
-.bnomics-select-container a {
+:where(.bnomics-select-container a.bnomics-select-options) {
+  border: 1px solid currentColor;
+  border-radius: 10px;
+  color: inherit;
+  font-weight: 600;
   text-decoration: none;
-}
-
-#blockonomics_checkout.no-js .bnomics-box {
-  padding-right: 14px;
 }

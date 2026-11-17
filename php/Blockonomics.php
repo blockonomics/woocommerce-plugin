@@ -648,6 +648,12 @@ class Blockonomics
         return get_option('blockonomics_nojs', false);
     }
 
+    // Extra class WooCommerce puts on its own buttons so that block themes style them ('' on other themes).
+    // The WooCommerce helper exists since 7.0.1.
+    public function get_theme_button_class(){
+        return function_exists('wc_wp_theme_get_element_class_name') ? wc_wp_theme_get_element_class_name('button') : '';
+    }
+
     public function is_partial_payments_active(){
         return get_option('blockonomics_partial_payments', true);
     }
@@ -795,7 +801,10 @@ class Blockonomics
     public function add_blockonomics_checkout_style($template_name){
         wp_enqueue_style( 'bnomics-style' );
         if ($template_name === 'checkout') {
-            wp_enqueue_script( 'bnomics-checkout' );
+            // No Javascript mode: the same page, without the script
+            if (!$this->is_nojs_active()) {
+                wp_enqueue_script( 'bnomics-checkout' );
+            }
         }elseif ($template_name === 'web3_checkout') {
             wp_enqueue_script( 'bnomics-web3-checkout' );
         }
@@ -1006,18 +1015,16 @@ class Blockonomics
                     $context['finish_order_url'] = $this->get_parameterized_wc_url('api',array('finish_order'=>$order_hash, 'crypto'=>  $context['crypto']['code']));
                     $context['testmode'] = $this->is_usdt_test_address($order['address']) ? '1' : '0';
                 }else {
-                    // Payment URI is sent as part of context to provide initial Payment URI, this can be calculated using javascript
-                    // but we also need the URI for NoJS Templates and it makes sense to generate it from a single location to avoid redundancy!
                     $context['payment_uri'] = $this->get_crypto_payment_uri($context['crypto'], $order['address'], $context['order_amount']);
                     $context['finish_order_url'] = $this->get_wc_order_received_url($context['order_id']);
                     $context['get_order_amount_url'] = $this->get_parameterized_wc_url('api', array('get_amount' => $order_hash, 'crypto' => $context['crypto']['code']));
                     $context['time_left'] = $this->get_quote_seconds_left($context['order_id'], $context['crypto']['code']);
                 }
                 $context['crypto_rate_str'] = $this->get_crypto_rate_from_params($context['crypto']['code'], $order['expected_fiat'], $order['expected_satoshi']);
-                //Using svg library qrcode.php to generate QR Code in NoJS mode
+                // The QR code is rendered on the server (svg library qrcode.php), so the page does not depend on the checkout script
                 // only generate QR if payment_uri exists (USDT doesn't use payment_uri)
-                if($this->is_nojs_active() && isset($context['payment_uri'])){
-                    $context['qrcode_svg_element'] = $this->generate_qrcode_svg_element($order['address']);
+                if(isset($context['payment_uri'])){
+                    $context['qrcode_svg_element'] = $this->generate_qrcode_svg_element($context['payment_uri']);
                 }
 
                 $context['total'] = $order['expected_fiat'];
@@ -1045,7 +1052,7 @@ class Blockonomics
             if ($crypto === 'usdt') {
                 return 'web3_checkout';
             }
-            return ($this->is_nojs_active()) ? 'nojs_checkout' : 'checkout';
+            return 'checkout';
         }
     }
 
@@ -1148,10 +1155,11 @@ class Blockonomics
     }
 
     // Check and update the crypto order or create a new order
-    public function process_order($order_id, $crypto){
+    // $refresh: give an unpaid payment a new price even though its held quote has not run out
+    public function process_order($order_id, $crypto, $refresh = false){
         $order = $this->get_order_by_id_and_crypto($order_id, $crypto);
         if ($order) {
-            if ($this->is_quote_valid($order)) {
+            if (!$refresh && $this->is_quote_valid($order)) {
                 return $order;
             }
             // Update the existing order info
@@ -1204,8 +1212,10 @@ class Blockonomics
     }
 
     // Get the order info by id and crypto
-    public function get_order_amount_info($order_id, $crypto){
-        $order = $this->process_order($order_id, $crypto);
+    // $refresh: the customer pressed the refresh button on the payment page
+    public function get_order_amount_info($order_id, $crypto, $refresh = false){
+        // USDT has no timer and keeps its quote until paid
+        $order = $this->process_order($order_id, $crypto, $refresh && $crypto !== 'usdt');
         if (array_key_exists('error', $order)) {
             header("Content-Type: application/json");
             exit(json_encode(array("error" => $order['error'])));
@@ -1214,8 +1224,11 @@ class Blockonomics
         $cryptos = $this->getSupportedCurrencies();
         $crypto_obj = $cryptos[$crypto];
 
+        $payment_uri = $this->get_crypto_payment_uri($crypto_obj, $order['address'], $order_amount);
         $response = array(
-            "payment_uri" => $this->get_crypto_payment_uri($crypto_obj, $order['address'], $order_amount),
+            "payment_uri" => $payment_uri,
+            // The QR code carries the amount, so a new amount needs a new QR code
+            "qrcode_svg" => $this->generate_qrcode_svg_element($payment_uri),
             "order_amount" => $order_amount,
             "crypto_rate_str" => $this->get_crypto_rate_from_params($crypto, $order['expected_fiat'], $order['expected_satoshi']),
             "time_left" => $this->get_quote_seconds_left($order_id, $crypto)

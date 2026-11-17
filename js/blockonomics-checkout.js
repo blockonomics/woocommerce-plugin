@@ -1,128 +1,194 @@
 'use strict';
-class Blockonomics {
-    constructor() {
-        this.container = document.getElementById('blockonomics_checkout');
-        const dataset = this.container ? this.container.dataset : {};
-        if (!dataset.cryptoAddress || !dataset.cryptoCode) {
-            throw Error('Blockonomics Initialisation Error: Required data attributes are missing from container element.');
+// The payment page is complete without this script: QR code, amount, address and wallet
+// link are rendered on the server. This adds the copy buttons, the countdown with its
+// price refresh, and live payment detection.
+(function () {
+    const root = document.getElementById('blockonomics_checkout');
+    if (!root || !root.dataset.cryptoAddress || !root.dataset.cryptoCode) {
+        return;
+    }
+    const data = root.dataset;
+    const find = (selector) => root.querySelector(selector);
+    const amount = find('#bnomics-amount');
+    const amountBox = find('#bnomics-amount-box');
+    const walletLink = find('a.bnomics-wallet-btn');
+    const qrTile = find('.bnomics-qr-tile');
+    const rate = find('#bnomics-crypto-rate');
+    const quote = find('.bnomics-quote');
+    const refreshButton = find('.bnomics-refresh');
+    const timeLeft = find('.bnomics-time-left');
+    const announcer = find('.bnomics-sr[role="status"]');
+
+    // Screen readers skip a message identical to the previous one, so a repeat gets a no-break space
+    let lastMessage = '';
+    const distinct = (message) => {
+        if (message === lastMessage) {
+            message += '\u00A0';
         }
-        this.data = {
-            time_left: Number(dataset.timeLeft) || 0,
-            crypto: { code: dataset.cryptoCode },
-            crypto_address: dataset.cryptoAddress,
-            finish_order_url: dataset.finishOrderUrl,
-            get_order_amount_url: dataset.getOrderAmountUrl
-        };
+        lastMessage = message;
+        return message;
+    };
+    const announce = (message) => {
+        announcer.textContent = '';
+        requestAnimationFrame(() => (announcer.textContent = distinct(message)));
+    };
 
-        const find = (selector) => this.container.querySelector(selector);
-        this._amount = find('#bnomics-amount');
-        this._amount_box = find('#bnomics-amount-box');
-        this._time_left = find('.bnomics-time-left');
-        this._wallet_link = find('a.bnomics-wallet-btn');
+    const timers = new WeakMap();
 
-        this.container.querySelectorAll('.bnomics-copy').forEach((button) =>
-            button.addEventListener('click', () => this.copy(button))
-        );
-
-        this.reset_progress();
-        find('.bnomics-spinner-wrapper').style.display = 'none';
-        find('.bnomics-display-error').style.display = 'none';
-        find('.bnomics-pay').style.display = 'block';
-        new QRious({ element: find('#bnomics-qr-code'), value: this.data.crypto_address, size: 160 });
-        this.connect_to_ws();
+    // For pages not served over https, where navigator.clipboard does not exist
+    function legacyCopy(text) {
+        const field = Object.assign(document.createElement('textarea'), { value: text });
+        field.setAttribute('readonly', '');
+        field.style.cssText = 'position:fixed;top:0;opacity:0';
+        document.body.append(field);
+        field.select();
+        try {
+            return document.execCommand('copy');
+        } finally {
+            field.remove();
+        }
     }
 
-    copy(button) {
-        const text = document.getElementById(button.dataset.copy).textContent;
+    async function copy(button) {
+        const text = document.getElementById(button.dataset.copy).textContent.trim();
+        let ok = true;
+        try {
+            await navigator.clipboard.writeText(text);
+        } catch {
+            ok = legacyCopy(text);
+        }
+        report(button, ok);
+    }
+
+    function report(button, ok) {
         const box = button.closest('.bnomics-box');
-        const done = () => {
-            box.classList.add('is-copied');
-            setTimeout(() => box.classList.remove('is-copied'), 1600);
-        };
-        if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(text).then(done);
-            return;
-        }
-        const textarea = document.createElement('textarea');
-        textarea.value = text;
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        textarea.remove();
-        done();
+        const tip = box.querySelector('.bnomics-copied [role="status"]');
+        clearTimeout(timers.get(button));
+        tip.textContent = '';
+        box.classList.add('is-reporting');
+        box.classList.toggle('is-copied', ok);
+        requestAnimationFrame(() => (tip.textContent = distinct(ok ? data.msgCopied : data.msgCopyFailed)));
+        timers.set(button, setTimeout(() => {
+            box.classList.remove('is-reporting');
+            tip.textContent = '';
+        }, ok ? 1600 : 2600));
     }
 
-    reset_progress() {
-        this.clock = this.data.time_left + 1;
-        this.tick();
-        this.interval = setInterval(() => this.tick(), 1000);
+    root.querySelectorAll('.bnomics-copy').forEach((button) =>
+        button.addEventListener('click', () => copy(button))
+    );
+
+    // The countdown is measured against a deadline: timers are paused while the tab is hidden (customer in the wallet app)
+    let deadline = 0;
+    let interval = null;
+
+    function startClock(seconds) {
+        deadline = Date.now() + seconds * 1000;
+        clearInterval(interval);
+        interval = setInterval(tick, 1000);
+        tick();
     }
 
-    tick() {
-        this.clock = this.clock - 1;
-        if (this.clock < 0) {
-            this.clock = 0;
-            this.refresh_order();
-            return;
-        }
+    function tick() {
+        const left = Math.max(0, Math.round((deadline - Date.now()) / 1000));
         const pad = (n) => String(n).padStart(2, '0');
-        this._time_left.textContent = `${pad(Math.floor(this.clock / 60))}:${pad(this.clock % 60)}`;
+        timeLeft.textContent = `${pad(Math.floor(left / 60))}:${pad(left % 60)}`;
+        if (left === 0) {
+            refreshOrder(false);
+        }
     }
 
-    connect_to_ws() {
-        const host = this.data.crypto.code == 'btc' ? 'www' : this.data.crypto.code;
-        const ws = new ReconnectingWebSocket(`wss://${host}.blockonomics.co/payment/${this.data.crypto_address}`);
-        ws.onmessage = () => {
-            ws.close();
-            clearInterval(this.interval);
-            this.show_detected();
-            // Wait for 2 seconds for order status to update on server
-            setTimeout(() => (window.location.href = this.data.finish_order_url), 2000);
-        };
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && interval) {
+            tick();
+        }
+    });
+
+    let refreshing = false;
+
+    // The colour behind the card. While a new price loads, the amount box is blanked in this colour.
+    function backdropColor() {
+        for (let element = root.parentElement; element; element = element.parentElement) {
+            const color = getComputedStyle(element).backgroundColor;
+            if (color !== 'rgba(0, 0, 0, 0)' && color !== 'transparent') {
+                return color;
+            }
+        }
+        return 'Canvas';
     }
 
-    show_detected() {
-        const pay = this.container.querySelector('.bnomics-pay');
-        const detected = this.container.querySelector('.bnomics-detected');
-        detected.style.minHeight = pay.offsetHeight + 'px';
-        pay.style.display = 'none';
-        detected.style.display = 'flex';
-    }
-
-    _wipe_in() {
-        this._wipe = document.createElement('span');
-        this._wipe.className = 'bnomics-wipe';
-        this._amount_box.appendChild(this._wipe);
-        setTimeout(() => (this._wipe.style.width = '100%'), 10);
-    }
-
-    _wipe_out() {
-        const wipe = this._wipe;
-        wipe.style.left = '100%';
-        wipe.style.width = '0';
-        setTimeout(() => wipe.remove(), 300);
-    }
-
-    refresh_order() {
-        clearInterval(this.interval);
-        this._wipe_in();
-        fetch(this.data.get_order_amount_url, { method: 'GET' })
+    // Runs when the held price runs out, or with newPrice when the customer presses the refresh button
+    function refreshOrder(newPrice) {
+        if (refreshing) {
+            return;
+        }
+        refreshing = true;
+        clearInterval(interval);
+        interval = null;
+        quote.classList.add('is-loading');
+        const wipe = document.createElement('span');
+        wipe.className = 'bnomics-wipe';
+        wipe.style.backgroundColor = backdropColor();
+        amountBox.appendChild(wipe);
+        setTimeout(() => (wipe.style.width = '100%'), 10);
+        const url = new URL(data.getOrderAmountUrl, location.href);
+        if (newPrice) {
+            url.searchParams.set('refresh', '1');
+        }
+        // The sweep over the amount takes 300ms. Let it finish even when the answer arrives sooner,
+        // or the button seems to do nothing.
+        const sweepShown = new Promise((resolve) => setTimeout(resolve, 400));
+        fetch(url, { method: 'GET' })
             .then((res) => res.json())
+            .then((res) => sweepShown.then(() => res))
             .then((res) => {
                 if (res.error) {
                     throw Error(res.error);
                 }
-                this._amount.textContent = res.order_amount;
-                this._wallet_link.setAttribute('href', res.payment_uri);
-                this.data.time_left = res.time_left;
-                this._wipe_out();
-                this.reset_progress();
+                amount.textContent = res.order_amount;
+                rate.textContent = res.crypto_rate_str;
+                walletLink.setAttribute('href', res.payment_uri);
+                qrTile.innerHTML = res.qrcode_svg;
+                wipe.style.left = '100%';
+                wipe.style.width = '0';
+                setTimeout(() => wipe.remove(), 300);
+                quote.classList.remove('is-loading');
+                refreshing = false;
+                announce(`${data.msgUpdated} ${res.order_amount} ${data.cryptoCode.toUpperCase()}`);
+                startClock(res.time_left);
             })
             .catch((err) => {
                 console.log('Blockonomics AJAX Error: ', err);
                 location.reload();
             });
     }
-}
 
-new Blockonomics();
+    refreshButton.addEventListener('click', () => refreshOrder(true));
+
+    function showDetected() {
+        const pay = find('.bnomics-pay');
+        const detected = find('.bnomics-detected');
+        const hadFocus = pay.contains(document.activeElement);
+        detected.style.minHeight = pay.offsetHeight + 'px';
+        root.classList.add('is-detected');
+        if (hadFocus) {
+            detected.focus();
+        }
+        announce(find('.bnomics-detected-text').textContent);
+    }
+
+    const host = data.cryptoCode == 'btc' ? 'www' : data.cryptoCode;
+    const ws = new ReconnectingWebSocket(`wss://${host}.blockonomics.co/payment/${data.cryptoAddress}`);
+    ws.onmessage = () => {
+        ws.close();
+        clearInterval(interval);
+        interval = null;
+        showDetected();
+        // Wait for 2 seconds for order status to update on server
+        setTimeout(() => (window.location.href = data.finishOrderUrl), 2000);
+    };
+
+    root.querySelectorAll('[data-needs-js]').forEach((element) => (element.hidden = false));
+    root.querySelectorAll('[data-without-js]').forEach((element) => (element.hidden = true));
+    startClock(Number(data.timeLeft) || 0);
+})();
