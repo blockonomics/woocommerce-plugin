@@ -220,6 +220,8 @@ class Blockonomics_Setup {
         $best_store = Blockonomics::findMatchingStore($stores_result['stores']);
         if (!$best_store) {
             // No matching store found - need to create a new one
+            delete_option('blockonomics_store_name');
+            delete_option('blockonomics_enabled_cryptos');
             return array('needs_store' => true);
         }
 
