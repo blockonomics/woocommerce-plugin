@@ -441,14 +441,16 @@ function blockonomics_woocommerce_init()
         if (!current_user_can('manage_woocommerce')) {
             wp_die(esc_html__('You are not allowed to do this.', 'blockonomics-bitcoin-payments'));
         }
+        $old_secret = get_option('blockonomics_callback_secret');
         delete_option('blockonomics_callback_secret');
         delete_option('blockonomics_store_name');
         delete_option('blockonomics_enabled_cryptos');
         generate_secret();
+        wc_get_logger()->info('Callback secret regenerated: old=' . substr($old_secret, 0, 6) . '... new=' . substr(get_option('blockonomics_callback_secret'), 0, 6) . '...', array('source' => 'blockonomics'));
         $settings = get_option('woocommerce_blockonomics_settings', array());
         $settings['call_backurls'] = Blockonomics::get_callback_url();
         update_option('woocommerce_blockonomics_settings', $settings);
-        wp_safe_redirect(admin_url('admin.php?page=wc-settings&tab=checkout&section=blockonomics'));
+        wp_safe_redirect(admin_url('admin.php?page=wc-settings&tab=checkout&section=blockonomics&secret_regenerated'));
         exit;
     }
 
@@ -695,6 +697,9 @@ function blockonomics_plugin_activation() {
         $html .= '</div>';
         echo $html;
 	}
+  if (isset($_GET['secret_regenerated'], $_GET['section']) && $_GET['section'] === 'blockonomics') {
+        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Callback secret regenerated. Crypto checkout is paused until you update your callback URL on blockonomics.co and run Test Setup.', 'blockonomics-bitcoin-payments') . '</p></div>';
+  }
 }
 
 // On uninstallation, clear every option the plugin has set

@@ -113,13 +113,22 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                         </p>
                     <?php endif; ?>
 					<legend class="screen-reader-text"><span><?php echo wp_kses_post( $data['title'] ); ?></span></legend>
+                    <?php $regenerate = 'call_backurls' === $key && isset( $_GET['blockonomics_regenerate_secret'] ); ?>
+                    <?php if ( $regenerate ) : ?><div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;"><?php endif; ?>
 					<input class="input-text regular-input <?php echo esc_attr( $data['class'] ); ?>" type="<?php echo esc_attr( $data['type'] ); ?>" name="<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" style="<?php echo esc_attr( $data['css'] ); ?>" value="<?php echo esc_attr( $this->get_option( $key ) ); ?>" placeholder="<?php echo esc_attr( $data['placeholder'] ); ?>" <?php disabled( $data['disabled'], true ); ?> <?php echo $this->get_custom_attribute_html( $data ); // WPCS: XSS ok. ?> />
-                    <?php if ( 'call_backurls' === $key ) : ?>
-                        <a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=blockonomics_regenerate_secret' ), 'blockonomics_regenerate_secret' ) ); ?>"
-                            title="<?php esc_attr_e( 'Regenerate callback secret', 'blockonomics-bitcoin-payments' ); ?>" aria-label="<?php esc_attr_e( 'Regenerate callback secret', 'blockonomics-bitcoin-payments' ); ?>"
-                            onclick="return confirm('<?php echo esc_js( __( 'Your callback URL will change. Afterwards, update your store on blockonomics.co with the new URL, then run Test Setup. Continue?', 'blockonomics-bitcoin-payments' ) ); ?>');">
+                    <?php if ( $regenerate ) : ?>
+                        <button type="button" class="button" style="margin:0;" onclick="this.style.display = 'none'; this.nextElementSibling.style.display = 'flex';"
+                            title="<?php esc_attr_e( 'Regenerate callback secret', 'blockonomics-bitcoin-payments' ); ?>" aria-label="<?php esc_attr_e( 'Regenerate callback secret', 'blockonomics-bitcoin-payments' ); ?>">
                             <span class="dashicons dashicons-update" style="line-height: 1; vertical-align: middle;"></span>
-                        </a>
+                        </button>
+                        <span style="display:none;flex-basis:100%;flex-wrap:wrap;align-items:center;gap:8px;">
+                            <?php esc_html_e( 'Regenerate the callback secret?', 'blockonomics-bitcoin-payments' ); ?>
+                            <span style="display:inline-flex;gap:8px;">
+                                <a class="button button-primary" style="margin:0;" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=blockonomics_regenerate_secret' ), 'blockonomics_regenerate_secret' ) ); ?>"><?php esc_html_e( 'Yes', 'blockonomics-bitcoin-payments' ); ?></a>
+                                <button type="button" class="button" style="margin:0;" onclick="this.parentNode.parentNode.style.display = 'none'; this.parentNode.parentNode.previousElementSibling.style.display = '';"><?php esc_html_e( 'Cancel', 'blockonomics-bitcoin-payments' ); ?></button>
+                            </span>
+                        </span>
+                        </div>
                     <?php endif; ?>
                     <?php echo $this->get_description_html( $data ); // WPCS: XSS ok. ?>
 				</fieldset>

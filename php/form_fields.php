@@ -157,7 +157,7 @@ class FormFields {
             'subtitle' => __('Callback URL', 'blockonomics-bitcoin-payments'),
             'default' => $callback_url,
             'disabled' => true,
-            'css' => 'width:calc(100% - 64px);',
+            'css' => 'width:100%;flex:1 1 200px;min-width:0;',
         );
         return $form_fields;
     }
