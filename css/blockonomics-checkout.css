@@ -67,11 +67,6 @@
   font-weight: 600;
 }
 
-.bnomics-fiat small {
-  font-size: 0.72em;
-  font-weight: 400;
-}
-
 .bnomics-header-remaining {
   padding-top: 0.5em;
   border-top: 1px solid var(--bn-line);
