@@ -139,9 +139,45 @@
     font-size: 14px;
 }
 
+.bnomics-success-store img {
+    width: 22px;
+    height: 22px;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+/* Lines up with the text inside the field above */
+.bnomics-wizard-hint,
+.bnomics-error-message {
+    margin: 8px 15px 0;
+}
+
+.bnomics-wizard-hint {
+    color: #6b7280;
+}
+
+.bnomics-wallet-required {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 12px 0 0;
+    padding: 10px 14px;
+    background: #fff;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.blockonomics-setup-wizard .bnomics-wallet-required .button {
+    background: #fff;
+    border-color: #1c633f;
+    border-radius: 8px;
+    color: #1c633f;
+}
+
 .bnomics-error-message {
     color: #c4341f;
-    margin: 2px 0 15px;
     padding: 0;
     font-size: 14px;
 }
@@ -154,5 +190,17 @@
 
     .blockonomics-logo img {
         max-width: 72px;
+    }
+
+    /* Three fixed-width steps overflow a 320px screen */
+    .bnomics-progress-step {
+        width: auto;
+    }
+}
+
+@media (pointer: coarse) {
+    .blockonomics-setup-wizard input[type="text"],
+    .blockonomics-setup-wizard .bnomics-wallet-required .button {
+        min-height: 44px;
     }
 }

@@ -25,6 +25,7 @@ function blockonomics_setup_page() {
 
             if (isset($result['error'])) {
                 $error_message = $result['error'];
+                $wallet_required = ($result['error_code'] ?? '') === 'wallet_required';
             } else {
                 // API key is valid and has wallets
                 // Check store setup
@@ -47,7 +48,7 @@ function blockonomics_setup_page() {
             wp_die('Security check failed');
         }
 
-        $store_name = sanitize_text_field($_POST['store_name']);
+        $store_name = sanitize_text_field(wp_unslash($_POST['store_name'] ?? ''));
         $result = $setup->create_store($store_name);
 
         if (isset($result['error'])) {
@@ -76,6 +77,10 @@ function blockonomics_setup_page() {
         $store_name = get_option('blockonomics_store_name', '');
         if (empty($store_name)) {
             $needs_store_name = true;
+            // Suggest the site title, and keep what was typed when creating the store failed
+            $store_name = isset($_POST['store_name'])
+                ? sanitize_text_field(wp_unslash($_POST['store_name']))
+                : wp_specialchars_decode(get_option('blogname'), ENT_QUOTES);
         }
     }
     // Wizard stage: 1 = connect account, 2 = store setup, 3 = ready
@@ -96,7 +101,7 @@ function blockonomics_setup_page() {
                 <?php if ($step_num > 1): ?>
                     <div class="bnomics-progress-line<?php echo $wizard_stage >= $step_num ? ' filled' : ''; ?>"></div>
                 <?php endif; ?>
-                <div class="bnomics-progress-step<?php echo $wizard_stage > $step_num ? ' done' : ($wizard_stage == $step_num ? ' active' : ''); ?>">
+                <div class="bnomics-progress-step<?php echo $wizard_stage > $step_num ? ' done' : ($wizard_stage == $step_num ? ' active' : ''); ?>"<?php echo $wizard_stage == $step_num ? ' aria-current="step"' : ''; ?>>
                     <span class="bnomics-progress-circle"><?php echo $wizard_stage > $step_num ? '&#10003;' : $step_num; ?></span>
                     <span class="bnomics-progress-label"><?php echo esc_html($step_label); ?></span>
                 </div>
@@ -117,17 +122,25 @@ function blockonomics_setup_page() {
                 </ol>
                 <form method="post" action="" id="bnomics-setup-form">
                     <?php wp_nonce_field('blockonomics_setup_action', 'blockonomics_setup_nonce'); ?>
-                    <input type="text" 
+                    <label class="screen-reader-text" for="blockonomics_api_key">API Key</label>
+                    <input type="text"
                            name="blockonomics_api_key"
                            id="blockonomics_api_key"
-                           value="<?php echo esc_attr($api_key); ?>" 
-                           placeholder="Enter your API Key" 
+                           value="<?php echo esc_attr($api_key); ?>"
+                           placeholder="Enter your API Key"
+                           autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"
+                           <?php echo isset($error_message) ? 'aria-describedby="bnomics-api-key-message"' : ''; ?>
                            style="width: 100%;">
-                    <?php if (isset($error_message)): ?>
-                        <p class="bnomics-error-message"><?php echo esc_html($error_message); ?></p>
+                    <?php if (!empty($wallet_required)): ?>
+                        <p class="bnomics-wallet-required" id="bnomics-api-key-message">
+                            <span>No wallet on this account yet</span>
+                            <a href="https://www.blockonomics.co/dashboard#/wallet" target="_blank" class="button">Add a wallet</a>
+                        </p>
+                    <?php elseif (isset($error_message)): ?>
+                        <p class="bnomics-error-message" id="bnomics-api-key-message"><?php echo esc_html($error_message); ?></p>
                     <?php endif; ?>
                     <p class="bnomics-error-message" id="api-key-error" style="display: none;">Please enter your API key</p>
-                    <?php submit_button('Continue', 'primary', 'submit', false); ?>
+                    <?php submit_button(empty($wallet_required) ? 'Continue' : 'Check again', 'primary', 'submit', false); ?>
                 </form>
                 <script>
                     document.getElementById('bnomics-setup-form').addEventListener('submit', function(e) {
@@ -145,7 +158,7 @@ function blockonomics_setup_page() {
                 <?php if (isset($needs_store_name) && $needs_store_name): ?>
                     <!-- Store Name Input Screen -->
                     <div class="bnomics-wizard-heading">
-                        <h2>Enter Your Store Name</h2>
+                        <h2><label for="bnomics_store_name">Name your store</label></h2>
                         <div class="blockonomics-logo">
                             <img src="<?php echo esc_url($logo_url); ?>" alt="Blockonomics Logo">
                         </div>
@@ -158,22 +171,31 @@ function blockonomics_setup_page() {
                         <?php endif; ?>
                         
                         <?php wp_nonce_field('blockonomics_setup_action', 'blockonomics_setup_nonce'); ?>
-                        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">
-                            
-                            <input type="text" 
-                                   name="store_name" 
-                                   placeholder="Enter your store name" 
-                                   style="flex: 1;"
-                                   value="<?php echo esc_attr($store_name); ?>">
-                        </div>
-                        <?php submit_button('Continue', 'primary', 'submit_store', false); ?>
+                        <input type="text"
+                               name="store_name"
+                               id="bnomics_store_name"
+                               placeholder="Enter your store name"
+                               style="width: 100%;"
+                               value="<?php echo esc_attr($store_name); ?>"
+                               aria-describedby="bnomics-store-hint"
+                               required>
+                        <p class="bnomics-wizard-hint" id="bnomics-store-hint">Creates a store on your Blockonomics account</p>
+                        <?php submit_button('Create store', 'primary', 'submit_store', false); ?>
                     </form>
                 <?php else: ?>
                     <!-- Final Success Screen -->
+                    <?php $currencies = (new Blockonomics())->getSupportedCurrencies(); ?>
                     <div class="bnomics-wizard-heading">
                         <div>
                             <h3>Success!</h3>
-                            <p class="bnomics-success-store">Blockonomics is now enabled for <strong><?php echo esc_html($store_name); ?></strong>.</p>
+                            <p class="bnomics-success-store">
+                                <strong><?php echo esc_html($store_name); ?></strong> can now accept
+                                <?php foreach (explode(',', get_option('blockonomics_enabled_cryptos', '')) as $code): ?>
+                                    <?php if (isset($currencies[$code])): ?>
+                                        <img src="<?php echo esc_url(plugins_url('../img/' . $code . '.svg', __FILE__)); ?>" alt="<?php echo esc_attr($currencies[$code]['name']); ?>">
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            </p>
                         </div>
                         <div class="blockonomics-logo">
                             <img src="<?php echo esc_url($logo_url); ?>" alt="Blockonomics Logo">
