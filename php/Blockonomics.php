@@ -1097,6 +1097,9 @@ class Blockonomics
     // Load the the checkout template in the page
     public function load_checkout_template($order_id, $crypto){
         $this->redirect_if_nothing_to_pay($order_id);
+        if (!isset($this->getCachedActiveCurrencies()[$crypto])) {
+            return $this->load_blockonomics_template('error', array('order_id' => $order_id, 'error_msg' => esc_html__('Crypto is not enabled for this store', 'blockonomics-bitcoin-payments')));
+        }
         // Create or update the order
         $order = $this->process_order($order_id, $crypto);
         
@@ -1199,6 +1202,9 @@ class Blockonomics
     // Check and update the crypto order or create a new order
     // $refresh: give an unpaid payment a new price even though its held quote has not run out
     public function process_order($order_id, $crypto, $refresh = false){
+        if (!isset($this->getCachedActiveCurrencies()[$crypto])) {
+            return array('error' => __('Crypto is not enabled for this store', 'blockonomics-bitcoin-payments'));
+        }
         $order = $this->get_order_by_id_and_crypto($order_id, $crypto);
         if ($order) {
             if (!$refresh && $this->is_quote_valid($order)) {
