@@ -139,6 +139,17 @@ class FormFields {
                 '0' => __('0', 'blockonomics-bitcoin-payments'),
             ),
         );
+        $form_fields['confirming_status'] = array(
+            'title' => __('', 'blockonomics-bitcoin-payments'),
+            'subtitle' => __('Order status while a payment is confirming', 'blockonomics-bitcoin-payments'),
+            'type' => 'select',
+            'description' => __('On hold reduces stock and sends order emails when a payment is detected.', 'blockonomics-bitcoin-payments') . ' <a href="https://woocommerce.com/document/managing-orders/order-statuses/" target="_blank">' . __('About order statuses', 'blockonomics-bitcoin-payments') . '</a>',
+            'default' => get_option('blockonomics_confirming_status', 'pending'),
+            'options' => array(
+                'pending' => __('Pending payment', 'blockonomics-bitcoin-payments'),
+                'on-hold' => __('On hold', 'blockonomics-bitcoin-payments'),
+            ),
+        );
         $form_fields['call_backurls'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),
             'type' => 'text',

@@ -658,6 +658,27 @@ class Blockonomics
         return get_option('blockonomics_partial_payments', true);
     }
 
+    public function is_on_hold_while_confirming(){
+        return get_option('blockonomics_confirming_status', 'pending') === 'on-hold';
+    }
+
+    // USDT is in progress from hash submit, so count it only once an amount is reported
+    public function has_confirming_payment($order_id){
+        global $wpdb;
+        return (bool) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM " . $wpdb->prefix . "blockonomics_payments WHERE order_id = %d AND payment_status = 1 AND (crypto != 'usdt' OR paid_satoshi > 0)",
+            $order_id
+        ));
+    }
+
+    public function has_confirmed_payment($order_id){
+        global $wpdb;
+        return (bool) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM " . $wpdb->prefix . "blockonomics_payments WHERE order_id = %d AND payment_status = 2",
+            $order_id
+        ));
+    }
+
     // On by default. Agents check out as guests through this gateway, so both must be available
     public function is_agentic_checkout_active(){
         if (!get_option('blockonomics_agentic_checkout', 1) || get_option('woocommerce_enable_guest_checkout') !== 'yes') {
@@ -685,9 +706,9 @@ class Blockonomics
                 'order_status' => $wc_order->get_status(),
             );
         }
-        $awaiting_payment = $wc_order->needs_payment();
+        $awaiting_payment = $wc_order->needs_payment() && !$this->has_confirming_payment($order_id);
         if (!$awaiting_payment && (!$order || $order['payment_status'] == 0)) {
-            // Paid or on hold, and no payment in this crypto
+            // Not awaiting payment, and no payment in this crypto
             return array('error' => __('Order is no longer awaiting payment', 'blockonomics-bitcoin-payments'));
         }
 
@@ -1058,9 +1079,7 @@ class Blockonomics
 
     // Load the the checkout template in the page
     public function load_checkout_template($order_id, $crypto){
-        if (wc_get_order($order_id)->is_paid()) {
-            $this->redirect_finish_order($order_id);
-        }
+        $this->redirect_if_nothing_to_pay($order_id);
         // Create or update the order
         $order = $this->process_order($order_id, $crypto);
         
@@ -1077,6 +1096,12 @@ class Blockonomics
     public function get_wc_order_received_url($order_id){
         $wc_order = new WC_Order($order_id);
         return $wc_order->get_checkout_order_received_url();
+    }
+
+    public function redirect_if_nothing_to_pay($order_id){
+        if (wc_get_order($order_id)->is_paid() || $this->has_confirming_payment($order_id)) {
+            $this->redirect_finish_order($order_id);
+        }
     }
 
     // Redirect the user to the woocommerce finish order page
@@ -1297,21 +1322,28 @@ class Blockonomics
         $wc_order->save();
     }
 
-    public function update_paid_amount($callback_status, $paid_satoshi, $order, $wc_order){
+    // RBF: payer can still cancel it, so detected but never confirmed
+    public function update_paid_amount($callback_status, $paid_satoshi, $order, $wc_order, $rbf = false){
         $network_confirmations = get_option("blockonomics_network_confirmation",2);
         if ($order['payment_status'] == 2) {
             return $order;
         }
-        if ($callback_status >= $network_confirmations){
+        if ($callback_status >= $network_confirmations && !$rbf){
             $order['payment_status'] = 2;
             $order = $this->check_paid_amount($paid_satoshi, $order, $wc_order);
         } 
         else {
             // since $callback_status < $network_confirmations payment_status should be 1 i.e. payment in progress if payment is not already completed
             $order['payment_status'] = 1;
-            if ($wc_order->get_status() === 'pending') {
-                $wc_order->update_status('on-hold', __('Crypto payment detected, awaiting confirmations.', 'blockonomics-bitcoin-payments'));
+            /* translators: 1: crypto amount, 2: crypto code such as BTC */
+            $note = sprintf(__('%1$s %2$s payment detected, awaiting confirmations.', 'blockonomics-bitcoin-payments'), $this->fix_displaying_small_values($order['crypto'], $paid_satoshi), strtoupper($order['crypto']));
+            if ($this->is_on_hold_while_confirming() && $wc_order->get_status() === 'pending') {
+                $wc_order->update_status('on-hold', $note);
+            } elseif (empty($order['paid_satoshi'])) {
+                $wc_order->add_order_note($note);
             }
+            // Marks the payment as seen by Blockonomics
+            $order['paid_satoshi'] = $paid_satoshi;
         }
         return $order;
     }
@@ -1400,14 +1432,17 @@ class Blockonomics
             exit(__("Error: Woocommerce order not found", 'blockonomics-bitcoin-payments'));
         }
 
+        if ($order['payment_status'] != 2 && !empty($order['txid']) && $order['txid'] !== $txid) {
+            $this->log('Callback: order_id=' . $order['order_id'] . ' txid ' . $order['txid'] . ' replaced by ' . $txid);
+        }
+        if ($rbf) {
+            // https://insights.blockonomics.co/bitcoin-payments-can-now-easily-cancelled-a-step-forward-or-two-back/
+            $this->log('Callback: RBF payment for order_id=' . $order['order_id'] . ' txid=' . $txid . ' detected only, payer can still replace or cancel it');
+        }
         $order['txid'] = $txid;
 
-        if (!$rbf){
-          // Unconfirmed RBF payments are easily cancelled should be ignored
-          // https://insights.blockonomics.co/bitcoin-payments-can-now-easily-cancelled-a-step-forward-or-two-back/
-          $order = $this->update_paid_amount($status, $value, $order, $wc_order);
-          $this->save_transaction($order['txid'], $wc_order);
-        }
+        $order = $this->update_paid_amount($status, $value, $order, $wc_order, $rbf);
+        $this->save_transaction($order['txid'], $wc_order);
 
         $this->update_order($order);
         $blockonomics_currencies = $this->getSupportedCurrencies();

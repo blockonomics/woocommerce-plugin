@@ -351,6 +351,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         update_option('blockonomics_nojs', $this->get_option('no_javascript') == 'yes' ? 1 : 0);
         update_option('blockonomics_agentic_checkout', $this->get_option('agentic_checkout') == 'yes' ? 1 : 0);
         update_option('blockonomics_network_confirmation', $this->get_option('network_confirmation'));
+        update_option('blockonomics_confirming_status', $this->get_option('confirming_status'));
         $this->update_option('call_backurls', Blockonomics::get_callback_url());
 
         return true;

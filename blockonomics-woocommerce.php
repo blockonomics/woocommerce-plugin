@@ -82,7 +82,8 @@ function blockonomics_woocommerce_init()
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
     add_action('woocommerce_email_order_details', 'blockonomics_email_remaining_amount', 5, 4);
     add_filter('woocommerce_get_checkout_payment_url','update_payment_url_on_underpayments',10,2);
-    add_filter('woocommerce_order_needs_payment', 'blockonomics_underpaid_order_needs_payment', 10, 2);
+    add_filter('woocommerce_order_needs_payment', 'blockonomics_order_needs_payment', 10, 2);
+    add_filter('woocommerce_cancel_unpaid_order', 'blockonomics_no_auto_cancel_after_payment', 10, 2);
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_action( 'woocommerce_cart_calculate_fees', 'apply_bitcoin_discount', 20, 1 );
     add_shortcode('blockonomics_payment', 'add_payment_page_shortcode');
@@ -234,6 +235,7 @@ function blockonomics_woocommerce_init()
             $order_id = $blockonomics->decrypt_hash($show_order);
             return $blockonomics->load_checkout_template($order_id, $crypto);
         } else if ($select_crypto) {
+            $blockonomics->redirect_if_nothing_to_pay($blockonomics->decrypt_hash($select_crypto));
             return $blockonomics->load_blockonomics_template('crypto_options');
         }
     }
@@ -288,13 +290,26 @@ function blockonomics_woocommerce_init()
     }
 
 
-    function blockonomics_underpaid_order_needs_payment($needs_payment, $order) {
+    // Never return false for a pending order: WooCommerce checkout would complete it unpaid
+    function blockonomics_order_needs_payment($needs_payment, $order) {
         if ($needs_payment || !$order->has_status('on-hold') || $order->get_payment_method() !== 'blockonomics') {
             return $needs_payment;
         }
         $blockonomics = new Blockonomics();
-        $paid_fiat = $blockonomics->get_order_paid_fiat($order->get_id());
-        return $blockonomics->is_partial_payments_active() && $paid_fiat > 0 && $paid_fiat < (float) $order->get_total();
+        $order_id = $order->get_id();
+        return $blockonomics->is_partial_payments_active()
+            && $blockonomics->has_confirmed_payment($order_id)
+            && !$blockonomics->has_confirming_payment($order_id)
+            && $blockonomics->get_order_paid_fiat($order_id) < (float) $order->get_total();
+    }
+
+    // Keep Hold Stock auto-cancel away from orders with a payment
+    function blockonomics_no_auto_cancel_after_payment($cancel, $order) {
+        if (!$cancel || !$order || $order->get_payment_method() !== 'blockonomics') {
+            return $cancel;
+        }
+        $blockonomics = new Blockonomics();
+        return !$blockonomics->has_confirming_payment($order->get_id()) && !$blockonomics->has_confirmed_payment($order->get_id());
     }
 
     /**
@@ -668,6 +683,7 @@ function blockonomics_uninstall_hook() {
     // blockonomics_lite is only for db version below 1.3
     delete_option('blockonomics_lite');
     delete_option('blockonomics_nojs');
+    delete_option('blockonomics_confirming_status');
     delete_option('blockonomics_agentic_checkout');
     delete_option('blockonomics_network_confirmation');
     delete_option('blockonomics_partial_payments');
