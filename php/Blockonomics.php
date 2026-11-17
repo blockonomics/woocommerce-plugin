@@ -805,16 +805,25 @@ class Blockonomics
     // Like attach_txhash, but never replaces a hash already bound to the order
     public function agentic_submit_txhash($order_id, $txhash){
         $txhash = trim($txhash);
+        $this->log('USDT txhash received from agent: order_id=' . $order_id . ' txhash=' . $txhash);
         $row = $this->get_order_by_id_and_crypto($order_id, 'usdt');
-        if ($row && !empty($row['txid'])) {
-            if ($row['txid'] !== $txhash) {
-                return array('error' => __('A different transaction hash is already attached to this order.', 'blockonomics-bitcoin-payments'));
-            }
-            if ($row['payment_status'] > 0) {
-                return array('success' => __('Transaction is already being monitored.', 'blockonomics-bitcoin-payments'));
-            }
+        $attached = $row && !empty($row['txid']);
+        if ($attached && $row['txid'] === $txhash && $row['payment_status'] > 0) {
+            return array('success' => __('Transaction is already being monitored.', 'blockonomics-bitcoin-payments'));
         }
-        return $this->attach_txhash($order_id, $txhash);
+        if ($attached && $row['txid'] !== $txhash) {
+            $result = array('error' => __('A different transaction hash is already attached to this order.', 'blockonomics-bitcoin-payments'));
+        } else {
+            $result = $this->attach_txhash($order_id, $txhash);
+        }
+        $wc_order = wc_get_order($order_id);
+        if (isset($result['error'])) {
+            $this->log('USDT txhash rejected: order_id=' . $order_id . ' ' . $result['error'], 'error');
+            $wc_order->add_order_note(__('Attach txhash failed: ', 'blockonomics-bitcoin-payments') . $result['error']);
+        } else {
+            $wc_order->add_order_note(__('Invoice will be automatically marked as paid on transaction confirm by the network. No further action is required.', 'blockonomics-bitcoin-payments'));
+        }
+        return $result;
     }
 
 
@@ -1668,7 +1677,6 @@ class Blockonomics
         // Monitor transaction via Blockonomics API (first attempt, or retry after an earlier failure)
         $monitor = $this->monitor_txhash($txhash, $crypto);
         if ($monitor['code'] != 200) {
-            $this->log('monitor_tx failed: order_id=' . $order_id . ' txhash=' . $txhash . ' code=' . $monitor['code'] . ' message=' . $monitor['message'], 'error');
             $msg = __('Error monitoring transaction!', 'blockonomics-bitcoin-payments');
             $wc_order->add_order_note("$msg<br/>txhash: $txhash<br/>Error: " . $monitor['message']);
             $this->display_order_error($msg, $order_id, $txhash, $monitor['message']);
@@ -1760,11 +1768,16 @@ class Blockonomics
         $response = $this->post(self::BASE_URL . '/api/monitor_tx', $this->api_key, wp_json_encode($post_data), 8);
         if (is_wp_error($response)) {
             // request never got an HTTP response: timeout, DNS, blocked outgoing connection
-            return array('code' => 0, 'message' => $response->get_error_message());
+            $code = 0;
+            $message = $response->get_error_message();
+        } else {
+            $code = wp_remote_retrieve_response_code($response);
+            $body_obj = json_decode(wp_remote_retrieve_body($response));
+            $message = isset($body_obj->message) ? $body_obj->message : 'HTTP ' . $code;
         }
-        $code = wp_remote_retrieve_response_code($response);
-        $body_obj = json_decode(wp_remote_retrieve_body($response));
-        $message = isset($body_obj->message) ? $body_obj->message : 'HTTP ' . $code;
+        if ($code != 200) {
+            $this->log('monitor_tx failed: txhash=' . $txhash . ' code=' . $code . ' message=' . $message, 'error');
+        }
         return array('code' => $code, 'message' => $message);
     }
 

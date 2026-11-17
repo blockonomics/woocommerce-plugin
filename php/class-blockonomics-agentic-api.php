@@ -24,7 +24,6 @@ class Blockonomics_Agentic_API {
                     'description'       => 'Crypto to pay with. Must be one of the cryptos enabled on this store.',
                     'required'          => true,
                     'type'              => 'string',
-                    'enum'              => array_keys($blockonomics->getCachedActiveCurrencies()),
                     'sanitize_callback' => 'sanitize_key',
                 ),
             ),
@@ -52,6 +51,8 @@ class Blockonomics_Agentic_API {
     }
 
     public static function get_order(WP_REST_Request $request) {
+        // Agents poll this for the payment status, so it must never come from a cache
+        nocache_headers();
         $blockonomics = new Blockonomics;
         $order_id = self::resolve_order_id($blockonomics, $request['hash']);
         if (is_wp_error($order_id)) {

@@ -384,6 +384,8 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                 );
             }
             $result = array_merge($result, $details);
+            // The payment page of the crypto the agent picked, not the crypto picker
+            $result['redirect'] = $blockonomics->get_parameterized_wc_url('page', array('show_order' => $details['order_hash'], 'crypto' => $crypto));
         } else {
             // No crypto picked (also the browser block checkout): point to the details route without
             // generating an address, so agents don't fall back to scraping the payment page
