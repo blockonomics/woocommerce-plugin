@@ -155,7 +155,10 @@
                 quote.classList.remove('is-loading');
                 refreshing = false;
                 announce(`${data.msgUpdated} ${res.order_amount} ${data.cryptoCode.toUpperCase()}`);
-                startClock(res.time_left);
+                // Counting down from zero would ask again at once, forever
+                if (res.time_left > 0) {
+                    startClock(res.time_left);
+                }
             })
             .catch((err) => {
                 console.log('Blockonomics AJAX Error: ', err);

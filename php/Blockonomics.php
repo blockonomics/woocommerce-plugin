@@ -38,7 +38,7 @@ class Blockonomics
         return $rounded_total_paid_fiats;
     }
 
-    private $api_key;
+    protected $api_key;
     private $logger;
 
     public function __construct()
@@ -1084,7 +1084,7 @@ class Blockonomics
         $order = $this->process_order($order_id, $crypto);
         
         // Load Checkout Context
-        $context = $this->get_checkout_context($order, $crypto);
+        $context = $this->get_checkout_context($order + array('order_id' => $order_id), $crypto);
         
         // Get Template to Load
         $template_name = $this->get_checkout_template($context, $crypto);
@@ -1187,13 +1187,16 @@ class Blockonomics
             if (!$refresh && $this->is_quote_valid($order)) {
                 return $order;
             }
+            $repriced = $order['payment_status'] == 0;
             // Update the existing order info
             $order = $this->calculate_order_params($order);
             if (array_key_exists("error", $order)) {
                 $this->log('process_order: could not update quote order_id=' . $order_id . ' crypto=' . $crypto . ' - ' . $order['error'], 'error');
                 return $order;
             }
-            $this->update_order($order);
+            if ($repriced) {
+                $this->update_order($order);
+            }
         }else {
             // Create and add the new order to the database
             $order = $this->create_new_order($order_id, $crypto);
@@ -1239,8 +1242,14 @@ class Blockonomics
     // Get the order info by id and crypto
     // $refresh: the customer pressed the refresh button on the payment page
     public function get_order_amount_info($order_id, $crypto, $refresh = false){
-        // USDT has no timer and keeps its quote until paid
-        $order = $this->process_order($order_id, $crypto, $refresh && $crypto !== 'usdt');
+        $order = $this->get_order_by_id_and_crypto($order_id, $crypto);
+        if (wc_get_order($order_id)->is_paid() || $this->has_confirming_payment($order_id) || ($order && $order['payment_status'] != 0)) {
+            // The page reloads on an error, and loading it sends the customer where they should be
+            $order = array('error' => __('Order is no longer awaiting payment', 'blockonomics-bitcoin-payments'));
+        } else {
+            // USDT has no timer and keeps its quote until paid
+            $order = $this->process_order($order_id, $crypto, $refresh && $crypto !== 'usdt');
+        }
         if (array_key_exists('error', $order)) {
             header("Content-Type: application/json");
             exit(json_encode(array("error" => $order['error'])));
@@ -1409,7 +1418,7 @@ class Blockonomics
     public function is_order_underpaid($order){
         // Return TRUE only if there has been a payment which is less than required.
         $underpayment_slack = ceil(floatval(get_option("blockonomics_underpayment_slack", 0))/100 * $order['expected_satoshi']);
-        $is_order_underpaid = ($order['expected_satoshi'] - $underpayment_slack > $order['paid_satoshi'] && !empty($order['paid_satoshi']) && (float) $order['paid_fiat'] < (float) $order['expected_fiat']) ? TRUE : FALSE;
+        $is_order_underpaid = ($order['expected_satoshi'] - $underpayment_slack > $order['paid_satoshi'] && !empty($order['paid_satoshi']) && round((float) $order['paid_fiat'], wc_get_price_decimals()) < round((float) $order['expected_fiat'], wc_get_price_decimals())) ? TRUE : FALSE;
         return $is_order_underpaid;
     }
 
@@ -1539,11 +1548,11 @@ class Blockonomics
             $iv
         );
 
-        if ($decrypted === false || empty(wc_get_order($decrypted))) {
+        if ($decrypted === false || !ctype_digit($decrypted) || empty(wc_get_order((int) $decrypted))) {
             return false;
         }
 
-        return $decrypted;
+        return (int) $decrypted;
     }
 
     /**
