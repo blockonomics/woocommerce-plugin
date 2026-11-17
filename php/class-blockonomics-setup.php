@@ -229,10 +229,11 @@ class Blockonomics_Setup {
         if (strpos($best_store->http_callback, 'http://') === 0
             && strpos($wordpress_callback_url, 'https://') === 0
             && substr($best_store->http_callback, 7) === substr($wordpress_callback_url, 8)) {
+            // The API switches test mode off when an update leaves it out
             $update_response = $this->api_request(
                 Blockonomics::BASE_URL . '/api/v2/stores/' . $best_store->id,
                 $api_key,
-                array('name' => $best_store->name, 'http_callback' => $wordpress_callback_url)
+                array('name' => $best_store->name, 'http_callback' => $wordpress_callback_url, 'testmode' => !empty($best_store->testmode))
             );
 
             $update_error = $this->response_error(
@@ -417,7 +418,7 @@ class Blockonomics_Setup {
             // store already exists - use it instead of creating duplicate
             // update store name if user provided a different one
             if ($store_name !== $existing_store->name) {
-                $name_update = $this->update_store_name($api_key, $existing_store->id, $store_name);
+                $name_update = $this->update_store_name($api_key, $existing_store, $store_name);
                 if (isset($name_update['error'])) {
                     return $name_update;
                 }
@@ -476,12 +477,13 @@ class Blockonomics_Setup {
     /*
      * Update a store's name. Its used when user provides a different name for an existing store
      * @param string $api_key The API key for Blockonomics
-     * @param int $store_id The store ID to update
+     * @param object $store The store to update
      * @param string $new_name The new name for the store
      * @return array Result containing success or an error
      */
-    private function update_store_name($api_key, $store_id, $new_name) {
-        $response = $this->api_request(Blockonomics::BASE_URL . '/api/v2/stores/' . $store_id, $api_key, array('name' => $new_name));
+    private function update_store_name($api_key, $store, $new_name) {
+        // The API switches test mode off when an update leaves it out
+        $response = $this->api_request(Blockonomics::BASE_URL . '/api/v2/stores/' . $store->id, $api_key, array('name' => $new_name, 'testmode' => !empty($store->testmode)));
 
         $update_error = $this->response_error(
             $response,
