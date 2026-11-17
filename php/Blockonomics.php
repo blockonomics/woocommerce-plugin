@@ -390,6 +390,14 @@ class Blockonomics
         $multiplier = pow(10, $crypto['decimals']);
         $order['expected_satoshi'] = (int) round($multiplier * $order['expected_fiat'] / $adjusted_price);
 
+        return $this->round_usdt_up_to_cent($order);
+    }
+
+    // USDT is quoted in whole cents, rounded up so the merchant is never short
+    private function round_usdt_up_to_cent($order) {
+        if ($order['crypto'] === 'usdt') {
+            $order['expected_satoshi'] = (int) (ceil($order['expected_satoshi'] / 10000) * 10000);
+        }
         return $order;
     }
 
@@ -730,7 +738,7 @@ class Blockonomics
             'address'           => $order['address'],
             'amount'            => $amount,
             'amount_base_units' => (string) $order['expected_satoshi'],
-            'fiat_amount'       => (string) $order['expected_fiat'],
+            'fiat_amount'       => wc_format_decimal($order['expected_fiat'], wc_get_price_decimals()),
             'fiat_currency'     => $order['currency'],
             'payment_status'    => $this->get_agentic_payment_status($order),
             'order_status'      => $wc_order->get_status(),
@@ -895,7 +903,7 @@ class Blockonomics
         $crypto = $crypto_data[$order['crypto']];
         $multiplier = pow(10, $crypto['decimals']);
         $order['expected_satoshi'] = (int) round($multiplier * $order['expected_fiat'] / $price);
-        return $order;
+        return $this->round_usdt_up_to_cent($order);
     }
     
     // Get new addr and update amount after confirmed underpayment
@@ -1418,7 +1426,7 @@ class Blockonomics
         else{
             $wc_order->payment_complete($order['txid']);
         }
-        if ($order['expected_satoshi'] < $paid_satoshi) {
+        if ($order['crypto'] !== 'usdt' && $order['expected_satoshi'] < $paid_satoshi) {
             $wc_order->add_order_note(__( 'Paid amount more than expected.', 'blockonomics-bitcoin-payments' ));
         }
         return $order;
