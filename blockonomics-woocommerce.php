@@ -86,6 +86,8 @@ function blockonomics_woocommerce_init()
     add_filter('woocommerce_cancel_unpaid_order', 'blockonomics_no_auto_cancel_after_payment', 10, 2);
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_action( 'woocommerce_cart_calculate_fees', 'apply_bitcoin_discount', 20, 1 );
+    add_action('template_redirect', 'blockonomics_remember_preselected_payment_method');
+    add_action('wp_enqueue_scripts', 'blockonomics_refresh_classic_totals', 20);
     add_shortcode('blockonomics_payment', 'add_payment_page_shortcode');
     add_action('wp_enqueue_scripts', 'bnomics_register_stylesheets');
     add_action('wp_enqueue_scripts', 'bnomics_register_scripts');
@@ -248,7 +250,13 @@ function blockonomics_woocommerce_init()
         if ( isset( $_POST['payment_method'] ) ) {
             return sanitize_text_field( $_POST['payment_method'] );
         }
-        
+
+        // Block checkout and agents send the method as JSON
+        $json = json_decode(file_get_contents('php://input'), true);
+        if (!empty($json['payment_method'])) {
+            return sanitize_text_field($json['payment_method']);
+        }
+
         // Try WooCommerce session
         if ( WC()->session ) {
             $session_method = WC()->session->get( 'chosen_payment_method' );
@@ -263,6 +271,27 @@ function blockonomics_woocommerce_init()
         }
         
         return '';
+    }
+
+    // Block checkout preselects a payment method but tells the server only when the customer changes it
+    function blockonomics_remember_preselected_payment_method() {
+        if (!is_checkout() || !WC()->session || WC()->session->get('chosen_payment_method')) {
+            return;
+        }
+        // A saved payment method is preselected ahead of the first method
+        if (is_user_logged_in() && WC_Payment_Tokens::get_customer_tokens(get_current_user_id())) {
+            return;
+        }
+        if (array_key_first(WC()->payment_gateways->get_available_payment_gateways()) === 'blockonomics') {
+            WC()->session->set('chosen_payment_method', 'blockonomics');
+        }
+    }
+
+    // Classic checkout does not refresh its totals when the payment method changes
+    function blockonomics_refresh_classic_totals() {
+        if (is_checkout() && floatval(get_option('blockonomics_bitcoin_discount', 0)) > 0) {
+            wp_add_inline_script('wc-checkout', "jQuery(function ($) { $('form.checkout').on('change', 'input[name=\"payment_method\"]', function () { $(document.body).trigger('update_checkout'); }); });");
+        }
     }
 
     function apply_bitcoin_discount( $cart ) {
