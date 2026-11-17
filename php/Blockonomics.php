@@ -1136,7 +1136,7 @@ class Blockonomics
         global $wpdb;
         $order = $wpdb->get_results(
             $wpdb->prepare(
-                "SELECT * FROM " . $wpdb->prefix . "blockonomics_payments WHERE order_id = %d AND crypto = %s ORDER BY payment_status = 2, expected_satoshi ASC",
+                "SELECT * FROM " . $wpdb->prefix . "blockonomics_payments WHERE order_id = %d AND crypto = %s ORDER BY payment_status = 2, expected_fiat ASC, expected_satoshi ASC",
                 $order_id,
                 $crypto
             ),
