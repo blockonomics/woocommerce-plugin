@@ -1,0 +1,42 @@
+{
+    "name": "ucp-mcp-proxy",
+    "version": "1.0.1",
+    "description": "EXPERIMENTAL: Connect AI Agents (Claude Desktop, Cline) to your WooCommerce store via Universal Commerce Protocol (UCP) and Model Context Protocol (MCP). This proxy bridges local stdio MCP clients to remote HTTP UCP endpoints.",
+    "main": "index.js",
+    "bin": {
+        "ucp-mcp-proxy": "./index.js"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/joellobo1234/ucp-connect-woocommerce.git"
+    },
+    "keywords": [
+        "mcp",
+        "model-context-protocol",
+        "wordpress",
+        "woocommerce",
+        "ucp",
+        "universal-commerce-protocol",
+        "ai-agent",
+        "connector",
+        "proxy",
+        "claude",
+        "cline"
+    ],
+    "author": "Joel Lobo",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/joellobo1234/ucp-connect-woocommerce/issues"
+    },
+    "homepage": "https://github.com/joellobo1234/ucp-connect-woocommerce#readme",
+    "files": [
+        "index.js",
+        "README.md"
+    ],
+    "engines": {
+        "node": ">=18.0.0"
+    }
+}
