@@ -7,7 +7,7 @@ class Blockonomics
 {
     // eth tx hash, or the 64-char hash the dashboard test wallet sends in test mode
     const USDT_TXHASH_PATTERN = '/^(0x[a-fA-F0-9]{64}|TestUSDTTxid_[A-Za-z0-9_]{51})$/';
-    const QUOTE_MINUTES = 30;
+    const QUOTE_MINUTES = 10;
     const BASE_URL = 'https://www.blockonomics.co';
     const STORES_URL = self::BASE_URL . '/api/v2/stores?wallets=true';
 
@@ -654,12 +654,6 @@ class Blockonomics
     // Check if the nojs setting is activated
     public function is_nojs_active(){
         return get_option('blockonomics_nojs', false);
-    }
-
-    // Extra class WooCommerce puts on its own buttons so that block themes style them ('' on other themes).
-    // The WooCommerce helper exists since 7.0.1.
-    public function get_theme_button_class(){
-        return function_exists('wc_wp_theme_get_element_class_name') ? wc_wp_theme_get_element_class_name('button') : '';
     }
 
     public function is_partial_payments_active(){
