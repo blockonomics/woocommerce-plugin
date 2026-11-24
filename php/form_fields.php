@@ -91,7 +91,7 @@ class FormFields {
             'type' => 'number',
             'description' => __('Increase live fiat to BTC rate by small percent (0-4%)', 'blockonomics-bitcoin-payments'),
             'subtitle' => __('Extra Currency Rate Margin %', 'blockonomics-bitcoin-payments'),
-            'default' => get_option('blockonomics_extra_margin', 0),
+            'default' => get_option('blockonomics_margin', 0),
             'placeholder' => __('Extra Currency Rate Margin %', 'blockonomics-bitcoin-payments'),
             'custom_attributes' => ['step' => '0.01', 'min' => '0', 'max' => '4']
         );
