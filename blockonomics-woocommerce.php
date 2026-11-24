@@ -3,7 +3,7 @@
  * Plugin Name: Bitcoin Payments - Blockonomics
  * Plugin URI: https://github.com/blockonomics/woocommerce-plugin
  * Description: Accept Bitcoin Payments on your WooCommerce-powered website with Blockonomics
- * Version: 3.11.0
+ * Version: 3.12.0
  * Author: Blockonomics
  * Author URI: https://www.blockonomics.co
  * License: MIT
@@ -84,6 +84,9 @@ function blockonomics_woocommerce_init()
     add_filter('woocommerce_get_checkout_payment_url','update_payment_url_on_underpayments',10,2);
     add_filter('woocommerce_order_needs_payment', 'blockonomics_order_needs_payment', 10, 2);
     add_filter('woocommerce_cancel_unpaid_order', 'blockonomics_no_auto_cancel_after_payment', 10, 2);
+    if (get_option('blockonomics_3_12_upgrade_time') === false) {
+        update_option('blockonomics_3_12_upgrade_time', time());
+    }
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_action( 'woocommerce_cart_calculate_fees', 'apply_bitcoin_discount', 20, 1 );
     add_action('template_redirect', 'blockonomics_remember_preselected_payment_method');
@@ -336,6 +339,10 @@ function blockonomics_woocommerce_init()
     function blockonomics_no_auto_cancel_after_payment($cancel, $order) {
         if (!$cancel || !$order || $order->get_payment_method() !== 'blockonomics') {
             return $cancel;
+        }
+        $created = $order->get_date_created();
+        if ($created && $created->getTimestamp() < (int) get_option('blockonomics_3_12_upgrade_time', 0)) {
+            return false;
         }
         $blockonomics = new Blockonomics();
         return !$blockonomics->has_confirming_payment($order->get_id()) && !$blockonomics->has_confirmed_payment($order->get_id());
@@ -719,6 +726,7 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_lite');
     delete_option('blockonomics_nojs');
     delete_option('blockonomics_confirming_status');
+    delete_option('blockonomics_3_12_upgrade_time');
     delete_option('blockonomics_agentic_checkout');
     delete_option('blockonomics_network_confirmation');
     delete_option('blockonomics_partial_payments');
