@@ -1,12 +1,12 @@
 # Bitcoin Payments - Blockonomics # 
 **Contributors:** juhasiivikko, darrenwestwood, blockonomics, ankit61d, btcdeveloper
-**Tags:** bitcoin, bitcoin payments, usdt payments, woocommerce, cryptocurrency
-**Requires at least:** 5.6
-**Tested up to:** 7.0.4
+**Tags:** bitcoin, usdt, woocommerce, cryptocurrency, crypto
+**Requires at least:** 6.2
+**Tested up to:** 7.1.5
 **Require PHP:** 7.4
 **WC requires at least:** 7.0
-**WC tested up to:** 10.4.3
-**Stable tag:** 3.11.0
+**WC tested up to:** 11.3.1
+**Stable tag:** 3.12.0
 **License:** MIT 
 **License URI:** http://opensource.org/licenses/MIT 
 
