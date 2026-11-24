@@ -27,7 +27,7 @@ class FormFields {
 
         $form_fields = array(
             'enabled' => array(
-                'title' => __('Checkout<p class="block-title-desc">Payment method settings for the woocomerce checkout page</p>', 'blockonomics-bitcoin-payments'),
+                'title' => __('Checkout<p class="block-title-desc">Payment method settings for the WooCommerce checkout page</p>', 'blockonomics-bitcoin-payments'),
                 'subtitle' => __('Enable Blockonomics plugin', 'blockonomics-bitcoin-payments'),
                 'type' => 'checkbox',
                 'label' => __('Enable Blockonomics as a payment method during checkout', 'blockonomics-bitcoin-payments'),
