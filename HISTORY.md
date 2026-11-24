@@ -1,5 +1,11 @@
 == Changelog ==
 
+= 3.12.0  =
+* Security fix (CVE-2026-61993)
+* Agentic checkout: AI agents can place orders and get crypto payment details
+* New setting for the order status while a payment is confirming
+* Fixes and better logging for Test Setup, setup wizard, USDT payments
+
 = 3.11.0  =
 * Support for multilingual stores
 * Improved USDT payment handling and recovery

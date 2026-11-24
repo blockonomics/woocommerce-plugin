@@ -19,13 +19,13 @@ class Blockonomics {
         // we load data from HTML data attributes on the container element
         // this approach is simple and avoids the js error blockonomics_data already initialised
         const dataset = this.container.dataset;
-        if (!dataset.timePeriod || !dataset.paymentUri || !dataset.cryptoCode) {
+        if (!dataset.paymentUri || !dataset.cryptoCode) {
             throw Error(
                 `Blockonomics Initialisation Error: Required data attributes are missing from container element.`
             );
         }
         this.data = {
-            time_period: dataset.timePeriod,
+            time_left: Number(dataset.timeLeft) || 0,
             payment_uri: dataset.paymentUri,
             crypto: { code: dataset.cryptoCode },
             crypto_address: dataset.cryptoAddress,
@@ -37,7 +37,6 @@ class Blockonomics {
         this.reset_progress();
         this._spinner_wrapper.style.display = 'none';
         this._order_panel.style.display = 'flex';
-        this.generate_qr();
         this.connect_to_ws();
 
         // Hide Display Error
@@ -76,18 +75,14 @@ class Blockonomics {
 
         this._refresh.addEventListener('click', (e) => {
             e.preventDefault();
-            this.refresh_order();
+            this.refresh_order(true);
         });
-
-        this.data.time_period = Number(this.data.time_period);
     }
 
     reset_progress() {
         this.progress = {
-            total_time: this.data.time_period * 60,
             interval: null,
-            clock: this.data.time_period * 60,
-            percent: 100,
+            clock: this.data.time_left,
         };
         // Set the start time straight away
         this.progress.clock += 1;
@@ -95,20 +90,9 @@ class Blockonomics {
         this.progress.interval = setInterval(() => this.tick(), 1000);
     }
 
-    generate_qr() {
-        this._qr = new QRious({
-            element: this._qr_code,
-            value: this.data.payment_uri,
-            size: 160,
-        });
-    }
-
     tick() {
         this.progress.clock = this.progress.clock - 1;
 
-        this.progress.percent = Math.floor(
-            (this.progress.clock * 100) / this.progress.total_time
-        );
         if (this.progress.clock < 0) {
             this.progress.clock = 0;
             //Order expired
@@ -263,13 +247,17 @@ class Blockonomics {
         }
     }
 
-    refresh_order() {
+    refresh_order(new_price = false) {
         this._set_refresh_loading(true);
 
         // Stop Progress Counter
         clearInterval(this.progress.interval);
 
-        fetch(this.data.get_order_amount_url, { method: 'GET' })
+        const url = new URL(this.data.get_order_amount_url, location.href);
+        if (new_price) {
+            url.searchParams.set('refresh', '1');
+        }
+        fetch(url, { method: 'GET' })
             .then((res) => {
                 if (!res.ok) {
                     location.reload();
@@ -278,6 +266,10 @@ class Blockonomics {
                 }
             })
             .then((res) => {
+                if (res.error) {
+                    location.reload();
+                    return;
+                }
                 this._update_order_params(res);
                 this._set_refresh_loading(false);
             })
@@ -300,12 +292,15 @@ class Blockonomics {
 
         // Update QR Code
         this.data.payment_uri = data.payment_uri;
-        this.generate_qr();
+        this._qr_code.innerHTML = data.qrcode_svg;
         this._qr_code_links.forEach((ele) =>
             ele.setAttribute('href', data.payment_uri)
         );
 
-        this.reset_progress();
+        this.data.time_left = data.time_left;
+        if (data.time_left > 0) {
+            this.reset_progress();
+        }
     }
 }
 

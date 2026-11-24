@@ -99,12 +99,6 @@
   }
 }
 
-/* Style for QR Code in NoJS mode */
-svg {
-  width: 160px;
-  margin: auto;
-}
-
 /* Mobile */
 @media screen and (max-width: 800px) {
   .bnomics-btc-info {
@@ -560,4 +554,25 @@ svg {
 
 #blockonomics_checkout.no-js a[href=""] {
   text-decoration: none;
+}
+
+#blockonomics_checkout.no-js .bnomics-footer .bnomics-copy-container {
+  flex-direction: column;
+}
+
+#bnomics-qr-code {
+  display: inline-block;
+  box-sizing: border-box;
+  width: 160px;
+  height: 160px;
+  padding: 14px;
+  background: #fff;
+}
+
+#bnomics-qr-code svg {
+  display: block;
+  width: 132px;
+  height: 132px;
+  fill: #000;
+  shape-rendering: crispEdges;
 }

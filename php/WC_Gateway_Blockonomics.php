@@ -78,15 +78,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
 
     public function init_form_fields() {
         require_once 'form_fields.php';
-        $this->form_fields = FormFields::init_form_fields($this->get_callback_url());
-    }
-
-    private function get_callback_url()
-    {
-        $callback_secret = get_option('blockonomics_callback_secret');
-        $callback_url = WC()->api_request_url('WC_Gateway_Blockonomics');
-        $callback_url = add_query_arg('secret', $callback_secret, $callback_url);
-        return $callback_url;
+        $this->form_fields = FormFields::init_form_fields(Blockonomics::get_callback_url());
     }
 
     public function generate_text_html( $key, $data ) {
@@ -121,7 +113,23 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
                         </p>
                     <?php endif; ?>
 					<legend class="screen-reader-text"><span><?php echo wp_kses_post( $data['title'] ); ?></span></legend>
+                    <?php $regenerate = 'call_backurls' === $key && isset( $_GET['blockonomics_regenerate_secret'] ); ?>
+                    <?php if ( $regenerate ) : ?><div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;"><?php endif; ?>
 					<input class="input-text regular-input <?php echo esc_attr( $data['class'] ); ?>" type="<?php echo esc_attr( $data['type'] ); ?>" name="<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" style="<?php echo esc_attr( $data['css'] ); ?>" value="<?php echo esc_attr( $this->get_option( $key ) ); ?>" placeholder="<?php echo esc_attr( $data['placeholder'] ); ?>" <?php disabled( $data['disabled'], true ); ?> <?php echo $this->get_custom_attribute_html( $data ); // WPCS: XSS ok. ?> />
+                    <?php if ( $regenerate ) : ?>
+                        <button type="button" class="button" style="margin:0;" onclick="this.style.display = 'none'; this.nextElementSibling.style.display = 'flex';"
+                            title="<?php esc_attr_e( 'Regenerate callback secret', 'blockonomics-bitcoin-payments' ); ?>" aria-label="<?php esc_attr_e( 'Regenerate callback secret', 'blockonomics-bitcoin-payments' ); ?>">
+                            <span class="dashicons dashicons-update" style="line-height: 1; vertical-align: middle;"></span>
+                        </button>
+                        <span style="display:none;flex-basis:100%;flex-wrap:wrap;align-items:center;gap:8px;">
+                            <?php esc_html_e( 'Regenerate the callback secret?', 'blockonomics-bitcoin-payments' ); ?>
+                            <span style="display:inline-flex;gap:8px;">
+                                <a class="button button-primary" style="margin:0;" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=blockonomics_regenerate_secret' ), 'blockonomics_regenerate_secret' ) ); ?>"><?php esc_html_e( 'Yes', 'blockonomics-bitcoin-payments' ); ?></a>
+                                <button type="button" class="button" style="margin:0;" onclick="this.parentNode.parentNode.style.display = 'none'; this.parentNode.parentNode.previousElementSibling.style.display = '';"><?php esc_html_e( 'Cancel', 'blockonomics-bitcoin-payments' ); ?></button>
+                            </span>
+                        </span>
+                        </div>
+                    <?php endif; ?>
                     <?php echo $this->get_description_html( $data ); // WPCS: XSS ok. ?>
 				</fieldset>
 			</td>
@@ -350,8 +358,10 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         update_option('blockonomics_partial_payments', $this->get_option('partial_payment') == 'yes' ? 1 : 0);
         update_option('blockonomics_api_key', $this->get_option('api_key'));
         update_option('blockonomics_nojs', $this->get_option('no_javascript') == 'yes' ? 1 : 0);
+        update_option('blockonomics_agentic_checkout', $this->get_option('agentic_checkout') == 'yes' ? 1 : 0);
         update_option('blockonomics_network_confirmation', $this->get_option('network_confirmation'));
-        $this->update_option('call_backurls', $this->get_callback_url());
+        update_option('blockonomics_confirming_status', $this->get_option('confirming_status'));
+        $this->update_option('call_backurls', Blockonomics::get_callback_url());
 
         return true;
     }
@@ -363,11 +373,38 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
         $blockonomics = new Blockonomics;
 
         $order_url = $blockonomics->get_order_checkout_url($order_id);
-
-        return array(
+        $result = array(
             'result'   => 'success',
             'redirect' => $order_url
         );
+
+        // Agentic checkout: Store API checkout with payment_data crypto=btc|usdt.
+        // Store API copies these keys into payment_result.payment_details
+        if (!defined('REST_REQUEST') || !REST_REQUEST || !$blockonomics->is_agentic_checkout_active()) {
+            return $result;
+        }
+        $crypto = isset($_POST['crypto']) ? sanitize_key(wp_unslash($_POST['crypto'])) : '';
+        if ($crypto) {
+            $details = $blockonomics->get_agentic_payment_details($order_id, $crypto);
+            if (array_key_exists('error', $details)) {
+                return array(
+                    'result'  => 'failure',
+                    'message' => $details['error']
+                );
+            }
+            $result = array_merge($result, $details);
+            // The payment page of the crypto the agent picked, not the crypto picker
+            $result['redirect'] = $blockonomics->get_parameterized_wc_url('page', array('show_order' => $details['order_hash'], 'crypto' => $crypto));
+        } else {
+            // No crypto picked (also the browser block checkout): point to the details route without
+            // generating an address, so agents don't fall back to scraping the payment page
+            $order_hash = $blockonomics->encrypt_hash($order_id);
+            $result['order_hash'] = $order_hash;
+            $result['cryptos'] = implode(',', array_keys($blockonomics->getCachedActiveCurrencies()));
+            $result['payment_details_url'] = rest_url(Blockonomics_Agentic_API::NAMESPACE_V1 . '/orders/' . $order_hash);
+        }
+
+        return $result;
     }
 
     // Handles requests to the blockonomics page
@@ -396,7 +433,7 @@ class WC_Gateway_Blockonomics extends WC_Payment_Gateway
             $blockonomics->redirect_finish_order($order_id);
         } else if ($get_amount && $crypto) {
             $order_id = $blockonomics->decrypt_hash($get_amount);
-            $blockonomics->get_order_amount_info($order_id, $crypto);
+            $blockonomics->get_order_amount_info($order_id, $crypto, !empty($_GET['refresh']));
         } else if ($secret && $addr && isset($status) && $value && $txid) {
             $blockonomics->process_callback($secret, $crypto, $addr, $status, $value, $txid, $rbf);
         }

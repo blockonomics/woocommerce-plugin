@@ -1,11 +1,11 @@
 === Blockonomics Bitcoin Payments ===
-**Tags:** bitcoin, bitcoin payments, usdt payments, woocommerce, cryptocurrency
-**Requires at least:** 5.6
-**Tested up to:** 7.0.2
+**Tags:** bitcoin, usdt, woocommerce, cryptocurrency, crypto
+**Requires at least:** 6.2
+**Tested up to:** 7.1.5
 **Require PHP:** 7.4
 **WC requires at least:** 7.0
-**WC tested up to:** 10.9.4
-**Stable tag:** 3.11.0
+**WC tested up to:** 11.3.1
+**Stable tag:** 3.12.0
 License: MIT
 License URI: http://opensource.org/licenses/MIT
 
@@ -67,6 +67,12 @@ Most common reason for callbacks failing is your webhost blocking incoming callb
 
 You can run our plugin in No JavaScript mode by checking the "No JavaScript checkout page" option in
 WordPress Admin Dashboard > WooCommerce > Settings > Payments > Blockonomics Bitcoin > Advanced.
+
+### How do AI agents pay with crypto on my store?
+
+Enable "Agentic checkout" in WooCommerce > Settings > Payments > Blockonomics Bitcoin > Advanced. Guest checkout must be enabled in WooCommerce.
+
+Agents check out through the WooCommerce Store API and get the payment address and amount back as JSON. Step-by-step instructions for agents are served at `/wp-json/blockonomics-agentic-checkout/v1/agent` on your store.
 == Screenshots ==
 
 1. Settings panel

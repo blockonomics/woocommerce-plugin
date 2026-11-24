@@ -3,17 +3,17 @@
  * Plugin Name: Bitcoin Payments - Blockonomics
  * Plugin URI: https://github.com/blockonomics/woocommerce-plugin
  * Description: Accept Bitcoin Payments on your WooCommerce-powered website with Blockonomics
- * Version: 3.11.0
+ * Version: 3.12.0
  * Author: Blockonomics
  * Author URI: https://www.blockonomics.co
  * License: MIT
  * Text Domain: blockonomics-bitcoin-payments
  * Domain Path: /languages/
- * Requires at least: 5.6
- * Tested up to: 7.0.4
+ * Requires at least: 6.2
+ * Tested up to: 7.1.5
  * Requires PHP: 7.4
  * WC requires at least: 7.0
- * WC tested up to: 10.9.4
+ * WC tested up to: 11.3.1
  * Requires Plugins: woocommerce
  */
 
@@ -73,20 +73,31 @@ function blockonomics_woocommerce_init()
     include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
     require_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'admin-page.php';
     require_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'class-blockonomics-setup.php';
+    require_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'class-blockonomics-agentic-api.php';
+    require_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'class-blockonomics-agent-discovery.php';
 
     add_action('admin_menu', 'add_page');
     add_action('init', 'load_plugin_translations');
     add_action('woocommerce_order_details_after_order_table', 'nolo_custom_field_display_cust_order_meta', 10, 1);
     add_action('woocommerce_email_customer_details', 'nolo_bnomics_woocommerce_email_customer_details', 10, 1);
+    add_action('woocommerce_email_order_details', 'blockonomics_email_remaining_amount', 5, 4);
     add_filter('woocommerce_get_checkout_payment_url','update_payment_url_on_underpayments',10,2);
-    add_filter('woocommerce_cancel_unpaid_order', 'blockonomics_skip_auto_cancel', 10, 2);
+    add_filter('woocommerce_order_needs_payment', 'blockonomics_order_needs_payment', 10, 2);
+    add_filter('woocommerce_cancel_unpaid_order', 'blockonomics_no_auto_cancel_after_payment', 10, 2);
+    if (get_option('blockonomics_3_12_upgrade_time') === false) {
+        update_option('blockonomics_3_12_upgrade_time', time());
+    }
     add_filter('woocommerce_payment_gateways', 'woocommerce_add_blockonomics_gateway');
     add_action( 'woocommerce_cart_calculate_fees', 'apply_bitcoin_discount', 20, 1 );
+    add_action('template_redirect', 'blockonomics_remember_preselected_payment_method');
+    add_action('wp_enqueue_scripts', 'blockonomics_refresh_classic_totals', 20);
     add_shortcode('blockonomics_payment', 'add_payment_page_shortcode');
     add_action('wp_enqueue_scripts', 'bnomics_register_stylesheets');
     add_action('wp_enqueue_scripts', 'bnomics_register_scripts');
     add_filter("wp_list_pages_excludes", "bnomics_exclude_pages");
     add_action('admin_menu', 'blockonomics_add_admin_menu');
+    add_action('rest_api_init', array('Blockonomics_Agentic_API', 'register_routes'));
+    Blockonomics_Agent_Discovery::init();
 
     if ( is_HPOS_active()) {
         add_action('woocommerce_order_list_table_restrict_manage_orders', 'filter_orders' , 20 );
@@ -110,6 +121,7 @@ function blockonomics_woocommerce_init()
 
     add_action( 'admin_enqueue_scripts', 'blockonomics_enqueue_custom_admin_style' );
     add_action( 'wp_ajax_test_setup', 'blockonomics_test_setup' );
+    add_action( 'admin_post_blockonomics_regenerate_secret', 'blockonomics_regenerate_secret' );
     add_action( 'add_meta_boxes', 'blockonomics_add_attach_hash_meta_box', 10, 2 );
     add_action( 'woocommerce_process_shop_order_meta', 'blockonomics_handle_attach_hash' );
 
@@ -185,6 +197,7 @@ function blockonomics_woocommerce_init()
 
             wp_localize_script('blockonomics-admin-scripts', 'blockonomics_params', array(
                 'ajaxurl' => admin_url( 'admin-ajax.php' ),
+                'test_setup_nonce' => wp_create_nonce( 'blockonomics_test_setup' ),
                 'plugin_url' => plugins_url('/', __FILE__)
             ));
 
@@ -198,10 +211,13 @@ function blockonomics_woocommerce_init()
     }
 
     function blockonomics_test_setup() {
+        check_ajax_referer('blockonomics_test_setup');
+        if (!current_user_can('manage_woocommerce')) {
+            wp_send_json(array('error' => __('You are not allowed to do this.', 'blockonomics-bitcoin-payments')), 403);
+        }
         include_once plugin_dir_path(__FILE__) . 'php' . DIRECTORY_SEPARATOR . 'Blockonomics.php';
         $blockonomics = new Blockonomics;
         wp_send_json($blockonomics->testSetup());
-        wp_die();
     }
 
     function add_payment_page_shortcode() {
@@ -224,6 +240,7 @@ function blockonomics_woocommerce_init()
             $order_id = $blockonomics->decrypt_hash($show_order);
             return $blockonomics->load_checkout_template($order_id, $crypto);
         } else if ($select_crypto) {
+            $blockonomics->redirect_if_nothing_to_pay($blockonomics->decrypt_hash($select_crypto));
             return $blockonomics->load_blockonomics_template('crypto_options');
         }
     }
@@ -236,7 +253,13 @@ function blockonomics_woocommerce_init()
         if ( isset( $_POST['payment_method'] ) ) {
             return sanitize_text_field( $_POST['payment_method'] );
         }
-        
+
+        // Block checkout and agents send the method as JSON
+        $json = json_decode(file_get_contents('php://input'), true);
+        if (!empty($json['payment_method'])) {
+            return sanitize_text_field($json['payment_method']);
+        }
+
         // Try WooCommerce session
         if ( WC()->session ) {
             $session_method = WC()->session->get( 'chosen_payment_method' );
@@ -251,6 +274,27 @@ function blockonomics_woocommerce_init()
         }
         
         return '';
+    }
+
+    // Block checkout preselects a payment method but tells the server only when the customer changes it
+    function blockonomics_remember_preselected_payment_method() {
+        if (!is_checkout() || !WC()->session || WC()->session->get('chosen_payment_method')) {
+            return;
+        }
+        // A saved payment method is preselected ahead of the first method
+        if (is_user_logged_in() && WC_Payment_Tokens::get_customer_tokens(get_current_user_id())) {
+            return;
+        }
+        if (array_key_first(WC()->payment_gateways->get_available_payment_gateways()) === 'blockonomics') {
+            WC()->session->set('chosen_payment_method', 'blockonomics');
+        }
+    }
+
+    // Classic checkout does not refresh its totals when the payment method changes
+    function blockonomics_refresh_classic_totals() {
+        if (is_checkout() && floatval(get_option('blockonomics_bitcoin_discount', 0)) > 0) {
+            wp_add_inline_script('wc-checkout', "jQuery(function ($) { $('form.checkout').on('change', 'input[name=\"payment_method\"]', function () { $(document.body).trigger('update_checkout'); }); });");
+        }
     }
 
     function apply_bitcoin_discount( $cart ) {
@@ -277,6 +321,32 @@ function blockonomics_woocommerce_init()
         }
     }
 
+
+    // Never return false for a pending order: WooCommerce checkout would complete it unpaid
+    function blockonomics_order_needs_payment($needs_payment, $order) {
+        if ($needs_payment || !$order->has_status('on-hold') || $order->get_payment_method() !== 'blockonomics') {
+            return $needs_payment;
+        }
+        $blockonomics = new Blockonomics();
+        $order_id = $order->get_id();
+        return $blockonomics->is_partial_payments_active()
+            && $blockonomics->has_confirmed_payment($order_id)
+            && !$blockonomics->has_confirming_payment($order_id)
+            && $blockonomics->get_order_paid_fiat($order_id) < (float) $order->get_total();
+    }
+
+    // Keep Hold Stock auto-cancel away from orders with a payment
+    function blockonomics_no_auto_cancel_after_payment($cancel, $order) {
+        if (!$cancel || !$order || $order->get_payment_method() !== 'blockonomics') {
+            return $cancel;
+        }
+        $created = $order->get_date_created();
+        if ($created && $created->getTimestamp() < (int) get_option('blockonomics_3_12_upgrade_time', 0)) {
+            return false;
+        }
+        $blockonomics = new Blockonomics();
+        return !$blockonomics->has_confirming_payment($order->get_id()) && !$blockonomics->has_confirmed_payment($order->get_id());
+    }
 
     /**
      * Redriect to the checkout page  
@@ -306,20 +376,6 @@ function blockonomics_woocommerce_init()
 
         return esc_url($blockonomics->get_order_checkout_url($order_id));
 
-    }
-
-    /**
-     * Prevent WooCommerce from auto-cancelling pending Blockonomics orders.
-     *
-     * Crypto confirmations can take longer than the WC "Hold Stock" timeout
-     * (default 60 min). We rely on Blockonomics callbacks to move the order
-     * to processing/failed; until then it must remain in pending.
-     */
-    function blockonomics_skip_auto_cancel($cancel, $order) {
-        if ($order && $order->get_payment_method() === 'blockonomics') {
-            return false;
-        }
-        return $cancel;
     }
 
     /**
@@ -386,6 +442,25 @@ function blockonomics_woocommerce_init()
         }
     }
 
+    function blockonomics_regenerate_secret()
+    {
+        check_admin_referer('blockonomics_regenerate_secret');
+        if (!current_user_can('manage_woocommerce')) {
+            wp_die(esc_html__('You are not allowed to do this.', 'blockonomics-bitcoin-payments'));
+        }
+        $old_secret = get_option('blockonomics_callback_secret');
+        delete_option('blockonomics_callback_secret');
+        delete_option('blockonomics_store_name');
+        delete_option('blockonomics_enabled_cryptos');
+        generate_secret();
+        wc_get_logger()->info('Callback secret regenerated: old=' . substr($old_secret, 0, 6) . '... new=' . substr(get_option('blockonomics_callback_secret'), 0, 6) . '...', array('source' => 'blockonomics'));
+        $settings = get_option('woocommerce_blockonomics_settings', array());
+        $settings['call_backurls'] = Blockonomics::get_callback_url();
+        update_option('woocommerce_blockonomics_settings', $settings);
+        wp_safe_redirect(admin_url('admin.php?page=wc-settings&tab=checkout&section=blockonomics&secret_regenerated'));
+        exit;
+    }
+
     function bnomics_display_payment_details($order, $transactions, $email=false)
     {
         $blockonomics = new Blockonomics;
@@ -397,16 +472,10 @@ function blockonomics_woocommerce_init()
         foreach ($transactions as $transaction) {
 
             $crypto = strtolower($transaction['crypto']);
-            if ( $crypto === 'bch' ) {
-                $txid_url = Blockonomics::BCH_BASE_URL . '/api/tx?txid=' . $transaction['txid'] . '&addr=' . $transaction['address'];
-            } elseif ( $crypto === 'usdt' ) {
-                $txid_url = 'https://www.etherscan.io/tx/' . $transaction['txid'];
-            } else {
-                $txid_url = Blockonomics::BASE_URL . '/#/search?q=' . $transaction['txid'] . '&addr=' . $transaction['address'];
-            }
+            $txid_url = $blockonomics->get_explorer_url($crypto, $transaction['address'], $transaction['txid']);
 
             $output .=  '<tr><td scope="row">';
-            $output .=  '<a style="word-wrap: break-word;word-break: break-all;" href="' . $txid_url . '">' . $transaction['txid'] . '</a></td>';
+            $output .=  '<a style="word-wrap: break-word;word-break: break-all;" href="' . esc_url($txid_url) . '">' . esc_html($transaction['txid']) . '</a></td>';
             $formatted_paid_fiat = ($transaction['payment_status'] == '2') ? wc_price($transaction['paid_fiat']) : 'Processing';
             $output .= '<td>' . $formatted_paid_fiat . '</td></tr>';
 
@@ -442,6 +511,35 @@ function blockonomics_woocommerce_init()
     {
         bnomics_display_tx_info($order);
     }
+    function blockonomics_email_remaining_amount($order, $sent_to_admin, $plain_text, $email)
+    {
+        if (!$email || $email->id !== 'customer_invoice' || $order->get_payment_method() !== 'blockonomics' || !$order->needs_payment()) {
+            return;
+        }
+        $blockonomics = new Blockonomics();
+        $paid = $blockonomics->get_order_paid_fiat($order->get_id());
+        $remaining = (float) $order->get_total() - $paid;
+        if ($paid <= 0 || $remaining <= 0) {
+            return;
+        }
+        $price_args = array('currency' => $order->get_currency());
+        $summary = sprintf(
+            /* translators: 1: amount received, 2: order total, 3: amount still due */
+            __('We received %1$s of %2$s. %3$s is still due.', 'blockonomics-bitcoin-payments'),
+            wc_price($paid, $price_args), wc_price($order->get_total(), $price_args), wc_price($remaining, $price_args)
+        );
+        /* translators: %s: amount still due */
+        $link_text = sprintf(__('Pay remaining %s', 'blockonomics-bitcoin-payments'), wp_strip_all_tags(wc_price($remaining, $price_args)));
+        $pay_url = $order->get_checkout_payment_url();
+
+        if ($plain_text) {
+            echo html_entity_decode(wp_strip_all_tags($summary . "\n" . $link_text . ': ' . $pay_url), ENT_QUOTES) . "\n\n";
+            return;
+        }
+        echo '<p>' . wp_kses_post($summary) . '</p>';
+        echo '<p><a href="' . esc_url($pay_url) . '" style="font-weight: bold;">' . esc_html($link_text) . '</a></p>';
+    }
+
     function nolo_bnomics_woocommerce_email_customer_details($order)
     {
         bnomics_display_tx_info($order);
@@ -453,9 +551,8 @@ function blockonomics_woocommerce_init()
 
     function bnomics_register_scripts(){
         wp_register_script( 'reconnecting-websocket', plugins_url('js/vendors/reconnecting-websocket.min.js', __FILE__), array(), get_plugin_data( __FILE__ )['Version'], array( 'strategy' => 'defer' ) );
-        wp_register_script( 'qrious', plugins_url('js/vendors/qrious.min.js', __FILE__), array(), get_plugin_data( __FILE__ )['Version'], array( 'strategy' => 'defer' ) );
         wp_register_script( 'copytoclipboard', plugins_url('js/vendors/copytoclipboard.js', __FILE__), array(), get_plugin_data( __FILE__ )['Version'], array( 'strategy' => 'defer' ) );
-        wp_register_script( 'bnomics-checkout', plugins_url('js/checkout.js', __FILE__), array('reconnecting-websocket', 'qrious','copytoclipboard'), get_plugin_data( __FILE__ )['Version'], array('in_footer' => true, 'strategy' => 'defer'  ) );  
+        wp_register_script( 'bnomics-checkout', plugins_url('js/checkout.js', __FILE__), array('reconnecting-websocket', 'copytoclipboard'), get_plugin_data( __FILE__ )['Version'], array('in_footer' => true, 'strategy' => 'defer'  ) );
         wp_register_script( 'bnomics-web3-checkout', "https://www.blockonomics.co/js/web3-payment.js", False, get_plugin_data( __FILE__ )['Version'], array('in_footer' => true, 'strategy' => 'defer'  ) );
     }
 }
@@ -608,6 +705,9 @@ function blockonomics_plugin_activation() {
         $html .= '</div>';
         echo $html;
 	}
+  if (isset($_GET['secret_regenerated'], $_GET['section']) && $_GET['section'] === 'blockonomics') {
+        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Callback secret regenerated. Crypto checkout is paused until you update your callback URL on blockonomics.co and run Test Setup.', 'blockonomics-bitcoin-payments') . '</p></div>';
+  }
 }
 
 // On uninstallation, clear every option the plugin has set
@@ -625,6 +725,9 @@ function blockonomics_uninstall_hook() {
     // blockonomics_lite is only for db version below 1.3
     delete_option('blockonomics_lite');
     delete_option('blockonomics_nojs');
+    delete_option('blockonomics_confirming_status');
+    delete_option('blockonomics_3_12_upgrade_time');
+    delete_option('blockonomics_agentic_checkout');
     delete_option('blockonomics_network_confirmation');
     delete_option('blockonomics_partial_payments');
     delete_option('woocommerce_blockonomics_settings');

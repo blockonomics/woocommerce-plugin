@@ -27,7 +27,7 @@ class FormFields {
 
         $form_fields = array(
             'enabled' => array(
-                'title' => __('Checkout<p class="block-title-desc">Payment method settings for the woocomerce checkout page</p>', 'blockonomics-bitcoin-payments'),
+                'title' => __('Checkout<p class="block-title-desc">Payment method settings for the WooCommerce checkout page</p>', 'blockonomics-bitcoin-payments'),
                 'subtitle' => __('Enable Blockonomics plugin', 'blockonomics-bitcoin-payments'),
                 'type' => 'checkbox',
                 'label' => __('Enable Blockonomics as a payment method during checkout', 'blockonomics-bitcoin-payments'),
@@ -64,13 +64,25 @@ class FormFields {
         );
 
 
-        $form_fields['bitcoin_discount'] = array(
+        $agentic_description = __('Let AI agents place orders and get crypto payment details. The human or the agent then pays.', 'blockonomics-bitcoin-payments');
+        if (get_option('woocommerce_enable_guest_checkout') !== 'yes') {
+            $agentic_description .= '<br/><strong>' . __('Not active: guest checkout is off.', 'blockonomics-bitcoin-payments') . '</strong> <a href="' . esc_url(admin_url('admin.php?page=wc-settings&tab=account')) . '">' . __('Turn it on', 'blockonomics-bitcoin-payments') . '</a>';
+        }
+        $form_fields['agentic_checkout'] = array(
             'title' => __('Advanced<p class="block-title-desc">Setting for advanced control</p>', 'blockonomics-bitcoin-payments'),
+            'type' => 'checkbox',
+            'subtitle' => __('Agentic Checkout', 'blockonomics-bitcoin-payments'),
+            'label' => __('Enable Agentic checkout', 'blockonomics-bitcoin-payments'),
+            'description' => $agentic_description,
+            'default' => get_option('blockonomics_agentic_checkout', 1) == 1 ? 'yes' : 'no',
+            'add_divider' => true,
+        );
+        $form_fields['bitcoin_discount'] = array(
+            'title' => __('', 'blockonomics-bitcoin-payments'),
             'type' => 'number',
             'description' => __('Offer customers a discount for paying via crypto. Maximum 20%', 'blockonomics-bitcoin-payments'),
             'subtitle' => __('Crypto Payment Discount %', 'blockonomics-bitcoin-payments'),
             'default' => get_option('blockonomics_bitcoin_discount', 0),
-            'add_divider' => true,
             'placeholder' => '',
             'custom_attributes' => ['step' => '0.1', 'min' => '0', 'max' => '20']
         );
@@ -79,7 +91,7 @@ class FormFields {
             'type' => 'number',
             'description' => __('Increase live fiat to BTC rate by small percent (0-4%)', 'blockonomics-bitcoin-payments'),
             'subtitle' => __('Extra Currency Rate Margin %', 'blockonomics-bitcoin-payments'),
-            'default' => get_option('blockonomics_extra_margin', 0),
+            'default' => get_option('blockonomics_margin', 0),
             'placeholder' => __('Extra Currency Rate Margin %', 'blockonomics-bitcoin-payments'),
             'custom_attributes' => ['step' => '0.01', 'min' => '0', 'max' => '4']
         );
@@ -127,14 +139,25 @@ class FormFields {
                 '0' => __('0', 'blockonomics-bitcoin-payments'),
             ),
         );
+        $form_fields['confirming_status'] = array(
+            'title' => __('', 'blockonomics-bitcoin-payments'),
+            'subtitle' => __('Order status while a payment is confirming', 'blockonomics-bitcoin-payments'),
+            'type' => 'select',
+            'description' => __('On hold reduces stock and sends order emails when a payment is detected.', 'blockonomics-bitcoin-payments') . ' <a href="https://woocommerce.com/document/managing-orders/order-statuses/" target="_blank">' . __('About order statuses', 'blockonomics-bitcoin-payments') . '</a>',
+            'default' => get_option('blockonomics_confirming_status', 'pending'),
+            'options' => array(
+                'pending' => __('Pending payment', 'blockonomics-bitcoin-payments'),
+                'on-hold' => __('On hold', 'blockonomics-bitcoin-payments'),
+            ),
+        );
         $form_fields['call_backurls'] = array(
             'title' => __('', 'blockonomics-bitcoin-payments'),
             'type' => 'text',
-            'description' => __('You need this callback URL to setup multiple stores', 'blockonomics-bitcoin-payments'),
+            'description' => __('Every store on blockonomics.co must have its own callback secret.', 'blockonomics-bitcoin-payments'),
             'subtitle' => __('Callback URL', 'blockonomics-bitcoin-payments'),
             'default' => $callback_url,
             'disabled' => true,
-            'css' => 'width:100%;',
+            'css' => 'width:100%;flex:1 1 200px;min-width:0;',
         );
         return $form_fields;
     }
