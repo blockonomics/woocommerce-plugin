@@ -710,6 +710,68 @@ function blockonomics_plugin_activation() {
   }
 }
 
+/**
+ * Ask the merchant for a wordpress.org review on the Dashboard and the Blockonomics settings page.
+ * blockonomics_review_show_after: time after which to show the notice, or 'done' to never show it again.
+ * blockonomics_review_shown: how many times the merchant has responded to the notice.
+ */
+function blockonomics_review_notice() {
+    if (!current_user_can('manage_options')) {
+        return;
+    }
+
+    $show_after = get_option('blockonomics_review_show_after');
+    if ($show_after === false) {
+        // First admin page load, start the 7 day wait. This also covers merchants who just updated the plugin.
+        add_option('blockonomics_review_show_after', time() + 7 * DAY_IN_SECONDS);
+        return;
+    }
+    if ($show_after === 'done' || time() < (int) $show_after) {
+        return;
+    }
+
+    $tab = isset($_GET['tab']) ? sanitize_key($_GET['tab']) : '';
+    $section = isset($_GET['section']) ? sanitize_key($_GET['section']) : '';
+    $is_settings_page = ($tab === 'checkout' && $section === 'blockonomics');
+    $screen = get_current_screen();
+    if (!$screen || ($screen->id !== 'dashboard' && !$is_settings_page)) {
+        return;
+    }
+
+    $version = get_plugin_data(__FILE__)['Version'];
+    $logo_url = plugins_url('img/logo.png', __FILE__);
+    include plugin_dir_path(__FILE__) . 'templates' . DIRECTORY_SEPARATOR . 'blockonomics_review_notice.php';
+
+    wp_enqueue_style('bnomics-review-notice', plugins_url('css/review-notice.css', __FILE__), array(), $version);
+    wp_enqueue_script('bnomics-review-notice', plugins_url('js/review-notice.js', __FILE__), array(), $version, true);
+    wp_localize_script('bnomics-review-notice', 'bnomicsReview', array(
+        'ajaxurl' => admin_url('admin-ajax.php'),
+        'nonce'   => wp_create_nonce('blockonomics_review')
+    ));
+}
+add_action('admin_notices', 'blockonomics_review_notice');
+
+// Save what the merchant chose on the review notice
+function blockonomics_review_notice_ajax() {
+    check_ajax_referer('blockonomics_review', 'nonce');
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error(null, 403);
+    }
+
+    $review_action = isset($_POST['review_action']) ? sanitize_text_field(wp_unslash($_POST['review_action'])) : '';
+    $responses = (int) get_option('blockonomics_review_shown', 0) + 1;
+    update_option('blockonomics_review_shown', $responses);
+
+    // Review left, or the 3rd response: never show again. Anything else: snooze for 14 days.
+    if ($review_action === 'done' || $responses >= 3) {
+        update_option('blockonomics_review_show_after', 'done');
+    } else {
+        update_option('blockonomics_review_show_after', time() + 14 * DAY_IN_SECONDS);
+    }
+    wp_send_json_success();
+}
+add_action('wp_ajax_blockonomics_review', 'blockonomics_review_notice_ajax');
+
 // On uninstallation, clear every option the plugin has set
 register_uninstall_hook( __FILE__, 'blockonomics_uninstall_hook' );
 function blockonomics_uninstall_hook() {
@@ -735,6 +797,8 @@ function blockonomics_uninstall_hook() {
     delete_option('blockonomics_enabled_cryptos');
     delete_option('blockonomics_temp_wallet_id');
     delete_option('blockonomics_temp_wallet_ids');
+    delete_option('blockonomics_review_show_after');
+    delete_option('blockonomics_review_shown');
 
     global $wpdb;
     // drop blockonomics_orders & blockonomics_payments on uninstallation
