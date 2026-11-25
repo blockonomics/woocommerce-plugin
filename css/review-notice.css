@@ -1,0 +1,44 @@
+/* wp.org review notice */
+#bnomics-review-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    background: #fff;
+    border: 1px solid #40C381;
+    border-left: 8px solid #40C381;
+    border-radius: 14px;
+    box-shadow: none;
+    padding: 18px 48px 18px 20px;
+}
+
+#bnomics-review-notice .bnomics-review-logo {
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+}
+
+#bnomics-review-notice .bnomics-review-text {
+    margin: 0 0 12px;
+    padding: 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #1d2327;
+}
+
+#bnomics-review-notice .bnomics-review-links a {
+    display: block;
+    margin-top: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #2563eb;
+    text-decoration: underline;
+}
+
+#bnomics-review-notice .bnomics-review-links a:first-child {
+    margin-top: 0;
+}
+
+#bnomics-review-notice .bnomics-review-links a:hover,
+#bnomics-review-notice .bnomics-review-links a:focus {
+    color: #1e40af;
+}
